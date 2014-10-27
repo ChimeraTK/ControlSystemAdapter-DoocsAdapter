@@ -5,32 +5,6 @@
 
 
 
-/**
- * simplified DOOCS property model for tests
- * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_int
- * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/d_fct.cc?view=markup -> D_int::set_value
- */
-class D_int
-{
-
-	int				value_;
-	
-public:
-	D_int() : value_(0) {}
-
-	virtual void	set_value (int val)
-					{
-						value_ = val;
-					}
-
-	virtual int		value ()
-					{
-						return value_;
-					}
-};
-
-
-
 
 class DOOCSPVAdapter
 {
@@ -43,7 +17,7 @@ class DOOCSPVAdapter
 
 public:
 
-	DOOCSPVAdapter () {};
+	DOOCSPVAdapter () : _t(0) {};
 
 	void	setOnSetCallbackFunction ( boost::function < void (int const & , int const & ) > onSetCallbackFunction )
 			{
@@ -95,6 +69,73 @@ public:
 	virtual ~ DOOCSPVAdapter () {};
 
 };
+
+
+
+
+
+
+class EqFct {}; // stub
+
+
+/**
+ * simplified DOOCS property model for tests
+ * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_int
+ * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/d_fct.cc?view=markup -> D_int::set_value
+ */
+class D_int
+{
+
+protected:
+	int				value_;
+	
+public:
+	//~ D_int() : value_(0) {}
+    
+    D_int (const char *pn, EqFct *ef) : value_(0) {}
+    D_int (const char *pn)            : value_(0) {}
+
+
+	virtual void	set_value (int val)
+					{
+						value_ = val;
+					}
+
+	virtual int		value ()
+					{
+						return value_;
+					}
+};
+
+
+
+
+
+class myD_int : public D_int
+{
+    
+protected:
+    DOOCSPVAdapter * doocs_adapter;     // DOOCS process variable adapter handler
+	
+public:
+    
+    myD_int (const char *pn, EqFct *ef, DOOCSPVAdapter * _da) : doocs_adapter(_da), D_int(pn, ef)
+    {
+        doocs_adapter->setOnSetCallbackFunction(boost::bind (&D_int::set_value, this, _1));     // original set_value() !!!
+    }
+
+	virtual void	set_value (int val)
+					{
+						D_int::set_value(val);
+                        doocs_adapter->setWithoutCallback(val);
+					}
+
+};
+
+
+
+
+
 
 #endif /* __doocs_process_variable_adapter__ */
 
