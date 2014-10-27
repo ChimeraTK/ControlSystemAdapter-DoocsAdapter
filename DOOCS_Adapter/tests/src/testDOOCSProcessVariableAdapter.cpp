@@ -4,6 +4,7 @@ using namespace boost::unit_test;
 
 
 #include "DOOCSProcessVariableAdapter.hpp"
+#include "myD_int_mock.hpp"
 
 
 
