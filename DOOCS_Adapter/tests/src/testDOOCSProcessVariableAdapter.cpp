@@ -224,6 +224,68 @@ struct CbSyncTestFixture {
 
 BOOST_FIXTURE_TEST_SUITE( test_sync, CbSyncTestFixture )
 
+BOOST_AUTO_TEST_CASE( test_accesors_count )
+{   // values are suitable to the model where both entities keep a value copy of their own
+    
+    doocs_adapter->get  ();  // "reset"
+    mydint       ->value();
+
+    BOOST_CHECK( mydint->__value_f_call_counter           == 1 );
+    BOOST_CHECK( mydint->__set_value_f_call_counter       == 0 );
+    BOOST_CHECK( mydint->__on_get_callback_f_call_counter == 0 );
+    BOOST_CHECK( mydint->__on_set_callback_f_call_counter == 0 );
+    
+
+    doocs_adapter->set(1);
+    doocs_adapter->get  ();
+    mydint       ->value();
+
+    BOOST_CHECK( mydint->__value_f_call_counter           == 2 );
+    BOOST_CHECK( mydint->__set_value_f_call_counter       == 1 );
+    BOOST_CHECK( mydint->__on_get_callback_f_call_counter == 0 );
+    BOOST_CHECK( mydint->__on_set_callback_f_call_counter == 1 );
+    
+
+    doocs_adapter->set(0);
+    doocs_adapter->get  ();
+    mydint       ->value();
+
+    BOOST_CHECK( mydint->__value_f_call_counter           == 3 );
+    BOOST_CHECK( mydint->__set_value_f_call_counter       == 2 );
+    BOOST_CHECK( mydint->__on_get_callback_f_call_counter == 0 );
+    BOOST_CHECK( mydint->__on_set_callback_f_call_counter == 2 );
+    
+
+    mydint       ->set_value(1);
+    mydint       ->value();
+    doocs_adapter->get  ();
+
+    BOOST_CHECK( mydint->__value_f_call_counter           == 4 );
+    BOOST_CHECK( mydint->__set_value_f_call_counter       == 3 );
+    BOOST_CHECK( mydint->__on_get_callback_f_call_counter == 0 );
+    BOOST_CHECK( mydint->__on_set_callback_f_call_counter == 2 );
+    
+
+    mydint       ->set_value(0);
+    mydint       ->value();
+    doocs_adapter->get  ();
+	
+    BOOST_CHECK( mydint->__value_f_call_counter           == 5 );
+    BOOST_CHECK( mydint->__set_value_f_call_counter       == 4 );
+    BOOST_CHECK( mydint->__on_get_callback_f_call_counter == 0 );
+    BOOST_CHECK( mydint->__on_set_callback_f_call_counter == 2 );
+    
+
+
+	doocs_adapter->set(0);
+
+    BOOST_CHECK( mydint->__value_f_call_counter           == 5 );
+    BOOST_CHECK( mydint->__set_value_f_call_counter       == 5 );
+    BOOST_CHECK( mydint->__on_get_callback_f_call_counter == 0 );
+    BOOST_CHECK( mydint->__on_set_callback_f_call_counter == 3 );
+    
+}
+
 BOOST_AUTO_TEST_CASE( test_sync1 )
 {
     
