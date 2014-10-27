@@ -210,7 +210,8 @@ struct CbSyncTestFixture {
 
 	CbSyncTestFixture() {
         doocs_adapter = new DOOCSPVAdapter();
-        mydint        = new myD_int( NULL, NULL, doocs_adapter );
+        mydint        = new myD_int( NULL, NULL );
+        mydint->init (doocs_adapter);
     }
     
 	~CbSyncTestFixture() {

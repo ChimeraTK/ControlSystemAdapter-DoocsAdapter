@@ -57,13 +57,15 @@ public:
     unsigned int __on_set_callback_f_call_counter;                       // __
     unsigned int __on_get_callback_f_call_counter;                       // __
 
-    myD_int (const char *pn, EqFct *ef, DOOCSPVAdapter * _da) :  doocs_adapter(_da),
-                                                                 D_int(pn, ef),
-                                                                 __on_set_callback_f_call_counter(0),
-                                                                 __on_get_callback_f_call_counter(0)
-    {
-        doocs_adapter->setOnSetCallbackFunction(boost::bind (&myD_int::on_set_callback, this, _1));     // here want only to do a set. original set_value() does exactly this also
-    }
+    myD_int (const char *pn, EqFct *ef) :    D_int(pn, ef),
+                                             __on_set_callback_f_call_counter(0),
+                                             __on_get_callback_f_call_counter(0)    {}
+
+    virtual void    init (DOOCSPVAdapter * _da)
+                    {
+                        doocs_adapter = _da;
+                        doocs_adapter->setOnSetCallbackFunction(boost::bind (&myD_int::on_set_callback, this, _1));     // here want only to do a set. original set_value() does exactly this also
+                    }
 
 	virtual void	set_value (int val)
 					{
