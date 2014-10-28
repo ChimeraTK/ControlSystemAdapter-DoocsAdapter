@@ -2,6 +2,7 @@
 #define __myd_int__
 
 
+#include <boost/bind.hpp>
 
 
 
