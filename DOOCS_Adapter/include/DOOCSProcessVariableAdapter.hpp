@@ -1,80 +1,61 @@
-#ifndef __doocs_process_variable_adapter__
-#define __doocs_process_variable_adapter__
+#ifndef __dpva__
+#define __dpva__
 
 #include <boost/function.hpp>
 
+#include "ProcessVariable.h"
 
 
-
-
-class DOOCSPVAdapter
+class DOOCSPVAdapter : public ProcessVariable < int >
 {
-	
-	int _t;
-	
-	boost::function < void (int const &, int const & ) >	_onSetCallbackFunction;	// (newValue, oldValue)
-	boost::function < int () >								_onGetCallbackFunction;
-
-
+protected:
+    
+    myD_int * mydint;
+    
 public:
+    
+    DOOCSPVAdapter (myD_int * _mydint) : mydint(_mydint) {};
+    
 
-	DOOCSPVAdapter () : _t(0) {};
+    void setOnSetCallbackFunction( boost::function< void (int const & /*newValue*/, int const & /*oldValue*/) > onSetCallbackFunction)
+    {
+        mydint->setOnSetCallbackFunction(onSetCallbackFunction);
+    }
+    void setOnGetCallbackFunction( boost::function< int () > onGetCallbackFunction )
+    {
+        mydint->setOnGetCallbackFunction(onGetCallbackFunction);
+    }
+    
+    void clearOnSetCallbackFunction() { mydint->clearOnSetCallbackFunction(); }
+    void clearOnGetCallbackFunction() { mydint->clearOnGetCallbackFunction(); }
+    
+    void set(int const & t)
+    {
+        mydint->set_value(t);
+    }
+    
+      
+    int get()
+    {
+        return mydint->value();
+    }
+    
+    // stubs
+    void setWithoutCallback(int const & t) {};
+    int  getWithoutCallback() const { return -1;}
+    
 
-	void	setOnSetCallbackFunction ( boost::function < void (int const & , int const & ) > onSetCallbackFunction )
-			{
-				_onSetCallbackFunction = onSetCallbackFunction;
-			}
+    // --- the rest (incl. operators) will follow ---
+    
+    //~ void setWithoutCallback(ProcessVariable<int> const & other) {};
+    //~ void set(ProcessVariable<int> const & other) {};
+    //~ operator int () const {};
+    //~ DOOCSPVAdapter & operator=(int const & t);
+    //~ DOOCSPVAdapter & operator=(DOOCSPVAdapter const & other);
 
-	void	setOnGetCallbackFunction (boost::function < int () > onGetCallbackFunction)
-			{
-				_onGetCallbackFunction = onGetCallbackFunction;
-			}
-	
-	void	clearOnSetCallbackFunction ()
-			{
-				_onSetCallbackFunction.clear ();
-			}
-	void	clearOnGetCallbackFunction ()
-			{
-				_onGetCallbackFunction.clear ();
-			}
-	
-	void	set (int const &t)
-			{
-				int oldValue = _t;
-				_t = t;
-				if (_onSetCallbackFunction)
-				{
-					_onSetCallbackFunction (t, oldValue);
-				}
-			}
-	void	setWithoutCallback (int const &t)
-			{
-				_t = t;
-			}
-
-	int		get ()
-			{
-				if (_onGetCallbackFunction)
-				{
-					_t = _onGetCallbackFunction ();
-				}
-				return _t;
-			}
-	int		getWithoutCallback () const
-			{
-				return _t;
-			}
-
-
-	virtual ~ DOOCSPVAdapter () {};
 
 };
 
 
-
-
-
-
-#endif /* __doocs_process_variable_adapter__ */
+#endif /* __dpva__ */
 

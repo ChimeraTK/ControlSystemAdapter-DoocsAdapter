@@ -3,15 +3,17 @@
 
 
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 
 
 class myD_int : public D_int
 {
+private:
+	boost::function < void (int const &, int const & ) >	_onSetCallbackFunction;	// (newValue, oldValue)
+	boost::function < int () >								_onGetCallbackFunction;
     
-protected:
-    DOOCSPVAdapter * doocs_adapter;     // DOOCS process variable adapter handler
-	
+    
 public:
     
     unsigned int __on_set_callback_f_call_counter;                       // __
@@ -21,36 +23,50 @@ public:
                                              __on_set_callback_f_call_counter(0),
                                              __on_get_callback_f_call_counter(0)    {}
 
-    virtual void    init (DOOCSPVAdapter * _da)
-                    {
-                        doocs_adapter = _da;
-                        doocs_adapter->setOnSetCallbackFunction(boost::bind (&myD_int::on_set_callback, this, _1));     // here want only to do a set. original set_value() does exactly this also
-                    }
-
-	virtual void	set_value (int val)
-					{
-						D_int::set_value(val);
-                        doocs_adapter->setWithoutCallback(val);
-					}
-	virtual int		value ()
-					{
-                        // anything else needed here?
-                        // I guess not, if the values are to be remembered by both the PVA and the DOOCS type
-						return D_int::value();
-					}
 
 
-                    // callbacks
-	void    	    on_set_callback (int val)
-					{
-                        __on_set_callback_f_call_counter++;              // __
-						D_int::set_value(val);
-					}
-	int             on_get_callback ()
-					{
-                        __on_get_callback_f_call_counter++;              // __
-						return D_int::value();
-					}
+    void setOnSetCallbackFunction (boost::function < void (int const &, int const & ) > onSetCallbackFunction)
+         {
+             _onSetCallbackFunction = onSetCallbackFunction;
+         }
+
+
+    void setOnGetCallbackFunction (boost::function < int () > onGetCallbackFunction)
+         {
+             _onGetCallbackFunction = onGetCallbackFunction;
+         }
+
+
+    void clearOnSetCallbackFunction ()
+         {
+             _onSetCallbackFunction.clear ();
+         }
+
+
+    void clearOnGetCallbackFunction ()
+         {
+             _onGetCallbackFunction.clear ();
+         }
+
+
+
+	void	set_value (int val)
+            {
+                D_int::set_value(val);
+                if (_onSetCallbackFunction)
+                {
+                    _onSetCallbackFunction (val, val);
+                }
+            }
+	int		value ()
+            {
+                if (_onGetCallbackFunction)
+                {
+                    int ongetcallbackresult = _onGetCallbackFunction ();
+                    // doing sth based on ongetcallbackresult ???
+                }
+                return D_int::value();
+            }
 };
 
 
