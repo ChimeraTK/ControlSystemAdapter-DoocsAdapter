@@ -339,8 +339,8 @@ BOOST_AUTO_TEST_SUITE_END()
 // ============================================================================
 
 
-struct SetFromOtherPVTestFixture {
-	
+struct InterPVTestFixture {         // for testing interactions between two PVs,
+                                    // like setting or assigning from a PV
     DOOCSPVAdapter * doocs_adapter1;
     DOOCSPVAdapter * doocs_adapter2;
     
@@ -357,7 +357,7 @@ struct SetFromOtherPVTestFixture {
 
 
 
-            SetFromOtherPVTestFixture() : _get_cb_counter1(0),
+            InterPVTestFixture() : _get_cb_counter1(0),
                                           _set_cb_counter1(0),
                                           _set_cb_counter_equals1(0),
                                           _get_cb_counter2(0),
@@ -370,7 +370,7 @@ struct SetFromOtherPVTestFixture {
                 doocs_adapter2 = new DOOCSPVAdapter(mydint2);
             }
     
-            ~SetFromOtherPVTestFixture()
+            ~InterPVTestFixture()
             {
                 delete doocs_adapter1;
                 delete doocs_adapter2;
@@ -420,7 +420,7 @@ struct SetFromOtherPVTestFixture {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-BOOST_FIXTURE_TEST_SUITE( set_from_other_pv, SetFromOtherPVTestFixture )
+BOOST_FIXTURE_TEST_SUITE( set_from_other_pv, InterPVTestFixture )
 
 BOOST_AUTO_TEST_CASE( set_from_other_pv__set_checking )
 {
@@ -459,10 +459,10 @@ BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_operation )
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
-    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     // -- when --
     doocs_adapter2->set(*doocs_adapter1);
@@ -496,10 +496,10 @@ BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_assignment ) // or rather for
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
-    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     doocs_adapter1->set(1);                         // do some random get/set(int) ...
     doocs_adapter1->setWithoutCallback(1);
@@ -544,7 +544,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_FIXTURE_TEST_SUITE( setWithoutCallback_from_other_pv, SetFromOtherPVTestFixture )
+BOOST_FIXTURE_TEST_SUITE( setWithoutCallback_from_other_pv, InterPVTestFixture )
 
 BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__set_checking )
 {
@@ -583,10 +583,10 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_operation )
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
-    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     // -- when --
     doocs_adapter2->setWithoutCallback(*doocs_adapter1);
@@ -620,10 +620,10 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_assignment ) /
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
-    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     doocs_adapter1->set(1);                         // do some random get/set(int) ...
     doocs_adapter1->setWithoutCallback(1);
@@ -667,7 +667,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_FIXTURE_TEST_SUITE( assign_from_other_pv, SetFromOtherPVTestFixture )
+BOOST_FIXTURE_TEST_SUITE( assign_from_other_pv, InterPVTestFixture )
 
 BOOST_AUTO_TEST_CASE( assign_from_other_pv__set_checking )
 {
@@ -706,10 +706,10 @@ BOOST_AUTO_TEST_CASE( assign_from_other_pv__callbacks_operation )
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
-    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     // -- when --
     *doocs_adapter2 = *doocs_adapter1;
@@ -743,10 +743,10 @@ BOOST_AUTO_TEST_CASE( assign_from_other_pv__callbacks_assignment ) // or rather 
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
-    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     doocs_adapter1->set(1);                         // do some random get/set(int) ...
     doocs_adapter1->setWithoutCallback(1);
@@ -790,7 +790,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_FIXTURE_TEST_SUITE( assign_from_int, SetFromOtherPVTestFixture )
+BOOST_FIXTURE_TEST_SUITE( assign_from_int, InterPVTestFixture )
 
 BOOST_AUTO_TEST_CASE( assign_from_int__set_checking )
 {
@@ -821,8 +821,8 @@ BOOST_AUTO_TEST_CASE( assign_from_int__callbacks_operation )
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2)); // prime callbacks
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2)); // prime callbacks
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     // -- when --
     *doocs_adapter2 = 5;
@@ -848,8 +848,8 @@ BOOST_AUTO_TEST_CASE( assign_from_int__callbacks_assignment ) // or rather for n
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
     
-    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2)); // prime callbacks
-    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2)); // prime callbacks
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     doocs_adapter2->set(1);                         // do some random get/set(int) ...
     doocs_adapter2->setWithoutCallback(1);
