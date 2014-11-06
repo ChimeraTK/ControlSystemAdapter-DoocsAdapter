@@ -55,14 +55,20 @@ public:
          {
              set( other.getWithoutCallback() );
          }
-
-
     void setWithoutCallback(ProcessVariable<int> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
          }
+
     
-    //~ DOOCSPVAdapter & operator=(DOOCSPVAdapter const & other);
+    DOOCSPVAdapter & operator=(ProcessVariable<int> const & other)
+         {
+             setWithoutCallback( other.getWithoutCallback() );
+         }
+    DOOCSPVAdapter & operator=(DOOCSPVAdapter const & other)
+         {
+             setWithoutCallback( other.getWithoutCallback() );
+         }
     
 
     // --- the rest (incl. operators) will follow ---

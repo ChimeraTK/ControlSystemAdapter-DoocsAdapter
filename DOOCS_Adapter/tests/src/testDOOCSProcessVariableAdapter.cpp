@@ -43,7 +43,7 @@ struct CallbacksTestFixture {
     
     	
 
-	void	reset_fixture()
+	void	reset_counters()
 			{
 				_get_cb_counter        = 0;
 				_set_cb_counter        = 0;
@@ -72,7 +72,7 @@ BOOST_FIXTURE_TEST_SUITE( test_callbacks, CallbacksTestFixture )
 
 BOOST_AUTO_TEST_CASE( test_get_cb_count )
 {
-    reset_fixture();
+    reset_counters();
 
     BOOST_CHECK( _get_cb_counter        == 0 );
     
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_get_cb_count )
 
 BOOST_AUTO_TEST_CASE( test_set_cb_count )
 {
-    reset_fixture();
+    reset_counters();
 
     
     BOOST_CHECK( _set_cb_counter        == 0 );
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
 
 BOOST_AUTO_TEST_CASE( test_sync1 )
 {
-    reset_fixture();
+    reset_counters();
 
     
     BOOST_CHECK( doocs_adapter->get  () == 0 );
@@ -222,7 +222,7 @@ BOOST_FIXTURE_TEST_SUITE( test_no_callbacks, CallbacksTestFixture )
 
 BOOST_AUTO_TEST_CASE( test_get_nocb_count )
 {
-    reset_fixture();
+    reset_counters();
 
     BOOST_CHECK( _get_cb_counter        == 0 );
     
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( test_get_nocb_count )
 
 BOOST_AUTO_TEST_CASE( test_set_nocb_count )
 {
-    reset_fixture();
+    reset_counters();
 
     
     BOOST_CHECK( _set_cb_counter        == 0 );
@@ -380,7 +380,7 @@ struct SetFromOtherPVTestFixture {
     
     	
 
-	void	reset_fixture()
+	void	reset_counters()
 			{
 				_get_cb_counter1        = 0;
 				_set_cb_counter1        = 0;
@@ -425,7 +425,7 @@ BOOST_FIXTURE_TEST_SUITE( set_from_other_pv, SetFromOtherPVTestFixture )
 BOOST_AUTO_TEST_CASE( set_from_other_pv__set_checking )
 {
     // -- given -- 
-    reset_fixture();
+    reset_counters();
     doocs_adapter1->setWithoutCallback(5);
     doocs_adapter2->setWithoutCallback(0);
 
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE( set_from_other_pv__set_checking )
 BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_operation )
 {
     // -- given -- 
-    reset_fixture();
+    reset_counters();
 
     doocs_adapter1->clearOnGetCallbackFunction();   // make sure no callbacks
     doocs_adapter1->clearOnSetCallbackFunction();
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_operation )
 BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_assignment ) // or rather for no assignment
 {
     // -- given -- 
-    reset_fixture();
+    reset_counters();
 
     doocs_adapter1->clearOnGetCallbackFunction();   // make sure no callbacks
     doocs_adapter1->clearOnSetCallbackFunction();
@@ -549,7 +549,7 @@ BOOST_FIXTURE_TEST_SUITE( setWithoutCallback_from_other_pv, SetFromOtherPVTestFi
 BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__set_checking )
 {
     // -- given -- 
-    reset_fixture();
+    reset_counters();
     doocs_adapter1->setWithoutCallback(5);
     doocs_adapter2->setWithoutCallback(0);
 
@@ -568,7 +568,7 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__set_checking )
 BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_operation )
 {
     // -- given -- 
-    reset_fixture();
+    reset_counters();
 
     doocs_adapter1->clearOnGetCallbackFunction();   // make sure no callbacks
     doocs_adapter1->clearOnSetCallbackFunction();
@@ -595,7 +595,7 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_operation )
     BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
     BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 5 );
     
-    BOOST_CHECK( _get_cb_counter1        == 0 );
+    BOOST_CHECK( _get_cb_counter1        == 0 );    // make sure callbacks not called
     BOOST_CHECK( _set_cb_counter1        == 0 );
     BOOST_CHECK( _get_cb_counter2        == 0 );
     BOOST_CHECK( _set_cb_counter2        == 0 );
@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_operation )
 BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_assignment ) // or rather for no assignment
 {
     // -- given -- 
-    reset_fixture();
+    reset_counters();
 
     doocs_adapter1->clearOnGetCallbackFunction();   // make sure no callbacks
     doocs_adapter1->clearOnSetCallbackFunction();
@@ -641,6 +641,129 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_assignment ) /
     
     // -- when --
     doocs_adapter2->setWithoutCallback(*doocs_adapter1);
+    
+    // -- then --
+    BOOST_CHECK( _get_cb_counter1        == 1 );    // counters state after set(pv)
+    BOOST_CHECK( _set_cb_counter1        == 1 );
+    BOOST_CHECK( _get_cb_counter2        == 2 );
+    BOOST_CHECK( _set_cb_counter2        == 2 );    // <---
+
+    doocs_adapter1->set(1);                         // do some random get/set(int) again ...
+    doocs_adapter1->setWithoutCallback(1);
+    doocs_adapter1->get();
+    doocs_adapter1->getWithoutCallback();
+    doocs_adapter2->set(1);
+    doocs_adapter2->setWithoutCallback(1);
+    doocs_adapter2->get();
+    doocs_adapter2->getWithoutCallback();
+
+    BOOST_CHECK( _get_cb_counter1        == 2 );    // ... and make sure the callback assignment remains unaltered
+    BOOST_CHECK( _set_cb_counter1        == 2 );
+    BOOST_CHECK( _get_cb_counter2        == 4 );
+    BOOST_CHECK( _set_cb_counter2        == 4 );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+BOOST_FIXTURE_TEST_SUITE( assign_from_other_pv, SetFromOtherPVTestFixture )
+
+BOOST_AUTO_TEST_CASE( assign_from_other_pv__set_checking )
+{
+    // -- given -- 
+    reset_counters();
+    doocs_adapter1->setWithoutCallback(5);
+    doocs_adapter2->setWithoutCallback(0);
+
+    BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
+    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 0 );
+    
+    // -- when --
+    *doocs_adapter2 = *doocs_adapter1;
+    
+    // -- then --
+    BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
+    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 5 );
+}
+
+
+BOOST_AUTO_TEST_CASE( assign_from_other_pv__callbacks_operation )
+{
+    // -- given -- 
+    reset_counters();
+
+    doocs_adapter1->clearOnGetCallbackFunction();   // make sure no callbacks
+    doocs_adapter1->clearOnSetCallbackFunction();
+    doocs_adapter2->clearOnGetCallbackFunction();
+    doocs_adapter2->clearOnSetCallbackFunction();
+
+    doocs_adapter1->setWithoutCallback(5);          // some init vals
+    doocs_adapter2->setWithoutCallback(0);
+
+    BOOST_CHECK( _get_cb_counter1        == 0 );
+    BOOST_CHECK( _set_cb_counter1        == 0 );
+    BOOST_CHECK( _get_cb_counter2        == 0 );
+    BOOST_CHECK( _set_cb_counter2        == 0 );
+    
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    
+    // -- when --
+    *doocs_adapter2 = *doocs_adapter1;
+    
+    // -- then --
+    BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
+    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 5 );
+    
+    BOOST_CHECK( _get_cb_counter1        == 0 );    // make sure callbacks not called
+    BOOST_CHECK( _set_cb_counter1        == 0 );
+    BOOST_CHECK( _get_cb_counter2        == 0 );
+    BOOST_CHECK( _set_cb_counter2        == 0 );
+}
+
+
+BOOST_AUTO_TEST_CASE( assign_from_other_pv__callbacks_assignment ) // or rather for no assignment
+{
+    // -- given -- 
+    reset_counters();
+
+    doocs_adapter1->clearOnGetCallbackFunction();   // make sure no callbacks
+    doocs_adapter1->clearOnSetCallbackFunction();
+    doocs_adapter2->clearOnGetCallbackFunction();
+    doocs_adapter2->clearOnSetCallbackFunction();
+
+    doocs_adapter1->setWithoutCallback(5);          // some init vals
+    doocs_adapter2->setWithoutCallback(0);
+
+    BOOST_CHECK( _get_cb_counter1        == 0 );
+    BOOST_CHECK( _set_cb_counter1        == 0 );
+    BOOST_CHECK( _get_cb_counter2        == 0 );
+    BOOST_CHECK( _set_cb_counter2        == 0 );
+    
+    doocs_adapter1->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback1, this, _1, _2)); // prime callbacks
+    doocs_adapter1->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback1, this));
+    doocs_adapter2->setOnSetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_set_callback2, this, _1, _2));
+    doocs_adapter2->setOnGetCallbackFunction(boost::bind (&SetFromOtherPVTestFixture::on_get_callback2, this));
+    
+    doocs_adapter1->set(1);                         // do some random get/set(int) ...
+    doocs_adapter1->setWithoutCallback(1);
+    doocs_adapter1->get();
+    doocs_adapter1->getWithoutCallback();
+    doocs_adapter2->set(1);
+    doocs_adapter2->setWithoutCallback(1);
+    doocs_adapter2->get();
+    doocs_adapter2->getWithoutCallback();
+
+    BOOST_CHECK( _get_cb_counter1        == 1 );    // ... and check the callback operation so far
+    BOOST_CHECK( _set_cb_counter1        == 1 );
+    BOOST_CHECK( _get_cb_counter2        == 2 );
+    BOOST_CHECK( _set_cb_counter2        == 2 );
+    
+    // -- when --
+    *doocs_adapter2 = *doocs_adapter1;
     
     // -- then --
     BOOST_CHECK( _get_cb_counter1        == 1 );    // counters state after set(pv)
