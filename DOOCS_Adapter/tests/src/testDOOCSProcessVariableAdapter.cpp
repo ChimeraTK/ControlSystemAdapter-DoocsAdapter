@@ -358,11 +358,11 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
 
 
             InterPVTestFixture() : _get_cb_counter1(0),
-                                          _set_cb_counter1(0),
-                                          _set_cb_counter_equals1(0),
-                                          _get_cb_counter2(0),
-                                          _set_cb_counter2(0),
-                                          _set_cb_counter_equals2(0)
+                                   _set_cb_counter1(0),
+                                   _set_cb_counter_equals1(0),
+                                   _get_cb_counter2(0),
+                                   _set_cb_counter2(0),
+                                   _set_cb_counter_equals2(0)
             {
                 mydint1        = new myD_int( NULL, NULL );
                 mydint2        = new myD_int( NULL, NULL );
@@ -403,7 +403,7 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
 				if (newValue == oldValue) ++_set_cb_counter_equals1;
 				++_set_cb_counter1;
 			}
-            // set 2 (NOTE: different treating of counters)
+            // set 2 (NOTE: different treating of counters!)
 	int		on_get_callback2 ()	                                         //~  < int () >
 			{
 				_get_cb_counter2 += 2;
