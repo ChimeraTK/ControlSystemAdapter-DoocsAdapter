@@ -6,7 +6,7 @@
 #include "ProcessVariable.h"
 
 
-class DOOCSPVAdapter : public ProcessVariable < int >
+class DOOCSPVAdapter : public mtca4u::ProcessVariable < int >
 {
 protected:
     
@@ -51,17 +51,17 @@ public:
          }
     
 
-    void set(ProcessVariable<int> const & other)
+    void set(mtca4u::ProcessVariable<int> const & other)
          {
              set( other.getWithoutCallback() );
          }
-    void setWithoutCallback(ProcessVariable<int> const & other)
+    void setWithoutCallback(mtca4u::ProcessVariable<int> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
          }
 
     
-    DOOCSPVAdapter & operator=(ProcessVariable<int> const & other)
+    DOOCSPVAdapter & operator=(mtca4u::ProcessVariable<int> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
          }
