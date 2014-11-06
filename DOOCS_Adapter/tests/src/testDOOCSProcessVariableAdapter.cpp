@@ -70,6 +70,8 @@ BOOST_FIXTURE_TEST_SUITE( test_cb, CbTestFixture )
 
 BOOST_AUTO_TEST_CASE( test_get_cb_count )
 {
+    reset_fixture();
+
     BOOST_CHECK( _get_cb_counter        == 0 );
     
 
@@ -114,14 +116,14 @@ BOOST_AUTO_TEST_CASE( test_get_cb_count )
 
     mydint       ->value();
     BOOST_CHECK( _get_cb_counter        == 4 );
-    
-    
-    reset_fixture();
-
 }
+
 
 BOOST_AUTO_TEST_CASE( test_set_cb_count )
 {
+    reset_fixture();
+
+    
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
     
@@ -177,15 +179,14 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
     mydint       ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
     BOOST_CHECK( _set_cb_counter_equals == 4 );
-    
-    
-    reset_fixture();
 }
 
 BOOST_AUTO_TEST_CASE( test_sync1 )
 {
+    reset_fixture();
+
     
-    BOOST_CHECK( doocs_adapter->get  () == 0 );  // "reset"
+    BOOST_CHECK( doocs_adapter->get  () == 0 );
     BOOST_CHECK( mydint       ->value() == 0 );
 
 
@@ -207,6 +208,127 @@ BOOST_AUTO_TEST_CASE( test_sync1 )
 	
 
 	doocs_adapter->set(0);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+// ============================================================================
+
+
+BOOST_FIXTURE_TEST_SUITE( test_no_cb, CbTestFixture )
+
+BOOST_AUTO_TEST_CASE( test_get_nocb_count )
+{
+    reset_fixture();
+
+    BOOST_CHECK( _get_cb_counter        == 0 );
+    
+
+    doocs_adapter->getWithoutCallback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+    mydint       ->value_without_callback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+    
+
+    doocs_adapter->setOnGetCallbackFunction(boost::bind (&CbTestFixture::on_get_callback, this));
+    
+    doocs_adapter->getWithoutCallback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+    mydint       ->value_without_callback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+
+    doocs_adapter->clearOnGetCallbackFunction();
+    
+    doocs_adapter->getWithoutCallback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+    mydint       ->value_without_callback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+
+    mydint->setOnGetCallbackFunction(boost::bind (&CbTestFixture::on_get_callback, this));
+    
+    doocs_adapter->getWithoutCallback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+    mydint       ->value_without_callback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+
+    mydint->clearOnGetCallbackFunction();
+    
+    doocs_adapter->getWithoutCallback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+
+    mydint       ->value_without_callback();
+    BOOST_CHECK( _get_cb_counter        == 0 );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_set_nocb_count )
+{
+    reset_fixture();
+
+    
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+    
+
+    doocs_adapter->setWithoutCallback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+    mydint       ->set_value_without_callback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+    
+
+    doocs_adapter->setOnSetCallbackFunction(boost::bind (&CbTestFixture::on_set_callback, this, _1, _2));
+    
+    doocs_adapter->setWithoutCallback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+    mydint       ->set_value_without_callback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+
+    doocs_adapter->clearOnSetCallbackFunction();
+    
+    doocs_adapter->setWithoutCallback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+    mydint       ->set_value_without_callback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+
+    mydint->setOnSetCallbackFunction(boost::bind (&CbTestFixture::on_set_callback, this, _1, _2));
+    
+    doocs_adapter->setWithoutCallback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+    mydint       ->set_value_without_callback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+
+    mydint->clearOnSetCallbackFunction();
+    
+    doocs_adapter->setWithoutCallback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+    mydint       ->set_value_without_callback(1);
+    BOOST_CHECK( _set_cb_counter        == 0 );
+    BOOST_CHECK( _set_cb_counter_equals == 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

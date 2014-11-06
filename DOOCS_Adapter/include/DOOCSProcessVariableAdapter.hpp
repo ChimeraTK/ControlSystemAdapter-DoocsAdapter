@@ -18,31 +18,37 @@ public:
     
 
     void setOnSetCallbackFunction( boost::function< void (int const & /*newValue*/, int const & /*oldValue*/) > onSetCallbackFunction)
-    {
-        mydint->setOnSetCallbackFunction(onSetCallbackFunction);
-    }
+         {
+             mydint->setOnSetCallbackFunction(onSetCallbackFunction);
+         }
     void setOnGetCallbackFunction( boost::function< int () > onGetCallbackFunction )
-    {
-        mydint->setOnGetCallbackFunction(onGetCallbackFunction);
-    }
+         {
+             mydint->setOnGetCallbackFunction(onGetCallbackFunction);
+         }
     
     void clearOnSetCallbackFunction() { mydint->clearOnSetCallbackFunction(); }
     void clearOnGetCallbackFunction() { mydint->clearOnGetCallbackFunction(); }
     
+
     void set(int const & t)
-    {
-        mydint->set_value(t);
-    }
+         {
+             mydint->set_value(t);
+         }
     
-      
-    int get()
-    {
-        return mydint->value();
-    }
+    int  get()
+         {
+             return mydint->value();
+         }
     
-    // stubs
-    void setWithoutCallback(int const & t) {};
-    int  getWithoutCallback() const { return -1;}
+
+    void setWithoutCallback(int const & t)
+         {
+             mydint->set_value_without_callback(t);
+         }
+    int  getWithoutCallback() const
+         {
+             return mydint->value_without_callback();
+         }
     
 
     // --- the rest (incl. operators) will follow ---

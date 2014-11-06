@@ -50,6 +50,7 @@ public:
 
 
 
+            // accessors with callbacks
 	void	set_value (int val)
             {
                 D_int::set_value(val);
@@ -65,6 +66,17 @@ public:
                     int ongetcallbackresult = _onGetCallbackFunction ();
                     // doing sth based on ongetcallbackresult ???
                 }
+                return D_int::value();
+            }
+
+
+            // accessors without callbacks (extension of the original DOOCS property interface)
+	void	set_value_without_callback (int val)
+            {
+                D_int::set_value(val);
+            }
+	int		value_without_callback ()
+            {
                 return D_int::value();
             }
 };
