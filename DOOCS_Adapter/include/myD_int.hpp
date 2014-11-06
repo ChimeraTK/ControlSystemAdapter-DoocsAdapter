@@ -50,7 +50,7 @@ public:
 
 
 
-            // accessors with callbacks
+            // accessors with callbacks (based on standard DOOCS property interface)
 	void	set_value (int val)
             {
                 D_int::set_value(val);
