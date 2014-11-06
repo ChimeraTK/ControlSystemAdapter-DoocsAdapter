@@ -20,7 +20,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 
 
-include_directories(${CMAKE_SOURCE_DIR}/tests/include})
+include_directories(${CMAKE_SOURCE_DIR}/tests/include)
 aux_source_directory(${CMAKE_SOURCE_DIR}/tests/src testSources)
 foreach( testSourceFile ${testSources})
     #NAME_WE means the base name without path and (longest) extension
