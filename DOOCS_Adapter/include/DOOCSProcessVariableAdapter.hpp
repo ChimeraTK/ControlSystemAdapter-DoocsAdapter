@@ -74,12 +74,11 @@ public:
              setWithoutCallback( t );
          }
 
-    // --- the rest (incl. operators) will follow ---
-    
-    //~ operator int () const {};
-    
 
-
+    operator int () const
+         {
+             return mydint->value_without_callback();
+         }
 };
 
 
