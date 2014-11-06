@@ -69,12 +69,15 @@ public:
          {
              setWithoutCallback( other.getWithoutCallback() );
          }
-    
+    DOOCSPVAdapter & operator=(int const & t)
+         {
+             setWithoutCallback( t );
+         }
 
     // --- the rest (incl. operators) will follow ---
     
     //~ operator int () const {};
-    //~ DOOCSPVAdapter & operator=(int const & t);
+    
 
 
 };
