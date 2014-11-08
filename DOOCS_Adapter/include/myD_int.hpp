@@ -65,6 +65,7 @@ public:
                 {
                     int ongetcallbackresult = _onGetCallbackFunction ();
                     // doing sth based on ongetcallbackresult ???
+                    ongetcallbackresult += 2; // suppress -Wunused-variable
                 }
                 return D_int::value();
             }

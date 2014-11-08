@@ -17,15 +17,18 @@ class D_int
 {
 
 protected:
+    const char          * pn_; // suppress -Wunused-parameter
+	const EqFct         * ef_; // suppress -Wunused-parameter
+    
 	int				value_;
-	
+    
 public:
     
     unsigned int __set_value_f_call_counter;                // __
     unsigned int __value_f_call_counter;                    // __
 
-    D_int (const char *pn, EqFct *ef) : value_(0), __set_value_f_call_counter(0), __value_f_call_counter(0) {}
-    D_int (const char *pn)            : value_(0), __set_value_f_call_counter(0), __value_f_call_counter(0) {}
+    D_int (const char *pn, EqFct *ef) : pn_(pn), ef_(ef), value_(0), __set_value_f_call_counter(0), __value_f_call_counter(0) {}
+    D_int (const char *pn)            : pn_(pn),          value_(0), __set_value_f_call_counter(0), __value_f_call_counter(0) {}
 
 
 	virtual void	set_value (int val)

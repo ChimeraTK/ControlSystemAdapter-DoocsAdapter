@@ -17,8 +17,8 @@ using namespace boost::unit_test;
 
 struct CallbacksTestFixture {
 	
-    DOOCSPVAdapter * doocs_adapter;
-    myD_int        * mydint;
+    mtca4u::DOOCSPVAdapter * doocs_adapter;
+    myD_int                * mydint;
 
 
 	unsigned int _get_cb_counter;
@@ -32,7 +32,7 @@ struct CallbacksTestFixture {
                                      _set_cb_counter_equals(0)
             {
                 mydint        = new myD_int( NULL, NULL );
-                doocs_adapter = new DOOCSPVAdapter(mydint);
+                doocs_adapter = new mtca4u::DOOCSPVAdapter(mydint);
             }
     
             ~CallbacksTestFixture()
@@ -341,11 +341,11 @@ BOOST_AUTO_TEST_SUITE_END()
 
 struct InterPVTestFixture {         // for testing interactions between two PVs,
                                     // like setting or assigning from a PV
-    DOOCSPVAdapter * doocs_adapter1;
-    DOOCSPVAdapter * doocs_adapter2;
+    mtca4u::DOOCSPVAdapter * doocs_adapter1;
+    mtca4u::DOOCSPVAdapter * doocs_adapter2;
     
-    myD_int        * mydint1;
-    myD_int        * mydint2;
+    myD_int                * mydint1;
+    myD_int                * mydint2;
 
 
 	unsigned int _get_cb_counter1;
@@ -366,8 +366,8 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
             {
                 mydint1        = new myD_int( NULL, NULL );
                 mydint2        = new myD_int( NULL, NULL );
-                doocs_adapter1 = new DOOCSPVAdapter(mydint1);
-                doocs_adapter2 = new DOOCSPVAdapter(mydint2);
+                doocs_adapter1 = new mtca4u::DOOCSPVAdapter(mydint1);
+                doocs_adapter2 = new mtca4u::DOOCSPVAdapter(mydint2);
             }
     
             ~InterPVTestFixture()
@@ -939,7 +939,7 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_operation )
     int    val  = *doocs_adapter1;
     int    res1 = *doocs_adapter1 * 2;
     int    res2 = *doocs_adapter1 * *doocs_adapter2;
-    double res3 = *doocs_adapter1 * 2.5;
+    double res3 = *doocs_adapter1 * 2.5;                  val += res1 + res2 + res3;  // suppress -Wunused-variable
 
 	doocs_adapter2->setWithoutCallback((*doocs_adapter1 * *doocs_adapter2) / 2);
     
@@ -995,7 +995,7 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_assignment ) // or rather for no ass
     int    val  = *doocs_adapter1;
     int    res1 = *doocs_adapter1 * 2;
     int    res2 = *doocs_adapter1 * *doocs_adapter2;
-    double res3 = *doocs_adapter1 * 2.5;
+    double res3 = *doocs_adapter1 * 2.5;                  val += res1 + res2 + res3;  // suppress -Wunused-variable
 
 	doocs_adapter2->setWithoutCallback((*doocs_adapter1 * *doocs_adapter2) / 2);
     

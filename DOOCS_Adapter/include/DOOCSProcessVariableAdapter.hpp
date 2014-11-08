@@ -6,7 +6,10 @@
 #include "ProcessVariable.h"
 
 
-class DOOCSPVAdapter : public mtca4u::ProcessVariable < int >
+namespace mtca4u {
+
+
+class DOOCSPVAdapter : public ProcessVariable < int >
 {
 protected:
     
@@ -51,27 +54,30 @@ public:
          }
     
 
-    void set(mtca4u::ProcessVariable<int> const & other)
+    void set(ProcessVariable<int> const & other)
          {
              set( other.getWithoutCallback() );
          }
-    void setWithoutCallback(mtca4u::ProcessVariable<int> const & other)
+    void setWithoutCallback(ProcessVariable<int> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
          }
 
     
-    DOOCSPVAdapter & operator=(mtca4u::ProcessVariable<int> const & other)
+    DOOCSPVAdapter & operator=(ProcessVariable<int> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
+             return *this;
          }
     DOOCSPVAdapter & operator=(DOOCSPVAdapter const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
+             return *this;
          }
     DOOCSPVAdapter & operator=(int const & t)
          {
              setWithoutCallback( t );
+             return *this;
          }
 
 
@@ -80,6 +86,9 @@ public:
              return mydint->value_without_callback();
          }
 };
+
+
+}//namespace mtca4u
 
 
 #endif /* __dpva__ */

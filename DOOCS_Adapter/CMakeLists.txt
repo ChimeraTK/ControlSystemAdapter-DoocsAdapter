@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (DOOCS_Adapter)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wshadow -Wuninitialized")
 
 # --- boost ---
 FIND_PACKAGE(Boost REQUIRED)
