@@ -2,47 +2,16 @@
 #define __myd_double__
 
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+
+#include "myD_xxx.hpp"
 
 
-
-class myD_double : public D_double
+class myD_double : public myD_xxx<double>, public D_double
 {
-private:
-	boost::function < void (double const &, double const & ) >	_onSetCallbackFunction;	// (newValue, oldValue)
-	boost::function < double () >								_onGetCallbackFunction;
-    
     
 public:
     
     myD_double (const char *pn, EqFct *ef) :    D_double(pn, ef) {}
-
-
-
-    void setOnSetCallbackFunction (boost::function < void (double const &, double const & ) > onSetCallbackFunction)
-         {
-             _onSetCallbackFunction = onSetCallbackFunction;
-         }
-
-
-    void setOnGetCallbackFunction (boost::function < double () > onGetCallbackFunction)
-         {
-             _onGetCallbackFunction = onGetCallbackFunction;
-         }
-
-
-    void clearOnSetCallbackFunction ()
-         {
-             _onSetCallbackFunction.clear ();
-         }
-
-
-    void clearOnGetCallbackFunction ()
-         {
-             _onGetCallbackFunction.clear ();
-         }
-
 
 
             // accessors with callbacks (based on standard DOOCS property interface)

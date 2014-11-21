@@ -2,47 +2,16 @@
 #define __myd_float__
 
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+
+#include "myD_xxx.hpp"
 
 
-
-class myD_float : public D_float
+class myD_float : public myD_xxx<float>, public D_float
 {
-private:
-	boost::function < void (float const &, float const & ) >	_onSetCallbackFunction;	// (newValue, oldValue)
-	boost::function < float () >								_onGetCallbackFunction;
-    
     
 public:
     
     myD_float (const char *pn, EqFct *ef) :    D_float(pn, ef) {}
-
-
-
-    void setOnSetCallbackFunction (boost::function < void (float const &, float const & ) > onSetCallbackFunction)
-         {
-             _onSetCallbackFunction = onSetCallbackFunction;
-         }
-
-
-    void setOnGetCallbackFunction (boost::function < float () > onGetCallbackFunction)
-         {
-             _onGetCallbackFunction = onGetCallbackFunction;
-         }
-
-
-    void clearOnSetCallbackFunction ()
-         {
-             _onSetCallbackFunction.clear ();
-         }
-
-
-    void clearOnGetCallbackFunction ()
-         {
-             _onGetCallbackFunction.clear ();
-         }
-
 
 
             // accessors with callbacks (based on standard DOOCS property interface)

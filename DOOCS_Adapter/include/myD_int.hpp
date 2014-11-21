@@ -2,52 +2,16 @@
 #define __myd_int__
 
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+
+#include "myD_xxx.hpp"
 
 
-
-class myD_int : public D_int
+class myD_int : public myD_xxx<int>, public D_int
 {
-private:
-	boost::function < void (int const &, int const & ) >	_onSetCallbackFunction;	// (newValue, oldValue)
-	boost::function < int () >								_onGetCallbackFunction;
-    
     
 public:
     
-    unsigned int __on_set_callback_f_call_counter;                       // __
-    unsigned int __on_get_callback_f_call_counter;                       // __
-
-    myD_int (const char *pn, EqFct *ef) :    D_int(pn, ef),
-                                             __on_set_callback_f_call_counter(0),
-                                             __on_get_callback_f_call_counter(0)    {}
-
-
-
-    void setOnSetCallbackFunction (boost::function < void (int const &, int const & ) > onSetCallbackFunction)
-         {
-             _onSetCallbackFunction = onSetCallbackFunction;
-         }
-
-
-    void setOnGetCallbackFunction (boost::function < int () > onGetCallbackFunction)
-         {
-             _onGetCallbackFunction = onGetCallbackFunction;
-         }
-
-
-    void clearOnSetCallbackFunction ()
-         {
-             _onSetCallbackFunction.clear ();
-         }
-
-
-    void clearOnGetCallbackFunction ()
-         {
-             _onGetCallbackFunction.clear ();
-         }
-
+    myD_int (const char *pn, EqFct *ef) :    D_int(pn, ef) {}
 
 
             // accessors with callbacks (based on standard DOOCS property interface)
