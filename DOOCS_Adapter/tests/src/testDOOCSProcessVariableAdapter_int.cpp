@@ -17,8 +17,8 @@ using namespace boost::unit_test;
 
 struct CallbacksTestFixture {
 	
-    mtca4u::DOOCSPVAdapter * doocs_adapter;
-    myD_int                * mydint;
+    mtca4u::DOOCSPVAdapter<int, myD_int> * doocs_adapter;
+    myD_int                              * mydint;
 
 
 	unsigned int _get_cb_counter;
@@ -27,12 +27,12 @@ struct CallbacksTestFixture {
 
 
 
-            CallbacksTestFixture() : _get_cb_counter(0),
-                                     _set_cb_counter(0),
+            CallbacksTestFixture() : _get_cb_counter       (0),
+                                     _set_cb_counter       (0),
                                      _set_cb_counter_equals(0)
             {
-                mydint        = new myD_int( NULL, NULL );
-                doocs_adapter = new mtca4u::DOOCSPVAdapter(mydint);
+                mydint        = new myD_int ( NULL, NULL );
+                doocs_adapter = new mtca4u::DOOCSPVAdapter<int, myD_int> (mydint);
             }
     
             ~CallbacksTestFixture()
@@ -341,11 +341,11 @@ BOOST_AUTO_TEST_SUITE_END()
 
 struct InterPVTestFixture {         // for testing interactions between two PVs,
                                     // like setting or assigning from a PV
-    mtca4u::DOOCSPVAdapter * doocs_adapter1;
-    mtca4u::DOOCSPVAdapter * doocs_adapter2;
+    mtca4u::DOOCSPVAdapter<int, myD_int> * doocs_adapter1;
+    mtca4u::DOOCSPVAdapter<int, myD_int> * doocs_adapter2;
     
-    myD_int                * mydint1;
-    myD_int                * mydint2;
+    myD_int                              * mydint1;
+    myD_int                              * mydint2;
 
 
 	unsigned int _get_cb_counter1;
@@ -357,17 +357,17 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
 
 
 
-            InterPVTestFixture() : _get_cb_counter1(0),
-                                   _set_cb_counter1(0),
+            InterPVTestFixture() : _get_cb_counter1       (0),
+                                   _set_cb_counter1       (0),
                                    _set_cb_counter_equals1(0),
-                                   _get_cb_counter2(0),
-                                   _set_cb_counter2(0),
+                                   _get_cb_counter2       (0),
+                                   _set_cb_counter2       (0),
                                    _set_cb_counter_equals2(0)
             {
-                mydint1        = new myD_int( NULL, NULL );
-                mydint2        = new myD_int( NULL, NULL );
-                doocs_adapter1 = new mtca4u::DOOCSPVAdapter(mydint1);
-                doocs_adapter2 = new mtca4u::DOOCSPVAdapter(mydint2);
+                mydint1        = new myD_int ( NULL, NULL );
+                mydint2        = new myD_int ( NULL, NULL );
+                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<int, myD_int> (mydint1);
+                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<int, myD_int> (mydint2);
             }
     
             ~InterPVTestFixture()

@@ -1,6 +1,7 @@
 #ifndef __dpva__
 #define __dpva__
 
+
 #include <boost/function.hpp>
 
 #include "ProcessVariable.h"
@@ -9,62 +10,64 @@
 namespace mtca4u {
 
 
-class DOOCSPVAdapter : public ProcessVariable < int >
+
+template <typename T, typename myD_T>
+class DOOCSPVAdapter : public ProcessVariable < T >
 {
 protected:
     
-    myD_int * mydint;
+    myD_T  * mydT;
     
 public:
     
-    DOOCSPVAdapter (myD_int * _mydint) : mydint(_mydint) {};
+    DOOCSPVAdapter (myD_T * _mydT) : mydT(_mydT) {};
     
 
-    void setOnSetCallbackFunction( boost::function< void (int const & /*newValue*/, int const & /*oldValue*/) > onSetCallbackFunction)
+    void setOnSetCallbackFunction( boost::function< void (T const & /*newValue*/, T const & /*oldValue*/) > onSetCallbackFunction)
          {
-             mydint->setOnSetCallbackFunction(onSetCallbackFunction);
+             mydT->setOnSetCallbackFunction(onSetCallbackFunction);
          }
-    void setOnGetCallbackFunction( boost::function< int () > onGetCallbackFunction )
+    void setOnGetCallbackFunction( boost::function< T () > onGetCallbackFunction )
          {
-             mydint->setOnGetCallbackFunction(onGetCallbackFunction);
-         }
-    
-    void clearOnSetCallbackFunction() { mydint->clearOnSetCallbackFunction(); }
-    void clearOnGetCallbackFunction() { mydint->clearOnGetCallbackFunction(); }
-    
-
-    void set(int const & t)
-         {
-             mydint->set_value(t);
+             mydT->setOnGetCallbackFunction(onGetCallbackFunction);
          }
     
-    int  get()
-         {
-             return mydint->value();
-         }
+    void clearOnSetCallbackFunction() { mydT->clearOnSetCallbackFunction(); }
+    void clearOnGetCallbackFunction() { mydT->clearOnGetCallbackFunction(); }
     
 
-    void setWithoutCallback(int const & t)
+    void set(T const & t)
          {
-             mydint->set_value_without_callback(t);
+             mydT->set_value(t);
          }
-    int  getWithoutCallback() const
+    
+    T    get()
          {
-             return mydint->value_without_callback();
+             return mydT->value();
          }
     
 
-    void set(ProcessVariable<int> const & other)
+    void setWithoutCallback(T const & t)
+         {
+             mydT->set_value_without_callback(t);
+         }
+    T    getWithoutCallback() const
+         {
+             return mydT->value_without_callback();
+         }
+    
+
+    void set(ProcessVariable<T> const & other)
          {
              set( other.getWithoutCallback() );
          }
-    void setWithoutCallback(ProcessVariable<int> const & other)
+    void setWithoutCallback(ProcessVariable<T> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
          }
 
     
-    DOOCSPVAdapter & operator=(ProcessVariable<int> const & other)
+    DOOCSPVAdapter & operator=(ProcessVariable<T> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
              return *this;
@@ -74,16 +77,16 @@ public:
              setWithoutCallback( other.getWithoutCallback() );
              return *this;
          }
-    DOOCSPVAdapter & operator=(int const & t)
+    DOOCSPVAdapter & operator=(T const & t)
          {
              setWithoutCallback( t );
              return *this;
          }
 
 
-    operator int () const
+    operator T () const
          {
-             return mydint->value_without_callback();
+             return mydT->value_without_callback();
          }
 };
 
