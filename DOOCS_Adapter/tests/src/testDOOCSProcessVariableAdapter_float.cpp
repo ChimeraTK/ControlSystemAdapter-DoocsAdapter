@@ -4,9 +4,9 @@ using namespace boost::unit_test;
 
 
 #include "D_float_mock.hpp"
-#include "m4uD_float.hpp"
-#include "DOOCSProcessVariableAdapter.hpp"
 
+#include "m4uD_type.hpp"
+#include "DOOCSProcessVariableAdapter.hpp"
 
 
 
@@ -17,8 +17,8 @@ using namespace boost::unit_test;
 
 struct CallbacksTestFixture {
 	
-    mtca4u::DOOCSPVAdapter<float, m4uD_float> * doocs_adapter;
-    m4uD_float                                * mydtype;
+    mtca4u::DOOCSPVAdapter<float, m4uD_type<float, D_float> > * doocs_adapter;
+    m4uD_type<float, D_float>                                 * mydtype;
 
 
 	unsigned int _get_cb_counter;
@@ -31,8 +31,8 @@ struct CallbacksTestFixture {
                                      _set_cb_counter       (0),
                                      _set_cb_counter_equals(0)
             {
-                mydtype       = new m4uD_float ( NULL, NULL );
-                doocs_adapter = new mtca4u::DOOCSPVAdapter<float, m4uD_float> (mydtype);
+                mydtype       = new m4uD_type<float, D_float> ( NULL, NULL );
+                doocs_adapter = new mtca4u::DOOCSPVAdapter<float, m4uD_type<float, D_float> > (mydtype);
             }
     
             ~CallbacksTestFixture()
@@ -341,11 +341,11 @@ BOOST_AUTO_TEST_SUITE_END()
 
 struct InterPVTestFixture {         // for testing interactions between two PVs,
                                     // like setting or assigning from a PV
-    mtca4u::DOOCSPVAdapter<float, m4uD_float> * doocs_adapter1;
-    mtca4u::DOOCSPVAdapter<float, m4uD_float> * doocs_adapter2;
+    mtca4u::DOOCSPVAdapter<float, m4uD_type<float, D_float> > * doocs_adapter1;
+    mtca4u::DOOCSPVAdapter<float, m4uD_type<float, D_float> > * doocs_adapter2;
     
-    m4uD_float                                * mydtype1;
-    m4uD_float                                * mydtype2;
+    m4uD_type<float, D_float>                                 * mydtype1;
+    m4uD_type<float, D_float>                                 * mydtype2;
 
 
 	unsigned int _get_cb_counter1;
@@ -364,10 +364,10 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
                                    _set_cb_counter2       (0),
                                    _set_cb_counter_equals2(0)
             {
-                mydtype1       = new m4uD_float ( NULL, NULL );
-                mydtype2       = new m4uD_float ( NULL, NULL );
-                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<float, m4uD_float> (mydtype1);
-                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<float, m4uD_float> (mydtype2);
+                mydtype1       = new m4uD_type<float, D_float> ( NULL, NULL );
+                mydtype2       = new m4uD_type<float, D_float> ( NULL, NULL );
+                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<float, m4uD_type<float, D_float> > (mydtype1);
+                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<float, m4uD_type<float, D_float> > (mydtype2);
             }
     
             ~InterPVTestFixture()

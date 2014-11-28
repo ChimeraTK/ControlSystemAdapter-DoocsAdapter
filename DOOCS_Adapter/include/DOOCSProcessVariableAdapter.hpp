@@ -11,49 +11,49 @@ namespace mtca4u {
 
 
 
-template <typename T, typename myD_T>
+template <typename T, typename M4U_DOOCS_T>
 class DOOCSPVAdapter : public ProcessVariable < T >
 {
 protected:
     
-    myD_T  * mydT;
+    M4U_DOOCS_T  * m4uD_type_T;
     
 public:
     
-    DOOCSPVAdapter (myD_T * _mydT) : mydT(_mydT) {};
+    DOOCSPVAdapter (M4U_DOOCS_T * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
     
 
     void setOnSetCallbackFunction( boost::function< void (T const & /*newValue*/, T const & /*oldValue*/) > onSetCallbackFunction)
          {
-             mydT->setOnSetCallbackFunction(onSetCallbackFunction);
+             m4uD_type_T->setOnSetCallbackFunction(onSetCallbackFunction);
          }
     void setOnGetCallbackFunction( boost::function< T () > onGetCallbackFunction )
          {
-             mydT->setOnGetCallbackFunction(onGetCallbackFunction);
+             m4uD_type_T->setOnGetCallbackFunction(onGetCallbackFunction);
          }
     
-    void clearOnSetCallbackFunction() { mydT->clearOnSetCallbackFunction(); }
-    void clearOnGetCallbackFunction() { mydT->clearOnGetCallbackFunction(); }
+    void clearOnSetCallbackFunction() { m4uD_type_T->clearOnSetCallbackFunction(); }
+    void clearOnGetCallbackFunction() { m4uD_type_T->clearOnGetCallbackFunction(); }
     
 
     void set(T const & t)
          {
-             mydT->set_value(t);
+             m4uD_type_T->set_value(t);
          }
     
     T    get()
          {
-             return mydT->value();
+             return m4uD_type_T->value();
          }
     
 
     void setWithoutCallback(T const & t)
          {
-             mydT->set_value_without_callback(t);
+             m4uD_type_T->set_value_without_callback(t);
          }
     T    getWithoutCallback() const
          {
-             return mydT->value_without_callback();
+             return m4uD_type_T->value_without_callback();
          }
     
 
@@ -86,7 +86,7 @@ public:
 
     operator T () const
          {
-             return mydT->value_without_callback();
+             return m4uD_type_T->value_without_callback();
          }
 };
 
