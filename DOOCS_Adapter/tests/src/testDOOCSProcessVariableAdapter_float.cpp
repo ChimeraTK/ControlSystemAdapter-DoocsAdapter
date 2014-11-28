@@ -18,7 +18,7 @@ using namespace boost::unit_test;
 struct CallbacksTestFixture {
 	
     mtca4u::DOOCSPVAdapter<float, myD_float> * doocs_adapter;
-    myD_float                                * mydfloat;
+    myD_float                                * mydtype;
 
 
 	unsigned int _get_cb_counter;
@@ -31,14 +31,14 @@ struct CallbacksTestFixture {
                                      _set_cb_counter       (0),
                                      _set_cb_counter_equals(0)
             {
-                mydfloat      = new myD_float ( NULL, NULL );
-                doocs_adapter = new mtca4u::DOOCSPVAdapter<float, myD_float> (mydfloat);
+                mydtype       = new myD_float ( NULL, NULL );
+                doocs_adapter = new mtca4u::DOOCSPVAdapter<float, myD_float> (mydtype);
             }
     
             ~CallbacksTestFixture()
             {
                 delete doocs_adapter;
-                delete mydfloat;
+                delete mydtype;
             }
     
     	
@@ -52,12 +52,12 @@ struct CallbacksTestFixture {
 	
 
             // callbacks
-	float	on_get_callback ()	                                             //~  < float () >
+	float	on_get_callback ()	                                             //~  < T () >
 			{
 				++_get_cb_counter;
 				return 0;
 			}
-	void	on_set_callback (float const & newValue, float const & oldValue) //~  < void (float const &, float const & ) >
+	void	on_set_callback (float const & newValue, float const & oldValue) //~  < void (T const &, T const & ) >
 			{
 				if (newValue == oldValue) ++_set_cb_counter_equals;
 				++_set_cb_counter;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_get_cb_count )
     doocs_adapter->get  ();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
-    mydfloat     ->value();
+    mydtype      ->value();
     BOOST_CHECK( _get_cb_counter        == 0 );
     
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( test_get_cb_count )
     doocs_adapter->get  ();
     BOOST_CHECK( _get_cb_counter        == 1 );
 
-    mydfloat     ->value();
+    mydtype      ->value();
     BOOST_CHECK( _get_cb_counter        == 2 );
 
 
@@ -98,25 +98,25 @@ BOOST_AUTO_TEST_CASE( test_get_cb_count )
     doocs_adapter->get  ();
     BOOST_CHECK( _get_cb_counter        == 2 );
 
-    mydfloat     ->value();
+    mydtype      ->value();
     BOOST_CHECK( _get_cb_counter        == 2 );
 
 
-    mydfloat->setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this));
+    mydtype->setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this));
     
     doocs_adapter->get  ();
     BOOST_CHECK( _get_cb_counter        == 3 );
 
-    mydfloat     ->value();
+    mydtype      ->value();
     BOOST_CHECK( _get_cb_counter        == 4 );
 
 
-    mydfloat->clearOnGetCallbackFunction();
+    mydtype->clearOnGetCallbackFunction();
     
     doocs_adapter->get  ();
     BOOST_CHECK( _get_cb_counter        == 4 );
 
-    mydfloat     ->value();
+    mydtype      ->value();
     BOOST_CHECK( _get_cb_counter        == 4 );
 }
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
-    mydfloat     ->set_value(1);
+    mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
     
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
     BOOST_CHECK( _set_cb_counter        == 1 );
     BOOST_CHECK( _set_cb_counter_equals == 1 );
 
-    mydfloat     ->set_value(1);
+    mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 2 );
     BOOST_CHECK( _set_cb_counter_equals == 2 );
 
@@ -156,29 +156,29 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
     BOOST_CHECK( _set_cb_counter        == 2 );
     BOOST_CHECK( _set_cb_counter_equals == 2 );
 
-    mydfloat     ->set_value(1);
+    mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 2 );
     BOOST_CHECK( _set_cb_counter_equals == 2 );
 
 
-    mydfloat->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
+    mydtype->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
     
     doocs_adapter->set(1);
     BOOST_CHECK( _set_cb_counter        == 3 );
     BOOST_CHECK( _set_cb_counter_equals == 3 );
 
-    mydfloat     ->set_value(1);
+    mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
     BOOST_CHECK( _set_cb_counter_equals == 4 );
 
 
-    mydfloat->clearOnSetCallbackFunction();
+    mydtype->clearOnSetCallbackFunction();
     
     doocs_adapter->set(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
     BOOST_CHECK( _set_cb_counter_equals == 4 );
 
-    mydfloat     ->set_value(1);
+    mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
     BOOST_CHECK( _set_cb_counter_equals == 4 );
 }
@@ -189,23 +189,23 @@ BOOST_AUTO_TEST_CASE( test_sync1 )
 
     
     BOOST_CHECK( doocs_adapter->get  () == 0 );
-    BOOST_CHECK( mydfloat     ->value() == 0 );
+    BOOST_CHECK( mydtype      ->value() == 0 );
 
 
     doocs_adapter->set(1);
     BOOST_CHECK( doocs_adapter->get  () == 1 );
-    BOOST_CHECK( mydfloat     ->value() == 1 );  // <---
+    BOOST_CHECK( mydtype      ->value() == 1 );  // <---
 
     doocs_adapter->set(0);
     BOOST_CHECK( doocs_adapter->get  () == 0 );
-    BOOST_CHECK( mydfloat     ->value() == 0 );  // <---
+    BOOST_CHECK( mydtype      ->value() == 0 );  // <---
 
-    mydfloat->set_value(3);
-    BOOST_CHECK( mydfloat     ->value() == 3 );
+    mydtype->set_value(3);
+    BOOST_CHECK( mydtype      ->value() == 3 );
     BOOST_CHECK( doocs_adapter->get  () == 3 );  // <---
 
-    mydfloat->set_value(0);
-    BOOST_CHECK( mydfloat     ->value() == 0 );
+    mydtype->set_value(0);
+    BOOST_CHECK( mydtype      ->value() == 0 );
     BOOST_CHECK( doocs_adapter->get  () == 0 );  // <---
 	
 
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE( test_get_nocb_count )
     doocs_adapter->getWithoutCallback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
-    mydfloat     ->value_without_callback();
+    mydtype      ->value_without_callback();
     BOOST_CHECK( _get_cb_counter        == 0 );
     
 
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( test_get_nocb_count )
     doocs_adapter->getWithoutCallback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
-    mydfloat     ->value_without_callback();
+    mydtype      ->value_without_callback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
 
@@ -248,25 +248,25 @@ BOOST_AUTO_TEST_CASE( test_get_nocb_count )
     doocs_adapter->getWithoutCallback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
-    mydfloat     ->value_without_callback();
+    mydtype      ->value_without_callback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
 
-    mydfloat->setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this));
+    mydtype->setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this));
     
     doocs_adapter->getWithoutCallback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
-    mydfloat     ->value_without_callback();
+    mydtype      ->value_without_callback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
 
-    mydfloat->clearOnGetCallbackFunction();
+    mydtype->clearOnGetCallbackFunction();
     
     doocs_adapter->getWithoutCallback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 
-    mydfloat     ->value_without_callback();
+    mydtype      ->value_without_callback();
     BOOST_CHECK( _get_cb_counter        == 0 );
 }
 
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_set_nocb_count )
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
-    mydfloat     ->set_value_without_callback(1);
+    mydtype      ->set_value_without_callback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
     
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_set_nocb_count )
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
-    mydfloat     ->set_value_without_callback(1);
+    mydtype      ->set_value_without_callback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
@@ -306,29 +306,29 @@ BOOST_AUTO_TEST_CASE( test_set_nocb_count )
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
-    mydfloat     ->set_value_without_callback(1);
+    mydtype      ->set_value_without_callback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
 
-    mydfloat->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
+    mydtype->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
     
     doocs_adapter->setWithoutCallback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
-    mydfloat     ->set_value_without_callback(1);
+    mydtype      ->set_value_without_callback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
 
-    mydfloat->clearOnSetCallbackFunction();
+    mydtype->clearOnSetCallbackFunction();
     
     doocs_adapter->setWithoutCallback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 
-    mydfloat     ->set_value_without_callback(1);
+    mydtype      ->set_value_without_callback(1);
     BOOST_CHECK( _set_cb_counter        == 0 );
     BOOST_CHECK( _set_cb_counter_equals == 0 );
 }
@@ -344,8 +344,8 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
     mtca4u::DOOCSPVAdapter<float, myD_float> * doocs_adapter1;
     mtca4u::DOOCSPVAdapter<float, myD_float> * doocs_adapter2;
     
-    myD_float                                * mydfloat1;
-    myD_float                                * mydfloat2;
+    myD_float                                * mydtype1;
+    myD_float                                * mydtype2;
 
 
 	unsigned int _get_cb_counter1;
@@ -364,18 +364,18 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
                                    _set_cb_counter2       (0),
                                    _set_cb_counter_equals2(0)
             {
-                mydfloat1      = new myD_float ( NULL, NULL );
-                mydfloat2      = new myD_float ( NULL, NULL );
-                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<float, myD_float> (mydfloat1);
-                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<float, myD_float> (mydfloat2);
+                mydtype1       = new myD_float ( NULL, NULL );
+                mydtype2       = new myD_float ( NULL, NULL );
+                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<float, myD_float> (mydtype1);
+                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<float, myD_float> (mydtype2);
             }
     
             ~InterPVTestFixture()
             {
                 delete doocs_adapter1;
                 delete doocs_adapter2;
-                delete mydfloat1;
-                delete mydfloat2;
+                delete mydtype1;
+                delete mydtype2;
             }
     
     	
@@ -393,23 +393,23 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
 
             // callbacks
             // set 1
-	float   on_get_callback1 ()	                                              //~  < float () >
+	float   on_get_callback1 ()	                                              //~  < T () >
 			{
 				++_get_cb_counter1;
 				return 0;
 			}
-	void	on_set_callback1 (float const & newValue, float const & oldValue) //~  < void (float const &, float const & ) >
+	void	on_set_callback1 (float const & newValue, float const & oldValue) //~  < void (T const &, T const & ) >
 			{
 				if (newValue == oldValue) ++_set_cb_counter_equals1;
 				++_set_cb_counter1;
 			}
             // set 2 (NOTE: different treating of counters!)
-	float	on_get_callback2 ()	                                              //~  < float () >
+	float	on_get_callback2 ()	                                              //~  < T () >
 			{
 				_get_cb_counter2 += 2;
 				return 0;
 			}
-	void	on_set_callback2 (float const & newValue, float const & oldValue) //~  < void (float const &, float const & ) >
+	void	on_set_callback2 (float const & newValue, float const & oldValue) //~  < void (T const &, T const & ) >
 			{
 				if (newValue == oldValue) _set_cb_counter_equals2 += 2;
 				_set_cb_counter2 += 2;
@@ -501,7 +501,7 @@ BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_assignment ) // or rather for
     doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
     doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
-    doocs_adapter1->set(1);                         // do some random get/set(float) ...
+    doocs_adapter1->set(1);                         // do some random get/set() ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -525,7 +525,7 @@ BOOST_AUTO_TEST_CASE( set_from_other_pv__callbacks_assignment ) // or rather for
     BOOST_CHECK( _get_cb_counter2        == 2 );
     BOOST_CHECK( _set_cb_counter2        == 4 );    // <---
 
-    doocs_adapter1->set(1);                         // do some random get/set(float) again ...
+    doocs_adapter1->set(1);                         // do some random get/set() again ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -625,7 +625,7 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_assignment ) /
     doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
     doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
-    doocs_adapter1->set(1);                         // do some random get/set(float) ...
+    doocs_adapter1->set(1);                         // do some random get/set() ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -648,7 +648,7 @@ BOOST_AUTO_TEST_CASE( setWithoutCallback_from_other_pv__callbacks_assignment ) /
     BOOST_CHECK( _get_cb_counter2        == 2 );
     BOOST_CHECK( _set_cb_counter2        == 2 );    // <---
 
-    doocs_adapter1->set(1);                         // do some random get/set(float) again ...
+    doocs_adapter1->set(1);                         // do some random get/set() again ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -748,7 +748,7 @@ BOOST_AUTO_TEST_CASE( assign_from_other_pv__callbacks_assignment ) // or rather 
     doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
     doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
-    doocs_adapter1->set(1);                         // do some random get/set(float) ...
+    doocs_adapter1->set(1);                         // do some random get/set() ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -771,7 +771,7 @@ BOOST_AUTO_TEST_CASE( assign_from_other_pv__callbacks_assignment ) // or rather 
     BOOST_CHECK( _get_cb_counter2        == 2 );
     BOOST_CHECK( _set_cb_counter2        == 2 );    // <---
 
-    doocs_adapter1->set(1);                         // do some random get/set(float) again ...
+    doocs_adapter1->set(1);                         // do some random get/set() again ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -790,9 +790,9 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-BOOST_FIXTURE_TEST_SUITE( assign_from_float, InterPVTestFixture )
+BOOST_FIXTURE_TEST_SUITE( assign_from_primtype, InterPVTestFixture )
 
-BOOST_AUTO_TEST_CASE( assign_from_float__checking_operation )
+BOOST_AUTO_TEST_CASE( assign_from_primtype__checking_operation )
 {
     // -- given -- 
     reset_counters();
@@ -808,7 +808,7 @@ BOOST_AUTO_TEST_CASE( assign_from_float__checking_operation )
 }
 
 
-BOOST_AUTO_TEST_CASE( assign_from_float__callbacks_operation )
+BOOST_AUTO_TEST_CASE( assign_from_primtype__callbacks_operation )
 {
     // -- given -- 
     reset_counters();
@@ -835,7 +835,7 @@ BOOST_AUTO_TEST_CASE( assign_from_float__callbacks_operation )
 }
 
 
-BOOST_AUTO_TEST_CASE( assign_from_float__callbacks_assignment ) // or rather for no assignment
+BOOST_AUTO_TEST_CASE( assign_from_primtype__callbacks_assignment ) // or rather for no assignment
 {
     // -- given -- 
     reset_counters();
@@ -851,7 +851,7 @@ BOOST_AUTO_TEST_CASE( assign_from_float__callbacks_assignment ) // or rather for
     doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2)); // prime callbacks
     doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
-    doocs_adapter2->set(1);                         // do some random get/set(float) ...
+    doocs_adapter2->set(1);                         // do some random get/set() ...
     doocs_adapter2->setWithoutCallback(1);
     doocs_adapter2->get();
     doocs_adapter2->getWithoutCallback();
@@ -863,10 +863,10 @@ BOOST_AUTO_TEST_CASE( assign_from_float__callbacks_assignment ) // or rather for
     *doocs_adapter2 = 5;
     
     // -- then --
-    BOOST_CHECK( _get_cb_counter2        == 2 );    // counters state after set(float)
+    BOOST_CHECK( _get_cb_counter2        == 2 );    // counters state after set()
     BOOST_CHECK( _set_cb_counter2        == 2 );    // <---
 
-    doocs_adapter2->set(1);                         // do some random get/set(float) again ...
+    doocs_adapter2->set(1);                         // do some random get/set() again ...
     doocs_adapter2->setWithoutCallback(1);
     doocs_adapter2->get();
     doocs_adapter2->getWithoutCallback();
@@ -886,15 +886,15 @@ BOOST_AUTO_TEST_CASE( conversion__checking_operation )
     // -- given -- 
     reset_counters();
     doocs_adapter1->setWithoutCallback(5);
-    doocs_adapter2->setWithoutCallback(3);
+    doocs_adapter2->setWithoutCallback(4);
 
     BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
-    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 3 );
+    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 4 );
     
     // -- when --
-    float  val  = *doocs_adapter1;
-    float  res1 = *doocs_adapter1 * 2;
-    float  res2 = *doocs_adapter1 * *doocs_adapter2;
+    double val  = *doocs_adapter1;
+    double res1 = *doocs_adapter1 * 2;
+    double res2 = *doocs_adapter1 * *doocs_adapter2;
     double res3 = *doocs_adapter1 * 2.5;
 
 	doocs_adapter2->setWithoutCallback((*doocs_adapter1 * *doocs_adapter2) / 2.0);
@@ -904,11 +904,11 @@ BOOST_AUTO_TEST_CASE( conversion__checking_operation )
     BOOST_CHECK( val  == *doocs_adapter1 );
     BOOST_CHECK( 5    == *doocs_adapter1 );
     BOOST_CHECK( res1 == 10 );
-    BOOST_CHECK( res2 == 15 );
+    BOOST_CHECK( res2 == 20 );
     BOOST_CHECK( res3 == 12.5 );
 
     BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
-    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 7.5 );
+    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 10 );
 }
 
 
@@ -923,7 +923,7 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_operation )
     doocs_adapter2->clearOnSetCallbackFunction();
 
     doocs_adapter1->setWithoutCallback(5);          // some init vals
-    doocs_adapter2->setWithoutCallback(3);
+    doocs_adapter2->setWithoutCallback(4);
 
     BOOST_CHECK( _get_cb_counter1        == 0 );
     BOOST_CHECK( _set_cb_counter1        == 0 );
@@ -936,16 +936,16 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_operation )
     doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
     // -- when --
-    float  val  = *doocs_adapter1;
-    float  res1 = *doocs_adapter1 * 2;
-    float  res2 = *doocs_adapter1 * *doocs_adapter2;
+    double val  = *doocs_adapter1;
+    double res1 = *doocs_adapter1 * 2;
+    double res2 = *doocs_adapter1 * *doocs_adapter2;
     double res3 = *doocs_adapter1 * 2.5;                  val += res1 + res2 + res3;  // suppress -Wunused-variable
 
 	doocs_adapter2->setWithoutCallback((*doocs_adapter1 * *doocs_adapter2) / 2.0);
     
     // -- then --
     BOOST_CHECK( doocs_adapter1->getWithoutCallback() == 5 );
-    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 7.5 );
+    BOOST_CHECK( doocs_adapter2->getWithoutCallback() == 10 );
     
     BOOST_CHECK( _get_cb_counter1        == 0 );    // make sure callbacks not called
     BOOST_CHECK( _set_cb_counter1        == 0 );
@@ -977,7 +977,7 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_assignment ) // or rather for no ass
     doocs_adapter2->setOnSetCallbackFunction(boost::bind (&InterPVTestFixture::on_set_callback2, this, _1, _2));
     doocs_adapter2->setOnGetCallbackFunction(boost::bind (&InterPVTestFixture::on_get_callback2, this));
     
-    doocs_adapter1->set(1);                         // do some random get/set(float) ...
+    doocs_adapter1->set(1);                         // do some random get/set() ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
@@ -992,9 +992,9 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_assignment ) // or rather for no ass
     BOOST_CHECK( _set_cb_counter2        == 2 );
     
     // -- when --
-    float  val  = *doocs_adapter1;
-    float  res1 = *doocs_adapter1 * 2;
-    float  res2 = *doocs_adapter1 * *doocs_adapter2;
+    double val  = *doocs_adapter1;
+    double res1 = *doocs_adapter1 * 2;
+    double res2 = *doocs_adapter1 * *doocs_adapter2;
     double res3 = *doocs_adapter1 * 2.5;                  val += res1 + res2 + res3;  // suppress -Wunused-variable
 
 	doocs_adapter2->setWithoutCallback((*doocs_adapter1 * *doocs_adapter2) / 2);
@@ -1005,7 +1005,7 @@ BOOST_AUTO_TEST_CASE( conversion__callbacks_assignment ) // or rather for no ass
     BOOST_CHECK( _get_cb_counter2        == 2 );
     BOOST_CHECK( _set_cb_counter2        == 2 );    // <---
 
-    doocs_adapter1->set(1);                         // do some random get/set(float) again ...
+    doocs_adapter1->set(1);                         // do some random get/set() again ...
     doocs_adapter1->setWithoutCallback(1);
     doocs_adapter1->get();
     doocs_adapter1->getWithoutCallback();
