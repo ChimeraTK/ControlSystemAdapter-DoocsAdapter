@@ -1,5 +1,5 @@
-#ifndef __myd_xxx__
-#define __myd_xxx__
+#ifndef __m4uD_xxx__
+#define __m4uD_xxx__
 
 
 #include <boost/bind.hpp>
@@ -9,7 +9,7 @@
 
 
 template <typename T>
-class myD_xxx
+class m4uD_xxx
 {
 protected:
 	boost::function < void (T const &, T const & ) >	_onSetCallbackFunction;	// (newValue, oldValue)
@@ -50,5 +50,5 @@ public:
 
 
 
-#endif /* __myd_xxx__ */
+#endif /* __m4uD_xxx__ */
 

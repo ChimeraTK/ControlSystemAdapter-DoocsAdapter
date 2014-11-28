@@ -1,17 +1,17 @@
-#ifndef __myd_float__
-#define __myd_float__
+#ifndef __m4uD_float__
+#define __m4uD_float__
 
 
 
-#include "myD_xxx.hpp"
+#include "m4uD_xxx.hpp"
 
 
-class myD_float : public myD_xxx<float>, public D_float
+class m4uD_float : public m4uD_xxx<float>, public D_float
 {
     
 public:
     
-    myD_float (const char *pn, EqFct *ef) :    D_float(pn, ef) {}
+    m4uD_float (const char *pn, EqFct *ef) :    D_float(pn, ef) {}
 
 
             // accessors with callbacks (based on standard DOOCS property interface)
@@ -51,5 +51,5 @@ public:
 
 
 
-#endif /* __myd_float__ */
+#endif /* __m4uD_float__ */
 

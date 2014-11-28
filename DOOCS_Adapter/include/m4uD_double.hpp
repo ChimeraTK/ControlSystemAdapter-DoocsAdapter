@@ -1,48 +1,48 @@
-#ifndef __myd_int__
-#define __myd_int__
+#ifndef __m4uD_double__
+#define __m4uD_double__
 
 
 
-#include "myD_xxx.hpp"
+#include "m4uD_xxx.hpp"
 
 
-class myD_int : public myD_xxx<int>, public D_int
+class m4uD_double : public m4uD_xxx<double>, public D_double
 {
     
 public:
     
-    myD_int (const char *pn, EqFct *ef) :    D_int(pn, ef) {}
+    m4uD_double (const char *pn, EqFct *ef) :    D_double(pn, ef) {}
 
 
             // accessors with callbacks (based on standard DOOCS property interface)
-	void	set_value (int val)
+	void	set_value (double val)
             {
-                D_int::set_value(val);
+                D_double::set_value(val);
                 if (_onSetCallbackFunction)
                 {
                     _onSetCallbackFunction (val, val);
                 }
             }
-	int		value ()
+	double	value ()
             {
                 if (_onGetCallbackFunction)
                 {
-                    int ongetcallbackresult = _onGetCallbackFunction ();
+                    double ongetcallbackresult = _onGetCallbackFunction ();
                     // doing sth based on ongetcallbackresult ???
                     ongetcallbackresult += 2; // suppress -Wunused-variable
                 }
-                return D_int::value();
+                return D_double::value();
             }
 
 
             // accessors without callbacks (extension of the original DOOCS property interface)
-	void	set_value_without_callback (int val)
+	void	set_value_without_callback (double val)
             {
-                D_int::set_value(val);
+                D_double::set_value(val);
             }
-	int		value_without_callback ()
+	double	value_without_callback ()
             {
-                return D_int::value();
+                return D_double::value();
             }
 };
 
@@ -51,5 +51,5 @@ public:
 
 
 
-#endif /* __myd_int__ */
+#endif /* __m4uD_double__ */
 

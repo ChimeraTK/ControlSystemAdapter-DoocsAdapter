@@ -4,7 +4,7 @@ using namespace boost::unit_test;
 
 
 #include "D_double_mock.hpp"
-#include "myD_double.hpp"
+#include "m4uD_double.hpp"
 #include "DOOCSProcessVariableAdapter.hpp"
 
 
@@ -17,8 +17,8 @@ using namespace boost::unit_test;
 
 struct CallbacksTestFixture {
 	
-    mtca4u::DOOCSPVAdapter<double, myD_double> * doocs_adapter;
-    myD_double                                 * mydtype;
+    mtca4u::DOOCSPVAdapter<double, m4uD_double> * doocs_adapter;
+    m4uD_double                                 * mydtype;
 
 
 	unsigned int _get_cb_counter;
@@ -31,8 +31,8 @@ struct CallbacksTestFixture {
                                      _set_cb_counter       (0),
                                      _set_cb_counter_equals(0)
             {
-                mydtype       = new myD_double ( NULL, NULL );
-                doocs_adapter = new mtca4u::DOOCSPVAdapter<double, myD_double> (mydtype);
+                mydtype       = new m4uD_double ( NULL, NULL );
+                doocs_adapter = new mtca4u::DOOCSPVAdapter<double, m4uD_double> (mydtype);
             }
     
             ~CallbacksTestFixture()
@@ -341,11 +341,11 @@ BOOST_AUTO_TEST_SUITE_END()
 
 struct InterPVTestFixture {         // for testing interactions between two PVs,
                                     // like setting or assigning from a PV
-    mtca4u::DOOCSPVAdapter<double, myD_double> * doocs_adapter1;
-    mtca4u::DOOCSPVAdapter<double, myD_double> * doocs_adapter2;
+    mtca4u::DOOCSPVAdapter<double, m4uD_double> * doocs_adapter1;
+    mtca4u::DOOCSPVAdapter<double, m4uD_double> * doocs_adapter2;
     
-    myD_double                                 * mydtype1;
-    myD_double                                 * mydtype2;
+    m4uD_double                                 * mydtype1;
+    m4uD_double                                 * mydtype2;
 
 
 	unsigned int _get_cb_counter1;
@@ -364,10 +364,10 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
                                    _set_cb_counter2       (0),
                                    _set_cb_counter_equals2(0)
             {
-                mydtype1       = new myD_double ( NULL, NULL );
-                mydtype2       = new myD_double ( NULL, NULL );
-                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<double, myD_double> (mydtype1);
-                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<double, myD_double> (mydtype2);
+                mydtype1       = new m4uD_double ( NULL, NULL );
+                mydtype2       = new m4uD_double ( NULL, NULL );
+                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<double, m4uD_double> (mydtype1);
+                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<double, m4uD_double> (mydtype2);
             }
     
             ~InterPVTestFixture()
