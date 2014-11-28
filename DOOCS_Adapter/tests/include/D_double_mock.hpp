@@ -2,10 +2,8 @@
 #define __d_double_mock__
 
 
+#include "eq_fct.h"
 
-
-
-class EqFct {}; // stub
 
 
 /**
