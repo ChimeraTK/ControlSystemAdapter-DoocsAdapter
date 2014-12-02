@@ -53,14 +53,14 @@ public:
             // accessors with callbacks (based on standard DOOCS property interface)
 	void	set_value (T val)
             {
-                // cache the current value if the doocs variable
-                T oldValue = DOOCS_T::value();
+                // cache the current value in the DOOCS property
+                T oldVal = DOOCS_T::value();
                 // set the new value of the variable
                 DOOCS_T::set_value(val);
                 if (_onSetCallbackFunction)
                 {
                     // trigger the callback with both the new and the old value
-                    _onSetCallbackFunction (val, oldValue);
+                    _onSetCallbackFunction (val, oldVal);
                 }
             }
 	T	    value ()
