@@ -158,16 +158,16 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
     BOOST_CHECK( _set_cb_counter        == 3 );
     BOOST_CHECK( _set_cb_counter_equals == 3 );
 
-    mydtype      ->set_value(1);
+    mydtype      ->set_value(2);
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 3 );
 
 
     mydtype->clearOnSetCallbackFunction();
     
     mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 3 );
 }
 
 BOOST_AUTO_TEST_CASE( test_sync1 )

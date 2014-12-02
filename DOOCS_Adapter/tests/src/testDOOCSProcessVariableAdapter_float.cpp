@@ -163,24 +163,24 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
 
     mydtype->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
     
-    doocs_adapter->set(1);
+    doocs_adapter->set(2);
     BOOST_CHECK( _set_cb_counter        == 3 );
-    BOOST_CHECK( _set_cb_counter_equals == 3 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 
     mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 
 
     mydtype->clearOnSetCallbackFunction();
     
     doocs_adapter->set(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 
     mydtype      ->set_value(1);
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 }
 
 BOOST_AUTO_TEST_CASE( test_sync1 )
