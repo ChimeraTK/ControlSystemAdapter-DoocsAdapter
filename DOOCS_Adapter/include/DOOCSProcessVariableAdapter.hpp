@@ -1,15 +1,15 @@
 #ifndef __dpva__
 #define __dpva__
 
-
+#include <string>
 #include <boost/function.hpp>
 
 #include "ProcessVariable.h"
 
 
+
+
 namespace mtca4u {
-
-
 
 
 

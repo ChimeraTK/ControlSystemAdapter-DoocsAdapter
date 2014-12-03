@@ -1,11 +1,11 @@
-#define BOOST_TEST_MODULE callback_model_test
+#define BOOST_TEST_MODULE test_dpva_string
 
-#include <string>
 
-#include "D_string_mock.hpp"
+#include "eq_fct.h"
 
 #include "m4uD_type.hpp"
 #include "DOOCSProcessVariableAdapter.hpp"
+
 
 
 

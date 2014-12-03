@@ -5,7 +5,10 @@
 
 
 
-class EqFct {}; // stub
+#include "d_fct.h"  // DOOCS-like dependency
+
+
+class EqFct {};     // "declaration"
 
 
 

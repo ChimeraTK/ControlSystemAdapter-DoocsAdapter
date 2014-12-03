@@ -1,8 +1,7 @@
-#define BOOST_TEST_MODULE callback_model_test
+#define BOOST_TEST_MODULE test_dpva_float
 
 
-#include "D_float_mock.hpp"
-#include "D_string_mock.hpp"
+#include "eq_fct.h"
 
 #include "m4uD_type.hpp"
 #include "DOOCSProcessVariableAdapter.hpp"

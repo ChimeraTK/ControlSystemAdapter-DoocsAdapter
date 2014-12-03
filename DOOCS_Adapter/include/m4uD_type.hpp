@@ -2,11 +2,9 @@
 #define __m4uD_type__
 
 
+#include <string>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-
-#include "eq_fct.h"
-
 
 
 
