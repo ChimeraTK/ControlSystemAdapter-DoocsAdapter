@@ -59,7 +59,7 @@ struct CallbacksTestFixture {
 			}
 	void	on_set_callback (const char * const & newValue, const char * const & oldValue) //~  < void (T const &, T const & ) >
 			{
-				if (newValue == oldValue) ++_set_cb_counter_equals;
+				if ( strcmp(newValue, oldValue) == 0 ) ++_set_cb_counter_equals;
 				++_set_cb_counter;
 			}
 };
@@ -163,24 +163,24 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
 
     mydtype->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
     
-    doocs_adapter->set("1");
+    doocs_adapter->set("2");
     BOOST_CHECK( _set_cb_counter        == 3 );
-    BOOST_CHECK( _set_cb_counter_equals == 3 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 
     mydtype      ->set_value("1");
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 
 
     mydtype->clearOnSetCallbackFunction();
     
     doocs_adapter->set("1");
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 
     mydtype      ->set_value("1");
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK( _set_cb_counter_equals == 2 );
 }
 
 BOOST_AUTO_TEST_CASE( test_sync1 )
@@ -400,7 +400,7 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
 			}
 	void	on_set_callback1 (const char * const & newValue, const char * const & oldValue) //~  < void (T const &, T const & ) >
 			{
-				if (newValue == oldValue) ++_set_cb_counter_equals1;
+				if ( strcmp(newValue, oldValue) == 0 ) ++_set_cb_counter_equals1;
 				++_set_cb_counter1;
 			}
             // set 2 (NOTE: different treating of counters!)
@@ -411,7 +411,7 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
 			}
 	void	on_set_callback2 (const char * const & newValue, const char * const & oldValue) //~  < void (T const &, T const & ) >
 			{
-				if (newValue == oldValue) _set_cb_counter_equals2 += 2;
+				if ( strcmp(newValue, oldValue) == 0 ) _set_cb_counter_equals2 += 2;
 				_set_cb_counter2 += 2;
 			}
 };

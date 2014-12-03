@@ -1,6 +1,8 @@
 #ifndef __d_string_mock__
 #define __d_string_mock__
 
+#include <string>
+#include <cstring>
 
 #include "eq_fct.h"
 
@@ -23,21 +25,21 @@ protected:
     const char          * pn_; // suppress -Wunused-parameter
 	const EqFct         * ef_; // suppress -Wunused-parameter
     
-    u_short         type_; // 0: user defined length, 1: dynamic length
-    u_short         len_;
+    unsigned short  type_; // 0: user defined length, 1: dynamic length
+    unsigned short  len_;
     char            *txt_;
     std::string     text_; // for dynamic string
 
     
 public:
 
-    D_string (const char *pn, EqFct *ef) : pn_(pn), ef_(ef)
+                        D_string (const char *pn, EqFct *ef) : pn_(pn), ef_(ef)
                         {
                             type_ = 1;
                             len_  = 0;
                             txt_  = (char *) 0;
                         }
-    D_string (const char *pn)            : pn_(pn)
+                        D_string (const char *pn)            : pn_(pn)
                         {
                             type_ = 1;
                             len_  = 0;

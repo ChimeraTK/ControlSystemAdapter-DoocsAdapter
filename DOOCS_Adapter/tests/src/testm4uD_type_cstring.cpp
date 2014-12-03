@@ -3,9 +3,9 @@
 using namespace boost::unit_test;
 
 
-#include "m4uD_type.hpp"
-
 #include "D_string_mock.hpp"
+
+#include "m4uD_type.hpp"
 
 
 
@@ -54,8 +54,9 @@ struct CallbacksTestFixture {
             }
     void    on_set_callback (const char * const & newValue, const char * const & oldValue) //~  < void (T const &, T const & ) >
             {
-                if (newValue == oldValue) ++_set_cb_counter_equals;
+                if ( strcmp(newValue, oldValue) == 0 ) ++_set_cb_counter_equals;
                 ++_set_cb_counter;
+                std::cout << oldValue << ", " << newValue << '\n' << "  [" << &oldValue << ", " << &newValue << "]" << '\n';
             }
 };
 
@@ -158,16 +159,16 @@ BOOST_AUTO_TEST_CASE( test_set_cb_count )
     BOOST_CHECK( _set_cb_counter        == 3 );
     BOOST_CHECK( _set_cb_counter_equals == 3 );
 
-    mydtype      ->set_value("1");
+    mydtype      ->set_value("2");
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK_EQUAL( _set_cb_counter_equals, 3 );
 
 
     mydtype->clearOnSetCallbackFunction();
     
     mydtype      ->set_value("1");
     BOOST_CHECK( _set_cb_counter        == 4 );
-    BOOST_CHECK( _set_cb_counter_equals == 4 );
+    BOOST_CHECK_EQUAL( _set_cb_counter_equals, 3 );
 }
 
 BOOST_AUTO_TEST_CASE( test_sync1 )
@@ -181,14 +182,14 @@ BOOST_AUTO_TEST_CASE( test_sync1 )
     mydtype      ->set_value("1");
     BOOST_CHECK_EQUAL( mydtype      ->value(), "1" );  // <---
 
-    mydtype      ->set_value("0");
-    BOOST_CHECK_EQUAL( mydtype      ->value(), "0" );  // <---
+    mydtype      ->set_value("");
+    BOOST_CHECK_EQUAL( mydtype      ->value(), "" );  // <---
 
-    mydtype      ->set_value("3");
-    BOOST_CHECK_EQUAL( mydtype      ->value(), "3" );  // <---
+    mydtype      ->set_value("3333");
+    BOOST_CHECK_EQUAL( mydtype      ->value(), "3333" );  // <---
 
-    mydtype      ->set_value("0");
-    BOOST_CHECK_EQUAL( mydtype      ->value(), "0" );  // <---
+    mydtype      ->set_value("1111111111110");
+    BOOST_CHECK_EQUAL( mydtype      ->value(), "1111111111110" );  // <---
     
 
     mydtype      ->set_value("0");

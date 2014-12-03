@@ -3,9 +3,10 @@
 
 
 
-#include "m4uD_type.hpp"
-
 #include "D_double_mock.hpp"
+#include "D_string_mock.hpp"
+
+#include "m4uD_type.hpp"
 
 
 

@@ -182,16 +182,36 @@ BOOST_FIXTURE_TEST_SUITE( test_callbacks, CallbacksTestFixture ) // callback arb
 		BOOST_CHECK( _set_cb_counter        == 3 );
 		BOOST_CHECK( _set_cb_counter_equals == 3 );
 
-		mydtype      ->set_value(2);
+		mydtype      ->set_value(1);
 		BOOST_CHECK( _set_cb_counter        == 4 );
-		BOOST_CHECK( _set_cb_counter_equals == 3 );
+		BOOST_CHECK( _set_cb_counter_equals == 4 );
 
 
 		mydtype->clearOnSetCallbackFunction();
 		
 		mydtype      ->set_value(1);
 		BOOST_CHECK( _set_cb_counter        == 4 );
-		BOOST_CHECK( _set_cb_counter_equals == 3 );
+		BOOST_CHECK( _set_cb_counter_equals == 4 );
+	}
+
+	BOOST_AUTO_TEST_CASE( test_set_cb_equals_count )
+	{
+		BOOST_CHECK( _set_cb_counter        == 0 );
+		BOOST_CHECK( _set_cb_counter_equals == 0 );
+		
+
+		mydtype->setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1, _2));
+		
+		mydtype      ->set_value(1);
+		BOOST_CHECK( _set_cb_counter        == 1 );
+
+		mydtype      ->set_value(2);
+		BOOST_CHECK( _set_cb_counter        == 2 );
+		BOOST_CHECK( _set_cb_counter_equals == 0 );
+
+		mydtype      ->set_value(2);
+		BOOST_CHECK( _set_cb_counter        == 3 );
+		BOOST_CHECK( _set_cb_counter_equals == 1 );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
