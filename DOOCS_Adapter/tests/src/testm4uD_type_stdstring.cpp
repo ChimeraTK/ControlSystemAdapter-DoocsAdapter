@@ -15,7 +15,7 @@
 
 struct CallbacksTestFixture {
     
-    m4uD_type<std::string, D_string>                              * mydtype;
+    mtca4u::m4uD_type<std::string, D_string>                              * mydtype;
 
 
     unsigned int _get_cb_counter;
@@ -28,7 +28,7 @@ struct CallbacksTestFixture {
                                      _set_cb_counter       (0),
                                      _set_cb_counter_equals(0)
             {
-                mydtype       = new m4uD_type<std::string, D_string> ( NULL, NULL );
+                mydtype       = new mtca4u::m4uD_type<std::string, D_string> ( NULL, NULL );
             }
     
             ~CallbacksTestFixture()

@@ -9,6 +9,9 @@
 
 
 
+namespace mtca4u {
+
+
 
 
 template <typename T, typename DOOCS_T>
@@ -175,6 +178,7 @@ public:
 
 
 
+}//namespace mtca4u
 
 
 #endif /* __m4uD_type__ */
