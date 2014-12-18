@@ -58,8 +58,8 @@ This is a documentation stub for the DOOCS Process Variable Adapter for MTCA4U. 
       \item
         in the main server class:
 \begin{verbatim}
-	myD_int          mydint; 
-	DOOCSPVAdapter * doocs_adapter;
+	myD_int                       mydint; 
+	DOOCSProcessVariableAdapter * doocs_adapter;
 \end{verbatim}
     \end{itemize}
  
@@ -70,7 +70,7 @@ This is a documentation stub for the DOOCS Process Variable Adapter for MTCA4U. 
         constructor:
 \begin{verbatim}
 mydint  ("MYDINT for DOOCS adapter", this )     // in init list
-doocs_adapter = new DOOCSPVAdapter();           // in body
+doocs_adapter = new DOOCSProcessVariableAdapter();           // in body
 \end{verbatim}
       \item
         destructor:

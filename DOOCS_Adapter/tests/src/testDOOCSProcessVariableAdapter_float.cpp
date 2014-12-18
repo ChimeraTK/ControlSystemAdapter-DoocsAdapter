@@ -11,8 +11,8 @@
 
 struct CallbacksTestFixture {
 	
-    mtca4u::DOOCSPVAdapter<float, mtca4u::m4uD_type<float, D_float> > * doocs_adapter;
-    mtca4u::m4uD_type<float, D_float>                                 * mydtype;
+    mtca4u::DOOCSProcessVariableAdapter<float, mtca4u::m4uD_type<float, D_float> > * doocs_adapter;
+    mtca4u::m4uD_type<float, D_float>                                              * mydtype;
 
 
 	unsigned int _get_cb_counter;
@@ -26,7 +26,7 @@ struct CallbacksTestFixture {
                                      _set_cb_counter_equals(0)
             {
                 mydtype       = new mtca4u::m4uD_type<float, D_float> ( NULL, NULL );
-                doocs_adapter = new mtca4u::DOOCSPVAdapter<float, mtca4u::m4uD_type<float, D_float> > (mydtype);
+                doocs_adapter = new mtca4u::DOOCSProcessVariableAdapter<float, mtca4u::m4uD_type<float, D_float> > (mydtype);
             }
     
             ~CallbacksTestFixture()
@@ -64,11 +64,11 @@ struct CallbacksTestFixture {
 
 struct InterPVTestFixture {         // for testing interactions between two PVs,
                                     // like setting or assigning from a PV
-    mtca4u::DOOCSPVAdapter<float, mtca4u::m4uD_type<float, D_float> > * doocs_adapter1;
-    mtca4u::DOOCSPVAdapter<float, mtca4u::m4uD_type<float, D_float> > * doocs_adapter2;
+    mtca4u::DOOCSProcessVariableAdapter<float, mtca4u::m4uD_type<float, D_float> > * doocs_adapter1;
+    mtca4u::DOOCSProcessVariableAdapter<float, mtca4u::m4uD_type<float, D_float> > * doocs_adapter2;
     
-    mtca4u::m4uD_type<float, D_float>                                 * mydtype1;
-    mtca4u::m4uD_type<float, D_float>                                 * mydtype2;
+    mtca4u::m4uD_type<float, D_float>                                              * mydtype1;
+    mtca4u::m4uD_type<float, D_float>                                              * mydtype2;
 
 
 	unsigned int _get_cb_counter1;
@@ -89,8 +89,8 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
             {
                 mydtype1       = new mtca4u::m4uD_type<float, D_float> ( NULL, NULL );
                 mydtype2       = new mtca4u::m4uD_type<float, D_float> ( NULL, NULL );
-                doocs_adapter1 = new mtca4u::DOOCSPVAdapter<float, mtca4u::m4uD_type<float, D_float> > (mydtype1);
-                doocs_adapter2 = new mtca4u::DOOCSPVAdapter<float, mtca4u::m4uD_type<float, D_float> > (mydtype2);
+                doocs_adapter1 = new mtca4u::DOOCSProcessVariableAdapter<float, mtca4u::m4uD_type<float, D_float> > (mydtype1);
+                doocs_adapter2 = new mtca4u::DOOCSProcessVariableAdapter<float, mtca4u::m4uD_type<float, D_float> > (mydtype2);
             }
     
             ~InterPVTestFixture()

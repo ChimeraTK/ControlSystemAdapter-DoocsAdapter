@@ -7,7 +7,8 @@
 #include "ProcessVariable.h"
 
 
-
+struct CallbacksTestFixture;
+struct InterPVTestFixture;
 
 namespace mtca4u {
 
@@ -15,15 +16,20 @@ namespace mtca4u {
 
 
 template <typename T, typename M4U_DOOCS_T>
-class DOOCSPVAdapter : public ProcessVariable < T >
+class DOOCSProcessVariableAdapter : public ProcessVariable < T >
 {
 protected:
     
     M4U_DOOCS_T  * m4uD_type_T;
     
-public:
+    // a non-public constructor
+    DOOCSProcessVariableAdapter (M4U_DOOCS_T * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
     
-    DOOCSPVAdapter (M4U_DOOCS_T * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
+    // test structs to access the constructor
+    friend struct ::CallbacksTestFixture;
+    friend struct ::InterPVTestFixture;
+    
+public:
     
 
     void setOnSetCallbackFunction( boost::function< void (T const & /*newValue*/, T const & /*oldValue*/) > onSetCallbackFunction)
@@ -70,17 +76,17 @@ public:
          }
 
     
-    DOOCSPVAdapter & operator=(ProcessVariable<T> const & other)
+    DOOCSProcessVariableAdapter & operator=(ProcessVariable<T> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
              return *this;
          }
-    DOOCSPVAdapter & operator=(DOOCSPVAdapter const & other)
+    DOOCSProcessVariableAdapter & operator=(DOOCSProcessVariableAdapter const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
              return *this;
          }
-    DOOCSPVAdapter & operator=(T const & t)
+    DOOCSProcessVariableAdapter & operator=(T const & t)
          {
              setWithoutCallback( t );
              return *this;
@@ -97,15 +103,20 @@ public:
 
 
 template <>
-class DOOCSPVAdapter <std::string, m4uD_type<std::string, D_string> > : public ProcessVariable < std::string >
+class DOOCSProcessVariableAdapter <std::string, m4uD_type<std::string, D_string> > : public ProcessVariable < std::string >
 {
 protected:
     
     m4uD_type<std::string, D_string>  * m4uD_type_T;
     
-public:
+    // a non-public constructor
+    DOOCSProcessVariableAdapter <std::string, m4uD_type<std::string, D_string> > (m4uD_type<std::string, D_string> * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
+
+    // test structs to access the constructor
+    friend struct ::CallbacksTestFixture;
+    friend struct ::InterPVTestFixture;
     
-    DOOCSPVAdapter <std::string, m4uD_type<std::string, D_string> > (m4uD_type<std::string, D_string> * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
+public:
     
 
     void setOnSetCallbackFunction( boost::function< void (std::string const & /*newValue*/, std::string const & /*oldValue*/) > onSetCallbackFunction)
@@ -152,17 +163,17 @@ public:
          }
 
     
-    DOOCSPVAdapter & operator=(ProcessVariable<std::string> const & other)
+    DOOCSProcessVariableAdapter & operator=(ProcessVariable<std::string> const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
              return *this;
          }
-    DOOCSPVAdapter & operator=(DOOCSPVAdapter const & other)
+    DOOCSProcessVariableAdapter & operator=(DOOCSProcessVariableAdapter const & other)
          {
              setWithoutCallback( other.getWithoutCallback() );
              return *this;
          }
-    DOOCSPVAdapter & operator=(std::string const & t)
+    DOOCSProcessVariableAdapter & operator=(std::string const & t)
          {
              setWithoutCallback( t );
              return *this;
