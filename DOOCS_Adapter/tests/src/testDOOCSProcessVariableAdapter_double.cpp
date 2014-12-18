@@ -12,7 +12,6 @@
 struct CallbacksTestFixture {
 	
     mtca4u::DOOCSProcessVariableAdapter<double, mtca4u::m4uD_type<double, D_double> > * doocs_adapter;
-    mtca4u::m4uD_type<double, D_double>                                               * mydtype;
 
 
 	unsigned int _get_cb_counter;
@@ -25,14 +24,13 @@ struct CallbacksTestFixture {
                                      _set_cb_counter       (0),
                                      _set_cb_counter_equals(0)
             {
-                mydtype       = new mtca4u::m4uD_type<double, D_double> ( NULL, NULL );
+                boost::shared_ptr< mtca4u::m4uD_type<double, D_double> >   mydtype ( new mtca4u::m4uD_type<double, D_double> ( NULL, NULL ) );
                 doocs_adapter = new mtca4u::DOOCSProcessVariableAdapter<double, mtca4u::m4uD_type<double, D_double> > (mydtype);
             }
     
             ~CallbacksTestFixture()
             {
                 delete doocs_adapter;
-                delete mydtype;
             }
     
     	
@@ -67,9 +65,6 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
     mtca4u::DOOCSProcessVariableAdapter<double, mtca4u::m4uD_type<double, D_double> > * doocs_adapter1;
     mtca4u::DOOCSProcessVariableAdapter<double, mtca4u::m4uD_type<double, D_double> > * doocs_adapter2;
     
-    mtca4u::m4uD_type<double, D_double>                                               * mydtype1;
-    mtca4u::m4uD_type<double, D_double>                                               * mydtype2;
-
 
 	unsigned int _get_cb_counter1;
 	unsigned int _set_cb_counter1;
@@ -87,8 +82,8 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
                                    _set_cb_counter2       (0),
                                    _set_cb_counter_equals2(0)
             {
-                mydtype1       = new mtca4u::m4uD_type<double, D_double> ( NULL, NULL );
-                mydtype2       = new mtca4u::m4uD_type<double, D_double> ( NULL, NULL );
+                boost::shared_ptr< mtca4u::m4uD_type<double, D_double> >   mydtype1 ( new mtca4u::m4uD_type<double, D_double> ( NULL, NULL ) );
+                boost::shared_ptr< mtca4u::m4uD_type<double, D_double> >   mydtype2 ( new mtca4u::m4uD_type<double, D_double> ( NULL, NULL ) );
                 doocs_adapter1 = new mtca4u::DOOCSProcessVariableAdapter<double, mtca4u::m4uD_type<double, D_double> > (mydtype1);
                 doocs_adapter2 = new mtca4u::DOOCSProcessVariableAdapter<double, mtca4u::m4uD_type<double, D_double> > (mydtype2);
             }
@@ -97,8 +92,6 @@ struct InterPVTestFixture {         // for testing interactions between two PVs,
             {
                 delete doocs_adapter1;
                 delete doocs_adapter2;
-                delete mydtype1;
-                delete mydtype2;
             }
     
     	

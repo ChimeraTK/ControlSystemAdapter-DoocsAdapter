@@ -3,6 +3,7 @@
 
 #include <string>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "ProcessVariable.h"
 
@@ -20,10 +21,10 @@ class DOOCSProcessVariableAdapter : public ProcessVariable < T >
 {
 protected:
     
-    M4U_DOOCS_T  * m4uD_type_T;
+    boost::shared_ptr< M4U_DOOCS_T >   m4uD_type_T;
     
     // a non-public constructor
-    DOOCSProcessVariableAdapter (M4U_DOOCS_T * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
+    DOOCSProcessVariableAdapter (boost::shared_ptr< M4U_DOOCS_T > _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
     
     // test structs to access the constructor
     friend struct ::CallbacksTestFixture;
@@ -107,10 +108,10 @@ class DOOCSProcessVariableAdapter <std::string, m4uD_type<std::string, D_string>
 {
 protected:
     
-    m4uD_type<std::string, D_string>  * m4uD_type_T;
+    boost::shared_ptr< m4uD_type<std::string, D_string> >   m4uD_type_T;
     
     // a non-public constructor
-    DOOCSProcessVariableAdapter <std::string, m4uD_type<std::string, D_string> > (m4uD_type<std::string, D_string> * _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
+    DOOCSProcessVariableAdapter <std::string, m4uD_type<std::string, D_string> > (boost::shared_ptr< m4uD_type<std::string, D_string> > _m4uD_type_T) : m4uD_type_T(_m4uD_type_T) {};
 
     // test structs to access the constructor
     friend struct ::CallbacksTestFixture;
