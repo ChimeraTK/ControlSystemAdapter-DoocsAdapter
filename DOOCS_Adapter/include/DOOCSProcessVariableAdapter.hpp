@@ -121,6 +121,9 @@ protected:
     // test structs to access the constructor
     friend struct ::CallbacksTestFixture;
     friend struct ::InterPVTestFixture;
+
+    // the factory needs to be able to reach the constructor
+    friend class DOOCSProcessVariableFactory;
     
 public:
     

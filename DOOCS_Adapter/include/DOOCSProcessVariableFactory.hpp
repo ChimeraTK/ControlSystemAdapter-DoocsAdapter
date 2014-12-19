@@ -42,7 +42,12 @@ protected:
             return boost::shared_ptr < ProcessVariable<double> > ( new DOOCSProcessVariableAdapter<double, m4uD_type<double, D_double> > (mydtype) );
 
         } else
-        // TODO STRING!!!
+        if(variableType == typeid(std::string) ) {
+
+            boost::shared_ptr< m4uD_type<std::string, D_string> >   mydtype ( new m4uD_type<std::string, D_string> ( name.c_str(), ef ) );
+            return boost::shared_ptr < ProcessVariable<std::string>  > ( new DOOCSProcessVariableAdapter<std::string , m4uD_type<std::string , D_string > > (mydtype) ); 
+
+        } else
         {
           throw std::bad_typeid();
         }
