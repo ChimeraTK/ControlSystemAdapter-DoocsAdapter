@@ -53,15 +53,9 @@ public:
 
 
 
-    // foundation for random access, based on direct mapping on D_spectrum interface
-    void  fill_spectrum (int i, float data)
-          {
-              D_spectrum::fill_spectrum (i, data);
-          }
-    float read_spectrum (int i) const
-          {
-              return D_spectrum::read_spectrum (i);
-          }
+    // foundation for random access in the adapter is based on the following part of the D_spectrum interface:
+    //  void  D_spectrum::fill_spectrum (int index, float item)
+    //  float D_spectrum::read_spectrum (int index) const
 
 
     // treat whole spectrum at once - for set and get, extending D_spectrum interface
