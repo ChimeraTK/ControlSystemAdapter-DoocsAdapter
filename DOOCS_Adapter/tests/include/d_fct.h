@@ -197,4 +197,41 @@ public:
 
 
 
+#include <vector>
+
+
+/**
+ * simplified DOOCS property model for tests
+ * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_spectrum
+ * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/D_spectrum.cc?view=co
+ */
+class D_spectrum
+{
+
+protected:
+
+    const char          * pn_; // suppress -Wunused-parameter
+    int                 max_length_;
+	const EqFct         * ef_; // suppress -Wunused-parameter
+    
+	std::vector<float>  value_;
+
+
+public:
+
+    D_spectrum  (const char *pn, int maxl, EqFct *ef) : pn_(pn), max_length_(maxl), ef_(ef), value_(maxl, 0) {}
+
+    void  fill_spectrum (int i, float data)
+          {
+              if ((i >= 0) && (i < max_length_)) value_[i] = data;
+          }
+    float read_spectrum (int i) const
+          {
+              if ((i >= 0) && (i < max_length_)) return value_[i];
+              return 0.0;
+          }
+};
+
+
+
 #endif /* __d_fct__ */

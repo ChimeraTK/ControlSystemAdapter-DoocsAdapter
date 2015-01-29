@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE callback_model_test
+#define BOOST_TEST_MODULE test_string_mock
 #include <boost/test/included/unit_test.hpp>
 using namespace boost::unit_test;
 
