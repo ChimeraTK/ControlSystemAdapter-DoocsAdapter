@@ -230,6 +230,10 @@ public:
               if ((i >= 0) && (i < max_length_)) return value_[i];
               return 0.0;
           }
+    int   length (void)
+          {
+              return value_.size();
+          }
 };
 
 

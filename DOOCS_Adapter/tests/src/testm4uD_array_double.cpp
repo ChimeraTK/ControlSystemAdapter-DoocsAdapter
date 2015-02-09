@@ -19,16 +19,16 @@ using namespace boost::unit_test;
 
 struct CallbacksTestFixture {
     
-    mtca4u::m4uD_array<float>                  mydarray;
+    mtca4u::m4uD_array<double>                  mydarray;
 
 
     unsigned int _get_cb_counter;
     unsigned int _set_cb_counter;
 
-    std::vector<float> vec_test;
-    std::vector<float> vec_mydarray;
-    
-    mtca4u::StubProcessArray<float> pa;     // FIXME
+    std::vector<double> vec_test;
+    std::vector<double> vec_mydarray;
+
+    mtca4u::StubProcessArray<double> pa;     // FIXME
 
 
             CallbacksTestFixture() :  mydarray( NULL, 4, NULL )
@@ -43,12 +43,12 @@ struct CallbacksTestFixture {
         
 
             // callbacks
-    void    on_set_callback (mtca4u::ProcessArray<float> const & ) //~  < void (ProcessArray<T> const & ) >
+    void    on_set_callback (mtca4u::ProcessArray<double> const & ) //~  < void (ProcessArray<T> const & ) >
             {
                 ++_set_cb_counter;
                 mydarray.fill_spectrum (0, 5.0);
             }
-    void    on_get_callback (mtca4u::ProcessArray<float> & )       //~  < void (ProcessArray<T> & ) >
+    void    on_get_callback (mtca4u::ProcessArray<double> & )       //~  < void (ProcessArray<T> & ) >
             {
                 ++_get_cb_counter;
                 mydarray.fill_spectrum (3, 6.0);
