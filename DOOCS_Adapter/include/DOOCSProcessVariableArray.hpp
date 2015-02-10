@@ -64,28 +64,25 @@ public:
 	
 
 
-            DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> > & operator= (DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> > const & other){
-                //~ if(&other==this){
-                    //~ return (*this);
-                //~ }
-                //~ setWithoutCallback(other._container);
-                //~ return (*this);
-                (void)other; // suppress [-Wunused-parameter]
-                throw std::logic_error("\"operator=_1\" - The method or operation is not implemented.");
+    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator= (DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const & other)
+            {
+                if(&other==this){
+                    return (*this);
+                }
+                setWithoutCallback(other);
+                return (*this);
             }
         
-            DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> > & operator=(ProcessArray<float> const & other){
-                //~ setWithoutCallback(other);
-                //~ return (*this);
-                (void)other; // suppress [-Wunused-parameter]
-                throw std::logic_error("\"operator=_2\" - The method or operation is not implemented.");
+    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator=(ProcessArray<float> const & other)
+            {
+                setWithoutCallback(other);
+                return (*this);
             }
         
-            DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> > & operator=(std::vector<float> const & v){
-                //~ setWithoutCallback(v);
-                //~ return *this;
-                (void)v; // suppress [-Wunused-parameter]
-                throw std::logic_error("\"operator=_3\" - The method or operation is not implemented.");
+    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator=(std::vector<T> const & v)
+            {
+                setWithoutCallback(v);
+                return *this;
             }
 
 
@@ -101,7 +98,7 @@ public:
                     DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * otherDoocsProcessArray = static_cast< DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * >( & other );
                     for (size_t idx=0; idx<size(); ++idx)
                     {
-                         m4uD_array_T->fill_spectrum (static_cast<int>(idx), otherDoocsProcessArray->m4uD_array_T->read_spectrum (static_cast<int>(idx)));         // FIXME: double copy. can something be done? BTW. is there a ceiling to the D_spectrum length?
+                         m4uD_array_T->fill_spectrum (static_cast<int>(idx), otherDoocsProcessArray->m4uD_array_T->read_spectrum (static_cast<int>(idx)));         // FIXME: double copy. BTW. is there a ceiling to the D_spectrum length?
                     }
                 } else
                 {
@@ -119,11 +116,11 @@ public:
                 if (v.size() != size()){
                     throw std::out_of_range("Assigned vector size mismatch.");
                 }
-                m4uD_array_T->fill_whole_spectrum_without_callback (v);         // FIXME: double copy. can something be done?
+                m4uD_array_T->fill_whole_spectrum_without_callback (v);         // FIXME: double copy.
             }
 			  
     void    set
-            (ProcessArray<float> const & other)
+            (ProcessArray<T> const & other)
             {
                 if (other.size() != size()){
                     throw std::out_of_range("Assigned vector size mismatch.");
@@ -145,7 +142,7 @@ public:
             }
 
     void    set
-            (std::vector<float> const & v)
+            (std::vector<T> const & v)
             {
                 if (v.size() != size()){
                     throw std::out_of_range("Assigned vector size mismatch.");
@@ -160,6 +157,16 @@ public:
                 //~ }
                 //~ return _container;
                 throw std::logic_error("\"get\" - The method or operation is not implemented.");
+            }
+
+    std::vector<T> const & getWithoutCallback()
+            {
+                //~ if (_onGetCallbackFunction){
+                    //~ _onGetCallbackFunction(*this);
+                //~ }
+                //~ return _container;
+                throw std::logic_error("\"get\" - The method or operation is not implemented.");
+                //~ return m4uD_array_T->read_whole_spectrum_without_callback();
             }
 
             virtual float & operator[](size_t index){
