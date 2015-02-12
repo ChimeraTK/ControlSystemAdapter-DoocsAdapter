@@ -17,6 +17,9 @@ using namespace boost::unit_test;
 // ============================================================================
 
 
+typedef   std::vector<float>  Vectorf;
+
+
 struct CallbacksTestFixture {
     
     mtca4u::m4uD_array<float>                  mydarray;
@@ -269,6 +272,11 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         
 
 
+        Vectorf v(4);
+        mydarray.fillVector(v);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
 		// FIXME: a series for callbacks presence advised?
 		/*
         // vec_test = [0,0,0,0]
@@ -351,6 +359,19 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
             BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
 		*/
 	}
+
+
+	BOOST_AUTO_TEST_CASE( test_fillvector )
+	{
+        // vec_test = [1,1,1,1]
+        vec_test.assign(4, 1.0);
+        mydarray.fill_whole_spectrum(vec_test, pa);
+
+        Vectorf v(4);
+        mydarray.fillVector(v);
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(v.begin(), v.end(), vec_test.begin(), vec_test.end());
+    }
 
 
 BOOST_AUTO_TEST_SUITE_END()

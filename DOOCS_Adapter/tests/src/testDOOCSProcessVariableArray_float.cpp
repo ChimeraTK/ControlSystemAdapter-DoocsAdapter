@@ -27,11 +27,14 @@ public:
 
 
 
+typedef   std::vector<float> const &   CVRef;
+typedef   std::vector<float>           Vectorf;
+
+
 struct TestFixture {
     
     size_t const N_ELEMENTS;
     float  const G_FILL_VALUE; // for gCALLBACK
-    //~ size_t const SOME_NUMBER; // just some number to add so the content if not equal to the index
     
     std::vector<float> referenceVector;
     std::vector<float> toolarge_referenceVector;
@@ -396,41 +399,59 @@ BOOST_FIXTURE_TEST_CASE( testSet, TestFixture )
 
 
 
-//~ BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
-//~ {
-  //~ // fill something known so we can check that it changed
-  //~ _process_array.fill(5);
+BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
+{
+    // fill something known so we can check that it changed
+    _process_array.fill(5);
+
+
+    CVRef result_of_get = doocs_process_array.getWithoutCallback();
+
+    for (size_t i=0; i<N_ELEMENTS; ++i)
+    {
+        BOOST_CHECK_EQUAL( result_of_get[i], darray->read_spectrum ((int)i));
+    }
+
+
+    //~ _process_array.fill(4);
+
+
+    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<float>’ has no member named ‘getWithoutCallback'
 //~ 
-//~ 
-  //~ std::vector<T> const & theGetResult = _stubProcessArray.getWithoutCallback();
-  //~ BOOST_CHECK( __getCallbackCounter == 1 );
-  //~ // the get should have changed everything to SOME_NUMBER
-  //~ for( typename ProcessArray<T>::const_iterator it = _process_array.cbegin();
-       //~ it !=  _process_array.cend(); ++it ){
-    //~ BOOST_CHECK( *it == static_cast<T>(SOME_NUMBER) );
-  //~ }
-  //~ // the get should have changed everything to SOME_NUMBER
-  //~ for( typename std::vector<T>::const_iterator it = theGetResult.begin();
-       //~ it !=  theGetResult.end(); ++it ){
-    //~ BOOST_CHECK( *it == static_cast<T>(SOME_NUMBER) );
-  //~ }
-//~ 
-  //~ // clear the getter callback function
-  //~ _process_array.clearOnGetCallbackFunction();
-  //~ _process_array.fill(5);
-  //~ 
-  //~ std::vector<T> const & anotherGetResult = _stubProcessArray.getWithoutCallback();
-  //~ BOOST_CHECK( __getCallbackCounter == 1 );
-  //~ // everything still has to be 5
-   //~ for( typename ProcessArray<T>::const_iterator it = _process_array.cbegin();
-       //~ it !=  _process_array.cend(); ++it ){
-     //~ BOOST_CHECK( *it == 5 );
-  //~ }
-  //~ for( typename std::vector<T>::const_iterator it = anotherGetResult.begin();
-       //~ it !=  anotherGetResult.end(); ++it ){
-    //~ BOOST_CHECK( *it == 5 );
-  //~ }
-//~ }
+    //~ for (size_t i=0; i<N_ELEMENTS; ++i)
+    //~ {
+        //~ BOOST_CHECK_EQUAL( result_of_get[i], darray->read_spectrum ((int)i));
+    //~ }
+
+
+    // FIXME: assign_test_reference_process_array?
+
+    BOOST_CHECK_EQUAL( __setCallbackCounter, 0 );
+    BOOST_CHECK_EQUAL( __getCallbackCounter, 0 );
+}
+
+
+BOOST_FIXTURE_TEST_CASE( test_fillvector, TestFixture )
+{
+    _process_array = referenceVector;
+
+
+    Vectorf v(N_ELEMENTS);
+    doocs_process_array.fillVector(v);
+
+    for (size_t i=0; i<N_ELEMENTS; ++i)
+    {
+        BOOST_CHECK_EQUAL( v[i], referenceVector[i] );
+    }
+
+
+    // toolarges
+    BOOST_CHECK_THROW( doocs_process_array.fillVector( toolarge_referenceVector ), std::out_of_range );
+
+
+    BOOST_CHECK_EQUAL( __setCallbackCounter, 0 );
+    BOOST_CHECK_EQUAL( __getCallbackCounter, 0 );
+}
 
 
 BOOST_FIXTURE_TEST_CASE( testAssignment, TestFixture )

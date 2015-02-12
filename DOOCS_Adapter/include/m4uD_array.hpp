@@ -138,6 +138,14 @@ public:
               return _cache;
           }
 
+
+
+    void  fillVector(std::vector <T> & toBeFilled)
+          {
+              sync_cache();
+              std::copy(_cache.begin(), _cache.end(), toBeFilled.begin());
+          }
+
 };
 
 

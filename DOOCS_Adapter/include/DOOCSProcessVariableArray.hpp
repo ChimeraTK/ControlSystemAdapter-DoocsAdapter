@@ -161,12 +161,15 @@ public:
 
     std::vector<T> const & getWithoutCallback()
             {
-                //~ if (_onGetCallbackFunction){
-                    //~ _onGetCallbackFunction(*this);
-                //~ }
-                //~ return _container;
-                throw std::logic_error("\"get\" - The method or operation is not implemented.");
-                //~ return m4uD_array_T->read_whole_spectrum_without_callback();
+                return m4uD_array_T->read_whole_spectrum_without_callback();
+            }
+
+    void    fillVector(std::vector <T> & toBeFilled)
+            {
+                if (toBeFilled.size() != size()){
+                    throw std::out_of_range("Assigned vector size mismatch.");
+                }
+                m4uD_array_T->fillVector(toBeFilled);
             }
 
             virtual float & operator[](size_t index){
