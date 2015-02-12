@@ -93,7 +93,7 @@ struct TestFixture {
         ++__getCallbackCounter;  
     }
 
-
+                                                                                    // FIXME: add CS-side activity mock (D_der'v level)
 };
 
 

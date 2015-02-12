@@ -189,6 +189,170 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
 	}
 
+
+	BOOST_AUTO_TEST_CASE( test_cache )
+	{
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+
+        mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);		// D_spectrum has 0's after creation
+
+
+        // vec_test = [0,0,0,0]
+        vec_test.assign(4, 0.0);
+
+        mydarray.fill_whole_spectrum(vec_test, pa);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+        mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+        mydarray.fill_whole_spectrum(vec_test, pa);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+        // vec_test = [1,1,1,1]
+        vec_test.assign(4, 1.0);
+        mydarray.fill_whole_spectrum(vec_test, pa);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), false);
+
+        mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+
+        mydarray.fill_whole_spectrum_without_callback(vec_test);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+        mydarray.read_whole_spectrum_without_callback();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+        // vec_test = [0,0,0,0]
+        vec_test.assign(4, 0.0);
+
+        mydarray.fill_whole_spectrum_without_callback(vec_test);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), false);
+
+        mydarray.read_whole_spectrum_without_callback();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+
+
+        mydarray.fill_spectrum (0, 0.0);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+        mydarray.read_spectrum(0);
+        mydarray.read_spectrum(1);
+        mydarray.read_spectrum(2);
+        mydarray.read_spectrum(3);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+        mydarray.fill_spectrum (1, 2.0);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), false);
+        mydarray.read_spectrum(0);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), false);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), false);
+        
+
+
+		// FIXME: a series for callbacks presence advised?
+		/*
+        // vec_test = [0,0,0,0]
+        vec_test.assign(4, 0.0);
+
+        vec_mydarray = mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+        // vec_test = [1,1,1,1]
+        vec_test.assign(4, 1.0);
+        mydarray.fill_whole_spectrum(vec_test, pa);
+        
+        vec_mydarray = mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+		mydarray.setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1));
+
+        // vec_test = [2,2,2,2], then [5,2,2,2]
+        vec_test.assign(4, 2.0);
+        mydarray.fill_whole_spectrum(vec_test, pa);
+                                                                                 vec_test[0] = 5;// vec_test[3] = 6; 
+        vec_mydarray = mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
+
+        // vec_test = [3,3,3,3], then [5,3,3,6]
+        vec_test.assign(4, 3.0);
+        mydarray.fill_whole_spectrum(vec_test, pa);
+                                                                                 vec_test[0] = 5; vec_test[3] = 6; 
+        vec_mydarray = mydarray.read_whole_spectrum();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+
+
+        // vec_test = [0,0,0,0]
+        vec_test.assign(4, 0.0);
+
+        vec_mydarray = mydarray.read_whole_spectrum_without_callback();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+        // vec_test = [1,1,1,1]
+        vec_test.assign(4, 1.0);
+        mydarray.fill_whole_spectrum_without_callback(vec_test);
+        
+        vec_mydarray = mydarray.read_whole_spectrum_without_callback();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+		mydarray.setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1));
+
+        // vec_test = [2,2,2,2]
+        vec_test.assign(4, 2.0);
+        mydarray.fill_whole_spectrum_without_callback(vec_test);
+                                                                                // vec_test[0] = 5;// vec_test[3] = 6; 
+        vec_mydarray = mydarray.read_whole_spectrum_without_callback();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+
+
+		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
+
+        // vec_test = [3,3,3,3]
+        vec_test.assign(4, 3.0);
+        mydarray.fill_whole_spectrum_without_callback(vec_test);
+                                                                                // vec_test[0] = 5; vec_test[3] = 6; 
+        vec_mydarray = mydarray.read_whole_spectrum_without_callback();
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
+            BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
+		*/
+	}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 
