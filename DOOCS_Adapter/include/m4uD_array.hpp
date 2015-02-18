@@ -19,7 +19,7 @@ class m4uD_array : public D_spectrum
 
 protected:
 
-    boost::function< void (ProcessArray<T> const & ) > _onSetCallbackFunction;  // newValue
+    boost::function< void (ProcessArray<T> const & ) > _onSetCallbackFunction;    // newValue
     boost::function< void (ProcessArray<T> & ) >       _onGetCallbackFunction;    // toBeFilled
 
     size_t             _size;
@@ -112,13 +112,13 @@ public:
           {
               fill_whole_spectrum_without_callback(data);
               if (_onSetCallbackFunction){
-                  _onSetCallbackFunction( pa );        // FIXME: here rather _onSetCallbackFunction(*this); or sth instead of the whole line
+                  _onSetCallbackFunction( pa );
               }
           }
-    const std::vector<T> & read_whole_spectrum ()        // FIXME: a copy return
+    const std::vector<T> & read_whole_spectrum (ProcessArray<T> & pa)
           {
               if (_onGetCallbackFunction){
-                  StubProcessArray<T> pa(5); _onGetCallbackFunction( pa );        // FIXME: here rather _onGetCallbackFunction(*this); or sth instead of the whole line, then test if "container" successfully filled
+                  _onGetCallbackFunction( pa ); 
               }
               return read_whole_spectrum_without_callback();        // FIXME: make sure returned is what comes from callback
           }
@@ -132,7 +132,7 @@ public:
               }
               cache_synced = false;
           }
-    const std::vector<T> & read_whole_spectrum_without_callback ()        // FIXME: a copy return (get rid of the std::vector<T> v below)
+    const std::vector<T> & read_whole_spectrum_without_callback ()
           {
               sync_cache();
               return _cache;

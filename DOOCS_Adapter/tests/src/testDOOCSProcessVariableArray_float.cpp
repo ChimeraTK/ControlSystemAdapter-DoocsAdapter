@@ -334,10 +334,6 @@ BOOST_FIXTURE_TEST_CASE( testSetWithoutCallback, TestFixture )
 
 BOOST_FIXTURE_TEST_CASE( testSet, TestFixture )
 {
-    //~ _process_array.setOnSetCallbackFunction( boost::bind( &TestFixture::setCBfun, this, _1) );
-    //~ _process_array.setOnGetCallbackFunction( boost::bind( &TestFixture::getCBfun, this, _1) );
-
-
     // fill something known so we can check that it changed
     _process_array.fill(5);
     
@@ -416,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
     //~ _process_array.fill(4);
 
 
-    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<float>’ has no member named ‘getWithoutCallback'
+    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<float>’ has no member named ‘getWithoutCallback' - ProcessArray interface change required
 //~ 
     //~ for (size_t i=0; i<N_ELEMENTS; ++i)
     //~ {
@@ -428,6 +424,36 @@ BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
 
     BOOST_CHECK_EQUAL( __setCallbackCounter, 0 );
     BOOST_CHECK_EQUAL( __getCallbackCounter, 0 );
+}
+
+
+BOOST_FIXTURE_TEST_CASE( testGet, TestFixture )
+{
+    // fill something known so we can check that it changed
+    _process_array.fill(5);
+
+
+    CVRef result_of_get1 = doocs_process_array.get();
+    BOOST_CHECK_EQUAL( __getCallbackCounter, 1 );
+    for (size_t i=0; i<N_ELEMENTS; ++i)
+    {
+        BOOST_CHECK_EQUAL( G_FILL_VALUE, darray->read_spectrum ((int)i) );
+        BOOST_CHECK_EQUAL( G_FILL_VALUE, result_of_get1[i] );
+    }
+
+    
+    // clear the getter callback function
+    _process_array.clearOnGetCallbackFunction();
+    _process_array.fill(5);
+
+
+    CVRef result_of_get2 = doocs_process_array.get();
+    BOOST_CHECK_EQUAL( __getCallbackCounter, 1 );
+    for (size_t i=0; i<N_ELEMENTS; ++i)
+    {
+        BOOST_CHECK_EQUAL( 5, darray->read_spectrum ((int)i) );
+        BOOST_CHECK_EQUAL( 5, result_of_get2[i] );
+    }
 }
 
 

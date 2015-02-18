@@ -130,10 +130,10 @@ public:
                 {
                     DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * otherDoocsProcessArray = static_cast< DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * >( & other );
                     m4uD_array_T->fill_whole_spectrum (otherDoocsProcessArray->m4uD_array_T->read_whole_spectrum_without_callback(), *this);         // FIXME: triple(!) copy
-                } else
-                {
-                    typename ProcessArray<T>::const_iterator it;
-                    std::vector<T> otherValuesVector;           
+                } else                                                                                                                               // useful?:
+                {                                                                                                                                    //  http://stackoverflow.com/questions/4643713/c-returning-reference-to-local-variable
+                    typename ProcessArray<T>::const_iterator it;                                                                                     //  http://en.wikipedia.org/wiki/Return_value_optimization
+                    std::vector<T> otherValuesVector;                                                                                                //  http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/
                     for (it = other.cbegin(); it !=other.cend(); ++it) {    // FIXME: creating a vector out of "other" in order to feed with it the m4uD_array_T; not optimal
                         otherValuesVector.push_back(*it);
                     }
@@ -151,12 +151,9 @@ public:
             }
 
 
-            std::vector<float> const & get(){
-                //~ if (_onGetCallbackFunction){
-                    //~ _onGetCallbackFunction(*this);
-                //~ }
-                //~ return _container;
-                throw std::logic_error("\"get\" - The method or operation is not implemented.");
+    std::vector<float> const & get()
+            {
+                return m4uD_array_T->read_whole_spectrum(*this);
             }
 
     std::vector<T> const & getWithoutCallback()
@@ -171,6 +168,21 @@ public:
                 }
                 m4uD_array_T->fillVector(toBeFilled);
             }
+
+    size_t  size() const{
+                return static_cast<size_t>(m4uD_array_T->length());
+            }
+
+    bool    empty() const
+            {
+                return size() == 0;
+            }
+
+    void    fill(float const & t)
+            {
+                for(size_t i=0; i<size(); ++i)
+                    m4uD_array_T->fill_spectrum (i, t);
+            }  
 
             virtual float & operator[](size_t index){
                 //~ return _container[index];
@@ -196,10 +208,6 @@ public:
                 throw std::logic_error("\"at_2\" - The method or operation is not implemented.");
             }
 
-    size_t  size() const{
-                return static_cast<size_t>(m4uD_array_T->length());
-            }
-
             virtual float & front(){
                 //~ return _container.front();
                 throw std::logic_error("\"front_1\" - The method or operation is not implemented.");
@@ -219,17 +227,6 @@ public:
                 //~ return _container.back();
                 throw std::logic_error("\"back_2\" - The method or operation is not implemented.");
             }
-
-    bool    empty() const
-            {
-                return size() == 0;
-            }
-
-    void    fill(float const & t)
-            {
-                for(size_t i=0; i<size(); ++i)
-                    m4uD_array_T->fill_spectrum (i, t);
-            }  
 
             typename mtca4u::ProcessArray<T>::iterator begin(){
                 //~ return typename mtca4u::ProcessArray<T>::iterator(_container.begin());
