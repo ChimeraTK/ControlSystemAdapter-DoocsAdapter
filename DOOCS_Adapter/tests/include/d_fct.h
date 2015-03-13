@@ -3,9 +3,18 @@
 
 
 class EqFct; // predecl (in DOOCS this goes in d_fct_gen.h - but nevermind here)
+class EqAdr;
+class EqData;
 
 
 
+
+class D_fct
+{
+public:
+    virtual void    get   (EqAdr *, EqData *, EqData *, EqFct *) {}
+    virtual void    set   (EqAdr *, EqData *, EqData *, EqFct *) {}
+};
 
 
 /**
@@ -13,7 +22,7 @@ class EqFct; // predecl (in DOOCS this goes in d_fct_gen.h - but nevermind here)
  * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_double
  * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/d_fct.cc?view=markup -> D_double::set_value
  */
-class D_double
+class D_double : public D_fct
 {
 
 protected:
@@ -49,7 +58,7 @@ public:
  * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_float
  * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/d_fct.cc?view=markup -> D_float::set_value
  */
-class D_float
+class D_float : public D_fct
 {
 
 protected:
@@ -85,7 +94,7 @@ public:
  * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_int
  * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/d_fct.cc?view=markup -> D_int::set_value
  */
-class D_int
+class D_int : public D_fct
 {
 
 protected:
@@ -130,7 +139,7 @@ public:
  
 // code mostly taken from http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/d_fct.cc
 
-class D_string
+class D_string : public D_fct
 {
 
 protected:
@@ -205,7 +214,7 @@ public:
  * http://ttfinfo.desy.de/doocs/doocs_libs/serverlib/html/d__fct_8h_source.html  -> class D_spectrum
  * http://doocs.desy.de/cgi-bin/viewvc.cgi/source/serverlib/D_spectrum.cc?view=co
  */
-class D_spectrum
+class D_spectrum : public D_fct
 {
 
 protected:

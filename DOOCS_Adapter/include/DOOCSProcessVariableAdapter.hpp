@@ -53,22 +53,22 @@ public:
 
     void set(T const & t)
          {
-             m4uD_type_T->set_value(t);
+             m4uD_type_T->setval(t);
          }
     
     T    get()
          {
-             return m4uD_type_T->value();
+             return m4uD_type_T->getval();
          }
     
 
     void setWithoutCallback(T const & t)
          {
-             m4uD_type_T->set_value_without_callback(t);
+             m4uD_type_T->setval_without_callback(t);
          }
     T    getWithoutCallback() const
          {
-             return m4uD_type_T->value_without_callback();
+             return m4uD_type_T->getval_without_callback();
          }
     
 
@@ -101,7 +101,7 @@ public:
 
     operator T () const
          {
-             return m4uD_type_T->value_without_callback();
+             return m4uD_type_T->getval_without_callback();
          }
 };
 
@@ -143,22 +143,22 @@ public:
 
     void set(std::string const & t)
          {
-             m4uD_type_T->set_value(t.c_str());
+             m4uD_type_T->setval(t.c_str());
          }
     
     std::string    get()
          {
-             return std::string(m4uD_type_T->value());
+             return std::string(m4uD_type_T->getval());
          }
     
 
     void setWithoutCallback(std::string const & t)
          {
-             m4uD_type_T->set_value_without_callback(t.c_str());
+             m4uD_type_T->setval_without_callback(t.c_str());
          }
     std::string    getWithoutCallback() const
          {
-             return std::string(m4uD_type_T->value_without_callback());
+             return std::string(m4uD_type_T->getval_without_callback());
          }
     
 
@@ -191,7 +191,7 @@ public:
 
     operator std::string () const
          {
-             return std::string(m4uD_type_T->value_without_callback());
+             return std::string(m4uD_type_T->getval_without_callback());
          }
 };
 

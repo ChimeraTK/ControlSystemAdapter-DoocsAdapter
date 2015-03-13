@@ -55,8 +55,8 @@ public:
     m4uD_type (const char *pn, EqFct *ef) :    DOOCS_T(pn, ef) {}
 
 
-            // accessors with callbacks (based on standard DOOCS property interface)
-	void	set_value (T val)
+            // accessors with callbacks (not based on standard DOOCS property interface - a custom extension), for BL-side requests
+	void	setval (T val)
             {
                 // cache the current value in the DOOCS property
                 T oldVal = DOOCS_T::value();
@@ -68,7 +68,7 @@ public:
                     _onSetCallbackFunction (val, oldVal);
                 }
             }
-	T	    value ()
+	T	    getval ()
             {
                 if (_onGetCallbackFunction)
                 {
@@ -78,14 +78,39 @@ public:
             }
 
 
-            // accessors without callbacks (extension of the original DOOCS property interface)
-	void	set_value_without_callback (T val)
+            // accessors without callbacks (not based on standard DOOCS property interface - a custom extension), for BL-side requests
+	void	setval_without_callback (T val)
             {
                 DOOCS_T::set_value(val);
             }
-	T   	value_without_callback ()
+	T   	getval_without_callback ()
             {
                 return DOOCS_T::value();
+            }
+
+
+            // DOOCS standard interface override for CS-side requests
+    void    get (EqAdr * _1, EqData * _2, EqData * _3, EqFct * _4)
+            {
+                if (_onGetCallbackFunction)
+                {
+                    DOOCS_T::set_value( _onGetCallbackFunction () );
+                }
+                DOOCS_T::get (_1, _2, _3, _4);
+            }
+    void    set (EqAdr * _1, EqData * _2, EqData * _3, EqFct * _4)
+            {
+                // cache the current value in the DOOCS property
+                T oldVal = DOOCS_T::value();
+                // set the new value of the variable
+                DOOCS_T::set (_1, _2, _3, _4);
+                // get the new value from the DOOCS property
+                T val = DOOCS_T::value();
+                if (_onSetCallbackFunction)
+                {
+                    // trigger the callback with both the new and the old value
+                    _onSetCallbackFunction (val, oldVal);
+                }
             }
 
 };
@@ -140,9 +165,9 @@ public:
             }
 
 
-            // !!!: the getters/setters remain const char* -based, so as to retain compliance with the D_string interface
-            // accessors with callbacks (based on standard DOOCS property interface)
-	void	set_value (const char * val)
+            // !!!: the getters/setters remain const char* -based, so as to retain compliance with the D_string interface   (FIXME: probably not needed anymore)
+            // accessors with callbacks (not based on standard DOOCS property interface - a custom extension), for BL-side requests
+	void	setval (const char * val)
             {
                 // cache the current value in the DOOCS property
                 std::string oldVal = std::string(D_string::value());
@@ -154,7 +179,7 @@ public:
                     _onSetCallbackFunction (std::string(val), oldVal);
                 }
             }
-	const char *    value ()
+	const char *    getval ()
             {
                 if (_onGetCallbackFunction)
                 {
@@ -164,21 +189,45 @@ public:
             }
 
 
-            // accessors without callbacks (extension of the original DOOCS property interface)
-	void	set_value_without_callback (const char * val)
+            // accessors without callbacks (not based on standard DOOCS property interface - a custom extension), for BL-side requests
+	void	setval_without_callback (const char * val)
             {
                 D_string::set_value(val);
             }
-	const char * 	value_without_callback ()
+	const char * 	getval_without_callback ()
             {
                 return D_string::value();
             }
 
+
+            // DOOCS standard interface override for CS-side requests
+    void    get (EqAdr * _1, EqData * _2, EqData * _3, EqFct * _4)
+            {
+                if (_onGetCallbackFunction)
+                {
+                    D_string::set_value( _onGetCallbackFunction().c_str() );
+                }
+                D_string::get (_1, _2, _3, _4);
+            }
+    void    set (EqAdr * _1, EqData * _2, EqData * _3, EqFct * _4)
+            {
+                // cache the current value in the DOOCS property
+                std::string oldVal = std::string(D_string::value());
+                // set the new value of the variable
+                D_string::set (_1, _2, _3, _4);
+                // get the new value from the DOOCS property
+                std::string val = std::string(D_string::value());
+                if (_onSetCallbackFunction)
+                {
+                    // trigger the callback with both the new and the old value
+                    _onSetCallbackFunction (val, oldVal);
+                }
+            }
 };
 
 
 
-}//namespace mtca4u
+} // namespace mtca4u
 
 
 #endif /* __m4uD_type__ */

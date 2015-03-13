@@ -8,7 +8,10 @@
 #include "d_fct.h"  // DOOCS-like dependency
 
 
-class EqFct {};     // "declaration"
+class EqFct  {};     // "declaration"
+
+class EqAdr  {};     // "declaration"
+class EqData {};     // "declaration"
 
 
 
