@@ -92,15 +92,14 @@ public:
 
     // operation on single data elements is based on the following part of the D_spectrum interface:
     //  void  D_spectrum::fill_spectrum (int index, float item)
-    //  float D_spectrum::read_spectrum (int index) const                       // FIXME : potrzebne sparametryzowanie (update: po co?)
-                                                                                // FIXME2: callback calls to be moved into there (probably)
+    //  float D_spectrum::read_spectrum (int index) const
 
 
     /** overrides
      *  void   D_spectrum::fill_spectrum   ( int index, float item )
      */
-    void  fill_spectrum (int index, float item)
-          {
+    void  fill_spectrum (int index, float item)             // FIXME: probably to remove after adding std::copy-based set/get
+          {                                                 //  because this will not be used anywhere (probably)
               D_spectrum::fill_spectrum (index, item);
               cache_synced = false;
           }
@@ -108,23 +107,23 @@ public:
 
     // treat whole spectrum at once - for set and get, extending D_spectrum interface
     // // with callbacks
-    void  fill_whole_spectrum (const std::vector<T> & data, ProcessArray<T> const & pa)
+    void  setspectrum (const std::vector<T> & data, ProcessArray<T> const & pa)
           {
-              fill_whole_spectrum_without_callback(data);
+              setspectrum_without_callback(data);
               if (_onSetCallbackFunction){
                   _onSetCallbackFunction( pa );
               }
           }
-    const std::vector<T> & read_whole_spectrum (ProcessArray<T> & pa)
+    const std::vector<T> & getspectrum (ProcessArray<T> & pa)
           {
               if (_onGetCallbackFunction){
                   _onGetCallbackFunction( pa ); 
               }
-              return read_whole_spectrum_without_callback();        // FIXME: make sure returned is what comes from callback
+              return getspectrum_without_callback();        // FIXME: make sure returned is what comes from callback
           }
 
     // // without callbacks
-    void  fill_whole_spectrum_without_callback (const std::vector<T> & data)
+    void  setspectrum_without_callback (const std::vector<T> & data)
           {
               for (size_t i=0; i<data.size(); ++i)
               {
@@ -132,7 +131,7 @@ public:
               }
               cache_synced = false;
           }
-    const std::vector<T> & read_whole_spectrum_without_callback ()
+    const std::vector<T> & getspectrum_without_callback ()
           {
               sync_cache();
               return _cache;

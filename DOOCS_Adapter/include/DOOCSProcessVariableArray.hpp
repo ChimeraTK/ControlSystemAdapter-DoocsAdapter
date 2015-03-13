@@ -64,7 +64,7 @@ public:
 	
 
 
-    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator= (DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const & other)
+    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator=(DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const & other)
             {
                 if(&other==this){
                     return (*this);
@@ -116,7 +116,7 @@ public:
                 if (v.size() != size()){
                     throw std::out_of_range("Assigned vector size mismatch.");
                 }
-                m4uD_array_T->fill_whole_spectrum_without_callback (v);         // FIXME: double copy.
+                m4uD_array_T->setspectrum_without_callback (v);         // FIXME: double copy.
             }
 			  
     void    set
@@ -129,7 +129,7 @@ public:
                 if ( typeid(other) == typeid(DOOCSProcessVariableArray< T, M4U_DOOCSARR_T >) )
                 {
                     DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * otherDoocsProcessArray = static_cast< DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * >( & other );
-                    m4uD_array_T->fill_whole_spectrum (otherDoocsProcessArray->m4uD_array_T->read_whole_spectrum_without_callback(), *this);         // FIXME: triple(!) copy
+                    m4uD_array_T->setspectrum (otherDoocsProcessArray->m4uD_array_T->getspectrum_without_callback(), *this);         // FIXME: triple(!) copy
                 } else                                                                                                                               // useful?:
                 {                                                                                                                                    //  http://stackoverflow.com/questions/4643713/c-returning-reference-to-local-variable
                     typename ProcessArray<T>::const_iterator it;                                                                                     //  http://en.wikipedia.org/wiki/Return_value_optimization
@@ -137,7 +137,7 @@ public:
                     for (it = other.cbegin(); it !=other.cend(); ++it) {    // FIXME: creating a vector out of "other" in order to feed with it the m4uD_array_T; not optimal
                         otherValuesVector.push_back(*it);
                     }
-                    m4uD_array_T->fill_whole_spectrum (otherValuesVector, *this);
+                    m4uD_array_T->setspectrum (otherValuesVector, *this);
                 }
             }
 
@@ -147,18 +147,18 @@ public:
                 if (v.size() != size()){
                     throw std::out_of_range("Assigned vector size mismatch.");
                 }
-                m4uD_array_T->fill_whole_spectrum(v, *this);
+                m4uD_array_T->setspectrum(v, *this);
             }
 
 
     std::vector<float> const & get()
             {
-                return m4uD_array_T->read_whole_spectrum(*this);
+                return m4uD_array_T->getspectrum(*this);
             }
 
     std::vector<T> const & getWithoutCallback()
             {
-                return m4uD_array_T->read_whole_spectrum_without_callback();
+                return m4uD_array_T->getspectrum_without_callback();
             }
 
     void    fillVector(std::vector <T> & toBeFilled)
@@ -169,7 +169,10 @@ public:
                 m4uD_array_T->fillVector(toBeFilled);
             }
 
-    size_t  size() const{
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                               //
+    size_t  size() const
+            {
                 return static_cast<size_t>(m4uD_array_T->length());
             }
 
@@ -181,9 +184,13 @@ public:
     void    fill(float const & t)
             {
                 for(size_t i=0; i<size(); ++i)
-                    m4uD_array_T->fill_spectrum (i, t);
+                    m4uD_array_T->fill_spectrum (i, t);             // FIXME: !!!
             }  
+                                                                                                               //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                               //
             virtual float & operator[](size_t index){
                 //~ return _container[index];
                 (void)index; // suppress [-Wunused-parameter]
@@ -287,6 +294,8 @@ public:
                 //~ return typename mtca4u::ProcessArray<T>::const_reverse_iterator(_container.rend());
                 throw std::logic_error("\"iterator_12\" - The method or operation is not implemented.");
             }
+                                                                                                               //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
             
 };
 
