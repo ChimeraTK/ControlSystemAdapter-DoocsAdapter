@@ -5,13 +5,14 @@
 
 
 
-#include "d_fct.h"  // DOOCS-like dependency
+#include "eq_types.h"  // DOOCS-like dependency
+#include "eq_data.h"   // DOOCS-like dependency
+#include "d_fct.h"     // DOOCS-like dependency
 
 
-class EqFct  {};     // "declaration"
+class EqFct  {};     // "declaration", in DOOCS really belongs in here
 
-class EqAdr  {};     // "declaration"
-class EqData {};     // "declaration"
+class EqAdr  {};     // "declaration", in DOOCS in a separate file
 
 
 

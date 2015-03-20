@@ -25,6 +25,11 @@ struct D_spectrumTestFixture {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
+BOOST_FIXTURE_TEST_CASE( length, D_spectrumTestFixture )
+{
+    BOOST_CHECK_EQUAL( dspec.length(), 4 );
+}
+
 BOOST_FIXTURE_TEST_CASE( fill_read, D_spectrumTestFixture )
 {
     BOOST_CHECK_EQUAL( dspec.read_spectrum(0), 0 );

@@ -547,3 +547,6 @@ BOOST_FIXTURE_TEST_CASE( testAssignment, TestFixture )
     BOOST_CHECK_EQUAL( __getCallbackCounter, 0 );
     BOOST_CHECK_EQUAL( __setCallbackCounter, 0 );
 }
+
+
+// FIXME: inter-PA behavior tests required

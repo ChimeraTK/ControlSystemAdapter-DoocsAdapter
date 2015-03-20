@@ -2,10 +2,10 @@
 #define __d_fct__
 
 
+#include  "eq_data.h"
+
 class EqFct; // predecl (in DOOCS this goes in d_fct_gen.h - but nevermind here)
 class EqAdr;
-class EqData;
-
 
 
 
@@ -206,8 +206,6 @@ public:
 
 
 
-#include <vector>
-
 
 /**
  * simplified DOOCS property model for tests
@@ -216,6 +214,8 @@ public:
  */
 class D_spectrum : public D_fct
 {
+    EqData                eq_spect_;
+    SPECTRUM            * spect_;
 
 protected:
 
@@ -223,26 +223,30 @@ protected:
     int                 max_length_;
 	const EqFct         * ef_; // suppress -Wunused-parameter
     
-	std::vector<float>  value_;
-
 
 public:
 
-    D_spectrum  (const char *pn, int maxl, EqFct *ef) : pn_(pn), max_length_(maxl), ef_(ef), value_(maxl, 0) {}
+    D_spectrum  (const char *pn, int maxl, EqFct *ef) : eq_spect_(maxl), pn_(pn), max_length_(maxl), ef_(ef)
+    {
+        spect_ = eq_spect_.get_spectrum ();
+    }
 
     void  fill_spectrum (int i, float data)
           {
-              if ((i >= 0) && (i < max_length_)) value_[i] = data;
+              if ((i >= 0) && (i < max_length_)) spect_->d_spect_array.d_spect_array_val [i] = data;
           }
     float read_spectrum (int i) const
           {
-              if ((i >= 0) && (i < max_length_)) return value_[i];
+              if ((i >= 0) && (i < max_length_)) return spect_->d_spect_array.d_spect_array_val [i];
               return 0.0;
           }
     int   length (void)
           {
-              return value_.size();
+              return max_length_;
           }
+          
+          
+    SPECTRUM * spectrum () { return spect_; }
 };
 
 

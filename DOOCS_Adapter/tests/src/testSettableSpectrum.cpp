@@ -1,0 +1,69 @@
+#define BOOST_TEST_MODULE test_settablespectrum
+#include <boost/test/included/unit_test.hpp>
+#include <boost/test/test_tools.hpp>
+using namespace boost::unit_test;
+
+
+#include "SettableSpectrum.hpp"
+
+#include <vector>
+
+
+
+
+
+
+// ============================================================================
+
+
+struct SettableSpectrumTestFixture {
+    
+    SettableSpectrum sspec;
+
+    SettableSpectrumTestFixture() : sspec(NULL, 4, NULL) {}
+
+};
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+BOOST_FIXTURE_TEST_CASE( get, SettableSpectrumTestFixture )
+{
+    std::vector<float> expected;
+    expected.push_back(1);
+    expected.push_back(2);
+    expected.push_back(3);
+    expected.push_back(4);
+
+    std::vector<float> actual(4,0);
+    
+    sspec.fill_spectrum(0, 1);
+	sspec.fill_spectrum(1, 2);
+	sspec.fill_spectrum(2, 3);
+	sspec.fill_spectrum(3, 4);
+    
+    sspec.get_spectrum(actual);
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), actual.begin(), actual.end());
+}
+
+BOOST_FIXTURE_TEST_CASE( set, SettableSpectrumTestFixture )
+{
+    std::vector<float> expected;
+    expected.push_back(1);
+    expected.push_back(2);
+    expected.push_back(3);
+    expected.push_back(4);
+
+    std::vector<float> actual(4,0);
+    
+    sspec.set_spectrum(expected);
+    
+    actual[0] = sspec.read_spectrum(0);
+    actual[1] = sspec.read_spectrum(1);
+    actual[2] = sspec.read_spectrum(2);
+    actual[3] = sspec.read_spectrum(3);
+    
+    BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), actual.begin(), actual.end());
+}
