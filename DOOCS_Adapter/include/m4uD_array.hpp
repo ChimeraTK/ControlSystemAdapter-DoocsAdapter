@@ -138,6 +138,12 @@ public:
           }
 
 
+    void  fill(float const & t)
+          {
+              for(size_t i=0; i<static_cast<size_t>(length()); ++i)
+                  fill_spectrum (i, t);             // FIXME: !!!
+          }  
+
 
     void  fillVector(std::vector <T> & toBeFilled)
           {

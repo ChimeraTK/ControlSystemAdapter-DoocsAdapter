@@ -183,8 +183,7 @@ public:
 
     void    fill(float const & t)
             {
-                for(size_t i=0; i<size(); ++i)
-                    m4uD_array_T->fill_spectrum (i, t);             // FIXME: !!!
+                m4uD_array_T->fill(t);
             }  
                                                                                                                //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////

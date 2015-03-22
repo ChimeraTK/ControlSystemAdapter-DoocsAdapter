@@ -67,3 +67,23 @@ BOOST_FIXTURE_TEST_CASE( set, SettableSpectrumTestFixture )
     
     BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), actual.begin(), actual.end());
 }
+
+BOOST_FIXTURE_TEST_CASE( fill, SettableSpectrumTestFixture )
+{
+    std::vector<float> expected;
+    expected.push_back(1);
+    expected.push_back(1);
+    expected.push_back(1);
+    expected.push_back(1);
+
+    std::vector<float> actual(4,0);
+    
+    sspec.fill(1);
+    
+    actual[0] = sspec.read_spectrum(1);
+    actual[1] = sspec.read_spectrum(1);
+    actual[2] = sspec.read_spectrum(1);
+    actual[3] = sspec.read_spectrum(1);
+    
+    BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), actual.begin(), actual.end());
+}

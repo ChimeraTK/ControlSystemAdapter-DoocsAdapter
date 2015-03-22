@@ -362,6 +362,14 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
 	}
 
 
+	BOOST_AUTO_TEST_CASE( test_fill )
+	{
+        mydarray.fill(30);
+        
+        for(int i=0; i<mydarray.length(); ++i)
+            BOOST_CHECK_EQUAL(mydarray.read_spectrum (i), 30);
+    }
+
 	BOOST_AUTO_TEST_CASE( test_fillvector )
 	{
         // vec_test = [1,1,1,1]
