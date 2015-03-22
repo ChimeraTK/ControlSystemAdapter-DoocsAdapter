@@ -1,10 +1,10 @@
-#define BOOST_TEST_MODULE test_settablespectrum
+#define BOOST_TEST_MODULE test_dsettablespectrum
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
 using namespace boost::unit_test;
 
 
-#include "SettableSpectrum.hpp"
+#include "D_SettableSpectrum.hpp"
 
 #include <vector>
 
@@ -16,11 +16,11 @@ using namespace boost::unit_test;
 // ============================================================================
 
 
-struct SettableSpectrumTestFixture {
+struct D_SettableSpectrumTestFixture {
     
-    SettableSpectrum sspec;
+    D_SettableSpectrum sspec;
 
-    SettableSpectrumTestFixture() : sspec(NULL, 4, NULL) {}
+    D_SettableSpectrumTestFixture() : sspec(NULL, 4, NULL) {}
 
 };
 
@@ -28,7 +28,7 @@ struct SettableSpectrumTestFixture {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-BOOST_FIXTURE_TEST_CASE( get, SettableSpectrumTestFixture )
+BOOST_FIXTURE_TEST_CASE( get, D_SettableSpectrumTestFixture )
 {
     std::vector<float> expected;
     expected.push_back(1);
@@ -48,7 +48,7 @@ BOOST_FIXTURE_TEST_CASE( get, SettableSpectrumTestFixture )
     BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), actual.begin(), actual.end());
 }
 
-BOOST_FIXTURE_TEST_CASE( set, SettableSpectrumTestFixture )
+BOOST_FIXTURE_TEST_CASE( set, D_SettableSpectrumTestFixture )
 {
     std::vector<float> expected;
     expected.push_back(1);
@@ -68,7 +68,7 @@ BOOST_FIXTURE_TEST_CASE( set, SettableSpectrumTestFixture )
     BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), actual.begin(), actual.end());
 }
 
-BOOST_FIXTURE_TEST_CASE( fill, SettableSpectrumTestFixture )
+BOOST_FIXTURE_TEST_CASE( fill, D_SettableSpectrumTestFixture )
 {
     std::vector<float> expected;
     expected.push_back(1);
