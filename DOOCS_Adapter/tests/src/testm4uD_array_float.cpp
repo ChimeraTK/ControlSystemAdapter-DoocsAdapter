@@ -17,7 +17,7 @@ using namespace boost::unit_test;
 // ============================================================================
 
 
-typedef   std::vector<float>  Vectorf;
+typedef   std::vector<float>  TypedVector;
 
 
 struct CallbacksTestFixture {
@@ -29,7 +29,6 @@ struct CallbacksTestFixture {
     unsigned int _set_cb_counter;
 
     std::vector<float> vec_test;
-    std::vector<float> vec_mydarray;
     
     
     mtca4u::StubProcessArray<float> pa;     // FIXME
@@ -75,15 +74,15 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         // vec_test = [0,0,0,0]
         vec_test.assign(4, 0.0);
 
-        vec_mydarray = mydarray.getspectrum(pa);
+        const TypedVector & vec_mydarray = mydarray.getspectrum(pa);
         BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
 
         // vec_test = [1,1,1,1]
         vec_test.assign(4, 1.0);
         mydarray.setspectrum(vec_test, pa);
         
-        vec_mydarray = mydarray.getspectrum(pa);
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray1 = mydarray.getspectrum(pa);
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray1.begin(), vec_mydarray1.end(), vec_test.begin(), vec_test.end());
 	}
 
 
@@ -92,15 +91,15 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         // vec_test = [0,0,0,0]
         vec_test.assign(4, 0.0);
 
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        const TypedVector & vec_mydarray = mydarray.getspectrum_without_callback();
         BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
 
         // vec_test = [1,1,1,1]
         vec_test.assign(4, 1.0);
         mydarray.setspectrum_without_callback(vec_test);
         
-        vec_mydarray = mydarray.getspectrum_without_callback();
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray1 = mydarray.getspectrum_without_callback();
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray1.begin(), vec_mydarray1.end(), vec_test.begin(), vec_test.end());
 	}
 
 
@@ -123,7 +122,7 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         // vec_test = [0,0,0,0]
         vec_test.assign(4, 0.0);
 
-        vec_mydarray = mydarray.getspectrum(pa);
+        const TypedVector & vec_mydarray = mydarray.getspectrum(pa);
         BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
 
 
@@ -131,8 +130,8 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 1.0);
         mydarray.setspectrum(vec_test, pa);
         
-        vec_mydarray = mydarray.getspectrum(pa);
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray1 = mydarray.getspectrum(pa);
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray1.begin(), vec_mydarray1.end(), vec_test.begin(), vec_test.end());
 
 
 		mydarray.setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1));
@@ -141,8 +140,8 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 2.0);
         mydarray.setspectrum(vec_test, pa);
                                                                                  vec_test[0] = 5;// vec_test[3] = 6; 
-        vec_mydarray = mydarray.getspectrum(pa);
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray2 = mydarray.getspectrum(pa);
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray2.begin(), vec_mydarray2.end(), vec_test.begin(), vec_test.end());
 
 
 		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
@@ -151,8 +150,8 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 3.0);
         mydarray.setspectrum(vec_test, pa);
                                                                                  vec_test[0] = 5; vec_test[3] = 6; 
-        vec_mydarray = mydarray.getspectrum(pa);
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray3 = mydarray.getspectrum(pa);
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray3.begin(), vec_mydarray3.end(), vec_test.begin(), vec_test.end());
 	}
 
 
@@ -161,7 +160,7 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         // vec_test = [0,0,0,0]
         vec_test.assign(4, 0.0);
 
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        const TypedVector & vec_mydarray = mydarray.getspectrum_without_callback();
         BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
 
 
@@ -169,8 +168,8 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 1.0);
         mydarray.setspectrum_without_callback(vec_test);
         
-        vec_mydarray = mydarray.getspectrum_without_callback();
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray1 = mydarray.getspectrum_without_callback();
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray1.begin(), vec_mydarray1.end(), vec_test.begin(), vec_test.end());
 
 
 		mydarray.setOnSetCallbackFunction(boost::bind (&CallbacksTestFixture::on_set_callback, this, _1));
@@ -179,8 +178,8 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 2.0);
         mydarray.setspectrum_without_callback(vec_test);
                                                                                 // vec_test[0] = 5;// vec_test[3] = 6; 
-        vec_mydarray = mydarray.getspectrum_without_callback();
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray2 = mydarray.getspectrum_without_callback();
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray2.begin(), vec_mydarray2.end(), vec_test.begin(), vec_test.end());
 
 
 		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
@@ -189,8 +188,8 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 3.0);
         mydarray.setspectrum_without_callback(vec_test);
                                                                                 // vec_test[0] = 5; vec_test[3] = 6; 
-        vec_mydarray = mydarray.getspectrum_without_callback();
-        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray.begin(), vec_mydarray.end(), vec_test.begin(), vec_test.end());
+        const TypedVector & vec_mydarray3 = mydarray.getspectrum_without_callback();
+        BOOST_CHECK_EQUAL_COLLECTIONS(vec_mydarray3.begin(), vec_mydarray3.end(), vec_test.begin(), vec_test.end());
 	}
 
 
@@ -273,7 +272,7 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         
 
 
-        Vectorf v(4);
+        TypedVector v(4);
         mydarray.fillVector(v);
             BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_flag(), true);
             BOOST_CHECK_EQUAL(mydarray.__is_cache_synced_vect(), true);
@@ -376,7 +375,7 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
         vec_test.assign(4, 1.0);
         mydarray.setspectrum(vec_test, pa);
 
-        Vectorf v(4);
+        TypedVector v(4);
         mydarray.fillVector(v);
 
         BOOST_CHECK_EQUAL_COLLECTIONS(v.begin(), v.end(), vec_test.begin(), vec_test.end());
@@ -395,39 +394,39 @@ BOOST_FIXTURE_TEST_SUITE( test_callbacks, CallbacksTestFixture ) // callback arb
 	{
 		BOOST_CHECK( _get_cb_counter        == 0 );
 		
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 0 );
 		
 
 		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
 		
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 1 );
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 2 );
 
 
 		mydarray.clearOnGetCallbackFunction();
 		
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 2 );
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 2 );
 
 
 		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
 		
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 3 );
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 4 );
 
 
 		mydarray.clearOnGetCallbackFunction();
 		
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 4 );
-        vec_mydarray = mydarray.getspectrum(pa);
+        mydarray.getspectrum(pa);
 		BOOST_CHECK( _get_cb_counter        == 4 );
 	}
 
@@ -491,39 +490,39 @@ BOOST_FIXTURE_TEST_SUITE( test_no_callbacks, CallbacksTestFixture ) // callback 
 	{
 		BOOST_CHECK( _get_cb_counter        == 0 );
 		
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
 		
 
 		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
 		
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
 
 
 		mydarray.clearOnGetCallbackFunction();
 		
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
 
 
 		mydarray.setOnGetCallbackFunction(boost::bind (&CallbacksTestFixture::on_get_callback, this, _1));
 		
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
 
 
 		mydarray.clearOnGetCallbackFunction();
 		
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
-        vec_mydarray = mydarray.getspectrum_without_callback();
+        mydarray.getspectrum_without_callback();
 		BOOST_CHECK( _get_cb_counter        == 0 );
 	}
 
