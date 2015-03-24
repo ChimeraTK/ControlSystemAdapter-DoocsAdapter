@@ -103,7 +103,10 @@ struct TestFixture {
 
 
 
-BOOST_FIXTURE_TEST_CASE( testConstructors, TestFixture )
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                           //
+BOOST_FIXTURE_TEST_CASE( testSizeEmpty, TestFixture )
 {
     BOOST_CHECK_EQUAL ( doocs_process_array.size() , N_ELEMENTS );
     BOOST_CHECK_EQUAL ( doocs_process_array.empty(), false      );
@@ -117,154 +120,6 @@ BOOST_FIXTURE_TEST_CASE( testConstructors, TestFixture )
 }
 
 
-
-/*BOOST_FIXTURE_TEST_CASE( testIterators, TestFixture )
-{
-    int i;
-
-    mtca4u::DOOCSProcessVariableFactory DOOCSPVFactory( NULL );
-    
-    boost::shared_ptr<mtca4u::ProcessVariable<int> > integer1 = DOOCSPVFactory.getProcessVariable<int> ("Integer1");
-    boost::shared_ptr<mtca4u::ProcessVariable<int> > integer2 = DOOCSPVFactory.getProcessVariable<int> ("Integer2");
-    boost::shared_ptr<mtca4u::ProcessVariable<int> > integer3 = DOOCSPVFactory.getProcessVariable<int> ("Integer3");
-
-    std::vector<int> testValsContainer;
-    testValsContainer.push_back(1);
-    testValsContainer.push_back(2);
-    testValsContainer.push_back(3);
-
-    integer1->setWithoutCallback(testValsContainer[0]);
-    integer2->setWithoutCallback(testValsContainer[1]);
-    integer3->setWithoutCallback(testValsContainer[2]);
-
-
-    // use the fact that we're friend and can directly access the underlying vector
-    _testedArrayContainer[0] = integer1;
-    _testedArrayContainer[1] = integer2;
-    _testedArrayContainer[2] = integer3;
-    //~ for (size_t j = 0; j < N_ELEMENTS; ++j) {
-    //~ }
-
-    int tmp_idx = 0;
-    for (typename mtca4u::ProcessArray<int>::iterator it= _processArray.begin(); it != _processArray.end(); ++it) {
-        //~ *it=i++;
-        BOOST_CHECK_EQUAL( *it, static_cast<int>(j+SOME_NUMBER) );
-    }
-
-
-    //constant array with begin and end
-    i = SOME_NUMBER;
-    for (typename mtca4u::ProcessArray<int>::const_iterator it= _constArray.begin(); it != _constArray.end(); ++it){
-        BOOST_CHECK_EQUAL( *it, i++ );    
-    }
-
-    //non-constant array with const_iterator
-    i = SOME_NUMBER;
-    for (typename mtca4u::ProcessArray<int>::const_iterator it= _processArray.cbegin(); it != _processArray.cend(); ++it){
-        BOOST_CHECK_EQUAL( *it, i++ );    
-    }
-
-    // check that the iterators run with std algorithms
-    std::sort( _processArray.rbegin(), _processArray.rend() );
-
-    // again use the container to check on the modifications
-    i = SOME_NUMBER+N_ELEMENTS;
-    for (size_t j = 0; j < _testedArrayContainer.size(); ++j) {
-        BOOST_CHECK_EQUAL( _testedArrayContainer[j], static_cast<int>(--i) );
-    }
-
-    //constant array with rbegin and rend
-    i = SOME_NUMBER;
-    for (typename mtca4u::ProcessArray<int>::const_reverse_iterator it= _constArray.rbegin(); it != _constArray.rend(); ++it) {
-        BOOST_CHECK_EQUAL( *it, i++ );    
-    }
-
-    //non-constant array with const_iterator
-    i = SOME_NUMBER;
-    for (typename mtca4u::ProcessArray<int>::const_reverse_iterator it= _processArray.crbegin(); it != _processArray.crend(); ++it) {
-        BOOST_CHECK_EQUAL( *it, i++ );    
-    }
-}
-*/
-
-
-// FIXME: unable to obtain direct reference to the array element
-/*BOOST_FIXTURE_TEST_CASE( testRandomAccess, TestFixture )
-{
-    int i;
-    
-    i = SOME_NUMBER;
-    // set via [] operator
-    for (size_t j = 0; j < _processArray.size(); ++j) {
-        _processArray[j] = static_cast<T>(i++);
-    }
-    //~ // FIXME: no [] operator
-    //~ 
-    // check the container for verification
-    i = SOME_NUMBER;
-    for (size_t j = 0; j < _stubProcessArray._container.size(); ++j){
-    BOOST_CHECK( _stubProcessArray._container[j] = static_cast<T>(i++) );
-    }
-    //~ 
-    i = SOME_NUMBER;
-    // check via const [] operator
-    for (size_t j = 0; j < _processArray.size(); ++j){
-    BOOST_CHECK( _constArray[j] == static_cast<T>(i++) );
-    }  
-    //~ // FIXME: no const [] operator
-//~ 
-    //~ 
-    // now the same with at()
-    // setting:
-        darray->fill_spectrum (0, 4.0);
-        darray->fill_spectrum (1, 5.0);
-        darray->fill_spectrum (2, 6.0);
-        darray->fill_spectrum (3, 7.0);
-
-    i = SOME_NUMBER + _processArray.size();
-    for (size_t j = 0; j < _processArray.size(); ++j){
-    _processArray.at(j) = static_cast<T>(--i);
-    }
-    
-    // check the container for verification
-    i = SOME_NUMBER + _processArray.size();
-    for (size_t j = 0; j < _stubProcessArray._container.size(); ++j){
-    BOOST_CHECK( _stubProcessArray._container[j] = static_cast<T>(--i) );
-    }
-    
-    i = SOME_NUMBER + _processArray.size();
-    // check via const [] operator
-    for (size_t j = 0; j < _processArray.size(); ++j){
-    BOOST_CHECK( _constArray[j] == static_cast<T>(--i) );
-    }  
-    
-    // check the out of range check
-    BOOST_CHECK_THROW( _processArray.at(N_ELEMENTS), std::out_of_range);
-    BOOST_CHECK_THROW( _constArray.at(N_ELEMENTS), std::out_of_range);
-}*/
-
-
-
-// FIXME: unable to obtain direct reference to the array element
-/*BOOST_FIXTURE_TEST_CASE( testFrontBack, TestFixture )
-{
-    darray->fill_spectrum (0, 4.0);
-    darray->fill_spectrum (1, 5.0);
-    darray->fill_spectrum (2, 6.0);
-    darray->fill_spectrum (3, 7.0);
-
-  BOOST_CHECK( _constArray.front() == static_cast<T>(SOME_NUMBER + N_ELEMENTS -1) );
-  ++_processArray.front();
-  // use the container to verify
-  BOOST_CHECK( _stubProcessArray._container.front() == static_cast<T>(SOME_NUMBER + N_ELEMENTS) );
-
-  BOOST_CHECK( _constArray.back() == static_cast<T>(SOME_NUMBER) );
-  --_processArray.back();
-  // use the container to verify
-  BOOST_CHECK( _stubProcessArray._container.back() == static_cast<T>(SOME_NUMBER -1) );
-}*/
-
-
 BOOST_FIXTURE_TEST_CASE( testFill, TestFixture )
 {
     doocs_process_array.fill(30);
@@ -272,6 +127,10 @@ BOOST_FIXTURE_TEST_CASE( testFill, TestFixture )
     for(int i=0; i<darray->length(); ++i)
         BOOST_CHECK_EQUAL(darray->read_spectrum (i), 30);
 }
+                                                                                                           //
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
 BOOST_FIXTURE_TEST_CASE( testSetWithoutCallback, TestFixture )

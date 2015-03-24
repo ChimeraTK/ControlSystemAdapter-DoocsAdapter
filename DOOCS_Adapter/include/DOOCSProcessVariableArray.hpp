@@ -30,8 +30,8 @@ class DOOCSProcessVariableArray : public ProcessArray<T>
 protected:
     boost::shared_ptr< M4U_DOOCSARR_T >   m4uD_array_T;
 
-//    std::vector<T>    _container;         ///< The instance of the container, a vector in this case.
-    size_t            _nValidElements;    ///< The information how many of the elements are valid.
+
+    size_t            _nValidElements;    ///< The information how many of the elements are valid.      // FIXME: relevant?
     
     boost::function< void (ProcessArray<T> const & ) > _onSetCallbackFunction;         // newValue
     boost::function< void (ProcessArray<T>       & ) > _onGetCallbackFunction;     // toBeFilled
@@ -63,7 +63,8 @@ public:
 
 	
 
-
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                                                    //
     DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator=(DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const & other)
             {
                 if(&other==this){
@@ -84,6 +85,8 @@ public:
                 setWithoutCallback(v);
                 return *this;
             }
+                                                                                                                                    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     void    setWithoutCallback
@@ -96,16 +99,13 @@ public:
                 if ( typeid(other) == typeid(DOOCSProcessVariableArray< T, M4U_DOOCSARR_T >) )
                 {
                     DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * otherDoocsProcessArray = static_cast< DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * >( & other );
-                    for (size_t idx=0; idx<size(); ++idx)
-                    {
-                         m4uD_array_T->fill_spectrum (static_cast<int>(idx), otherDoocsProcessArray->m4uD_array_T->read_spectrum (static_cast<int>(idx)));         // FIXME: double copy. BTW. is there a ceiling to the D_spectrum length?
-                    }
+                    m4uD_array_T->setspectrum_without_callback (otherDoocsProcessArray->m4uD_array_T->getspectrum_without_callback ());
                 } else
                 {
                     typename ProcessArray<T>::const_iterator it;
                     size_t idx;
                     for (it = other.cbegin(), idx=0; it !=other.cend(); ++it, ++idx) {
-                        m4uD_array_T->fill_spectrum (static_cast<int>(idx), *it);
+                        m4uD_array_T->fill_spectrum (static_cast<int>(idx), *it);   // cannot avoid "fill_spectrum" here, if "other" relies on iterators
                     }
                 }
             }
@@ -116,7 +116,7 @@ public:
                 if (v.size() != size()){
                     throw std::out_of_range("Assigned vector size mismatch.");
                 }
-                m4uD_array_T->setspectrum_without_callback (v);         // FIXME: double copy.
+                m4uD_array_T->setspectrum_without_callback (v);
             }
 			  
     void    set
@@ -129,13 +129,13 @@ public:
                 if ( typeid(other) == typeid(DOOCSProcessVariableArray< T, M4U_DOOCSARR_T >) )
                 {
                     DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * otherDoocsProcessArray = static_cast< DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > const * >( & other );
-                    m4uD_array_T->setspectrum (otherDoocsProcessArray->m4uD_array_T->getspectrum_without_callback(), *this);         // FIXME: triple(!) copy
-                } else                                                                                                                               // useful?:
-                {                                                                                                                                    //  http://stackoverflow.com/questions/4643713/c-returning-reference-to-local-variable
-                    typename ProcessArray<T>::const_iterator it;                                                                                     //  http://en.wikipedia.org/wiki/Return_value_optimization
-                    std::vector<T> otherValuesVector;                                                                                                //  http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/
-                    for (it = other.cbegin(); it !=other.cend(); ++it) {    // FIXME: creating a vector out of "other" in order to feed with it the m4uD_array_T; not optimal
-                        otherValuesVector.push_back(*it);
+                    m4uD_array_T->setspectrum (otherDoocsProcessArray->m4uD_array_T->getspectrum_without_callback(), *this);
+                } else
+                {
+                    typename ProcessArray<T>::const_iterator it;
+                    std::vector<T> otherValuesVector;
+                    for (it = other.cbegin(); it !=other.cend(); ++it) {    // cannot avoid creating a vector out of "other" in order to feed with it the m4uD_array_T
+                        otherValuesVector.push_back(*it);                   //   if "other" relies on iterators
                     }
                     m4uD_array_T->setspectrum (otherValuesVector, *this);
                 }
