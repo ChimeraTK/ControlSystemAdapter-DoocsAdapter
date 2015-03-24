@@ -133,8 +133,8 @@ void D_SettableSpectrumTest<T>::testFill()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
-                                                                                                                                              //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+                                                                                                                              //
 /** The boost test suite.
  */
 template <typename T>
@@ -153,23 +153,23 @@ public:
         add( BOOST_CLASS_TEST_CASE( &D_SettableSpectrumTest<T>::testFill,           dsettableSpectrumTest ) );
     }
 };
-                                                                                                                                              //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+                                                                                                                              //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
 
 } //namespace mtca4u
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
-                                                                                                                                              //
+/////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+                                                                                                       //
 test_suite * init_unit_test_suite( int /*argc*/, char* /*argv*/ [] )
 {
     framework::master_test_suite().p_name.value = "D_SettableSpectrum test suite";
     
-    framework::master_test_suite().add( new mtca4u::D_SettableSpectrumTestSuite<int> );           // FIXME (namespace for classes)
+    framework::master_test_suite().add( new mtca4u::D_SettableSpectrumTestSuite<int> );
     framework::master_test_suite().add( new mtca4u::D_SettableSpectrumTestSuite<double>);
     framework::master_test_suite().add( new mtca4u::D_SettableSpectrumTestSuite<float>);
     
     return NULL;
 }
-                                                                                                                                              //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+                                                                                                       //
+/////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
 

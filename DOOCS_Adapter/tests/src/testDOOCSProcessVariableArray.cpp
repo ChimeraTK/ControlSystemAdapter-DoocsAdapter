@@ -1,8 +1,7 @@
-#define BOOST_TEST_MODULE test_dpva_arr
-
-
 #include <boost/test/included/unit_test.hpp>
-using namespace boost::unit_test;
+#include <boost/test/test_tools.hpp>
+using namespace boost::unit_test_framework;
+
 
 #include "dice.hpp"
 
@@ -31,8 +30,15 @@ typedef   std::vector<float> const &   CVRef;
 typedef   std::vector<float>           Vectorf;
 
 
-struct TestFixture {
-    
+
+////////////////////////////////////////////////////////////////---<>
+                                                              //
+template <typename T>
+class DOOCSProcessVariableArrayTest
+{
+
+private:
+
     size_t const N_ELEMENTS;
     float  const G_FILL_VALUE; // for gCALLBACK
     
@@ -54,37 +60,41 @@ struct TestFixture {
     mtca4u::ProcessArray<float> & _reference_process_array;
 
 
-    
-    TestFixture() :  N_ELEMENTS               (3)
-                    ,G_FILL_VALUE             (50)
-                    //~ ,SOME_NUMBER(42)
-                    
-                    ,referenceVector          (N_ELEMENTS, 6)
-                    ,toolarge_referenceVector (N_ELEMENTS+1, 6)
-                    
-                    ,__setCallbackCounter     (0)
-                    ,__getCallbackCounter     (0)
-                    
-                    ,darray          ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,doocs_process_array                    (darray          , N_ELEMENTS)
-                    ,emptydarray     ( new mtca4u::m4uD_array<float> ( NULL,          0, NULL ) )      ,empty_doocs_process_array              (emptydarray     ,          0)
-                    ,refdarray       ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,reference_doocs_process_array          (refdarray       , N_ELEMENTS)
-                    //~ ,atrefdarray     ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,assign_test_reference_process_array    (atrefdarray     , N_ELEMENTS)        // iterators required for this to work
-                    
-                    ,toolarge1darray ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_ref_doocs_process_array       (toolarge1darray , N_ELEMENTS+1)
-                    ,toolarge2darray ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_assign_test_ref_process_array (toolarge2darray , N_ELEMENTS+1)
-                    
-                    ,_process_array(doocs_process_array)
-                    ,_reference_process_array(reference_doocs_process_array)
+    void __resetCallbackCounters()
     {
-        _process_array.setOnSetCallbackFunction( boost::bind( &TestFixture::setCBfun, this, _1) );
-        _process_array.setOnGetCallbackFunction( boost::bind( &TestFixture::getCBfun, this, _1) );
+        __setCallbackCounter = 0;
+        __getCallbackCounter = 0;
+    }
+
+
+public:
+
+    DOOCSProcessVariableArrayTest() :    N_ELEMENTS               (3)
+                                        ,G_FILL_VALUE             (50)
+                                        //~ ,SOME_NUMBER(42)
+                                        
+                                        ,referenceVector          (N_ELEMENTS, 6)
+                                        ,toolarge_referenceVector (N_ELEMENTS+1, 6)
+                                        
+                                        ,__setCallbackCounter     (0)
+                                        ,__getCallbackCounter     (0)
+                                        
+                                        ,darray          ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,doocs_process_array                    (darray          , N_ELEMENTS)
+                                        ,emptydarray     ( new mtca4u::m4uD_array<float> ( NULL,          0, NULL ) )      ,empty_doocs_process_array              (emptydarray     ,          0)
+                                        ,refdarray       ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,reference_doocs_process_array          (refdarray       , N_ELEMENTS)
+                                        //~ ,atrefdarray     ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,assign_test_reference_process_array    (atrefdarray     , N_ELEMENTS)        // iterators required for this to work
+                                        
+                                        ,toolarge1darray ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_ref_doocs_process_array       (toolarge1darray , N_ELEMENTS+1)
+                                        ,toolarge2darray ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_assign_test_ref_process_array (toolarge2darray , N_ELEMENTS+1)
+                                        
+                                        ,_process_array(doocs_process_array)
+                                        ,_reference_process_array(reference_doocs_process_array)
+    {
+        _process_array.setOnSetCallbackFunction( boost::bind( &DOOCSProcessVariableArrayTest::setCBfun, this, _1) );
+        _process_array.setOnGetCallbackFunction( boost::bind( &DOOCSProcessVariableArrayTest::getCBfun, this, _1) );
     }
     
-    ~TestFixture()
-    {
-    }
-    
-    
+
     // sCALLBACK
     void setCBfun(mtca4u::ProcessArray<float> const & ){
         ++__setCallbackCounter;
@@ -96,17 +106,27 @@ struct TestFixture {
         ++__getCallbackCounter;  
     }
 
-                                                                                    // FIXME: add CS-side activity mock (D_der'v level)
+    
+    void testSizeEmpty();
+    void testFill();
+    void testSetWithoutCallback();
+    void testSet();
+    void testGetWithoutCallback();
+    void testGet();
+    void test_fillvector();
+    void testAssignment();
+
 };
-
-
+                                                              //
+////////////////////////////////////////////////////////////////---<>
 
 
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                                                                            //
-BOOST_FIXTURE_TEST_CASE( testSizeEmpty, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testSizeEmpty()
 {
     BOOST_CHECK_EQUAL ( doocs_process_array.size() , N_ELEMENTS );
     BOOST_CHECK_EQUAL ( doocs_process_array.empty(), false      );
@@ -120,7 +140,8 @@ BOOST_FIXTURE_TEST_CASE( testSizeEmpty, TestFixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE( testFill, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testFill()
 {
     doocs_process_array.fill(30);
     
@@ -133,8 +154,11 @@ BOOST_FIXTURE_TEST_CASE( testFill, TestFixture )
 
 
 
-BOOST_FIXTURE_TEST_CASE( testSetWithoutCallback, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testSetWithoutCallback()
 {
+    __resetCallbackCounters();
+    
     // fill something known so we can check that it changed
     _process_array.fill(5);
     
@@ -191,8 +215,11 @@ BOOST_FIXTURE_TEST_CASE( testSetWithoutCallback, TestFixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE( testSet, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testSet()
 {
+    __resetCallbackCounters();
+
     // fill something known so we can check that it changed
     _process_array.fill(5);
     
@@ -254,8 +281,11 @@ BOOST_FIXTURE_TEST_CASE( testSet, TestFixture )
 
 
 
-BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testGetWithoutCallback()
 {
+    __resetCallbackCounters();
+    
     // fill something known so we can check that it changed
     _process_array.fill(5);
 
@@ -271,7 +301,7 @@ BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
     //~ _process_array.fill(4);
 
 
-    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<float>’ has no member named ‘getWithoutCallback' - ProcessArray interface change required
+    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<float>’ has no member named ‘getWithoutCallback'
 //~ 
     //~ for (size_t i=0; i<N_ELEMENTS; ++i)
     //~ {
@@ -286,8 +316,11 @@ BOOST_FIXTURE_TEST_CASE( testGetWithoutCallback, TestFixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE( testGet, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testGet()
 {
+    __resetCallbackCounters();
+    
     // fill something known so we can check that it changed
     _process_array.fill(5);
 
@@ -316,8 +349,11 @@ BOOST_FIXTURE_TEST_CASE( testGet, TestFixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE( test_fillvector, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::test_fillvector()
 {
+    __resetCallbackCounters();
+    
     _process_array = referenceVector;
 
 
@@ -339,8 +375,11 @@ BOOST_FIXTURE_TEST_CASE( test_fillvector, TestFixture )
 }
 
 
-BOOST_FIXTURE_TEST_CASE( testAssignment, TestFixture )
+template <typename T>
+void DOOCSProcessVariableArrayTest<T>::testAssignment()
 {
+    __resetCallbackCounters();
+    
     // assign from a vector ...
     _process_array = referenceVector;
     // ... and check 
@@ -409,3 +448,49 @@ BOOST_FIXTURE_TEST_CASE( testAssignment, TestFixture )
 
 
 // FIXME: inter-PA behavior tests required
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+                                                                                                                                              //
+/** The boost test suite.
+ */
+template <typename T>
+class DOOCSProcessVariableArrayTestSuite : public test_suite
+{
+
+public:
+
+    DOOCSProcessVariableArrayTestSuite() : test_suite("DOOCSProcessVariableArray test suite")
+    {
+        boost::shared_ptr< DOOCSProcessVariableArrayTest<T> > 	doocsPVArrayTest( new DOOCSProcessVariableArrayTest<T> );
+        
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testSizeEmpty,          doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testFill,               doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testSetWithoutCallback, doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testSet,                doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testGetWithoutCallback, doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testGet,                doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::test_fillvector,        doocsPVArrayTest ) );
+        add( BOOST_CLASS_TEST_CASE( &DOOCSProcessVariableArrayTest<T>::testAssignment,         doocsPVArrayTest ) );
+    }
+};
+                                                                                                                                              //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+                                                                                                                                              //
+test_suite * init_unit_test_suite( int /*argc*/, char* /*argv*/ [] )
+{
+    framework::master_test_suite().p_name.value = "DOOCSProcessVariableArray test suite";
+    
+    framework::master_test_suite().add( new DOOCSProcessVariableArrayTestSuite<int>   );
+    framework::master_test_suite().add( new DOOCSProcessVariableArrayTestSuite<double>);
+    framework::master_test_suite().add( new DOOCSProcessVariableArrayTestSuite<float> );
+    
+    return NULL;
+}
+                                                                                                                                              //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////---<>
+
