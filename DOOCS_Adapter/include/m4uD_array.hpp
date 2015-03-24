@@ -23,7 +23,7 @@ protected:
     boost::function< void (ProcessArray<T> const & ) > _onSetCallbackFunction;    // newValue
     boost::function< void (ProcessArray<T> & ) >       _onGetCallbackFunction;    // toBeFilled
 
-    size_t             _size;            // FIXME: what was this one for?
+    //~ size_t             _size;            // FIXME: what was this one for?
 
 public:
 
@@ -51,8 +51,8 @@ public:
 
 
 
-    m4uD_array (const char *pn, int maxl, EqFct *ef) :  D_CachedSpectrum<T> (pn, maxl, ef),
-                                                        _size               (maxl)
+    m4uD_array (const char *pn, int maxl, EqFct *ef) :  D_CachedSpectrum<T> (pn, maxl, ef)//,
+                                                        //~ _size               (maxl)
                                                      {}
     
 
@@ -83,13 +83,54 @@ public:
               return D_CachedSpectrum<T>::get_spectrum();
           }
 
+
+
+    bool limitedPrecision() // a "default" (for T) is true, to be on a safe side
+         {
+             return true;
+         }
+
 };
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                     //
+template<>
+bool m4uD_array<float>::limitedPrecision()
+{
+    return false;
+}
 
 
-}//namespace mtca4u
+
+static const int32_t MIN_INT_IN_FLOAT = -16777216;
+static const int32_t MAX_INT_IN_FLOAT =  16777215;
+
+
+template<>
+bool m4uD_array<int>::limitedPrecision()
+{
+    size_t _size = static_cast<size_t> (length());
+    for( size_t i = 0; i < _size; ++i)
+    {
+        // <=, because -16777217 is rounded to -16777216, so there might be a rounding error.
+        // For positive values 16777217 is rounded to 16777216, so 16777215 is safe.
+        if ( (static_cast<int32_t>(read_spectrum(i)) <= MIN_INT_IN_FLOAT ) ||
+             (static_cast<int32_t>(read_spectrum(i)) >  MAX_INT_IN_FLOAT )
+           )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+                                                                                                     //
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+} // namespace mtca4u
 
 
 #endif /* __m4uD_array__ */
