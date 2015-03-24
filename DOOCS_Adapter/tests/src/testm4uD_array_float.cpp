@@ -104,7 +104,7 @@ BOOST_FIXTURE_TEST_SUITE( test_operation, CallbacksTestFixture ) // operation ch
 	}
 
 
-	BOOST_AUTO_TEST_CASE( test_randomaccess )
+	BOOST_AUTO_TEST_CASE( test_randomaccess ) // a "random access"
 	{
         mydarray.fill_spectrum (0, 1.0);
         mydarray.fill_spectrum (1, 2.0);
