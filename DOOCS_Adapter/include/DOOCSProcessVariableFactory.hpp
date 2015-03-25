@@ -9,6 +9,9 @@
 #include "m4uD_type.hpp"
 #include "DOOCSProcessVariableAdapter.hpp"
 
+#include "m4uD_array.hpp"
+#include "DOOCSProcessVariableArray.hpp"
+
 
 
 namespace mtca4u{
@@ -54,7 +57,32 @@ protected:
 
     }
     
-    boost::any createProcessArray    ( std::type_info const & variableType, std::string name, size_t arraySize) { return NULL; } // TODO proper implementation to come after arrays support
+
+    boost::any createProcessArray ( std::type_info const & variableType, std::string name, size_t arraySize)
+    {
+        if(variableType == typeid(int) ) {
+
+            boost::shared_ptr< mtca4u::m4uD_array<int> > darray ( new mtca4u::m4uD_array<int> ( name.c_str(), arraySize, ef ) );
+            return boost::shared_ptr < ProcessArray<int> >      ( new mtca4u::DOOCSProcessVariableArray<int, mtca4u::m4uD_array<int> > (darray , arraySize));
+
+        } else
+        if(variableType == typeid(float) ) {
+
+            boost::shared_ptr< mtca4u::m4uD_array<float> > darray ( new mtca4u::m4uD_array<float> ( name.c_str(), arraySize, ef ) );
+            return boost::shared_ptr < ProcessArray<float> >      ( new mtca4u::DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> > (darray , arraySize));
+
+        } else
+        if(variableType == typeid(double) ) {
+
+            boost::shared_ptr< mtca4u::m4uD_array<double> > darray ( new mtca4u::m4uD_array<double> ( name.c_str(), arraySize, ef ) );
+            return boost::shared_ptr < ProcessArray<double> >      ( new mtca4u::DOOCSProcessVariableArray<double, mtca4u::m4uD_array<double> > (darray , arraySize));
+
+        } else
+        {
+          throw std::bad_typeid();
+        }
+    }
+
 
 public:
 
