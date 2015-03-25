@@ -26,8 +26,6 @@ public:
 
 
 
-typedef   std::vector<float> const &   CVRef;
-typedef   std::vector<float>           Vectorf;
 
 
 
@@ -40,24 +38,24 @@ class DOOCSProcessVariableArrayTest
 private:
 
     size_t const N_ELEMENTS;
-    float  const G_FILL_VALUE; // for gCALLBACK
+    T      const G_FILL_VALUE; // for gCALLBACK
     
-    std::vector<float> referenceVector;
-    std::vector<float> toolarge_referenceVector;
+    std::vector<T> referenceVector;
+    std::vector<T> toolarge_referenceVector;
     
     unsigned int __setCallbackCounter;
     unsigned int __getCallbackCounter;
     
-    boost::shared_ptr< mtca4u::m4uD_array<float> >   darray;            mtca4u::DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> >  doocs_process_array;
-    boost::shared_ptr< mtca4u::m4uD_array<float> >   emptydarray;       mtca4u::DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> >  empty_doocs_process_array;
-    boost::shared_ptr< mtca4u::m4uD_array<float> >   refdarray;         mtca4u::DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> >  reference_doocs_process_array;
-    //~ boost::shared_ptr< mtca4u::m4uD_array<float> >   atrefdarray;                  AssignTestProcessArray<float, mtca4u::m4uD_array<float> >  assign_test_reference_process_array;        // iterators required for this to work
+    boost::shared_ptr< mtca4u::m4uD_array<T> >   darray;            mtca4u::DOOCSProcessVariableArray<T, mtca4u::m4uD_array<T> >  doocs_process_array;
+    boost::shared_ptr< mtca4u::m4uD_array<T> >   emptydarray;       mtca4u::DOOCSProcessVariableArray<T, mtca4u::m4uD_array<T> >  empty_doocs_process_array;
+    boost::shared_ptr< mtca4u::m4uD_array<T> >   refdarray;         mtca4u::DOOCSProcessVariableArray<T, mtca4u::m4uD_array<T> >  reference_doocs_process_array;
+    //~ boost::shared_ptr< mtca4u::m4uD_array<T> >   atrefdarray;                  AssignTestProcessArray<T, mtca4u::m4uD_array<T> >  assign_test_reference_process_array;        // iterators required for this to work
     
-    boost::shared_ptr< mtca4u::m4uD_array<float> >   toolarge1darray;   mtca4u::DOOCSProcessVariableArray<float, mtca4u::m4uD_array<float> >  toolarge_ref_doocs_process_array;
-    boost::shared_ptr< mtca4u::m4uD_array<float> >   toolarge2darray;              AssignTestProcessArray<float, mtca4u::m4uD_array<float> >  toolarge_assign_test_ref_process_array;
+    boost::shared_ptr< mtca4u::m4uD_array<T> >   toolarge1darray;   mtca4u::DOOCSProcessVariableArray<T, mtca4u::m4uD_array<T> >  toolarge_ref_doocs_process_array;
+    boost::shared_ptr< mtca4u::m4uD_array<T> >   toolarge2darray;              AssignTestProcessArray<T, mtca4u::m4uD_array<T> >  toolarge_assign_test_ref_process_array;
     
-    mtca4u::ProcessArray<float> & _process_array;
-    mtca4u::ProcessArray<float> & _reference_process_array;
+    mtca4u::ProcessArray<T> & _process_array;
+    mtca4u::ProcessArray<T> & _reference_process_array;
 
 
     void __resetCallbackCounters()
@@ -79,13 +77,13 @@ public:
                                         ,__setCallbackCounter     (0)
                                         ,__getCallbackCounter     (0)
                                         
-                                        ,darray          ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,doocs_process_array                    (darray          , N_ELEMENTS)
-                                        ,emptydarray     ( new mtca4u::m4uD_array<float> ( NULL,          0, NULL ) )      ,empty_doocs_process_array              (emptydarray     ,          0)
-                                        ,refdarray       ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,reference_doocs_process_array          (refdarray       , N_ELEMENTS)
-                                        //~ ,atrefdarray     ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS, NULL ) )      ,assign_test_reference_process_array    (atrefdarray     , N_ELEMENTS)        // iterators required for this to work
+                                        ,darray          ( new mtca4u::m4uD_array<T> ( NULL, N_ELEMENTS, NULL ) )      ,doocs_process_array                    (darray          , N_ELEMENTS)
+                                        ,emptydarray     ( new mtca4u::m4uD_array<T> ( NULL,          0, NULL ) )      ,empty_doocs_process_array              (emptydarray     ,          0)
+                                        ,refdarray       ( new mtca4u::m4uD_array<T> ( NULL, N_ELEMENTS, NULL ) )      ,reference_doocs_process_array          (refdarray       , N_ELEMENTS)
+                                        //~ ,atrefdarray     ( new mtca4u::m4uD_array<T> ( NULL, N_ELEMENTS, NULL ) )      ,assign_test_reference_process_array    (atrefdarray     , N_ELEMENTS)        // iterators required for this to work
                                         
-                                        ,toolarge1darray ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_ref_doocs_process_array       (toolarge1darray , N_ELEMENTS+1)
-                                        ,toolarge2darray ( new mtca4u::m4uD_array<float> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_assign_test_ref_process_array (toolarge2darray , N_ELEMENTS+1)
+                                        ,toolarge1darray ( new mtca4u::m4uD_array<T> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_ref_doocs_process_array       (toolarge1darray , N_ELEMENTS+1)
+                                        ,toolarge2darray ( new mtca4u::m4uD_array<T> ( NULL, N_ELEMENTS+1, NULL ) )    ,toolarge_assign_test_ref_process_array (toolarge2darray , N_ELEMENTS+1)
                                         
                                         ,_process_array(doocs_process_array)
                                         ,_reference_process_array(reference_doocs_process_array)
@@ -96,12 +94,12 @@ public:
     
 
     // sCALLBACK
-    void setCBfun(mtca4u::ProcessArray<float> const & ){
+    void setCBfun(mtca4u::ProcessArray<T> const & ){
         ++__setCallbackCounter;
     }
     
     // gCALLBACK
-    void getCBfun(mtca4u::ProcessArray<float> & toBeFilled ){
+    void getCBfun(mtca4u::ProcessArray<T> & toBeFilled ){
         toBeFilled.fill(G_FILL_VALUE);
         ++__getCallbackCounter;  
     }
@@ -290,7 +288,7 @@ void DOOCSProcessVariableArrayTest<T>::testGetWithoutCallback()
     _process_array.fill(5);
 
 
-    CVRef result_of_get = doocs_process_array.getWithoutCallback();
+    std::vector<T> const & result_of_get = doocs_process_array.getWithoutCallback();
 
     for (size_t i=0; i<N_ELEMENTS; ++i)
     {
@@ -301,7 +299,7 @@ void DOOCSProcessVariableArrayTest<T>::testGetWithoutCallback()
     //~ _process_array.fill(4);
 
 
-    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<float>’ has no member named ‘getWithoutCallback'
+    //~ result_of_get = _process_array.getWithoutCallback();        FIXME: class mtca4u::ProcessArray<T>’ has no member named ‘getWithoutCallback'
 //~ 
     //~ for (size_t i=0; i<N_ELEMENTS; ++i)
     //~ {
@@ -325,7 +323,7 @@ void DOOCSProcessVariableArrayTest<T>::testGet()
     _process_array.fill(5);
 
 
-    CVRef result_of_get1 = doocs_process_array.get();
+    std::vector<T> const & result_of_get1 = doocs_process_array.get();
     BOOST_CHECK_EQUAL( __getCallbackCounter, 1 );
     for (size_t i=0; i<N_ELEMENTS; ++i)
     {
@@ -339,7 +337,7 @@ void DOOCSProcessVariableArrayTest<T>::testGet()
     _process_array.fill(5);
 
 
-    CVRef result_of_get2 = doocs_process_array.get();
+    std::vector<T> const & result_of_get2 = doocs_process_array.get();
     BOOST_CHECK_EQUAL( __getCallbackCounter, 1 );
     for (size_t i=0; i<N_ELEMENTS; ++i)
     {
@@ -357,7 +355,7 @@ void DOOCSProcessVariableArrayTest<T>::test_fillvector()
     _process_array = referenceVector;
 
 
-    Vectorf v(N_ELEMENTS);
+    std::vector<T> v(N_ELEMENTS);
     doocs_process_array.fillVector(v);
 
     for (size_t i=0; i<N_ELEMENTS; ++i)

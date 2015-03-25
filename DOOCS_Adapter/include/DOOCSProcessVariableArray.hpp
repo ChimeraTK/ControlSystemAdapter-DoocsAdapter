@@ -74,7 +74,7 @@ public:
                 return (*this);
             }
         
-    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator=(ProcessArray<float> const & other)
+    DOOCSProcessVariableArray< T, M4U_DOOCSARR_T > & operator=(ProcessArray<T> const & other)
             {
                 setWithoutCallback(other);
                 return (*this);
@@ -151,7 +151,7 @@ public:
             }
 
 
-    std::vector<float> const & get()
+    std::vector<T> const & get()
             {
                 return m4uD_array_T->getspectrum(*this);
             }
@@ -181,7 +181,7 @@ public:
                 return size() == 0;
             }
 
-    void    fill(float const & t)
+    void    fill(T const & t)
             {
                 m4uD_array_T->fill(t);
             }  
@@ -197,46 +197,46 @@ public:
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                                                                                //
-            virtual float & operator[](size_t index){
+            T & operator[](size_t index){
                 //~ return _container[index];
                 (void)index; // suppress [-Wunused-parameter]
                 throw std::logic_error("\"operator[]_1\" - The method or operation is not implemented.");
             }
 
-            virtual float const & operator[](size_t index) const{
+            T const & operator[](size_t index) const{
                 //~ return _container[index];    
                 (void)index; // suppress [-Wunused-parameter]
                 throw std::logic_error("\"operator[]_2\" - The method or operation is not implemented.");
             }
 
-            float & at(size_t index){
+            T & at(size_t index){
                 //~ return m4uD_array_T->read_spectrum(static_cast<int>index);
                 (void)index; // suppress [-Wunused-parameter]
                 throw std::logic_error("\"at_1\" - The method or operation is not implemented.");
             }
 
-            virtual float const & at(size_t index) const{
+            T const & at(size_t index) const{
                 //~ return _container.at(index);
                 (void)index; // suppress [-Wunused-parameter]
                 throw std::logic_error("\"at_2\" - The method or operation is not implemented.");
             }
 
-            virtual float & front(){
+            T & front(){
                 //~ return _container.front();
                 throw std::logic_error("\"front_1\" - The method or operation is not implemented.");
             }
 
-            virtual float const & front() const{
+            T const & front() const{
                 //~ return _container.front();
                 throw std::logic_error("\"front_2\" - The method or operation is not implemented.");
             }
 
-            virtual float & back(){
+            T & back(){
                 //~ return _container.back();
                 throw std::logic_error("\"back_1\" - The method or operation is not implemented.");
             }
 
-            virtual float const & back() const{
+            T const & back() const{
                 //~ return _container.back();
                 throw std::logic_error("\"back_2\" - The method or operation is not implemented.");
             }
