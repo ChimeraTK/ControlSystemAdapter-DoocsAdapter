@@ -5,7 +5,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "ProcessVariable.h"
+#include <ControlSystemAdapter/ProcessVariable.h>
 
 
 // friends

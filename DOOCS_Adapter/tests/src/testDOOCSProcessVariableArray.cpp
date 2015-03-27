@@ -6,9 +6,8 @@ using namespace boost::unit_test_framework;
 #include "dice.hpp"
 
 
-#include "eq_fct.h"
-#include "ProcessArray.h"
-#include "StubProcessArray.h"       //FIXME - shouldn't be here in the end
+#include <eq_fct.h>
+
 #include "m4uD_array.hpp"
 
 #include "DOOCSProcessVariableArray.hpp"

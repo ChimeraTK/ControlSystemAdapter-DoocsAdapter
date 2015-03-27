@@ -6,9 +6,9 @@ using namespace boost::unit_test;
 
 
 
-#include "eq_fct.h"
-#include "ProcessArray.h"
-#include "StubProcessArray.h"       //FIXME - shouldn't be here in the end
+#include <eq_fct.h>
+#include <ControlSystemAdapter/StubProcessArray.h>
+#include <ControlSystemAdapter/StubProcessVariableFactory.h>       //FIXME - shouldn't be here in the end
 #include "m4uD_array.hpp"
 
 
@@ -31,14 +31,15 @@ struct CallbacksTestFixture {
     std::vector<int> vec_test;
 
 
-    mtca4u::StubProcessArray<int> pa;     // FIXME
+    mtca4u::StubProcessVariableFactory variableFactory;
+    boost::shared_ptr< mtca4u::ProcessArray<int> > pa;     // FIXME
 
 
             CallbacksTestFixture() :  mydarray( NULL, 4, NULL )
                                      ,_get_cb_counter       (0)
                                      ,_set_cb_counter       (0)
                                      ,vec_test              (4)
-                                     ,pa(5)
+                                     ,pa( variableFactory.getProcessArray<int>("pa",5) )
             {}
     
             ~CallbacksTestFixture() {}

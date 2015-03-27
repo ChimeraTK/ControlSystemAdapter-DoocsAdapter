@@ -8,7 +8,7 @@
 #include <typeinfo>
 #include <boost/shared_ptr.hpp>
 
-#include "ProcessArray.h"
+#include <ControlSystemAdapter/ProcessArray.h>
 
 #include <execinfo.h>
 

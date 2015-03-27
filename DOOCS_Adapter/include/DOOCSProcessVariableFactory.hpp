@@ -2,10 +2,10 @@
 #define __dpvaf__
 
 #include <boost/any.hpp>
-#include "ProcessVariableFactory.h"
+#include <ControlSystemAdapter/ProcessVariableFactory.h>
 
 
-#include "eq_fct.h"
+#include <eq_fct.h>
 #include "m4uD_type.hpp"
 #include "DOOCSProcessVariableAdapter.hpp"
 

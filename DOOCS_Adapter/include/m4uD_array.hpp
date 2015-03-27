@@ -5,7 +5,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-
+#include <ControlSystemAdapter/ProcessArray.h>
 
 #include "D_CachedSpectrum.hpp"
 
