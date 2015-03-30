@@ -3,6 +3,9 @@ project (DOOCS_Adapter)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wshadow -Wuninitialized")
 
+#use -DCMAKE_BUILD_TYPE=Debug in your cmake command to turn on the coverage option
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 --coverage")
+
 FIND_PACKAGE(ControlSystemAdapter REQUIRED)
 include_directories(${ControlSystemAdapter_INCLUDE_DIRS})
 
@@ -41,5 +44,17 @@ if(TESTING_IS_ENABLED)
         target_link_libraries(${excutableName} ${ControlSystemAdapter_LIBRARIES})
         add_test(${excutableName} ${excutableName})
     endforeach( testSourceFile )
+
+    #The make coverage command is only available in debug mode
+    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      configure_file(cmake/Makefile.coverage.in
+	${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
+      add_custom_target(coverage
+	make -f Makefile.coverage
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	COMMENT "Generating test coverage documentation" VERBATIM
+	)
+    ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 endif(TESTING_IS_ENABLED)
 
