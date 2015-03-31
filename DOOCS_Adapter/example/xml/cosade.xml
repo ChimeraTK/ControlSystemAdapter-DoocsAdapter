@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<jdddPanel><DOOCSLayeredPane name="EditorPanel" bounds="138,5,600,700"><fillColor>210,210,210</fillColor>
+<DOOCSDial name="TargetDial" bounds="210,100,80,20"><adr>TEST.DOOCS/LOCALHOST_610498009/COSADELOCATION/TARGET_VOLTAGE</adr><precision>2</precision></DOOCSDial>
+<DOOCSLabel name="TargetLabel" bounds="90,100,100,20"><text>TargetVoltage</text></DOOCSLabel>
+<DOOCSLabel name="MonitorLabel" bounds="90,140,100,20"><text>Monitor Voltage</text></DOOCSLabel>
+<DOOCSValue name="MonitorValue" bounds="210,140,80,20"><adr>TEST.DOOCS/LOCALHOST_610498009/COSADELOCATION/MONITOR_VOLTAGE</adr><border>true</border></DOOCSValue>
+</DOOCSLayeredPane>
+<thumbnail>iVBORw0KGgoAAAANSUhEUgAAAD0AAABHCAYAAAC0209OAAAAyUlEQVR42u3TOwqDUBAF0Cza3QiCWNi4AD+NOwi4h+xA8sHAhCfYhKRJZzwXLu8x3YGZ0ziOcaSeUtJnmqbDFBoaGhoaGvqA6C3zfYn5tsT18Vzf9nxZ57tA930fbdtG0zQxDENUVRVd10VRFOs8zT6h35PQqdYbesfoLMu+djc3nef5esPptsuyjLquf7rpLdYbGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGvpv0EfMCznEm/HUVywmAAAAAElFTkSuQmCC</thumbnail>
+</jdddPanel>
