@@ -1,0 +1,66 @@
+/** \mainpage
+
+The DOOCS_Adapter implements the MTCA4U Control System Adapter for DOOCS.
+
+\section Integration Integrating your business logic into DOOCS
+
+You need:
+\li The core of your control application (business logic) written against the MTCA4U Control
+System Adapter
+\li An instance of the DOOCSProcessVaiableFactory in your server class
+\li An instance of the business logic in your server class
+\li An update() or interrupt_userX() function which calls the business logic
+
+\subsection Header The Server Header
+\li Include the headers of your business logic and the DOOCSProcessVaiableFactory
+\li You need a member variable which stores a variable factory as
+\c boost::shared_ptr<mtca4u::ProcessVaiableFactory>. Note that it has to be a
+shared pointer to the base class \c mtca4u::ProcessVaiableFactory, not to the
+DOOCS factory.
+\li Your business logic is allocated dynamically in the init() function. Hence
+you need a pointer to it as a member variable, not the instance itself. It is recommended to use smart
+pointers to avoid issues with the memory management.
+
+\subsection Implementation The Server Implementation
+\subsubsection Constructor Constructor
+\li Initialise the DOOCSProcessVariableFactory
+\li Populate the DOOCSProcessVariableFactory<br>
+The population has to be done in the constructor so the DOOCS properties are
+known to the server. The previous values of the properties are set after the
+contruction, but before init() is called, only for those properties declared
+in the constructor.
+
+\subsubsection init init()
+\li Initialise the business logic with the process variable factory.<br>
+Until now all properties in the factory have been initialised by DOOCS with
+the values from the config file, so a set of fully initialised process
+variables is handed to the business logic, which can initialise the hardware
+in its constructor.
+
+\subsubsection update update()
+\li The business logic will have one update-like function, or two functions
+(write to hardware and read from hardware). Call these in update. The business
+logic should be written in a way that there is no logic in the DOOCS update()
+function, but as few function calls as possible (one or two).
+
+\section Example Example
+The example directory contains a fully functional example.
+
+\subsection example_header Header
+Header of the <b>CO</b>ntrol <b>S</b>ystem <b>AD</b>apter <b>E</b>xample (COSADE) DOOCS server.
+\include eq_cosade.h
+
+\subsection example_cc The Server Impementation (.cc file)
+Implementation of the <b>CO</b>ntrol <b>S</b>ystem <b>AD</b>apter <b>E</b>xample (COSADE) DOOCS server.
+\include cosade_rpc_server.cc
+
+\subsection example_business_logic Business Logic
+Example business logic. It is DOOCS-independent.
+\include IndependentControlCore.h
+
+
+\example eq_cosade.h Header of the <b>CO</b>ntrol <b>S</b>ystem <b>AD</b>apter <b>E</b>xample (COSADE) DOOCS server.
+\example IndependentControlCore.h Example business logic. It is DOOCS-independent.
+
+
+*/
