@@ -1,7 +1,7 @@
 #define the dependeny locations here
 DOOCSROOT = $(HOME)/doocs
-ControlSystemAdapter_DIR = $(HOME)/mtca4u/TESTING/ControlSystemAdapter/TESTING/include
-DOOCS_Adapter_DIR = ..
+ControlSystemAdapter_DIR = @ControlSystemAdapter_DIR@
+DOOCS_Adapter_DIR = @CMAKE_SOURCE_DIR@
 
 # to define DOOCSROOT as an absolute path
 include $(DOOCSROOT)/$(DOOCSARCH)/DEFINEDOOCSROOT
@@ -19,7 +19,7 @@ SOURCEHFILES = $(SRCDIR)/eq_cosade.h $(SRCDIR)/IndependentControlCore.h
 ALLPROGS = $(OBJDIR)/cosade_server 
 
 CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized
-CPPFLAGS += -I $(ControlSystemAdapter_DIR)
+CPPFLAGS += -I $(ControlSystemAdapter_DIR)/include
 CPPFLAGS += -I $(DOOCS_Adapter_DIR)/include 
 #LDFLAGS += -L /space/killenb/DOOCS_Adapter_trunk/DOOCS_Adapter/build/ -lDOOCSControlsSystemAdapter
 

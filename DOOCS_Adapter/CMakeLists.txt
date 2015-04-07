@@ -26,11 +26,8 @@ ELSE(Boost_UNIT_TEST_FRAMEWORK_FOUND)
     message("Boost unit_test_framework not found, disabling testing")
 ENDIF(Boost_UNIT_TEST_FRAMEWORK_FOUND)
 
-
-
 include_directories(${CMAKE_SOURCE_DIR}/include)
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
-
 
 #Currently we assume that they are all tests contained in one file, so
 #each file gives a new executable. This section has to be adapted if this should change.
@@ -58,3 +55,9 @@ if(TESTING_IS_ENABLED)
 
 endif(TESTING_IS_ENABLED)
 
+#Generate the Makefile for the COntrol System ADapter Example (cosade),
+#depending on the source code of the DOOCS_Adapter.
+#FIXME: Should be done for the installed version of the DOOOCS_Adapter, but is not critical at the moment
+# as it is header only not (which will change)
+message("CMAKE_SOURCE_DIR  ${CMAKE_SOURCE_DIR}")
+configure_file(cmake/Makefile.cosade.in ${CMAKE_SOURCE_DIR}/example/Makefile @ONLY)
