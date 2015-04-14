@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 project (DOOCS_Adapter)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wshadow -Wuninitialized")
@@ -11,12 +11,12 @@ include_directories(${ControlSystemAdapter_INCLUDE_DIRS})
 
 # --- boost ---
 FIND_PACKAGE(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
 
 # --- boost unit_test ---
-FIND_PACKAGE(Boost COMPONENTS unit_test_framework REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS unit_test_framework)
 IF(Boost_UNIT_TEST_FRAMEWORK_FOUND)
-    include_directories(${Boost_INCLUDE_DIR})
+    include_directories(${Boost_INCLUDE_DIRS})
     ENABLE_TESTING()
     set(TESTING_IS_ENABLED "true")
     message(status "** Boost Include: ${Boost_INCLUDE_DIR}")
@@ -33,6 +33,7 @@ aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 #each file gives a new executable. This section has to be adapted if this should change.
 if(TESTING_IS_ENABLED)
     include_directories(${CMAKE_SOURCE_DIR}/tests/include)
+    include_directories(${CMAKE_SOURCE_DIR}/example)
     aux_source_directory(${CMAKE_SOURCE_DIR}/tests/src testSources)
     foreach( testSourceFile ${testSources})
         #NAME_WE means the base name without path and (longest) extension
