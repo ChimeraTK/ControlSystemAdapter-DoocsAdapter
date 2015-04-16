@@ -61,3 +61,8 @@ endif(TESTING_IS_ENABLED)
 # as it is header only not (which will change)
 message("CMAKE_SOURCE_DIR  ${CMAKE_SOURCE_DIR}")
 configure_file(cmake/Makefile.cosade.in ${CMAKE_SOURCE_DIR}/example/Makefile @ONLY)
+
+#Generate the Makefile for the DOOCS test server (dpvatestsrv),
+#depending on the source code of the DOOCS_Adapter.
+configure_file(cmake/Makefile.dpvatestsrv.in ${CMAKE_SOURCE_DIR}/tests/dpvatestsrv/Makefile @ONLY)
+
