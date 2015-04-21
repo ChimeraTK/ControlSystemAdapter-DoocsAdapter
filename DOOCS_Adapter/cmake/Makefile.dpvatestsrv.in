@@ -39,14 +39,14 @@ include $(OBJDIR)/.depend
 $(OBJDIR)/dpvatestsrv_server:    $(SOURCEOBJ)
 		$(LINK.cc) $(LDFLAGS) \
 		-o $(OBJDIR)/dpvatestsrv_server $(SOURCEOBJ) \
-			   -lEqServer -lTTFapi \
+			   -lEqServer -lTTFapi -lzmq \
 			   $(LDLIBS) 
 		@chmod g+w $(OBJDIR)/dpvatestsrv_server
 		@echo "---------------- $(OBJDIR)/dpvatestsrv_server done---------------"
 
 static $(OBJDIR)/static_dpvatestsrv_server:    $(SOURCEOBJ)
 		$(LINK.cc.static) $(LDFLAGS) -o $(OBJDIR)/static_dpvatestsrv_server $(SOURCEOBJ) \
-			   -lEqServer -lTTFapi \
+			   -lEqServer -lTTFapi -lzmq \
 			   $(LDLIBS) 
 		@chmod g+w $(OBJDIR)/static_dpvatestsrv_server
 		@echo "----------------$(OBJDIR)/static_dpvatestsrv_server done---------------"
