@@ -19,7 +19,11 @@
 
 #define PORT	3497    // FIXME: to do config, czy gdzies (Makefile?)
 
+#define ARRAY_SIZE	1
 
+
+
+#include <vector>
 
 #include <sstream>
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
@@ -59,6 +63,8 @@ void send(const T & _arg)
 int _get_cb_counter = 0;
 int _set_cb_counter = 0;
 
+//~ ---------------------------------------------------------------------//
+
 template <typename T>
 T        on_get_callback ()
          {
@@ -86,6 +92,21 @@ void        on_set_callback (std::string const & newValue, std::string const & o
 //                if (newValue == oldValue) ++_set_cb_counter_equals;
                 ++_set_cb_counter;
             }
+
+//~ ---------------------------------------------------------------------//
+
+template <typename T>
+void on_arrayget_callback(mtca4u::ProcessArray<T> & toBeFilled )
+     {
+         toBeFilled.fill(0);
+         ++_get_cb_counter;
+     }
+
+template <typename T>
+void on_arrayset_callback(mtca4u::ProcessArray<T> const & )
+     {
+         ++_set_cb_counter;
+     }
                                                                          //
 ///////////////////////////////////////////////////////////////////////////---<>
 
@@ -113,10 +134,12 @@ private:
     boost::shared_ptr<mtca4u::ProcessVariable<std::string> > doocs_adapter_S;       // no callbacks
     boost::shared_ptr<mtca4u::ProcessVariable<std::string> > doocs_adapter_S_cb;    // has callbacks
     
+    
+    boost::shared_ptr<mtca4u::ProcessArray<int   > >         doocs_array_I;       // no callbacks
+    boost::shared_ptr<mtca4u::ProcessArray<int   > >         doocs_array_I_cb;    // has callbacks
+    
     int testnr;
 
-//        boost::shared_ptr< mtca4u::ProcessVariableFactory > processVariableFactory_;
-//	boost::shared_ptr< mtca4u::ProcessVariable<int> > doocs_adapter_I;
 
 public:
 	EqFctDpvatestsrv ();

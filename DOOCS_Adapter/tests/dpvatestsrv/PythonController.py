@@ -22,7 +22,7 @@ class DPVATest(unittest.TestCase):
         #---- doocsput 10 -> doocs_adapter_X, doocsput 20 -> doocs_adapter_X_cb ------
         try:
             doocsget_i = subprocess.check_output('doocsput -c "%s" -d 10' % addrNoCB, shell=True).strip()
-            doocsget20 = subprocess.check_output('doocsput -c "%s" -d 20' % addrCB  , shell=True).strip()
+            subprocess.check_output('doocsput -c "%s" -d 20' % addrCB  , shell=True)   # "swallows" output
         except subprocess.CalledProcessError as ex:
             self.fail("CalledProcessError - status %d from %s" % (ex.returncode, ex.cmd))
         #---- 0mq: peek doocs_adapter_I's val, test setting/getting, unblock ---------
@@ -41,9 +41,10 @@ class DPVATest(unittest.TestCase):
         
 
     def setUp(self):
-        self.host = '*'     # to wszystko tez bedzie pewnie jakis config
-        self.port = 3497
-        self.doocs_exec = "dpvatestsrv_server"
+        self.host             = '*'     # FIXME: to wszystko tez bedzie pewnie jakis config
+        self.port             = 3497
+        self.doocs_exec       = "dpvatestsrv_server"
+        self.dspectrum_input  = "dspectrum_input1"   # data to set the DOOCS_array with
 
         # 0mq: prepare response socket
         self.context = zmq.Context()
@@ -103,6 +104,27 @@ class DPVATest(unittest.TestCase):
         expectedGetCntr = 8
         expectedSetCntr = 4
         self.helpTestTypedAdapter(adapterAddrNoCB, adapterAddrCB, expectedGetCntr, expectedSetCntr)
+
+
+        #---- doocsput 10 -> doocs_adapter_X, doocsput 20 -> doocs_adapter_X_cb ------
+        try:
+            subprocess.check_output('doocsput -c "TEST.DOOCS/LOCALHOST_610498009/DPVATESTSRVLOCATION/TESTARRAY_INT" -a dspectrum_input1', shell=True)
+            doocsget_last = subprocess.check_output('doocsget -a -c "TEST.DOOCS/LOCALHOST_610498009/DPVATESTSRVLOCATION/TESTARRAY_INT"', shell=True).strip().split()[-1]
+        except subprocess.CalledProcessError as ex:
+            self.fail("CalledProcessError - status %d from %s" % (ex.returncode, ex.cmd))
+        #---- 0mq: peek doocs_adapter_I's val, test setting/getting, unblock ---------
+        da_val = self.socket.recv().strip('\0')        # peek
+        self.assertEqual(doocsget_last, '5')           # test property
+        self.assertEqual(da_val    , '5')              # test adapterval        # FIXME: "5" originates from a file, so probably should not be hardcoded here
+        self.socket.send(b"") # stub send              # unblock
+        #---- 0mq: peek doocs_adapter_I_cb's counters, test, unblock -----------------
+        dicb_g = self.socket.recv().strip('\0')        # peek            # a single doocsput rpc calls pattern is
+        self.assertEqual(dicb_g, '8') # test           #                 #   get, set, get
+        self.socket.send(b"") # stub send              # unblock
+        dicb_s = self.socket.recv().strip('\0')        # peek            # a single doocsget rpc calls pattern is
+        self.assertEqual(dicb_s, '4') # test                             #   get, get
+        self.socket.send(b"") # stub send              # unblock
+        #-----------------------------------------------------------------------------
 
 
 
