@@ -12,6 +12,7 @@
 #include <ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ControlSystemAdapter/DevicePVManager.h>
 #include <ControlSystemAdapter/PVManager.h>
+#include <ControlSystemAdapter/ManagedProcessScalar.h>
 #include "DoocsPVFactory.h"
 #include "DoocsPVManager.h"
 
@@ -26,6 +27,11 @@ using std::map;
 using std::pair;
 using std::string;
 using std::vector;
+
+class UnsupportedType{
+public:
+  UnsupportedType(int =0){}
+};
 
 template<class T> static void testCreateProcessVariables(const string& name,
     shared_ptr<DevicePVManager> devManager,
@@ -82,6 +88,8 @@ BOOST_AUTO_TEST_SUITE( PVManagerTestSuite )
     testCreateProcessVariables<uint32_t>("uint32", devManager, csManager);
     testCreateProcessVariables<float>("float", devManager, csManager);
     testCreateProcessVariables<double>("double", devManager, csManager);
+    
+    BOOST_CHECK_THROW(devManager->createProcessScalar<UnsupportedType>("irrelevant"), std::invalid_argument);
   }
 
   // After you finished all test you have to end the test suite.
