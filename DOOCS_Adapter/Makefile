@@ -18,9 +18,17 @@ SRCDIR = $(PWD)
 
 OBJ_SOURCES = $(shell ls src/*.cc)
 
-CPPFLAGS += -I$(SRCDIR)/include -g
+CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized $(CPP_DEBUG_FLAGS)
+CPPFLAGS += -I$(SRCDIR)/include
+#Treat DOOCS, which is in /local/lib as system library and suppress compiler warnings for these files
+CPPFLAGS += -isystem/local/lib/include
 
 all: $(OBJDIR)/lib${PROJECT_NAME}.so
+
+# The debug only works if you remove the OPTIMIZED variable from the Doocs CONFIG.
+# This sets the optimisation to -O2 and you cannot create a coverage report.
+debug:
+	CPP_DEBUG_FLAGS="-g -O0 --coverage" make all
 
 .PHONY: $(OBJDIR)/.depend
 

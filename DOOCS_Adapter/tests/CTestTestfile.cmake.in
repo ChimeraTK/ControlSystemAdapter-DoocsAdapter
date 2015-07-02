@@ -1,0 +1,1 @@
+ADD_TEST(testDoocsPVFactory "@__OBJDIR__@/tests/testDoocsPVFactory")

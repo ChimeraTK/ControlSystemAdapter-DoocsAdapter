@@ -27,13 +27,16 @@ TEST_EXECUTABLES = $(notdir $(basename $(TEST_SOURCES)))
 
 #ALLPROGS = $(OBJDIR)/cosade_server 
 
-CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized -g
+CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized $(CPP_DEBUG_FLAGS)
 CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
 LDFLAGS += -L$(OBJDIR) -lDoocsAdapter 
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
 
 all: $(TEST_EXECUTABLES)
+
+debug:
+	CPP_DEBUG_FLAGS="-g -O0 --coverage" make all
 
 $(OBJDIR)/.depend_tests depend:
 		@if [ ! -f $(OBJDIR) ] ; then \
@@ -67,3 +70,9 @@ include $(OBJDIR)/.depend_tests
 
 clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/*.o $(OBJDIR)/.depend*
+
+test: $(OBJDIR)/CTestTestfile.cmake
+	(cd $(OBJDIR); ctest)
+
+$(OBJDIR)/CTestTestfile.cmake: CTestTestfile.cmake.in
+	cat $< | sed "{s|@__OBJDIR__@|$(OBJDIR)|}" > $@
