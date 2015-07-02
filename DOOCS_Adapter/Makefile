@@ -28,15 +28,16 @@ $(OBJDIR)/.depend:
 	@if [ ! -f $(OBJDIR) ] ; then \
 	  mkdir -p $(OBJDIR) ; \
 	fi
-	for i in $(SRCDIR)/src/*.cc ;do $(CCDEP) $$i ;done > $(OBJDIR)/.depend
+	for i in $(SRCDIR)/src/*.cc ;do  $(CC) $(CPPFLAGS) -MM $$i ;done > $(OBJDIR)/.depend
 	chmod g+w $(OBJDIR)/.depend*
 
 include $(OBJDIR)/.depend
 
 $(OBJDIR)/lib${PROJECT_NAME}.so: $(OBJ_SOURCES)	
-		$(LINK.cc) $(LDFLAGS) -shared -fPIC -o $@ $(OBJ_SOURCES) -lEqServer -lDOOCSapi \
+		$(LINK.cc) $(LDFLAGS) -shared -fPIC -o $@ $(OBJ_SOURCES)\
 			   $(LDLIBS)
-		@chmod g+w $@
+		# -lEqServer -lDOOCSapi \
+		chmod g+w $@
 
 clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/*.o *.ps $(OBJDIR)/lib${PROJECT_NAME}.so $(OBJDIR)/.depend*

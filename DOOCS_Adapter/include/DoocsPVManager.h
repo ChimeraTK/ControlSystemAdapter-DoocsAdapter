@@ -11,10 +11,16 @@ namespace mtca4u{
     DoocsPVManager( boost::shared_ptr<ControlSystemPVManager> pvManager );
 
     template<class T > 
-      typename ControlSystemProcessScalar< T >::SharedPtr getProcessScalar (const std::string &processVariableName) const;
+    typename ControlSystemProcessScalar< T >::SharedPtr getProcessScalar (
+      const std::string &processVariableName) const{
+      return _pvManager->getProcessScalar<T>(processVariableName);
+    }
 
     template<class T > 
-      typename ControlSystemProcessArray< T >::SharedPtr getProcessArray (const std::string &processVariableName) const;
+    typename ControlSystemProcessArray< T >::SharedPtr getProcessArray (
+      const std::string &processVariableName) const{
+      return _pvManager->getProcessArray<T>(processVariableName);
+    }
 //
 //    std::map< std::string, ControlSystemProcessVariable::SharedPtr > getAllProcessVariables () const;
   

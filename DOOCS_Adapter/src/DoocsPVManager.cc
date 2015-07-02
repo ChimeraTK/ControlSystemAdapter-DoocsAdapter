@@ -15,18 +15,6 @@ namespace mtca4u{
     }
   }
 
-  template<class T > 
-  typename ControlSystemProcessScalar< T >::SharedPtr DoocsPVManager::getProcessScalar(
-    const std::string &processVariableName) const{
-    return _pvManager.getProcessScalar<T>(processVariableName);
-  }
-
-  template<class T > 
-  typename ControlSystemProcessArray< T >::SharedPtr DoocsPVManager::getProcessArray(
-    const std::string &processVariableName) const{
-    return _pvManager.getProcessArray<T>(processVariableName);
-  }
-
 //    std::map< std::string, ControlSystemProcessVariable::SharedPtr > getAllProcessVariables () const;
   
   void DoocsPVManager::synchronize(){
