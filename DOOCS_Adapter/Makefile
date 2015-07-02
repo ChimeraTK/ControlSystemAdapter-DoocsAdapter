@@ -48,3 +48,17 @@ $(OBJDIR)/lib${PROJECT_NAME}.so: $(OBJ_SOURCES)
 
 clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/*.o *.ps $(OBJDIR)/lib${PROJECT_NAME}.so $(OBJDIR)/.depend*
+	rm -rf *.gcda *.gcno tests/*.gcda tests/*.gcno
+
+test:
+	make -C tests test
+
+coverage:
+	rm -f `find . -name "*\.gcda"`
+	make -C tests test
+	lcov --capture --directory . --output-file $(OBJDIR)/coverage_all.info
+	#lcov capture also includes external stuff like glibc, boost etc.
+	#only extract the reports for this project
+	lcov --extract $(OBJDIR)/coverage_all.info "$(SRCDIR)*" -o $(OBJDIR)/coverage.info
+	genhtml $(OBJDIR)/coverage.info --output-directory $(OBJDIR)/coverage_html
+	@echo Coverage written to $(OBJDIR)/coverage_html
