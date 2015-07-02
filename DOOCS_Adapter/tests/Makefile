@@ -1,0 +1,71 @@
+#define the dependeny locations here
+DOOCSROOT = $(HOME)/doocs.git/doocs
+
+# to define DOOCSROOT as an absolute path
+include $(DOOCSROOT)/$(DOOCSARCH)/DEFINEDOOCSROOT
+
+# to define the arch dependend things
+include $(DOOCSROOT)/$(DOOCSARCH)/CONFIG
+
+#include /usr/share/mtca4u/ControlSystemAdapter.CONFIG
+include /home/killenb/mtca4u/Ubuntu-14.04-x86_64/TESTING/ControlSystemAdapter/TESTING/ControlSystemAdapter.CONFIG
+
+CPPFLAGS += $(ControlSystemAdapter_INCLUDE_FLAGS)
+LDFLAGS += $(ControlSystemAdapter_LIB_FLAGS) $(ControlSystemAdapter_RUNPATH_FLAGS)
+
+DOOCS_Adapter_SRC_DIR = ../..
+
+OBJDIR = $(DOOCSROOT)/$(DOOCSARCH)/obj/library/common/DoocsAdapter
+SRCDIR = $(PWD)
+
+TEST_SOURCES = $(shell ls src/*.cpp)
+TEST_EXECUTABLES = $(notdir $(basename $(TEST_SOURCES)))
+
+#SOURCEOBJ = $(OBJDIR)/
+
+#SOURCEHFILES = $(SRCDIR)/eq_cosade.h $(SRCDIR)/IndependentControlCore.h
+
+#ALLPROGS = $(OBJDIR)/cosade_server 
+
+CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized
+CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
+LDFLAGS += -L$(OBJDIR) -lDoocsAdapter 
+
+LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
+
+all: $(TEST_EXECUTABLES)
+
+#%:  $(OBJDIR)/tests/%.o
+#	echo This is the implicit rule o for $<
+#	$(LINK.cc) $< -o$(OBJDIR)/tests/$@ $(LDFLAGS) 
+
+%: src/%.cpp
+	@if [ ! -f $(OBJDIR)/tests ] ; then \
+	  echo ---------- creating directory $(OBJDIR)/tests --------------; \
+	  mkdir -p $(OBJDIR)/tests ; \
+	fi
+	echo This is the implicit rule cpp for $<
+	$(CC) $(CCFLAGS) $(CPPFLAGS) $< -o$(OBJDIR)/tests/$@ $(LDFLAGS) 
+
+#testDoocsPVFactory.o: testDoocsPVFactory.cpp
+
+#.cpp.o:
+#	@if [ ! -f $(OBJDIR)/tests ] ; then \
+#	  echo ---------- creating directory $(OBJDIR)/tests --------------; \
+#	  mkdir -p $(OBJDIR)/tests ; \
+#	fi
+#	echo This is the implicit rule cpp for $<
+#	$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o$(OBJDIR)/tests/$@
+
+$(OBJDIR)/.depend_tests depend:
+		@if [ ! -f $(OBJDIR) ] ; then \
+		  echo ---------- create dir $(OBJDIR) --------------; \
+		  mkdir -p $(OBJDIR) ; \
+		fi
+		for i in $(SRCDIR)/src/*.cpp ;do $(CC) -MM -$(CPPFLAGS) $$i ;done > $(OBJDIR)/.depend_tests
+		chmod g+w $(OBJDIR)/.depend*
+
+#include $(OBJDIR)/.depend_tests
+
+#clean:
+#	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/*.o *.ps $(OBJDIR)/cosade_server $(OBJDIR)/.depend*
