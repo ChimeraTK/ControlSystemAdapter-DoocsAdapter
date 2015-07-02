@@ -18,7 +18,7 @@ SRCDIR = $(PWD)
 
 OBJ_SOURCES = $(shell ls src/*.cc)
 
-CPPFLAGS += -I$(SRCDIR)/include
+CPPFLAGS += -I$(SRCDIR)/include -g
 
 all: $(OBJDIR)/lib${PROJECT_NAME}.so
 
@@ -35,8 +35,7 @@ include $(OBJDIR)/.depend
 
 $(OBJDIR)/lib${PROJECT_NAME}.so: $(OBJ_SOURCES)	
 		$(LINK.cc) $(LDFLAGS) -shared -fPIC -o $@ $(OBJ_SOURCES)\
-			   $(LDLIBS)
-		# -lEqServer -lDOOCSapi \
+			   $(LDLIBS) -lEqServer -lDOOCSapi
 		chmod g+w $@
 
 clean:

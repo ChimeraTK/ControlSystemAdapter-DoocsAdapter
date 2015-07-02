@@ -22,7 +22,7 @@ private:
 
 public:
   DoocsProcessScalar (std::string const & name, EqFct *eqFct, boost::shared_ptr<DoocsPVManager> doocsPVManager)
-    : DOOCS_T(name.c_str(), eqFct), _pvManager(doocsPVManager) {
+    : ProcessVariable(name), DOOCS_T(name.c_str(), eqFct), _pvManager(doocsPVManager) {
   }
 
   //  ~DoocsProcessScalar{}

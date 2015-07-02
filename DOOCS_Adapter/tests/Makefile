@@ -27,13 +27,31 @@ TEST_EXECUTABLES = $(notdir $(basename $(TEST_SOURCES)))
 
 #ALLPROGS = $(OBJDIR)/cosade_server 
 
-CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized
+CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized -g
 CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
 LDFLAGS += -L$(OBJDIR) -lDoocsAdapter 
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
 
 all: $(TEST_EXECUTABLES)
+
+$(OBJDIR)/.depend_tests depend:
+		@if [ ! -f $(OBJDIR) ] ; then \
+		  echo ---------- create dir $(OBJDIR) --------------; \
+		  mkdir -p $(OBJDIR) ; \
+		fi
+		for i in $(SRCDIR)/src/*.cpp ;do $(CC) $(CPPFLAGS) -MM $$i ;done > $(OBJDIR)/.depend_tests
+		chmod g+w $(OBJDIR)/.depend*
+
+include $(OBJDIR)/.depend_tests
+
+#.cpp.o:
+#	@if [ ! -f $(OBJDIR)/tests ] ; then \
+#	  echo ---------- creating directory $(OBJDIR)/tests --------------; \
+#	  mkdir -p $(OBJDIR)/tests ; \
+#	fi
+#	echo This is the implicit rule cpp for $<
+#	$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o$(OBJDIR)/tests/$@
 
 #%:  $(OBJDIR)/tests/%.o
 #	echo This is the implicit rule o for $<
@@ -47,25 +65,5 @@ all: $(TEST_EXECUTABLES)
 	echo This is the implicit rule cpp for $<
 	$(CC) $(CCFLAGS) $(CPPFLAGS) $< -o$(OBJDIR)/tests/$@ $(LDFLAGS) 
 
-#testDoocsPVFactory.o: testDoocsPVFactory.cpp
-
-#.cpp.o:
-#	@if [ ! -f $(OBJDIR)/tests ] ; then \
-#	  echo ---------- creating directory $(OBJDIR)/tests --------------; \
-#	  mkdir -p $(OBJDIR)/tests ; \
-#	fi
-#	echo This is the implicit rule cpp for $<
-#	$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o$(OBJDIR)/tests/$@
-
-$(OBJDIR)/.depend_tests depend:
-		@if [ ! -f $(OBJDIR) ] ; then \
-		  echo ---------- create dir $(OBJDIR) --------------; \
-		  mkdir -p $(OBJDIR) ; \
-		fi
-		for i in $(SRCDIR)/src/*.cpp ;do $(CC) -MM -$(CPPFLAGS) $$i ;done > $(OBJDIR)/.depend_tests
-		chmod g+w $(OBJDIR)/.depend*
-
-#include $(OBJDIR)/.depend_tests
-
-#clean:
-#	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/*.o *.ps $(OBJDIR)/cosade_server $(OBJDIR)/.depend*
+clean:
+	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/*.o $(OBJDIR)/.depend*

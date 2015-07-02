@@ -4,6 +4,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <vector>
+#include <sstream>
 
 //#include <boost/chrono.hpp>
 #include <boost/make_shared.hpp>
@@ -37,18 +38,20 @@ template<class T> static void testCreateProcessVariables(const string& name,
   BOOST_CHECK(devPV->getName() == name);
   shared_ptr<ControlSystemProcessScalar<T> > csPV = csManager->getProcessScalar<
       T>(name);
-  BOOST_CHECK(csPV->getName() == name);
-
-  string arrayName = name + "Array";
-  shared_ptr<DeviceProcessArray<T> > createdPA = devManager->createProcessArray<
-      T>(arrayName, 5);
-  BOOST_CHECK(createdPA->getName() == arrayName);
-  shared_ptr<DeviceProcessArray<T> > devPA = devManager->getProcessArray<T>(
-      arrayName);
-  BOOST_CHECK(devPA->getName() == arrayName);
-  shared_ptr<ControlSystemProcessArray<T> > csPA =
-      csManager->getProcessArray<T>(arrayName);
-  BOOST_CHECK(csPA->getName() == arrayName);
+  std::stringstream errorMessage;
+  errorMessage << "name is " << csPV->getName() << " expected " << name;
+  BOOST_CHECK_MESSAGE(csPV->getName() == name, errorMessage.str() );
+//
+//  string arrayName = name + "Array";
+//  shared_ptr<DeviceProcessArray<T> > createdPA = devManager->createProcessArray<
+//      T>(arrayName, 5);
+//  BOOST_CHECK(createdPA->getName() == arrayName);
+//  shared_ptr<DeviceProcessArray<T> > devPA = devManager->getProcessArray<T>(
+//      arrayName);
+//  BOOST_CHECK(devPA->getName() == arrayName);
+//  shared_ptr<ControlSystemProcessArray<T> > csPA =
+//      csManager->getProcessArray<T>(arrayName);
+//  BOOST_CHECK(csPA->getName() == arrayName);
 }
 
 static pair<shared_ptr<ControlSystemPVManager>, shared_ptr<DevicePVManager> > createPVManager() {
