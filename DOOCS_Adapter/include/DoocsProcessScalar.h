@@ -8,7 +8,7 @@
 //#include <boost/bind.hpp>
 //#include <boost/function.hpp>
 
-// Just declate the EqFct class. We only need the pointer in this header.
+// Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
 
 namespace mtca4u {

@@ -27,11 +27,13 @@ namespace mtca4u{
     void synchronize();
     void setModified(ControlSystemProcessVariable::SharedPtr & processVariable);
 
-  private:
+    // The internal variables are not declared private but protected so
+    // a test can derrive from the manager and access them.
+  protected:
     std::list< ControlSystemProcessVariable::SharedPtr > _toDeviceProcessVariables;
     std::list< ControlSystemProcessVariable::SharedPtr > _fromDeviceProcessVariables;
     boost::shared_ptr<ControlSystemPVManager> _pvManager;    
-  };
+ };
 }// namespace mtca4u
 
 #endif // MTCA4U_DOOCS_PV_MANAGER_H
