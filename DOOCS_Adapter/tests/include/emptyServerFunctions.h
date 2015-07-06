@@ -24,6 +24,6 @@ void post_init_prolog() {}
 void post_init_epilog() {}
 void eq_cancel() {}
 
-//LCOV_EXCL_START 
+//LCOV_EXCL_STOP
 
 #endif// __EMPTY_SERVER_FUNCTIONS_H__
