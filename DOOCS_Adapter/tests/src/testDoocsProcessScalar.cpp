@@ -10,6 +10,7 @@ using boost::unit_test_framework::framework::master_test_suite;
 #include "emptyServerFunctions.h"
 
 #include <ControlSystemAdapter/DevicePVManager.h>
+#include <ControlSystemAdapter/ControlSystemProcessScalar.h>
 
 namespace mtca4u {
 
@@ -85,6 +86,7 @@ namespace mtca4u {
     factory->setDoocsPVManager( _pvManager );
 
     regularPvManagers.second->createProcessScalar<T>( "CLASS_WIDE_T" );
+    regularPvManagers.second->createProcessScalar<T>( "SECOND_T" );
    
     _processT = regularPvManagers.first->getProcessScalar<T>( "CLASS_WIDE_T" );
     assert(_processT);
@@ -92,18 +94,23 @@ namespace mtca4u {
 
   template<class T>
   void DoocsProcessScalarTest<T>::testAssignment() {
-//    *_processT = 3;
-//    BOOST_CHECK(*_processT == 3);
-//    
-//
-//    mtca4u::DoocsDeviceProcessScalar<T> processT2("", 2);
-//    _processT = static_cast<DeviceProcessScalar<T>&>(processT2);
-//    BOOST_CHECK(_processT == 2);
+    // assignment of T and automatic conversion (in the == test)
+    *_processT = 3;
+    BOOST_CHECK(*_processT == 3);
+    // check that the modified reaches the manager
+    BOOST_CHECK( _pvManager->getToDeviceProcessVariables().back().get() == 
+		 _processT.get() );
+    
+//    boost::shared_ptr< ControlSystemProcessScalar<T> > secondT = 
+//      _pvManager->getProcessScalar<T>( "SECOND_T" );
+//    *secondT = 2;
+//    *_processT = *secondT;
+//    BOOST_CHECK(*_processT == 2);
 //
 //    // test self assignment, nothing should happen
-//    _processT = static_cast<DeviceProcessScalar<T>&>(_processT);
-//    BOOST_CHECK(_processT == 2);
-//
+//    *_processT = *_processT;
+//    BOOST_CHECK(*_processT == 2);
+
 //    mtca4u::ProcessScalar<T> * processScalarPointer = &processT2;
 //    processT2 = 17;
 //    _processT = *processScalarPointer;
