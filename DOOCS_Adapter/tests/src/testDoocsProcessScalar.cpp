@@ -94,6 +94,8 @@ namespace mtca4u {
 
   template<class T>
   void DoocsProcessScalarTest<T>::testAssignment() {
+    // Note: Will be removed in the next version of the API, no need to write tests
+
     // assignment of T and automatic conversion (in the == test)
     *_processT = 3;
     BOOST_CHECK(*_processT == 3);
@@ -101,78 +103,21 @@ namespace mtca4u {
     BOOST_CHECK( _pvManager->getToDeviceProcessVariables().back().get() == 
 		 _processT.get() );
     
-//    boost::shared_ptr< ControlSystemProcessScalar<T> > secondT = 
-//      _pvManager->getProcessScalar<T>( "SECOND_T" );
-//    *secondT = 2;
-//    *_processT = *secondT;
-//    BOOST_CHECK(*_processT == 2);
-//
-//    // test self assignment, nothing should happen
-//    *_processT = *_processT;
-//    BOOST_CHECK(*_processT == 2);
-
-//    mtca4u::ProcessScalar<T> * processScalarPointer = &processT2;
-//    processT2 = 17;
-//    _processT = *processScalarPointer;
-//    BOOST_CHECK(_processT == 17);
-//  }
-//
-//  template<class T>
-//  void DoocsProcessScalarTest<T>::set(T const & newValue,
-//      T const & oldValue) {
-//    if (newValue == oldValue) {
-//      ++_callbackWithEqualValuesCounter;
-//    }
-//    _t = newValue;
-//    ++_callbackCounter;
+    boost::shared_ptr< ControlSystemProcessScalar<T> > secondT = 
+      _pvManager->getProcessScalar<T>( "SECOND_T" );
+    *secondT = 2;
+    *_processT = *secondT;
+    BOOST_CHECK(*_processT == 2);
   }
 
   template<class T>
   void DoocsProcessScalarTest<T>::testSetters() {
-//    T oldValue;
-//    oldValue = _processT.get();
-//    _processT.set(7);
-//    _processT.triggerOnSetCallbackFunction(oldValue);
-//    BOOST_CHECK(_processT == 7);
-//    BOOST_CHECK(_t == 7);
-//    BOOST_CHECK(_callbackCounter == 4);
-//
-//    mtca4u::DoocsDeviceProcessScalar<T> processT1("", 8);
-//    oldValue = _processT.get();
-//    _processT.set(processT1);
-//    _processT.triggerOnSetCallbackFunction(oldValue);
-//    BOOST_CHECK(_processT == 8);
-//    BOOST_CHECK(_t == 8);
-//    BOOST_CHECK(_callbackCounter == 5);
-//
-//    processT1 = 88;
-//    mtca4u::ProcessScalar<T> * processScalarPointer = &processT1;
-//    oldValue = _processT.get();
-//    _processT.set(*processScalarPointer);
-//    _processT.triggerOnSetCallbackFunction(oldValue);
-//    BOOST_CHECK(_processT == 88);
-//    BOOST_CHECK(_t == 88);
-//    BOOST_CHECK(_callbackCounter == 6);
+    // will be removed on the next version of the API
   }
 
   template<class T>
   void DoocsProcessScalarTest<T>::testConversionOperator() {
-//    T a = _processT;
-//    BOOST_CHECK(a == 12);
-//    BOOST_CHECK(a == _processT);
-//    mtca4u::DoocsDeviceProcessScalar<T> processT1("", 4);
-//    BOOST_CHECK(_processT * processT1 == 48);
-//    BOOST_CHECK(2.5 * processT1 == 10.);
-//    T oldValue = _processT.get();
-//    _processT.set(_processT / 3);
-//    _processT.triggerOnSetCallbackFunction(oldValue);
-//    // compare to double. Implicit use if comparison (int, double)
-//    BOOST_CHECK(_processT == 4.);
-//    BOOST_CHECK(_t == 4.);
-//
-//    // This does not and should not compile. The implicit conversion returns a const
-//    // reference so the callback is not bypassed. And there is no *= operator defined.
-//    //  _processT *= 2;
+    // will be removed in the next version of the API
   }
 
 }  //namespace mtca4u

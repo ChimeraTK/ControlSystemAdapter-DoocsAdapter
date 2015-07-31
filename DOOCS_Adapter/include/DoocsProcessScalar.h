@@ -29,25 +29,25 @@ public:
   //  ~DoocsProcessScalar{}
 
   DoocsProcessScalar< T, DOOCS_T > & operator= (DoocsProcessScalar< T, DOOCS_T> const &other){
-    set_value( other.value() );
+    set_value( other.get() );
     return *this;
   }
 
-  ControlSystemProcessScalar< T > & operator= (ProcessScalar< T > const &other){
-    set_value(other);
+  DoocsProcessScalar< T, DOOCS_T > & operator= (const ProcessScalar< T > & other){
+    set_value(other.get());
     return *this;
   }
 
-  ControlSystemProcessScalar< T > & operator= (T const &t){
+  DoocsProcessScalar< T, DOOCS_T > & operator= (T const &t){
     set_value(t);
     return *this;
   }
 
   void set(DoocsProcessScalar< T, DOOCS_T > const &other){
-    set_value(other.value());
+    set_value(other.get());
   }
 
-  void set(ProcessScalar< T > const &other){
+  void set(const ProcessScalar< T > &other){
     set_value(other.get());
   }
 
