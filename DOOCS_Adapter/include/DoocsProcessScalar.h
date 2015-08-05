@@ -4,7 +4,6 @@
 
 #include <string>
 #include <ControlSystemAdapter/ControlSystemProcessScalar.h>
-#include <ControlSystemAdapter/ProcessScalar.h>
 #include "DoocsPVManager.h"
 //#include <boost/bind.hpp>
 //#include <boost/function.hpp>
@@ -33,37 +32,16 @@ public:
     return *this;
   }
 
-  DoocsProcessScalar< T, DOOCS_T > & operator= (const ProcessScalar< T > & other){
-    set_value(other.get());
-    return *this;
-  }
-
   DoocsProcessScalar< T, DOOCS_T > & operator= (T const &t){
     set_value(t);
     return *this;
-  }
-
-  void set(DoocsProcessScalar< T, DOOCS_T > const &other){
-    set_value(other.get());
-  }
-
-  void set(const ProcessScalar< T > &other){
-    set_value(other.get());
-  }
-
-  void set (T const &t){
-    set_value(t);
   }
 
   operator T() const{
     return DOOCS_T::value_;
   }
 
-  T get() const{
-    return DOOCS_T::value_;
-  }
-
-  /** Override the Doocs set_value method. This is called by all other setters, incl. the assignment operators
+  /** Override the Doocs set_value method. This is called by all assignment operators
    *  and the DOOCS_T::set() method which is triggered by the RPC calls.
    */
   void set_value(T const &t){
