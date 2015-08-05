@@ -21,7 +21,7 @@ namespace mtca4u {
     TestableDoocsPVManager(boost::shared_ptr<ControlSystemPVManager> pvManager)
       : DoocsPVManager( pvManager ) {}
 
-    std::list< ControlSystemProcessVariable::SharedPtr > const & getToDeviceProcessVariables(){
+    std::list< ControlSystemProcessVariable::SharedPtr > const & getToDeviceProcessVariables() const{
       return _toDeviceProcessVariables;
     }
 
@@ -38,7 +38,17 @@ namespace mtca4u {
   public:
     DoocsProcessScalarTest();
     // constructors are tested by the factory. No need to repeat that here
+
+    /// The assigment test function which is given to the boost framework.
+    /// Unfortunately it can only have one template parameter (T in this case).
+    /// There is no general implementation but only specialisations which bind
+    /// this function to the correct testAssigmentImpl template combination.
     void testAssignment();
+
+    /// For the real test we need a function with two template parameters because
+    /// the DoocsProcessScalar if of type <T, DOOCS_T>
+    template<class DOOCS_T> void testAssignmentImpl();
+
     void testSetters();
     void testConversionOperator();
 
@@ -65,9 +75,6 @@ namespace mtca4u {
           BOOST_CLASS_TEST_CASE(&DoocsProcessScalarTest<T>::testAssignment,
               processScalarTest));
       add(
-          BOOST_CLASS_TEST_CASE(&DoocsProcessScalarTest<T>::testSetters,
-              processScalarTest));
-      add(
           BOOST_CLASS_TEST_CASE(
               &DoocsProcessScalarTest<T>::testConversionOperator,
               processScalarTest));
@@ -92,22 +99,58 @@ namespace mtca4u {
     assert(_processT);
   }
 
-  template<class T>
-  void DoocsProcessScalarTest<T>::testAssignment() {
-    // Note: Will be removed in the next version of the API, no need to write tests
+  template<> void DoocsProcessScalarTest<int32_t>::testAssignment() {
+    testAssignmentImpl<D_int>();
+  }
+
+  template<> void DoocsProcessScalarTest<uint32_t>::testAssignment() {
+    testAssignmentImpl<D_int>();
+  }
+
+  template<> void DoocsProcessScalarTest<int16_t>::testAssignment() {
+    testAssignmentImpl<D_int>();
+  }
+
+  template<> void DoocsProcessScalarTest<uint16_t>::testAssignment() {
+    testAssignmentImpl<D_int>();
+  }
+
+  template<> void DoocsProcessScalarTest<int8_t>::testAssignment() {
+    testAssignmentImpl<D_int>();
+  }
+
+  template<> void DoocsProcessScalarTest<uint8_t>::testAssignment() {
+    testAssignmentImpl<D_int>();
+  }
+
+  template<> void DoocsProcessScalarTest<double>::testAssignment() {
+    testAssignmentImpl<D_double>();
+  }
+
+  template<> void DoocsProcessScalarTest<float>::testAssignment() {
+    testAssignmentImpl<D_float>();
+  }
+
+  template<class T> template<class DOOCS_T>
+  void DoocsProcessScalarTest<T>::testAssignmentImpl() {
 
     // assignment of T and automatic conversion (in the == test)
-    *_processT = 3;
-    BOOST_CHECK(*_processT == 3);
+    boost::shared_ptr< DoocsProcessScalar< T, DOOCS_T > > doocsProcessT =
+      boost::dynamic_pointer_cast< DoocsProcessScalar< T, DOOCS_T > >( _processT );
+
+    boost::shared_ptr< DoocsProcessScalar< T, DOOCS_T > > doocsSecondT =
+      boost::dynamic_pointer_cast< DoocsProcessScalar< T, DOOCS_T > >( _pvManager->getProcessScalar<T>( "SECOND_T" ) );
+
+    *doocsProcessT = 3;
+    BOOST_CHECK(*doocsProcessT == 3);
+
     // check that the modified reaches the manager
-    BOOST_CHECK( _pvManager->getToDeviceProcessVariables().back().get() == 
-		 _processT.get() );
+    BOOST_CHECK( _pvManager->getToDeviceProcessVariables().back() == 
+		 _processT );
     
-    boost::shared_ptr< ControlSystemProcessScalar<T> > secondT = 
-      _pvManager->getProcessScalar<T>( "SECOND_T" );
-    *secondT = 2;
-    *_processT = *secondT;
-    BOOST_CHECK(*_processT == 2);
+    *doocsSecondT = 2;
+    *doocsProcessT = *doocsSecondT;
+    BOOST_CHECK(*doocsProcessT == 2);
   }
 
   template<class T>

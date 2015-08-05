@@ -28,7 +28,8 @@ public:
   //  ~DoocsProcessScalar{}
 
   DoocsProcessScalar< T, DOOCS_T > & operator= (DoocsProcessScalar< T, DOOCS_T> const &other){
-    set_value( other.get() );
+    // this uses the conversion operator to T when set_value is called
+    set_value( other );
     return *this;
   }
 

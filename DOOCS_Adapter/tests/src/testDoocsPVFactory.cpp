@@ -12,7 +12,6 @@
 #include <ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ControlSystemAdapter/DevicePVManager.h>
 #include <ControlSystemAdapter/PVManager.h>
-#include <ControlSystemAdapter/ManagedProcessScalar.h>
 #include "DoocsPVFactory.h"
 #include "DoocsPVManager.h"
 
