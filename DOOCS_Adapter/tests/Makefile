@@ -29,7 +29,7 @@ TEST_EXECUTABLES = $(notdir $(basename $(TEST_SOURCES)))
 
 CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized $(CPP_DEBUG_FLAGS)
 CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
-LDFLAGS += -L$(OBJDIR) -lDoocsAdapter 
+LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
 

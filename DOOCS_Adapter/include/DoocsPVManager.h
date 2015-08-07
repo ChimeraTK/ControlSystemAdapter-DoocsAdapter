@@ -31,7 +31,6 @@ namespace mtca4u{
     // a test can derrive from the manager and access them.
   protected:
     std::list< ControlSystemProcessVariable::SharedPtr > _toDeviceProcessVariables;
-    std::list< ControlSystemProcessVariable::SharedPtr > _fromDeviceProcessVariables;
     boost::shared_ptr<ControlSystemPVManager> _pvManager;    
  };
 }// namespace mtca4u
