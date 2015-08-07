@@ -23,14 +23,16 @@ CPPFLAGS += -I$(SRCDIR)/include
 #Treat DOOCS, which is in /local/lib as system library and suppress compiler warnings for these files
 CPPFLAGS += -isystem/local/lib/include
 
-all: $(OBJDIR)/lib${PROJECT_NAME}.so
+TARGET_OBJECTS =  $(OBJDIR)/lib$(PROJECT_NAME).so
+
+all: $(TARGET_OBJECTS) tests
 
 # The debug only works if you remove the OPTIMIZED variable from the Doocs CONFIG.
 # This sets the optimisation to -O2 and you cannot create a coverage report.
 debug:
 	CPP_DEBUG_FLAGS="-g -O0 --coverage" make all
 
-.PHONY: $(OBJDIR)/.depend
+.PHONY: $(OBJDIR)/.depend tests
 
 $(OBJDIR)/.depend:
 	@if [ ! -f $(OBJDIR) ] ; then \
@@ -49,13 +51,17 @@ $(OBJDIR)/lib${PROJECT_NAME}.so: $(OBJ_SOURCES)
 clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/*.o *.ps $(OBJDIR)/lib${PROJECT_NAME}.so $(OBJDIR)/.depend*
 	rm -rf *.gcda *.gcno tests/*.gcda tests/*.gcno
+	(cd tests; make clean)
 
 test:
-	make -C tests test
+	(cd tests; make test)
+
+tests: $(TARGET_OBJECTS)
+	(cd tests; make)
 
 coverage:
 	rm -f `find . -name "*\.gcda"`
-	make -C tests test
+	(cd tests; make test)
 	lcov --capture --directory . --output-file $(OBJDIR)/coverage_all.info
 	#lcov capture also includes external stuff like glibc, boost etc.
 	#only extract the reports for this project
