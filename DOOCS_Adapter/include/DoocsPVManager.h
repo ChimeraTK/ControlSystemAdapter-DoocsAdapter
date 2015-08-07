@@ -21,8 +21,6 @@ namespace mtca4u{
       const std::string &processVariableName) const{
       return _pvManager->getProcessArray<T>(processVariableName);
     }
-//
-//    std::map< std::string, ControlSystemProcessVariable::SharedPtr > getAllProcessVariables () const;
   
     void synchronize();
     void setModified(ControlSystemProcessVariable::SharedPtr & processVariable);

@@ -62,13 +62,13 @@ namespace mtca4u {
     }
   };
 
-  /** The test class for the DoocsProcessScalar.
+  /** The test class for the DoocsProcessVariables.
    *  It is templated to be tested with all data types.
    */
   template<class T>
-  class DoocsProcessScalarTest {
+  class DoocsProcessVariablesTest {
   public:
-    DoocsProcessScalarTest();
+    DoocsProcessVariablesTest();
     // constructors are tested by the factory. No need to repeat that here
 
     /// The assigment test function which is given to the boost framework.
@@ -78,7 +78,7 @@ namespace mtca4u {
     void testAssignment();
 
     /// For the real test we need a function with two template parameters because
-    /// the DoocsProcessScalar if of type <T, DOOCS_T>
+    /// the DoocsProcessVariables if of type <T, DOOCS_T>
     template<class DOOCS_T> void testAssignmentImpl();
 
     void testSynchronisation();
@@ -90,25 +90,25 @@ namespace mtca4u {
     boost::scoped_ptr< TestDeviceCallable<T> > _testDeviceCallable;
   };
 
-  /** The boost test suite which executes the DoocsProcessScalarTest.
+  /** The boost test suite which executes the DoocsProcessVariablesTest.
    */
   template<class T>
-  class DoocsProcessScalarTestSuite: public test_suite {
+  class DoocsProcessVariablesTestSuite: public test_suite {
   public:
-    DoocsProcessScalarTestSuite() :
-        test_suite("DoocsProcessScalar test suite") {
-      boost::shared_ptr<DoocsProcessScalarTest<T> > processScalarTest(
-          new DoocsProcessScalarTest<T>);
+    DoocsProcessVariablesTestSuite() :
+        test_suite("DoocsProcessVariables test suite") {
+      boost::shared_ptr<DoocsProcessVariablesTest<T> > processScalarTest(
+          new DoocsProcessVariablesTest<T>);
 
-      add( BOOST_CLASS_TEST_CASE(&DoocsProcessScalarTest<T>::testAssignment,
+      add( BOOST_CLASS_TEST_CASE(&DoocsProcessVariablesTest<T>::testAssignment,
               processScalarTest));
-      add( BOOST_CLASS_TEST_CASE(&DoocsProcessScalarTest<T>::testSynchronisation,
+      add( BOOST_CLASS_TEST_CASE(&DoocsProcessVariablesTest<T>::testSynchronisation,
               processScalarTest));
     }
   };
 
   template<class T>
-  DoocsProcessScalarTest<T>::DoocsProcessScalarTest(){
+  DoocsProcessVariablesTest<T>::DoocsProcessVariablesTest(){
     //the regular manageres are that standard mtca4u control system types
     boost::shared_ptr<DoocsPVFactory> factory( new DoocsPVFactory( NULL ) );
     std::pair<boost::shared_ptr<ControlSystemPVManager>, boost::shared_ptr<DevicePVManager> > regularPvManagers =
@@ -126,33 +126,33 @@ namespace mtca4u {
     _testDeviceCallable.reset( new TestDeviceCallable<T>(regularPvManagers.second) );
   }
 
-  template<> void DoocsProcessScalarTest<int32_t>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<int32_t>::testAssignment() {
     testAssignmentImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<uint32_t>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<uint32_t>::testAssignment() {
     testAssignmentImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<int16_t>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<int16_t>::testAssignment() {
     testAssignmentImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<uint16_t>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<uint16_t>::testAssignment() {
     testAssignmentImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<int8_t>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<int8_t>::testAssignment() {
     testAssignmentImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<uint8_t>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<uint8_t>::testAssignment() {
     testAssignmentImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<double>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<double>::testAssignment() {
     testAssignmentImpl<D_double>();
   }
-  template<> void DoocsProcessScalarTest<float>::testAssignment() {
+  template<> void DoocsProcessVariablesTest<float>::testAssignment() {
     testAssignmentImpl<D_float>();
   }
 
   template<class T> template<class DOOCS_T>
-  void DoocsProcessScalarTest<T>::testAssignmentImpl() {
+  void DoocsProcessVariablesTest<T>::testAssignmentImpl() {
 
     // assignment of T and automatic conversion (in the == test)
     boost::shared_ptr< DoocsProcessScalar< T, DOOCS_T > > doocsProcessT =
@@ -174,33 +174,33 @@ namespace mtca4u {
     BOOST_CHECK(*doocsProcessT == 2);
   }
 
-  template<> void DoocsProcessScalarTest<int32_t>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<int32_t>::testSynchronisation() {
     testSynchronisationImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<uint32_t>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<uint32_t>::testSynchronisation() {
     testSynchronisationImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<int16_t>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<int16_t>::testSynchronisation() {
     testSynchronisationImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<uint16_t>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<uint16_t>::testSynchronisation() {
     testSynchronisationImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<int8_t>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<int8_t>::testSynchronisation() {
     testSynchronisationImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<uint8_t>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<uint8_t>::testSynchronisation() {
     testSynchronisationImpl<D_int>();
   }
-  template<> void DoocsProcessScalarTest<double>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<double>::testSynchronisation() {
     testSynchronisationImpl<D_double>();
   }
-  template<> void DoocsProcessScalarTest<float>::testSynchronisation() {
+  template<> void DoocsProcessVariablesTest<float>::testSynchronisation() {
     testSynchronisationImpl<D_float>();
   }
 
   template<class T> template<class DOOCS_T>
-  void DoocsProcessScalarTest<T>::testSynchronisationImpl(){
+  void DoocsProcessVariablesTest<T>::testSynchronisationImpl(){
     // when the thread starts, it resets the values to 0 in the callable
      boost::thread deviceThread(*_testDeviceCallable);
 
@@ -251,25 +251,25 @@ test_suite*
 init_unit_test_suite(int /*argc*/, char* /*argv*/[]) {
   std::cout << "this is init_unit_test_suite" << std::endl;
   master_test_suite().p_name.value =
-      "DoocsProcessScalar test suite";
+      "DoocsProcessVariables test suite";
 
   std::cout << "name ok" << std::endl;
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<int32_t>);
+      new mtca4u::DoocsProcessVariablesTestSuite<int32_t>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<uint32_t>);
+      new mtca4u::DoocsProcessVariablesTestSuite<uint32_t>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<int16_t>);
+      new mtca4u::DoocsProcessVariablesTestSuite<int16_t>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<uint16_t>);
+      new mtca4u::DoocsProcessVariablesTestSuite<uint16_t>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<int8_t>);
+      new mtca4u::DoocsProcessVariablesTestSuite<int8_t>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<uint8_t>);
+      new mtca4u::DoocsProcessVariablesTestSuite<uint8_t>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<double>);
+      new mtca4u::DoocsProcessVariablesTestSuite<double>);
   master_test_suite().add(
-      new mtca4u::DoocsProcessScalarTestSuite<float>);
+      new mtca4u::DoocsProcessVariablesTestSuite<float>);
 
   std::cout << "suites are there" << std::endl;
 

@@ -6,8 +6,6 @@ namespace mtca4u{
     : _pvManager(pvManager){
   }    
 
-//    std::map< std::string, ControlSystemProcessVariable::SharedPtr > getAllProcessVariables () const;
-  
   void DoocsPVManager::synchronize(){
     // Put all modified variables into the "from device" synchronisation list.
     // They all have to be updated if they have changed in the device.
