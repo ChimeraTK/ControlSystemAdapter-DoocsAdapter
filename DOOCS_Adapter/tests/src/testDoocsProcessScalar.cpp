@@ -27,10 +27,6 @@ namespace mtca4u {
     std::list< ControlSystemProcessVariable::SharedPtr > const & getToDeviceProcessVariables() const{
       return _toDeviceProcessVariables;
     }
-
-    //std::list< ControlSystemProcessVariable::SharedPtr > const & getFromDeviceProcessVariables(){
-    //  return _fromDeviceProcessVariables;
-    //    }
   };
 
   template <class T >
@@ -218,11 +214,18 @@ namespace mtca4u {
  
      *writeMe = 33;
 
+     // check that the syncronisation list is ok.
+     BOOST_CHECK( _pvManager->getToDeviceProcessVariables().back() == 
+		 writeMe );
+
      // synchronise twice: First one gets it into the device, which sets readMe after the sync.
      // The second one get readMe out.
      _pvManager->synchronize();
      _pvManager->synchronize();
      
+     // After synchronisation the list has to be empty
+     BOOST_CHECK( _pvManager->getToDeviceProcessVariables().empty() );
+
      std::stringstream message;
      message << "readMe is " << static_cast<double>(*readMe) << std::endl;
      BOOST_CHECK_MESSAGE( *readMe == 33 , message.str());
@@ -231,8 +234,14 @@ namespace mtca4u {
      boost::dynamic_pointer_cast< DoocsProcessScalar< int8_t, D_int > >(
        _pvManager->getProcessScalar<int8_t>( "stopDeviceThread" ) )->set_value(1);
      
+     BOOST_CHECK( _pvManager->getToDeviceProcessVariables().size() == 1 );
+     BOOST_CHECK( _pvManager->getToDeviceProcessVariables().back() == 
+		  _pvManager->getProcessScalar<int8_t>( "stopDeviceThread" ) );
+
      _pvManager->synchronize();
-     
+
+     BOOST_CHECK( _pvManager->getToDeviceProcessVariables().empty() );
+    
      deviceThread.join();
   }
 
