@@ -33,10 +33,9 @@ LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
 
-all: $(TEST_EXECUTABLES)
+include ../CPP_DEBUG_FLAGS.CONFIG
 
-debug:
-	CPP_DEBUG_FLAGS="-g -O0 --coverage" make all
+all: $(TEST_EXECUTABLES)
 
 $(OBJDIR)/.depend_tests depend:
 		@if [ ! -f $(OBJDIR) ] ; then \

@@ -25,14 +25,25 @@ CPPFLAGS += -isystem/local/lib/include
 
 TARGET_OBJECTS =  $(OBJDIR)/lib$(PROJECT_NAME).so
 
-all: $(TARGET_OBJECTS) tests
+all: CPP_DEBUG_FLAGS.CONFIG $(TARGET_OBJECTS) tests
+
+CPP_DEBUG_FLAGS.CONFIG:
+	touch CPP_DEBUG_FLAGS.CONFIG
+
+include CPP_DEBUG_FLAGS.CONFIG
 
 # The debug only works if you remove the OPTIMIZED variable from the Doocs CONFIG.
 # This sets the optimisation to -O2 and you cannot create a coverage report.
-debug:
-	CPP_DEBUG_FLAGS="-g -O0 --coverage" make all
+enable_debug:
+	echo "CPP_DEBUG_FLAGS = -g -O0 --coverage" > CPP_DEBUG_FLAGS.CONFIG
+	make clean
 
-.PHONY: $(OBJDIR)/.depend tests
+disable_debug:
+	echo > CPP_DEBUG_FLAGS.CONFIG
+	make clean
+
+
+.PHONY: $(OBJDIR)/.depend
 
 $(OBJDIR)/.depend:
 	@if [ ! -f $(OBJDIR) ] ; then \
