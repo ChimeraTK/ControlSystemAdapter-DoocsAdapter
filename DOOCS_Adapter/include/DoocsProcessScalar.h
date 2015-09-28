@@ -26,6 +26,7 @@ protected:
        *  will always be valid.
        */
       DoocsScalarListener( DOOCS_T * doocsVariable ): _doocsVariable(doocsVariable){
+        std::cout << "This is DoocsScalarListener::DoocsScalarListener" << std::endl;
       }
       
       /** The notification that is executed updates of the doocs process variable
@@ -33,6 +34,8 @@ protected:
       void notify(boost::shared_ptr< ProcessVariable > processVariable){
 	// It is safe to static cast because the DoocsScalarListener is inside a 
 	// DoocsProcessScalar, which always holds a ProcessScalar, never a ProcessArray
+	std::cout << "This is DoocsScalarListener::notify() on "  
+		  << processVariable->getName() << std::endl;
 	_doocsVariable->set_value( static_cast< ProcessScalar<T> & >(*processVariable) );
       }
 
