@@ -4,6 +4,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <ControlSystemAdapter/DevicePVManager.h>
+#include <ControlSystemAdapter/DeviceSynchronizationUtility.h>
 
 /** Some dummy "hardware". You can read/write a voltage (int). */
 class Hardware{
@@ -14,8 +15,7 @@ class Hardware{
  Hardware(): _voltage(42){}
 };
 
-/** This is just a simple example class. It does not use 
- *  the callback registration mechanism yet because this will change in future.
+/** This is just a simple example class.
  *
  *  All functions are definded inline for the sake of the example. 
  *  It is strongly recommended to use proper header/object separation for
@@ -23,17 +23,16 @@ class Hardware{
  */
 class IndependentControlCore{
  private:
-  boost::shared_ptr<mtca4u::DevicePVManager> _processVariableManager;
+  mtca4u::DevicePVManager::SharedPtr _processVariableManager;
 
   /** The target voltage to be transmitted to the hardware */
-  boost::shared_ptr< mtca4u::DeviceProcessScalar<int> > _targetVoltage;
+  mtca4u::ProcessScalar<int>::SharedPtr _targetVoltage;
 
   /** The monitor voltage which is read back from the hardware */
-  boost::shared_ptr< mtca4u::DeviceProcessScalar<int> > _monitorVoltage;
+  mtca4u::DeviceProcessScalar<int>::SharedPtr > _monitorVoltage;
   
   Hardware _hardware; ///< Some hardware
  
-  boost::atomic<bool> _stopDeviceThread;
   boost::scoped_ptr< boost::thread > _deviceThread;
 
   void mainLoop();
@@ -45,9 +44,8 @@ class IndependentControlCore{
   IndependentControlCore(boost::shared_ptr<mtca4u::DevicePVManager> & processVariableManager)
     //initialise all process variables, using the factory
     : _processVariableManager( processVariableManager ),
-    _targetVoltage( processVariableManager->getProcessScalar<int>("TARGET_VOLTAGE") ),
-    _monitorVoltage( processVariableManager->getProcessScalar<int>("MONITOR_VOLTAGE") ),
-    _stopDeviceThread(false){
+    _targetVoltage( pvManager->createProcessScalarControlToDeviceSystem<int>("TARGET_VOLTAGE") ),
+    _monitorVoltage( pvManager->createProcessScalarDeviceToControlSystem<int>("MONITOR_VOLTAGE") ){
 
     // initialise the hardware here
 
@@ -56,35 +54,24 @@ class IndependentControlCore{
   }
   
   ~IndependentControlCore(){
-    // Stop the device thread. Set the flag variable and wait until the thread terminates.
-    _stopDeviceThread=true;
-    _deviceThread->join();
-    std::cout << "thread stopped " << std::endl;
-  }
-
-  void readFromHardware(){
-    *_monitorVoltage = _hardware.getVoltage();
-    std::cout << "reading from hardware: " << *_monitorVoltage << std::endl;
-  }
-
-  void writeToHardware(){
-    _hardware.setVoltage( *_targetVoltage );
-    std::cout << "writing to hardware: " << *_targetVoltage << std::endl;
-  }
-  
-  static void registerProcessVariables(boost::shared_ptr<mtca4u::DevicePVManager> & processVariableManager){
-    processVariableManager->createProcessScalar<int>("TARGET_VOLTAGE");
-    processVariableManager->createProcessScalar<int>("MONITOR_VOLTAGE");
+    // The destructor of the boost::thread wil send interrupt_requested, which is evaluated inside the loop.
+    // No actions needed in the desructor.
   }
 
 };
 
 inline void IndependentControlCore::mainLoop(){
-  while (! _stopDeviceThread) {
+  mtca4u::DeviceSynchronizationUtility syncUtil(_processVariableManager);
+ 
+  while (!boost::this_thread::interruption_requested()) {
     std::cout << "IndependentControlCore::mainLoop()" <<std::endl;
-    _processVariableManager->processSynchronization(10000);//, 100);
-    writeToHardware();
-    readFromHardware();
+
+    syncUtil.receiveAll();
+    *_monitorVoltage = _hardware.getVoltage();
+
+    _hardware.setVoltage( *_targetVoltage );
+    syncUtil.sendAll();    
+
     boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   }
 }

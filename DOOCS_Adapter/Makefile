@@ -25,6 +25,8 @@ CPPFLAGS += -isystem/local/lib/include
 
 TARGET_OBJECTS =  $(OBJDIR)/lib$(PROJECT_NAME).so
 
+.PHONY: $(OBJDIR)/.depend tests
+
 all: CPP_DEBUG_FLAGS.CONFIG $(TARGET_OBJECTS) tests
 
 CPP_DEBUG_FLAGS.CONFIG:
@@ -41,9 +43,6 @@ enable_debug:
 disable_debug:
 	echo > CPP_DEBUG_FLAGS.CONFIG
 	make clean
-
-
-.PHONY: $(OBJDIR)/.depend
 
 $(OBJDIR)/.depend:
 	@if [ ! -f $(OBJDIR) ] ; then \
@@ -64,7 +63,7 @@ clean:
 	rm -rf *.gcda *.gcno tests/*.gcda tests/*.gcno
 	(cd tests; make clean)
 
-test:
+test: tests
 	(cd tests; make test)
 
 tests: $(TARGET_OBJECTS)

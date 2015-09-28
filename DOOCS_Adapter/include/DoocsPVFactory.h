@@ -8,7 +8,6 @@
 #include <boost/shared_ptr.hpp>
 #include <string>
 
-#include "DoocsPVManager.h"
 
 namespace mtca4u {
 

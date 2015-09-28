@@ -10,7 +10,7 @@
  */
 //LCOV_EXCL_START 
 
-const char* object_name = "doocsPVFactoryTest";
+const char* object_name = "empty";
 EqFct *eq_create(int /*eq_code*/, void*){ return NULL; }
 void eq_init_epilog(){}
 void eq_init_prolog(){}

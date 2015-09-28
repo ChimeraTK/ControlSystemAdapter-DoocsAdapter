@@ -29,9 +29,11 @@ TEST_EXECUTABLES = $(notdir $(basename $(TEST_SOURCES)))
 
 CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized $(CPP_DEBUG_FLAGS)
 CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
-LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -lboost_thread
+LDFLAGS += -lboost_thread
 
-LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
+LDFLAGS += -lboost_system -lEqServer -lDOOCSapi 
+LDFLAGS += -L$(OBJDIR) -lDoocsAdapter
+#LDFLAGS += -lboost_system -lDOOCSapi -lEqServer
 
 include ../CPP_DEBUG_FLAGS.CONFIG
 
@@ -65,7 +67,7 @@ include $(OBJDIR)/.depend_tests
 	  mkdir -p $(OBJDIR)/tests ; \
 	fi
 	echo This is the implicit rule cpp for $<
-	$(CC) $(CCFLAGS) $(CPPFLAGS) $< -o$(OBJDIR)/tests/$@ $(LDFLAGS) 
+	$(CC) $(CCFLAGS) $(CPPFLAGS) $< $(LDFLAGS) -o$(OBJDIR)/tests/$@
 
 clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/*.o $(OBJDIR)/.depend*

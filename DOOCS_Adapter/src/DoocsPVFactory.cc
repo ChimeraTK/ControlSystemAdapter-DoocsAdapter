@@ -1,5 +1,6 @@
 #include <boost/make_shared.hpp>
 
+#if 0
 #include "DoocsProcessScalar.h"
 #include <d_fct.h>
 //#include <DoocsProcessArray.h>
@@ -84,3 +85,4 @@ namespace mtca4u {
 
 }// namespace
 
+#endif //0
