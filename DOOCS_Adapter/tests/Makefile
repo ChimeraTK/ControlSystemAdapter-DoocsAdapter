@@ -20,6 +20,7 @@ SRCDIR = $(PWD)
 
 TEST_SOURCES = $(shell ls src/*.cpp)
 TEST_EXECUTABLES = $(notdir $(basename $(TEST_SOURCES)))
+TEST_TARGETS = $(addprefix $(OBJDIR)/tests/, $(TEST_EXECUTABLES))
 
 #SOURCEOBJ = $(OBJDIR)/
 
@@ -32,12 +33,12 @@ CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
 LDFLAGS += -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi 
-LDFLAGS += -L$(OBJDIR) -lDoocsAdapter
-#LDFLAGS += -lboost_system -lDOOCSapi -lEqServer
+#link the adapter with runpath, so it is found at execution time
+LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -Wl,-rpath=$(OBJDIR),--enable-new-dtags
 
 include ../CPP_DEBUG_FLAGS.CONFIG
 
-all: $(TEST_EXECUTABLES)
+all: $(TEST_TARGETS)
 
 $(OBJDIR)/.depend_tests depend:
 		@if [ ! -f $(OBJDIR) ] ; then \
@@ -61,16 +62,16 @@ include $(OBJDIR)/.depend_tests
 #	echo This is the implicit rule o for $<
 #	$(LINK.cc) $< -o$(OBJDIR)/tests/$@ $(LDFLAGS) 
 
-%: src/%.cpp
+$(OBJDIR)/tests/%: src/%.cpp
 	@if [ ! -f $(OBJDIR)/tests ] ; then \
 	  echo ---------- creating directory $(OBJDIR)/tests --------------; \
 	  mkdir -p $(OBJDIR)/tests ; \
 	fi
 	echo This is the implicit rule cpp for $<
-	$(CC) $(CCFLAGS) $(CPPFLAGS) $< $(LDFLAGS) -o$(OBJDIR)/tests/$@
+	$(CC) $(CCFLAGS) $(CPPFLAGS) $< $(LDFLAGS) -o$@
 
 clean:
-	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/*.o $(OBJDIR)/.depend*
+	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/* *.gcda *.gcno $(OBJDIR)/.depend*
 
 test: $(OBJDIR)/CTestTestfile.cmake
 	(cd $(OBJDIR); ctest)

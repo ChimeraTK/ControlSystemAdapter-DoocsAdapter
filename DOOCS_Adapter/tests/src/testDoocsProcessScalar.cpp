@@ -8,7 +8,8 @@
 #include <ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ControlSystemAdapter/DevicePVManager.h>
 #include <d_fct.h>
-#include <emptyServerFunctions.h>
+
+#include "emptyServerFunctions.h"
 
 using namespace boost::unit_test_framework;
 using namespace mtca4u;

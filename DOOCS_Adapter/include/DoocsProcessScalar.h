@@ -43,7 +43,8 @@ protected:
   boost::shared_ptr< ProcessScalar<T> > _processScalar;
 
 public:
-  DoocsProcessScalar( EqFct *eqFct, boost::shared_ptr< typename mtca4u::ProcessScalar<T> > & processScalar,
+  DoocsProcessScalar( EqFct * const eqFct,
+		      boost::shared_ptr< typename mtca4u::ProcessScalar<T> > const & processScalar,
 		      ControlSystemSynchronizationUtility & syncUtility)
     : DOOCS_T(processScalar->getName().c_str(), eqFct),  _processScalar(processScalar) {
     syncUtility.addReceiveNotificationListener( processScalar->getName(),
@@ -58,11 +59,6 @@ public:
 
   DoocsProcessScalar< T, DOOCS_T > & operator= (T const &t){
     set_value(t);
-    return *this;
-  }
-
-  DOOCS_T & operator= (DOOCS_T const &other){
-    set_value(other.value_);
     return *this;
   }
 
