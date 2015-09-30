@@ -50,15 +50,17 @@ $(OBJDIR)/.depend:
 	fi
 	for i in $(SRCDIR)/src/*.cc ;do  $(CC) $(CPPFLAGS) -MM $$i ;done > $(OBJDIR)/.depend
 	chmod g+w $(OBJDIR)/.depend*
+	echo depend done!
 
 include $(OBJDIR)/.depend
 
 $(OBJDIR)/lib${PROJECT_NAME}.so: $(OBJ_SOURCES)	
-		$(LINK.cc) $(LDFLAGS) -shared -fPIC -o $@ $(OBJ_SOURCES)\
-			   $(LDLIBS) -lEqServer -lDOOCSapi
-		chmod g+w $@
+	$(LINK.cc) $(LDFLAGS) -shared -fPIC -o $@ $(OBJ_SOURCES)\
+	 $(LDLIBS) -lEqServer -lDOOCSapi
+	chmod g+w $@
 
 clean:
+	echo This is clean!	
 	rm -f $(SOURCEOBJ) $(OBJDIR)/*.o *.ps $(OBJDIR)/lib${PROJECT_NAME}.so $(OBJDIR)/.depend*
 	rm -rf *.gcda *.gcno tests/*.gcda tests/*.gcno
 	(cd tests; make clean)

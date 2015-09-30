@@ -1,11 +1,11 @@
-#ifndef TEST_SCALARS_EQ_FCT_H_
-#define	TEST_SCALARS_EQ_CT_H_
+#ifndef TEST_COSADE_EQ_FCT_H_
+#define	TEST_COSADE_EQ_CT_H_
 
 #include "eq_fct.h"
-#include "DoocsProcessScalar.h"
+#include "IndependentControlCore.h"
 
 /**
- * An \c EqFct class with no functionality whatsoever.
+ * Instantiate the IndependentControlCore in an EqFct.
  */
 class TestScalarsEqFct : public EqFct
 {

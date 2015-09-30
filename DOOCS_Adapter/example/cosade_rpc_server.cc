@@ -1,41 +1,63 @@
-#include	"eq_cosade.h"
-#include	"eq_sts_codes.h"
-#include	"eq_fct_errors.h"
+#include "eq_cosade.h"
+//#include	"eq_sts_codes.h"
+//#include	"eq_fct_errors.h"
+#include <DoocsPVFactory.h>
+
+using namespace mtca4u;
 
 const char * object_name = "Cosade server";
 
-CosadeServer::CosadeServer ( ) : EqFct ("NAME = cosade" ){
+CosadeEqFct::CosadeEqFct ( ) : EqFct ("NAME = cosade" ){
 
-  // The DOOCSProcessVariableFactory is initialised with a 'this' of the EqFct we are just constructing.
-  processVariableFactory_.reset( new mtca4u::DOOCSProcessVariableFactory(this) );
+  // create the managers. We need both
+  std::pair<boost::shared_ptr<ControlSystemPVManager>,
+	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
 
-  // In Doocs you have to populate the factory in the server contructor.
-  // Like this the DOOCS properties are known to the server and initialised
-  // before the hardware initialisation (business logic) takes place in init().
-  (void) processVariableFactory_->getProcessVariable<int> ("TARGET_VOLTAGE");
-  (void) processVariableFactory_->getProcessVariable<int> ("MONITOR_VOLTAGE");
+  // The CS manager is needed in the EqFct (obviously this is the CS side),
+  // so we store it in a class-wide variable
+  processVariableManager_ = pvManagers.first;
+
+  // The device manager is only needed to give it to the business logic
+  boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+  // now create an instance of the business logic. This creates all variables in
+  // the managers.
+  controlCore_.reset( new IndependentControlCore( devManager ) );
+  
+  syncUtility_.reset( 
+    new mtca4u::ControlSystemSynchronizationUtility(processVariableManager_) );
+
+  DoocsPVFactory factory(this, syncUtility_);
+
+  // Take all variables and make them known to DOOCS, using the factory.
+  // The variables are stored in a vector.
+  std::vector < mtca4u::ProcessVariable::SharedPtr > mtca4uProcessVariables =
+    processVariableManager_->getAllProcessVariables();
+
+  processVariables_.reserve( mtca4uProcessVariables.size() );
+  for( std::vector < mtca4u::ProcessVariable::SharedPtr >::iterator mtca4uVariableIter
+	 = mtca4uProcessVariables.begin();
+       mtca4uVariableIter !=  mtca4uProcessVariables.end(); ++mtca4uVariableIter){
+    processVariables_.push_back( factory.create( *mtca4uVariableIter ) );
+  }
 }
 
-void CosadeServer::init ( )
-{
-  // Now that the variables are initialised, we can create an instance of the 
-  // control system independent business logic, which initialises the hardware.
-  // We hand over the factory with the initialised variables.
-  controlCore_.reset( new IndependentControlCore( processVariableFactory_ ) );
+void CosadeEqFct::init ( ){
+  /*empty in this example*/
 }
 
-void CosadeServer::update(){
-  // In the update function we call the control-system independent business logic.
-  // This step will also be automated in future, so there will be one dedicated function to be called here.
-  controlCore_->writeToHardware();
-  controlCore_->readFromHardware();
+void CosadeEqFct::update(){
+  syncUtility_->sendAll();
+  // ok, this does not work as intended. equivalent to a 150 ms sleep, but with 
+  // many unneeded wake-ups
+  syncUtility_->waitForNotifications(150000,10000);
 }
 
 // The usual function to create locations. Present in every doocs server.
 EqFct * eq_create (int eq_code, void *){
    switch (eq_code) {
       case CODE_COSADE:
-	 return  new CosadeServer ();
+	 return  new CosadeEqFct ();
       default:
 	 return (EqFct *) 0;
    }
