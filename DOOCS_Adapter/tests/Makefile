@@ -29,7 +29,7 @@ TEST_TARGETS = $(addprefix $(OBJDIR)/tests/, $(TEST_EXECUTABLES))
 #ALLPROGS = $(OBJDIR)/cosade_server 
 
 CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized $(CPP_DEBUG_FLAGS)
-CPPFLAGS += -I../include -Iinclude -isystem/local/lib/include
+CPPFLAGS += -I../include -I../example -Iinclude -isystem/local/lib/include
 LDFLAGS += -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi 

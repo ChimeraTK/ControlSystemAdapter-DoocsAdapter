@@ -1,2 +1,3 @@
 ADD_TEST(testDoocsPVFactory "@__OBJDIR__@/tests/testDoocsPVFactory")
 ADD_TEST(testDoocsProcessScalar "@__OBJDIR__@/tests/testDoocsProcessScalar")
+ADD_TEST(testIndependentControlCore "@__OBJDIR__@/tests/testIndependentControlCore")

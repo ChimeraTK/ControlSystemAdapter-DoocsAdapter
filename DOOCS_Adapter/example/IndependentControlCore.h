@@ -4,6 +4,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <ControlSystemAdapter/DevicePVManager.h>
+#include <ControlSystemAdapter/ProcessScalar.h>
 #include <ControlSystemAdapter/DeviceSynchronizationUtility.h>
 
 /** Some dummy "hardware". You can read/write a voltage (int). */
@@ -29,7 +30,7 @@ class IndependentControlCore{
   mtca4u::ProcessScalar<int>::SharedPtr _targetVoltage;
 
   /** The monitor voltage which is read back from the hardware */
-  mtca4u::DeviceProcessScalar<int>::SharedPtr > _monitorVoltage;
+  mtca4u::ProcessScalar<int>::SharedPtr _monitorVoltage;
   
   Hardware _hardware; ///< Some hardware
  
@@ -44,10 +45,13 @@ class IndependentControlCore{
   IndependentControlCore(boost::shared_ptr<mtca4u::DevicePVManager> & processVariableManager)
     //initialise all process variables, using the factory
     : _processVariableManager( processVariableManager ),
-    _targetVoltage( pvManager->createProcessScalarControlToDeviceSystem<int>("TARGET_VOLTAGE") ),
-    _monitorVoltage( pvManager->createProcessScalarDeviceToControlSystem<int>("MONITOR_VOLTAGE") ){
+    _targetVoltage( processVariableManager->createProcessScalarControlSystemToDevice<int>("TARGET_VOLTAGE") ),
+    _monitorVoltage( processVariableManager->createProcessScalarDeviceToControlSystem<int>("MONITOR_VOLTAGE") ){
 
     // initialise the hardware here
+    *_targetVoltage = 0;
+    *_monitorVoltage = 0;
+    _hardware.setVoltage(*_targetVoltage);
 
     // start the device thread, which is executing the main loop
     _deviceThread.reset( new boost::thread( boost::bind( &IndependentControlCore::mainLoop, this ) ) );
@@ -55,7 +59,7 @@ class IndependentControlCore{
   
   ~IndependentControlCore(){
     // The destructor of the boost::thread wil send interrupt_requested, which is evaluated inside the loop.
-    // No actions needed in the desructor.
+    // No actions needed in the destructor.
   }
 
 };
@@ -66,13 +70,12 @@ inline void IndependentControlCore::mainLoop(){
   while (!boost::this_thread::interruption_requested()) {
     std::cout << "IndependentControlCore::mainLoop()" <<std::endl;
 
-    syncUtil.receiveAll();
+    syncUtil.waitForNotifications(100000 /*microsecons timeout*/,
+				  1000 /*microseconds check interval*/);
     *_monitorVoltage = _hardware.getVoltage();
 
     _hardware.setVoltage( *_targetVoltage );
     syncUtil.sendAll();    
-
-    boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   }
 }
 
