@@ -72,14 +72,12 @@ inline void IndependentControlCore::mainLoop(){
   mtca4u::DeviceSynchronizationUtility syncUtil(_processVariableManager);
  
   while (!boost::this_thread::interruption_requested()) {
-    std::cout << "IndependentControlCore::mainLoop()" <<std::endl;
-
-    syncUtil.waitForNotifications(100000 /*microsecons timeout*/,
-				  1000 /*microseconds check interval*/);
+    syncUtil.receiveAll();
     *_monitorVoltage = _hardware.getVoltage();
 
     _hardware.setVoltage( *_targetVoltage );
-    syncUtil.sendAll();    
+    syncUtil.sendAll();
+    boost::this_thread::sleep_for( boost::chrono::milliseconds(100) );
   }
 }
 
