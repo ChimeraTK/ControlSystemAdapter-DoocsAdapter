@@ -30,7 +30,7 @@ namespace mtca4u {
   //    typename ControlSystemProcessArray<T>::SharedPtr createProcessArrayInternal(
   //     const std::string& name, size_t size);
 
-    template<class T, class DOOCS_T>
+    template<class T, class DOOCS_T, class DOOCS_VALUE_T>
     typename  boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable);
  
   };

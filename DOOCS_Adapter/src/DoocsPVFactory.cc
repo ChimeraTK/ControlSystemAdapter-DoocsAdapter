@@ -13,7 +13,7 @@ namespace mtca4u {
     : _eqFct(eqFct), _syncUtility(syncUtility) {
   }
 
-  template<class T, class DOOCS_T>
+  template<class T, class DOOCS_T, class DOOCS_VALUE_T>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar( 
     typename ProcessVariable::SharedPtr & processVariable){
     // the DoocsProcessScalar needs the 
@@ -24,7 +24,7 @@ namespace mtca4u {
 				  + processVariable->getValueType().name());
     }
     
-    return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T>(_eqFct, processScalar, *_syncUtility) );
+    return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(_eqFct, processScalar, *_syncUtility) );
   }
 
 //  template<class T, class DOOCS_T>
@@ -41,21 +41,21 @@ namespace mtca4u {
     }
     else{ // it's a scalar, call the createScalar method
       if (valueType == typeid(int8_t)) {
-	return createDoocsScalar<int8_t, D_int>(processVariable);
+	return createDoocsScalar<int8_t, D_int, int>(processVariable);
       } else if (valueType == typeid(uint8_t)) {
-	return createDoocsScalar<uint8_t, D_int>(processVariable);
+	return createDoocsScalar<uint8_t, D_int, int>(processVariable);
       } else if (valueType == typeid(int16_t)) {
-	return createDoocsScalar<int16_t, D_int>(processVariable);
+	return createDoocsScalar<int16_t, D_int, int>(processVariable);
       } else if (valueType == typeid(uint16_t)) {
-	return createDoocsScalar<uint16_t, D_int>(processVariable);
+	return createDoocsScalar<uint16_t, D_int, int>(processVariable);
       } else if (valueType == typeid(int32_t)) {
-	return createDoocsScalar<int32_t, D_int>(processVariable);
+	return createDoocsScalar<int32_t, D_int, int>(processVariable);
       } else if (valueType == typeid(uint32_t)) {
-	return createDoocsScalar<uint32_t, D_int>(processVariable);
+	return createDoocsScalar<uint32_t, D_int, int>(processVariable);
       } else if (valueType == typeid(float)) {
-	return createDoocsScalar<float, D_float>(processVariable);
+	return createDoocsScalar<float, D_float, float>(processVariable);
       } else if (valueType == typeid(double)) {
-	return createDoocsScalar<double, D_double>(processVariable);
+	return createDoocsScalar<double, D_double, double>(processVariable);
       } else {
 	throw std::invalid_argument("unsupported value type");
       }

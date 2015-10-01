@@ -13,7 +13,15 @@ class EqFct;
 
 namespace mtca4u {
 
-template <typename T, typename DOOCS_T>
+/** The DoocsProcessScalar has three template parameters:
+ *  \li \c T, The primitive value type of the mtca4u process variable
+ *  \li \c DOOCS_T, The Doocs type which is used
+ *  \li \c DOOCS_VALUE_T, The primitive type of the Doocs type, which is not necessarily the same as T
+ * 
+ *  The last type is necessary for the set_value overloading to work. If for instance T is short, then
+ *  D_int is used and the signature is set_value(int), not set_value(short).
+ */
+template <typename T, typename DOOCS_T, typename DOOCS_VALUE_T>
 class DoocsProcessScalar :  public DOOCS_T{
 
 protected:
@@ -51,21 +59,23 @@ public:
       ProcessVariableListener::SharedPtr( new DoocsScalarListener(this) ) );
   }
 
-  DoocsProcessScalar< T, DOOCS_T > & operator= (DoocsProcessScalar< T, DOOCS_T> const &other){
+  DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T > & operator= (DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T> const &other){
     // this uses the conversion operator to T when set_value is called
     set_value( other );
     return *this;
   }
 
-  DoocsProcessScalar< T, DOOCS_T > & operator= (T const &t){
+  DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T > & operator= (T const &t){
     set_value(t);
     return *this;
   }
 
   /** Override the Doocs set_value method. This is called by all assignment operators
    *  and the DOOCS_T::set() method which is triggered by the RPC calls.
+   *  For the overloading to work the signature has to be exactly as in DOOCS_T, so we need
+   *  the value type (int for D_int, for instance). This is not necessarily the same as T.
    */
-  void set_value(T const &t){
+  void set_value(DOOCS_VALUE_T t){
     DOOCS_T::set_value(t);
     *_processScalar = t;
     if (_processScalar->isSender()){

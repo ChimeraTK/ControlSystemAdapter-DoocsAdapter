@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   *controlSystemVariable=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<T, D_int> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
 
   doocsScalar=42;
   BOOST_CHECK( *controlSystemVariable == 42 );
@@ -50,7 +50,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 
   // check with negative values, and cast so unsigned gets correct results
 
-  doocsScalar=-13;
+  // check that the set_value overloading is working by calling the function of the base class
+  // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
+  static_cast<D_int&>(doocsScalar).set_value(-13);
   BOOST_CHECK( *controlSystemVariable == static_cast<T>(-13) );
 
   // receive on the device side and check that the value has arrived
@@ -59,8 +61,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 }
 
 // as boost testing does not allow multiple template parameters we use code
-// duplication to do DoocsProcessScalar<float, D_float> and
-// DoocsProcessScalar<double, D_double>
+// duplication to do DoocsProcessScalar<float, D_float, float> and
+// DoocsProcessScalar<double, D_double, double>
 BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
 	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
@@ -78,7 +80,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   *controlSystemFloat=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<float, D_float> doocsScalar( NULL, controlSystemFloat, syncUtil );
+  DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemFloat, syncUtil );
 
   doocsScalar=12.125;
   BOOST_CHECK( *controlSystemFloat == 12.125 );
@@ -86,6 +88,15 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   // receive on the device side and check that the value has arrived
   deviceFloat->receive();
   BOOST_CHECK( *deviceFloat == 12.125 );
+
+  // check that the set_value overloading is working by calling the function of the base class
+  // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
+  static_cast<D_float&>(doocsScalar).set_value(-13.);
+  BOOST_CHECK( *controlSystemFloat == -13. );
+
+  // receive on the device side and check that the value has arrived
+  deviceFloat->receive();
+  BOOST_CHECK( *deviceFloat == -13. );
 }
 
 BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
@@ -105,7 +116,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   *controlSystemDouble=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<double, D_double> doocsScalar( NULL, controlSystemDouble, syncUtil );
+  DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemDouble, syncUtil );
 
   doocsScalar=12.125;
   BOOST_CHECK( *controlSystemDouble == 12.125 );
@@ -113,6 +124,15 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   // receive on the device side and check that the value has arrived
   deviceDouble->receive();
   BOOST_CHECK( *deviceDouble == 12.125 );
+
+  // check that the set_value overloading is working by calling the function of the base class
+  // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
+  static_cast<D_double&>(doocsScalar).set_value(-13.);
+  BOOST_CHECK( *controlSystemDouble == -13. );
+
+  // receive on the device side and check that the value has arrived
+  deviceDouble->receive();
+  BOOST_CHECK( *deviceDouble == -13. );
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types ){
@@ -132,7 +152,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   *controlSystemVariable=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<T, D_int> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
   doocsScalar=0;
 
   *deviceVariable=42;
@@ -169,7 +189,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   *controlSystemVariable=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<float, D_float> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemVariable, syncUtil );
   doocsScalar=0;
 
   *deviceVariable=12.125;
@@ -200,7 +220,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   *controlSystemVariable=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<double, D_double> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemVariable, syncUtil );
   doocsScalar=0;
 
   *deviceVariable=12.125;
