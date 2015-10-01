@@ -1,45 +1,17 @@
 #include "eq_cosade.h"
-//#include	"eq_sts_codes.h"
-//#include	"eq_fct_errors.h"
-#include <DoocsPVFactory.h>
-
-using namespace mtca4u;
 
 const char * object_name = "Cosade server";
 
-CosadeEqFct::CosadeEqFct ( ) : EqFct ("NAME = cosade" ){
-
-  // create the managers. We need both
-  std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
-
-  // The CS manager is needed in the EqFct (obviously this is the CS side),
-  // so we store it in a class-wide variable
-  processVariableManager_ = pvManagers.first;
-
-  // The device manager is only needed to give it to the business logic
-  boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
-
-  // now create an instance of the business logic. This creates all variables in
-  // the managers.
-  controlCore_.reset( new IndependentControlCore( devManager ) );
+CosadeEqFct::CosadeEqFct ( ) : EqFct ("NAME = cosade" ), doocsAdapter_(this){
   
-  syncUtility_.reset( 
-    new mtca4u::ControlSystemSynchronizationUtility(processVariableManager_) );
+  // The DoocsAdapter is already prepared in initialiser list.
+  // Now we can create our business logic and parse the DevicePVManager to it, which we get from the adapter.
+  controlCore_.reset( new IndependentControlCore( doocsAdapter_.getDevicePVManager() ) );
 
-  DoocsPVFactory factory(this, syncUtility_);
+  // Now that the business logic is created all ProcessVariables are known. We can tell the adapter
+  // to create Doocs properties from them.
+  doocsAdapter_.registerProcessVariablesInDoocs();
 
-  // Take all variables and make them known to DOOCS, using the factory.
-  // The variables are stored in a vector.
-  std::vector < mtca4u::ProcessVariable::SharedPtr > mtca4uProcessVariables =
-    processVariableManager_->getAllProcessVariables();
-
-  processVariables_.reserve( mtca4uProcessVariables.size() );
-  for( std::vector < mtca4u::ProcessVariable::SharedPtr >::iterator mtca4uVariableIter
-	 = mtca4uProcessVariables.begin();
-       mtca4uVariableIter !=  mtca4uProcessVariables.end(); ++mtca4uVariableIter){
-    processVariables_.push_back( factory.create( *mtca4uVariableIter ) );
-  }
 }
 
 void CosadeEqFct::init ( ){
@@ -50,7 +22,7 @@ void CosadeEqFct::update(){
   // Sending is done automatically when the "to device" variable is updated by Doocs. No action needed here.
   // Just call receiveAll(), which triggers all receiveListeners and updates the "deviceToControlSystem" 
   // variables, so Doocs knows the current values.
-  syncUtility_->receiveAll();
+  doocsAdapter_.receiveAll();
 }
 
 // The usual function to create locations. Present in every doocs server.

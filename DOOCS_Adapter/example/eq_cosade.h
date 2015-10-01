@@ -3,35 +3,35 @@
 
 #include <eq_fct.h>
 //FIXME: The doocs adapter has to go into a sub-namespace
-//#include <DOOCS_Adapter/DOOCSProcessVariableFactory.hpp>
-#include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
+//#include <DOOCS_Adapter/DOOCS_Adapter.h>
+#include <DoocsAdapter.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
-// include your business logic
+// Include your business logic
 #include "IndependentControlCore.h"
 
 static const int CODE_COSADE = 10; // eq_fct_type number for the .conf file
 
-/* COSADE is the COntrol Sytem ADapter Example.
- * It is a simple example server which embeds control system independent business logic 
- * using the MTCA4U control system adapter.
+/** COSADE is the COntrol Sytem ADapter Example.
+ *  It is a simple example server which embeds control system independent business logic 
+ *  using the MTCA4U control system adapter.
  *
- * P.S. We use boost::noncpoyable to disable copy constructor and assignment operator.
+ *  P.S. We use boost::noncpoyable to disable copy constructor and assignment operator.
  */
 class CosadeEqFct : public EqFct , boost::noncopyable {
 
 private:
-    boost::shared_ptr< mtca4u::ControlSystemPVManager > processVariableManager_;
+  /* You need an instance of the mtca4u DoocsAdapter.
+   */
+  mtca4u::DoocsAdapter doocsAdapter_;
 
-    /* You also need an instance of your business logic. It is allocated dynamically. 
-     * We use smart pointers to avoid the hassle with memory management.
-     */
-    boost::scoped_ptr<IndependentControlCore> controlCore_;
+  /* You also need an instance of your business logic. It has to be allocated dynamically. 
+   * We use smart pointers to avoid the hassle with memory management.
+   */
+  boost::scoped_ptr<IndependentControlCore> controlCore_;
 
-    std::vector< boost::shared_ptr<D_fct> > processVariables_;
-    boost::shared_ptr< mtca4u::ControlSystemSynchronizationUtility > syncUtility_;
 public:
     CosadeEqFct();
     

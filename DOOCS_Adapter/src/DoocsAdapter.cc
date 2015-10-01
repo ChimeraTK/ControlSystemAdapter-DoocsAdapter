@@ -14,11 +14,11 @@ namespace mtca4u{
     _syncUtility.reset( new mtca4u::ControlSystemSynchronizationUtility(_controlSystemPVManager) );
   }
 
-  boost::shared_ptr<DevicePVManager> DoocsAdapter::getDevicePVManager(){
+  boost::shared_ptr<DevicePVManager> & DoocsAdapter::getDevicePVManager(){
     return _devicePVManager;
   }
 
-  void DoocsAdapter::registerProcessVariabledInDoocs(){
+  void DoocsAdapter::registerProcessVariablesInDoocs(){
     // We only need the factory inside this function
     DoocsPVFactory factory(_eqFct, _syncUtility);
    
@@ -36,6 +36,7 @@ namespace mtca4u{
   }
 
   void DoocsAdapter::receiveAll(){
+    _syncUtility->receiveAll();
   }
 
 }//namespace mtca4u

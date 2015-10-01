@@ -10,13 +10,13 @@ namespace mtca4u{
 class DoocsAdapter{
  public:
   DoocsAdapter(EqFct *eqFct);
-  boost::shared_ptr<DevicePVManager> getDevicePVManager();
+  boost::shared_ptr<DevicePVManager> & getDevicePVManager();
   //boost::shared_ptr<ControlSystemPVManager> getControlSystemPVManager();
 
   /** Call this function after you created your business logic. All ProcessVariables are know
    *  to the PVManagers, so they can be registered with Doocs now.
    */
-  void registerProcessVariabledInDoocs();
+  void registerProcessVariablesInDoocs();
 
   /** Receive all variables that have been update by the business logic on the control system side.
    */
