@@ -47,10 +47,10 @@ void CosadeEqFct::init ( ){
 }
 
 void CosadeEqFct::update(){
-  syncUtility_->sendAll();
-  // ok, this does not work as intended. equivalent to a 150 ms sleep, but with 
-  // many unneeded wake-ups
-  syncUtility_->waitForNotifications(150000,10000);
+  // Sending is done automatically when the "to device" variable is updated by Doocs. No action needed here.
+  // Just call receiveAll(), which triggers all receiveListeners and updates the "deviceToControlSystem" 
+  // variables, so Doocs knows the current values.
+  syncUtility_->receiveAll();
 }
 
 // The usual function to create locations. Present in every doocs server.
