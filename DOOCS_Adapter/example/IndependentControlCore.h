@@ -58,12 +58,9 @@ class IndependentControlCore{
   }
   
   ~IndependentControlCore(){
-    // The destructor of the boost::thread wil send interrupt_requested, which is evaluated inside the loop.
-    // No actions needed in the destructor.
-    std::cout << "This is ~IndependentControlCore()" << std::endl;
+    // stop the device thread before any other destructors are called
     _deviceThread->interrupt();
     _deviceThread->join();
-    std::cout << "Thread joined!" << std::endl;
  }
 
 };
