@@ -1,8 +1,8 @@
 #include <boost/make_shared.hpp>
 
 #include "DoocsProcessScalar.h"
+#include "DoocsProcessArray.h"
 #include <d_fct.h>
-//#include <DoocsProcessArray.h>
 
 #include "DoocsPVFactory.h"
 
