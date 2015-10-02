@@ -25,9 +25,9 @@ CPPFLAGS += -isystem/local/lib/include
 
 TARGET_OBJECTS =  $(OBJDIR)/lib$(PROJECT_NAME).so
 
-.PHONY: $(OBJDIR)/.depend tests
+.PHONY: $(OBJDIR)/.depend tests example
 
-all: CPP_DEBUG_FLAGS.CONFIG $(TARGET_OBJECTS) tests
+all: CPP_DEBUG_FLAGS.CONFIG $(TARGET_OBJECTS) tests example
 
 CPP_DEBUG_FLAGS.CONFIG:
 	touch CPP_DEBUG_FLAGS.CONFIG
@@ -64,12 +64,16 @@ clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/*.o *.ps $(OBJDIR)/lib${PROJECT_NAME}.so $(OBJDIR)/.depend*
 	rm -rf *.gcda *.gcno tests/*.gcda tests/*.gcno
 	(cd tests; make clean)
+	(cd example; make clean)
 
 test: tests
 	(cd tests; make test)
 
 tests: $(TARGET_OBJECTS)
 	(cd tests; make)
+
+example: $(TARGET_OBJECTS)
+	(cd example; make)
 
 coverage:
 	rm -f `find . -name "*\.gcda"`
