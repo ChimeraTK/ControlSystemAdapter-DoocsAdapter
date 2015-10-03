@@ -162,22 +162,40 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
     new ControlSystemSynchronizationUtility(csManager));
   TestableDoocsPVFactory testableFactory(NULL /*eqFct*/, syncUtil);
 
-  ProcessVariable::SharedPtr processVariable = 
+  ProcessVariable::SharedPtr processScalar = 
     csManager->getProcessScalar<int64_t>("toDeviceInt");
   // Intentionally put the int64 scalar to the int32 create function.
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
   try{
-    testableFactory.createDoocsScalar<int32_t, D_int, int>( processVariable );
-    BOOST_FAIL( "createDoocsScalar did not throw as expected");
+    testableFactory.createDoocsScalar<int32_t, D_int, int>( processScalar );
+    // In a working unit test this line should not be hit, so er exclude it
+    // from the coverage report.
+    BOOST_FAIL( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
   }catch(std::invalid_argument &){
   }
 
   // now the same with arrays
-   processVariable = csManager->getProcessArray<int64_t>("toDeviceArray");
-   BOOST_REQUIRE(processVariable);
-   BOOST_CHECK_THROW( testableFactory.createDoocsArray<int32_t>(processVariable),
+    ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("toDeviceArray");
+   BOOST_CHECK_THROW( testableFactory.createDoocsArray<int32_t>(processArray),
 		      std::invalid_argument );
+
+   // finally we check that the create method catches the not-supported type.
+  try{
+    testableFactory.create( processScalar );
+    BOOST_FAIL( "create did not throw as expected");//LCOV_EXCL_LINE
+  }catch(std::invalid_argument &e){
+    BOOST_CHECK( std::string("unsupported value type") == e.what() );
+  }
+  
+  // and the same for the scalar, just to cover all cases
+  try{
+    testableFactory.create( processArray );
+    BOOST_FAIL( "create did not throw as expected");//LCOV_EXCL_LINE
+  }catch(std::invalid_argument &e){
+    BOOST_CHECK( std::string("unsupported value type") == e.what() );
+  }
+   
 }
 
 // After you finished all test you have to end the test suite.
