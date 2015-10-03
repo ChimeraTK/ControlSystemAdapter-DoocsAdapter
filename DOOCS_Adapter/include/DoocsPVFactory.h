@@ -22,16 +22,15 @@ namespace mtca4u {
 
     boost::shared_ptr<D_fct> create( ProcessVariable::SharedPtr & processVariable );
 
-  private:
+  protected:
     EqFct * _eqFct; //< The EqFct which is holding the factory. Needed in the constructor of the doocs properties.
     boost::shared_ptr<ControlSystemSynchronizationUtility> _syncUtility; //< The syncUtility is needed to register listeners
 
-  //  template<class T>
-  //    typename ControlSystemProcessArray<T>::SharedPtr createProcessArrayInternal(
-  //     const std::string& name, size_t size);
-
     template<class T, class DOOCS_T, class DOOCS_VALUE_T>
     typename  boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable);
+
+    template<class T>
+    typename  boost::shared_ptr<D_fct> createDoocsArray(typename ProcessVariable::SharedPtr & processVariable);
  
   };
 
