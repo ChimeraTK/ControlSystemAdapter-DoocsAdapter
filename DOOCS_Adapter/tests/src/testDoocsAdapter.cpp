@@ -8,6 +8,7 @@
 
 #include <ControlSystemAdapter/DevicePVManager.h>
 #include <ControlSystemAdapter/ProcessScalar.h>
+#include <ControlSystemAdapter/SynchronizationDirection.h>
 
 using namespace boost::unit_test_framework;
 using namespace mtca4u;
@@ -27,8 +28,10 @@ struct BusinessLogic{
   ProcessScalar<int>::SharedPtr fromDeviceInt;
 
   BusinessLogic(boost::shared_ptr<mtca4u::DevicePVManager> & pvManager)
-    : toDeviceInt(pvManager->createProcessScalarControlSystemToDevice<int>("TO_DEVICE_INT") ),
-      fromDeviceInt(pvManager->createProcessScalarDeviceToControlSystem<int>("FROM_DEVICE_INT") ){
+    : toDeviceInt(pvManager->createProcessScalar<int>(
+	controlSystemToDevice, "TO_DEVICE_INT") ),
+      fromDeviceInt(pvManager->createProcessScalar<int>(
+	deviceToControlSystem, "FROM_DEVICE_INT") ){
   }
 };
 

@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   // create all process variables before creating the sync util
-  devManager->createProcessScalarControlSystemToDevice<int32_t>("int32");
-  devManager->createProcessScalarControlSystemToDevice<uint32_t>("uint32");
-  devManager->createProcessScalarControlSystemToDevice<int16_t>("int16");
-  devManager->createProcessScalarControlSystemToDevice<uint16_t>("uint16");
-  devManager->createProcessScalarControlSystemToDevice<int8_t>("int8");
-  devManager->createProcessScalarControlSystemToDevice<uint8_t>("uint8");
-  devManager->createProcessScalarControlSystemToDevice<float>("float");
-  devManager->createProcessScalarControlSystemToDevice<double>("double");
+  devManager->createProcessScalar<int32_t>(controlSystemToDevice,"int32");
+  devManager->createProcessScalar<uint32_t>(controlSystemToDevice,"uint32");
+  devManager->createProcessScalar<int16_t>(controlSystemToDevice,"int16");
+  devManager->createProcessScalar<uint16_t>(controlSystemToDevice,"uint16");
+  devManager->createProcessScalar<int8_t>(controlSystemToDevice,"int8");
+  devManager->createProcessScalar<uint8_t>(controlSystemToDevice,"uint8");
+  devManager->createProcessScalar<float>(controlSystemToDevice,"float");
+  devManager->createProcessScalar<double>(controlSystemToDevice,"double");
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 10;
-  devManager->createProcessArrayControlSystemToDevice<T>("toDeviceArray",arraySize);
+  devManager->createProcessArray<T>(controlSystemToDevice,"toDeviceArray",arraySize);
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
@@ -155,8 +155,8 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   static const size_t arraySize = 10;
   // int64 is not supported yet
-  devManager->createProcessArrayControlSystemToDevice<int64_t>("toDeviceArray",arraySize);
-  devManager->createProcessScalarControlSystemToDevice<int64_t>("toDeviceInt");
+  devManager->createProcessArray<int64_t>(controlSystemToDevice,"toDeviceArray",arraySize);
+  devManager->createProcessScalar<int64_t>(controlSystemToDevice,"toDeviceInt");
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));

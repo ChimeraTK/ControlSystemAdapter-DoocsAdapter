@@ -6,6 +6,7 @@
 #include <ControlSystemAdapter/DevicePVManager.h>
 #include <ControlSystemAdapter/ProcessScalar.h>
 #include <ControlSystemAdapter/DeviceSynchronizationUtility.h>
+#include <ControlSystemAdapter/SynchronizationDirection.h>
 
 /** Some dummy "hardware". You can read/write a voltage (int). */
 class Hardware{
@@ -45,8 +46,8 @@ class IndependentControlCore{
   IndependentControlCore(boost::shared_ptr<mtca4u::DevicePVManager> & processVariableManager)
     //initialise all process variables, using the factory
     : _processVariableManager( processVariableManager ),
-    _targetVoltage( processVariableManager->createProcessScalarControlSystemToDevice<int>("TARGET_VOLTAGE") ),
-    _monitorVoltage( processVariableManager->createProcessScalarDeviceToControlSystem<int>("MONITOR_VOLTAGE") ){
+    _targetVoltage( processVariableManager->createProcessScalar<int>(mtca4u::controlSystemToDevice,"TARGET_VOLTAGE") ),
+    _monitorVoltage( processVariableManager->createProcessScalar<int>(mtca4u::deviceToControlSystem,"MONITOR_VOLTAGE") ){
 
     // initialise the hardware here
     *_targetVoltage = 0;

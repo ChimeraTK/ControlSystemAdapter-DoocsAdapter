@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   boost::shared_ptr< ProcessScalar< T> > deviceVariable =
-    devManager->createProcessScalarControlSystemToDevice<T>("toDeviceVariable");
+    devManager->createProcessScalar<T>(controlSystemToDevice,"toDeviceVariable");
   boost::shared_ptr< ProcessScalar<T> > controlSystemVariable = 
     csManager->getProcessScalar<T>("toDeviceVariable");
   // set the variables to 0
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   boost::shared_ptr< ProcessScalar<float> > deviceFloat =
-    devManager->createProcessScalarControlSystemToDevice<float>("toDeviceFloat");
+    devManager->createProcessScalar<float>(controlSystemToDevice,"toDeviceFloat");
   boost::shared_ptr< ProcessScalar<float> > controlSystemFloat = 
     csManager->getProcessScalar<float>("toDeviceFloat");
   // set the variables to 0
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   boost::shared_ptr< ProcessScalar<double> > deviceDouble =
-    devManager->createProcessScalarControlSystemToDevice<double>("toDeviceDouble");
+    devManager->createProcessScalar<double>(controlSystemToDevice,"toDeviceDouble");
   boost::shared_ptr< ProcessScalar<double> > controlSystemDouble = 
     csManager->getProcessScalar<double>("toDeviceDouble");
   // set the variables to 0
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   typename ProcessScalar<T>::SharedPtr deviceVariable =
-    devManager->createProcessScalarDeviceToControlSystem<T>("fromDeviceVariable");
+    devManager->createProcessScalar<T>(deviceToControlSystem,"fromDeviceVariable");
   typename ProcessScalar<T>::SharedPtr controlSystemVariable = 
     csManager->getProcessScalar<T>("fromDeviceVariable");
   // set the variables to 0
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   ProcessScalar<float>::SharedPtr deviceVariable =
-    devManager->createProcessScalarDeviceToControlSystem<float>("fromDeviceVariable");
+    devManager->createProcessScalar<float>(deviceToControlSystem,"fromDeviceVariable");
   ProcessScalar<float>::SharedPtr controlSystemVariable = 
     csManager->getProcessScalar<float>("fromDeviceVariable");
   // set the variables to 0
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   ProcessScalar<double>::SharedPtr deviceVariable =
-    devManager->createProcessScalarDeviceToControlSystem<double>("fromDeviceVariable");
+    devManager->createProcessScalar<double>(deviceToControlSystem,"fromDeviceVariable");
   ProcessScalar<double>::SharedPtr controlSystemVariable = 
     csManager->getProcessScalar<double>("fromDeviceVariable");
   // set the variables to 0
