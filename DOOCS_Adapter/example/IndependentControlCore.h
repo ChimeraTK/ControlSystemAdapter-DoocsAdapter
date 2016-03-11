@@ -43,7 +43,7 @@ class IndependentControlCore{
   /** The constructor gets an instance of the variable factory to use. 
    *  The variables in the factory should already be initialised because the hardware is initialised here.
    */
-  IndependentControlCore(boost::shared_ptr<mtca4u::DevicePVManager> & processVariableManager)
+  IndependentControlCore(boost::shared_ptr<mtca4u::DevicePVManager> const & processVariableManager)
     //initialise all process variables, using the factory
     : _processVariableManager( processVariableManager ),
     _targetVoltage( processVariableManager->createProcessScalar<int>(mtca4u::controlSystemToDevice,"TARGET_VOLTAGE") ),
