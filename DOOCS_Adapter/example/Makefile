@@ -19,8 +19,8 @@ OBJDIR = $(DOOCSROOT)/$(DOOCSARCH)/obj/server/test/cosade
 SRCDIR = $(PWD)
 ADAPTER_OBJDIR = $(DOOCSROOT)/$(DOOCSARCH)/obj/library/common/DoocsAdapter
 
-SOURCEOBJ = $(OBJDIR)/cosade_server.o  $(OBJDIR)/CosadeEqFct.o
-SOURCEHFILES = $(SRCDIR)/CosadeEqFct.h 
+SOURCEOBJ = $(OBJDIR)/cosade_server.o 
+SOURCEHFILES =  
 ALLPROGS = $(OBJDIR)/cosade_server 
 
 include ../CPP_DEBUG_FLAGS.CONFIG
