@@ -14,7 +14,7 @@ namespace mtca4u{
   }
   
   void CSAdapterEqFct::init(){
-    std::cout << "this is eqfct init" << std::endl;
+    std::cout << "this is eqfct init of " << fct_name() << std::endl;
   }
 
   void CSAdapterEqFct::update(){
