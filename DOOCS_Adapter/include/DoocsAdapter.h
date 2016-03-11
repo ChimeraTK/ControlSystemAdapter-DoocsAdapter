@@ -9,37 +9,13 @@ namespace mtca4u{
    */
 class DoocsAdapter{
  public:
-  DoocsAdapter(EqFct *eqFct);
-  boost::shared_ptr<DevicePVManager> & getDevicePVManager();
-  //boost::shared_ptr<ControlSystemPVManager> getControlSystemPVManager();
-
-  /** Call this function after you created your business logic. All ProcessVariables are know
-   *  to the PVManagers, so they can be registered with Doocs now.
-   */
-  void registerProcessVariablesInDoocs();
-
-  /** Receive all variables that have been update by the business logic on the control system side.
-   */
-  void receiveAll();
-  
-  //boost::shared_ptr< ControlSystemSynchronizationUtility > getSyncUtility();
+  DoocsAdapter();
+  boost::shared_ptr<DevicePVManager> const & getDevicePVManager() const;
+  boost::shared_ptr<ControlSystemPVManager> const & getControlSystemPVManager() const;
 
  protected:
   boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
   boost::shared_ptr<DevicePVManager> _devicePVManager;
-
-  /** We have to store and hold all doocs properties. They only go out of scope when the adapter
-   *  goes out of scope, which should be the destructor of EqFct.
-   */
-  std::vector< boost::shared_ptr<D_fct> > _doocsProperties;
-
-  /** Hold a copy of the syncUtility. It holds the ReceiveListeners and is needed in reveiveAll().
-   */
-  boost::shared_ptr< ControlSystemSynchronizationUtility > _syncUtility;
-
-  /** We need the EqFct for the factory, so we store it.
-   */
-  EqFct * _eqFct;
 };
 
 }//namespace mtca4u

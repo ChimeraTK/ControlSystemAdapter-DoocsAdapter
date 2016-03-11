@@ -34,7 +34,7 @@ LDFLAGS += -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi 
 #link the adapter with runpath, so it is found at execution time
-LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -Wl,-rpath=$(OBJDIR),--enable-new-dtags
+LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -Wl,-rpath=$(OBJDIR),--enable-new-dtags $(ControlSystemAdapter_LIB_FLAGS) $(ControlSystemAdapter_RUNPATH_FLAGS)
 
 include ../CPP_DEBUG_FLAGS.CONFIG
 
