@@ -17,9 +17,10 @@ using namespace mtca4u;
 // expose the properties vector for testing
 class TestableCSAdapterEqFct: public CSAdapterEqFct{
 public:
-  TestableCSAdapterEqFct(const char * fctName, int fctCode,
-      boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager):
-    CSAdapterEqFct(fctName, fctCode, controlSystemPVManager){
+  TestableCSAdapterEqFct(int fctCode,
+    boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
+    std::string fctName):
+    CSAdapterEqFct(fctCode, controlSystemPVManager, fctName){
   }
   std::vector< boost::shared_ptr<D_fct> > & getDoocsProperties(){
     return doocsProperties_;
@@ -45,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   // first create the business logic, which registers the PVs to the manager
   BusinessLogic businessLogic( doocsAdapter.getDevicePVManager() );
   // after that create the EqFct
-  TestableCSAdapterEqFct eqFct("NAME = test", 42, doocsAdapter.getControlSystemPVManager());
+  TestableCSAdapterEqFct eqFct(42, doocsAdapter.getControlSystemPVManager(), "test");
 
   // Test that the right number of properties is created.
   // Currently the vector is still empty.

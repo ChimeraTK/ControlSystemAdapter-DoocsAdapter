@@ -14,7 +14,7 @@ EqFct * eq_create (int eq_code, void *){
    std::cout << "this is eq_create" << std::endl;
    switch (eq_code) {
       case 10:
-	 return new mtca4u::CSAdapterEqFct("NAME = cosade", eq_code, doocsAdapter.getControlSystemPVManager());
+	 return new mtca4u::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager());
       default:
 	 return NULL;
    }

@@ -20,8 +20,12 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     void registerProcessVariablesInDoocs();
 
  public:
-    CSAdapterEqFct(const char * fctName, int fctCode,
-		   boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager);
+    // The fctName (location name ) is usually coming from the config file and
+    // should be left empty. Only for testing without actually running a DOOCS server
+    // you need it.
+    CSAdapterEqFct(int fctCode,
+		   boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager,
+		   std::string fctName = std::string());
 
     void init();
     void update();
