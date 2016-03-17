@@ -19,6 +19,8 @@ class DoocsAdapter{
   boost::shared_ptr<DevicePVManager> _devicePVManager;
 };
 
+}//namespace mtca4u
+
 /** Concenience macros to reduce the amount of boiler plate code.
  */
 #define BEGIN_DOOCS_SERVER( SERVER_NAME, EQ_CODE )\
@@ -35,7 +37,5 @@ class DoocsAdapter{
       return NULL;\
     }\
   }
-
-}//namespace mtca4u
 
 #endif // _MTCA4U_DOOCS_ADAPTER_H_
