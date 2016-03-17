@@ -1,24 +1,12 @@
 #include "IndependentControlCore.h"
-#include <CSAdapterEqFct.h>
 #include <DoocsAdapter.h>
 
 #include <iostream>
 
-const char * object_name = "Cosade server";
-
-// The usual function to create locations. Present in every doocs server.
-// Each location is identified by a code, which is defined here.
-EqFct * eq_create (int eq_code, void *){
-   static mtca4u::DoocsAdapter doocsAdapter;
+BEGIN_DOOCS_SERVER("Cosade server", 10)
    static IndependentControlCore independentControlCore(doocsAdapter.getDevicePVManager());
    std::cout << "this is eq_create" << std::endl;
-   switch (eq_code) {
-      case 10:
-	 return new mtca4u::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager());
-      default:
-	 return NULL;
-   }
-}
+END_DOOCS_SERVER()
 
 // all the bloat we have to implement for DOOCS although we don't need it
 void eq_init_prolog() {std::cout << "this is eq_init_prolog" << std::endl;}

@@ -2,6 +2,7 @@
 #define _MTCA4U_DOOCS_ADAPTER_H_
 
 #include "DoocsPVFactory.h"
+#include "CSAdapterEqFct.h"
 
 namespace mtca4u{
 
@@ -17,6 +18,23 @@ class DoocsAdapter{
   boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
   boost::shared_ptr<DevicePVManager> _devicePVManager;
 };
+
+/** Concenience macros to reduce the amount of boiler plate code.
+ */
+#define BEGIN_DOOCS_SERVER( SERVER_NAME, EQ_CODE )\
+  const char * object_name = SERVER_NAME;	  \
+  int csAdapterEqCode = EQ_CODE;\
+  EqFct * eq_create (int eq_code, void *){	\
+    static mtca4u::DoocsAdapter doocsAdapter;
+
+
+#define END_DOOCS_SERVER()\
+    if (eq_code == csAdapterEqCode){\
+      return new mtca4u::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager());\
+    }else{\
+      return NULL;\
+    }\
+  }
 
 }//namespace mtca4u
 
