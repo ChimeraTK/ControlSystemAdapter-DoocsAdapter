@@ -1,6 +1,5 @@
 #define the dependeny locations here
 DOOCSROOT = $(HOME)/doocs.git/doocs
-ControlSystemAdapter_DIR = $(HOME)/mtca4u/Ubuntu-14.04-x86_64/TESTING/ControlSystemAdapter/TESTING/
 DOOCS_Adapter_DIR = /home/killenb/DOOCS_Adapter_redesign/DOOCS_Adapter
 
 # to define DOOCSROOT as an absolute path
@@ -21,10 +20,11 @@ SOURCEHFILES = $(SRCDIR)/TestScalarsEqFct.h
 ALLPROGS = $(OBJDIR)/$(SERVER_NAME)
 
 CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized
-CPPFLAGS += -I$(ControlSystemAdapter_DIR)/include
 CPPFLAGS += -I$(DOOCS_Adapter_DIR)/include 
-#LDFLAGS += -L/space/killenb/DOOCS_Adapter_trunk/DOOCS_Adapter/build/ -lDOOCSControlsSystemAdapter
-LDFLAGS += -L$(ControlSystemAdapter_DIR)/lib -lControlSystemAdapter
+
+#Check that the ControlSystemAdapter-config script is in your path
+CPPFLAGS += $(shell ControlSystemAdapter-config --cppflags)
+LDFLAGS += $(shell ControlSystemAdapter-config --ldflags)
 
 echo:
 	echo $(CPPFLAGS)

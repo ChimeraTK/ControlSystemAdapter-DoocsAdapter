@@ -7,11 +7,9 @@ include $(DOOCSROOT)/$(DOOCSARCH)/DEFINEDOOCSROOT
 # to define the arch dependend things
 include $(DOOCSROOT)/$(DOOCSARCH)/CONFIG
 
-#include /usr/share/mtca4u/ControlSystemAdapter.CONFIG
-include /home/killenb/mtca4u/Ubuntu-14.04-x86_64/TESTING/ControlSystemAdapter/TESTING/ControlSystemAdapter.CONFIG
-
-CPPFLAGS += $(ControlSystemAdapter_INCLUDE_FLAGS)
-LDFLAGS += $(ControlSystemAdapter_LIB_FLAGS) $(ControlSystemAdapter_RUNPATH_FLAGS)
+#Check that the ControlSystemAdapter-config script is in your path
+CPPFLAGS += $(shell ControlSystemAdapter-config --cppflags)
+ControlSystemAdapter_LDFLAGS = $(shell ControlSystemAdapter-config --ldflags)
 
 DOOCS_Adapter_SRC_DIR = ../..
 
@@ -34,7 +32,7 @@ LDFLAGS += -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi 
 #link the adapter with runpath, so it is found at execution time
-LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -Wl,-rpath=$(OBJDIR),--enable-new-dtags $(ControlSystemAdapter_LIB_FLAGS) $(ControlSystemAdapter_RUNPATH_FLAGS)
+LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -Wl,-rpath=$(OBJDIR),--enable-new-dtags $(ControlSystemAdapter_LDFLAGS)
 
 include ../CPP_DEBUG_FLAGS.CONFIG
 
