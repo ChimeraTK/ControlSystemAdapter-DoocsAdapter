@@ -18,7 +18,10 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     std::vector< boost::shared_ptr<D_fct> > doocsProperties_;
     std::vector< boost::shared_ptr<mtca4u::ProcessVariable> > mtca4uReceivers_;
     void registerProcessVariablesInDoocs();
+    std::vector < mtca4u::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
 
+    static bool emptyLocationVariablesHandled;
+    
  public:
     // The fctName (location name ) is usually coming from the config file and
     // should be left empty. Only for testing without actually running a DOOCS server

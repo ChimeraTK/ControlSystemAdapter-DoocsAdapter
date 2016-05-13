@@ -1,7 +1,11 @@
 #include "CSAdapterEqFct.h"
 #include "DoocsPVFactory.h"
+#include "splitStringAtFirstSlash.h"
 
 namespace mtca4u{
+
+  bool CSAdapterEqFct::emptyLocationVariablesHandled = false;
+  
 
   CSAdapterEqFct::CSAdapterEqFct(int fctCode,
     boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager,
@@ -35,29 +39,47 @@ namespace mtca4u{
   int CSAdapterEqFct::fct_code(){
     return fctCode_;
   }
-
+  
 
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs(){
     // We only need the factory inside this function
     DoocsPVFactory factory(this, syncUtility_);
-   
-    // get all mtca4u process variables and reserve enough space for the same amount of doocs properties
-    std::vector < mtca4u::ProcessVariable::SharedPtr > mtca4uProcessVariables =
-      controlSystemPVManager_->getAllProcessVariables();
-    // fixme: only take variables for this EqFct
-    doocsProperties_.reserve( mtca4uProcessVariables.size() );
+
+    auto processVariablesInThisLocation = getProcessVariablesInThisLocation();
+    doocsProperties_.reserve( processVariablesInThisLocation.size() );
 
     // now create the doocs properties using the factory
-    for( std::vector < mtca4u::ProcessVariable::SharedPtr >::iterator mtca4uVariableIter
-	   = mtca4uProcessVariables.begin();
-	 mtca4uVariableIter !=  mtca4uProcessVariables.end(); ++mtca4uVariableIter){
-      doocsProperties_.push_back( factory.create( *mtca4uVariableIter ) );
+    for( auto mtca4uVariable : processVariablesInThisLocation ){
+      doocsProperties_.push_back( factory.create( mtca4uVariable ) );
       // we also have to remember which mtca4u variables we have to receive
-      if ( (*mtca4uVariableIter)->isReceiver() ){
-	mtca4uReceivers_.push_back(*mtca4uVariableIter);
+      if ( mtca4uVariable->isReceiver() ){
+	mtca4uReceivers_.push_back(mtca4uVariable);
       }
     }
-}
+  }
+
+  std::vector < mtca4u::ProcessVariable::SharedPtr >
+    CSAdapterEqFct::getProcessVariablesInThisLocation(){
+    std::vector < mtca4u::ProcessVariable::SharedPtr > pvsInThisLocation;
+
+    auto allPVs = controlSystemPVManager_->getAllProcessVariables();
+
+    for (auto pv : allPVs){
+      auto locationAndName = splitStringAtFirstSlash( pv->getName() );
+      if ( locationAndName.first == fct_name() ){
+	pvsInThisLocation.push_back( pv );
+      }else if(locationAndName.first == "" && emptyLocationVariablesHandled == false) {
+	pvsInThisLocation.push_back( pv );
+      }
+    }
+
+    // the first location to run this function is getting the PVs with empty location name
+    emptyLocationVariablesHandled = true;
+
+    return pvsInThisLocation;
+  }
+
+
 
 }// namespace mtca4u
