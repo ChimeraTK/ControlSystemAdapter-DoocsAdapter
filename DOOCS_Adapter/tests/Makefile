@@ -28,6 +28,8 @@ TEST_TARGETS = $(addprefix $(OBJDIR)/tests/, $(TEST_EXECUTABLES))
 
 CPPFLAGS += -Wall -Wextra -Wshadow -pedantic -Wuninitialized $(CPP_DEBUG_FLAGS)
 CPPFLAGS += -I../include -I../example -Iinclude -isystem/local/lib/include
+CPPFLAGS += -std=c++0x
+
 LDFLAGS += -lboost_thread
 
 LDFLAGS += -lboost_system -lEqServer -lDOOCSapi 

@@ -21,6 +21,8 @@ CPPFLAGS += -I$(SRCDIR)/include
 #Treat DOOCS, which is in /local/lib as system library and suppress compiler warnings for these files
 CPPFLAGS += -isystem/local/lib/include
 
+CPPFLAGS += -std=c++0x
+
 TARGET_OBJECTS =  $(OBJDIR)/lib$(PROJECT_NAME).so
 
 .PHONY: $(OBJDIR)/.depend tests example
