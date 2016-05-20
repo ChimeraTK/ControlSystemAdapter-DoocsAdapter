@@ -36,9 +36,11 @@ LDFLAGS += -lboost_system -lEqServer -lDOOCSapi
 #link the adapter with runpath, so it is found at execution time
 LDFLAGS += -L$(OBJDIR) -lDoocsAdapter -Wl,-rpath=$(OBJDIR),--enable-new-dtags $(ControlSystemAdapter_LDFLAGS)
 
+.PHONY: $(OBJDIR)/.depend_tests referenceTestDoocsServer
+
 include ../CPP_DEBUG_FLAGS.CONFIG
 
-all: $(TEST_TARGETS)
+all: $(TEST_TARGETS) referenceTestDoocsServer
 
 $(OBJDIR)/.depend_tests depend:
 		@if [ ! -f $(OBJDIR) ] ; then \
@@ -49,6 +51,9 @@ $(OBJDIR)/.depend_tests depend:
 		chmod g+w $(OBJDIR)/.depend*
 
 include $(OBJDIR)/.depend_tests
+
+referenceTestDoocsServer:
+	(cd referenceTestDoocsServer; make)
 
 #.cpp.o:
 #	@if [ ! -f $(OBJDIR)/tests ] ; then \
@@ -72,6 +77,7 @@ $(OBJDIR)/tests/%: src/%.cpp
 
 clean:
 	rm -f $(SOURCEOBJ) $(OBJDIR)/tests/* *.gcda *.gcno $(OBJDIR)/.depend*
+	(cd referenceTestDoocsServer; make clean)
 
 test: $(OBJDIR)/CTestTestfile.cmake
 	(cd $(OBJDIR); ctest)

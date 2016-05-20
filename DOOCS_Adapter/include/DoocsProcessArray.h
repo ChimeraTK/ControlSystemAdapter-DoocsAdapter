@@ -8,6 +8,8 @@
 #include <ControlSystemAdapter/ProcessVariableListener.h>
 #include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 
+#include "splitStringAtFirstSlash.h"
+
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
 
@@ -69,8 +71,9 @@ public:
   DoocsProcessArray( EqFct * const eqFct,
 		      boost::shared_ptr< typename mtca4u::ProcessArray<T> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
-    : D_spectrum(processArray->getName().c_str(), processArray->get().size(), eqFct),
-    _processArray(processArray) {
+    : D_spectrum( splitStringAtFirstSlash(processArray->getName()).second.c_str(),
+		  processArray->get().size(), eqFct),
+      _processArray(processArray) {
       syncUtility.addReceiveNotificationListener( processArray->getName(),
       ProcessVariableListener::SharedPtr( new DoocsArrayListener(this) ) );
     }

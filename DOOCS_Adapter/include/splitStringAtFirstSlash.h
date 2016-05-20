@@ -3,7 +3,7 @@
 
 namespace mtca4u{
 
-  std::pair< std::string, std::string > splitStringAtFirstSlash(std::string input){
+  inline std::pair< std::string, std::string > splitStringAtFirstSlash(std::string input){
     auto slashPosition = input.find_first_of("/");
     if (slashPosition == std::string::npos){
       return std::make_pair( std::string(), input);

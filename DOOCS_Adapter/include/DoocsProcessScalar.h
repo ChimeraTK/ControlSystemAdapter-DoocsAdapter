@@ -7,6 +7,7 @@
 #include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <boost/shared_ptr.hpp>
 //#include <boost/function.hpp>
+#include "splitStringAtFirstSlash.h"
 
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
@@ -54,7 +55,8 @@ public:
   DoocsProcessScalar( EqFct * const eqFct,
 		      boost::shared_ptr< typename mtca4u::ProcessScalar<T> > const & processScalar,
 		      ControlSystemSynchronizationUtility & syncUtility)
-    : DOOCS_T(processScalar->getName().c_str(), eqFct),  _processScalar(processScalar) {
+    : DOOCS_T( splitStringAtFirstSlash(processScalar->getName()).second.c_str(), eqFct),
+      _processScalar(processScalar) {
     syncUtility.addReceiveNotificationListener( processScalar->getName(),
       ProcessVariableListener::SharedPtr( new DoocsScalarListener(this) ) );
   }
