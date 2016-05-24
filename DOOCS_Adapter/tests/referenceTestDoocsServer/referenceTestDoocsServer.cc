@@ -6,5 +6,5 @@
 BEGIN_DOOCS_SERVER("ReferenceTest DOOCS server", 10)
    // Create static instances for all applications cores. They must not have overlapping
    // process variable names ("location/protery" must be unique).
-static IndependentTestCore independentTestCore(doocsAdapter.getDevicePVManager(), true);
+static IndependentTestCore independentTestCore(doocsAdapter.getDevicePVManager());
 END_DOOCS_SERVER()
