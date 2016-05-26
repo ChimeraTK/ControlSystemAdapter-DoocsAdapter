@@ -8,6 +8,9 @@
 /* These functions are never used in a real server, so they never can be
    called and are excluded from the coverage report.
  */
+
+#include <eq_fct.h>
+ 
 //LCOV_EXCL_START 
 
 const char* object_name = "empty";

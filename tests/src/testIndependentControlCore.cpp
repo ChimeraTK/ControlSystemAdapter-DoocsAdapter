@@ -7,6 +7,7 @@
 #include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 
 #include "IndependentControlCore.h"
+#include "emptyServerFunctions.h"
 
 using namespace boost::unit_test_framework;
 using namespace mtca4u;
