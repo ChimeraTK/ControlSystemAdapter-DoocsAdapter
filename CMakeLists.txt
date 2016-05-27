@@ -61,7 +61,7 @@ if(TESTING_IS_ENABLED)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
     set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS ${DOOCS_LINK_FLAGS})
+    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS ${ControlSystemAdapter_LINK_FLAGS} ${DOOCS_LINK_FLAGS})
     target_link_libraries(${excutableName} ${mtca4u-doocsServerTestHelper_LIBRARIES} ${DOOCS_LIBRARIES}  ${ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME}) 
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
@@ -88,8 +88,8 @@ target_link_libraries(${PROJECT_NAME} ${ControlSystemAdapter_LIBRARIES} ${DOOCS_
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
 set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS ${DOOCS_LINK_FLAGS})
-target_link_libraries(referenceTestDoocsServer ${mtca4u-doocsServerTestHelper_LIBRARIES} ${DOOCS_LIBRARIES}  ${ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME}) 
+set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS ${ControlSystemAdapter_LINK_FLAGS} ${DOOCS_LINK_FLAGS})
+target_link_libraries(referenceTestDoocsServer ${mtca4u-doocsServerTestHelper_LIBRARIES} ${DOOCS_LIBRARIES} ${ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME}) 
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
 #configure a header file which contains the version information for use in C++
@@ -127,10 +127,11 @@ install(DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_
 	  )
 
 # generate cmake config so other projects can find this library
-set(${PROJECT_NAME}_REFERENCE_HEADER "ControlSystemAdapter-DoocsAdapter/DoocsAdapter.h")
-set(${PROJECT_NAME}_CONFIG_INCLUDE_DIRS "${ControlSystemAdapter_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_CONFIG_LIBRARIES "${ControlSystemAdapter_LIBRARIES}")
-set(${PROJECT_NAME}_CONFIG_LIBRARY_DIRS "${ControlSystemAdapter_LIBRARY_DIRS}")
+set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${ControlSystemAdapter_INCLUDE_DIRS}")
+set(${PROJECT_NAME}_LIBRARIES "${PROJECT_NAME} ${ControlSystemAdapter_LIBRARIES}")
+set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ControlSystemAdapter_LIBRARY_DIRS}")
+set(${PROJECT_NAME}_CXX_FLAGS "${ControlSystemAdapter_CXX_FLAGS}")
+set(${PROJECT_NAME}_LINK_FLAGS "${ControlSystemAdapter_LINK_FLAGS}")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
 
 # The instructions to create a debian package are loaded from a separate file
