@@ -90,6 +90,7 @@ add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestD
 set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
 set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS ${DOOCS_LINK_FLAGS})
 target_link_libraries(referenceTestDoocsServer ${mtca4u-doocsServerTestHelper_LIBRARIES} ${DOOCS_LIBRARIES}  ${ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME}) 
+FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
 #configure a header file which contains the version information for use in C++
 #configure_file(cmake/version.h.in "${PROJECT_BINARY_DIR}/version.h" @ONLY)
@@ -124,6 +125,13 @@ install(DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_
 	  PATTERN ".svn" EXCLUDE
 	  PATTERN "${PROJECT_NAME}" EXCLUDE
 	  )
+
+# generate cmake config so other projects can find this library
+set(${PROJECT_NAME}_REFERENCE_HEADER "ControlSystemAdapter-DoocsAdapter/DoocsAdapter.h")
+set(${PROJECT_NAME}_CONFIG_INCLUDE_DIRS "${ControlSystemAdapter_INCLUDE_DIRS}")
+set(${PROJECT_NAME}_CONFIG_LIBRARIES "${ControlSystemAdapter_LIBRARIES}")
+set(${PROJECT_NAME}_CONFIG_LIBRARY_DIRS "${ControlSystemAdapter_LIBRARY_DIRS}")
+include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
 
 # The instructions to create a debian package are loaded from a separate file
 #include(${CMAKE_SOURCE_DIR}/cmake/prepare_debian_package.cmake)
