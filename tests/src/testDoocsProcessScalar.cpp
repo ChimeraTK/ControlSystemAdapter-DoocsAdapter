@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   *deviceVariable=-13;
   deviceVariable->send();
   syncUtil.receiveAll();
-  BOOST_CHECK( doocsScalar.value() == static_cast<T>(-13) );
+  BOOST_CHECK( doocsScalar.value() == static_cast<int>(static_cast<T>(-13)) );
 }
 
 BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
