@@ -1,11 +1,11 @@
 /** \mainpage
 
-The DOOCS_Adapter implements the MTCA4U Control System Adapter for DOOCS.
+The DOOCS_Adapter implements the ChimeraTK Control System Adapter for DOOCS.
 
 \section Integration Integrating your business logic into DOOCS
 
 You need:
-\li The core of your control application (business logic) written against the MTCA4U Control
+\li The core of your control application (business logic) written against the ChimeraTK Control
 System Adapter
 \li An instance of the DOOCSProcessVaiableFactory in your server class
 \li An instance of the business logic in your server class
@@ -14,8 +14,8 @@ System Adapter
 \subsection Header The Server Header
 \li Include the headers of your business logic and the DOOCSProcessVaiableFactory
 \li You need a member variable which stores a variable factory as
-\c boost::shared_ptr<mtca4u::ProcessVaiableFactory>. Note that it has to be a
-shared pointer to the base class \c mtca4u::ProcessVaiableFactory, not to the
+\c boost::shared_ptr<ChimeraTK::ProcessVaiableFactory>. Note that it has to be a
+shared pointer to the base class \c ChimeraTK::ProcessVaiableFactory, not to the
 DOOCS factory.
 \li Your business logic is allocated dynamically in the init() function. Hence
 you need a pointer to it as a member variable, not the instance itself. It is recommended to use smart
