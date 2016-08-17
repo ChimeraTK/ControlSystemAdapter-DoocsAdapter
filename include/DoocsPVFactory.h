@@ -1,16 +1,16 @@
-#ifndef MTCA4U_DOOCS_PV_FACTORY_H
-#define MTCA4U_DOOCS_PV_FACTORY_H
+#ifndef CHIMERATK_DOOCS_PV_FACTORY_H
+#define CHIMERATK_DOOCS_PV_FACTORY_H
 
 #include <eq_fct.h>
-#include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
-#include <ControlSystemAdapter/ProcessVariable.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
-namespace mtca4u {
+namespace ChimeraTK {
 
   /**
-   * The DoocsProcessVariableFactory creates Doocs variables (D_fct) from mtca4u::ProcessVariables.
+   * The DoocsProcessVariableFactory creates Doocs variables (D_fct) from ChimeraTK::ProcessVariables.
    */
   class DoocsPVFactory: boost::noncopyable {
   public:
@@ -34,6 +34,6 @@ namespace mtca4u {
  
   };
 
-}//namespace mtca4u
+}//namespace ChimeraTK
 
-#endif // MTCA4U_DOOCS_PV_FACTORY_H
+#endif // CHIMERATK_DOOCS_PV_FACTORY_H

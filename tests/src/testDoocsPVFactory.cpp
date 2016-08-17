@@ -11,14 +11,14 @@
 #include "DoocsPVFactory.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsProcessArray.h"
-#include <ControlSystemAdapter/ControlSystemPVManager.h>
-#include <ControlSystemAdapter/DevicePVManager.h>
-#include <ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
 
 #include "emptyServerFunctions.h"
 
 using namespace boost::unit_test_framework;
-using namespace mtca4u;
+using namespace ChimeraTK;
 using boost::shared_ptr;
 
 // use boost meta-programming to use test case templates

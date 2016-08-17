@@ -5,8 +5,8 @@
 #include <boost/mpl/list.hpp>
 
 #include "DoocsProcessArray.h"
-#include <ControlSystemAdapter/ControlSystemPVManager.h>
-#include <ControlSystemAdapter/DevicePVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 
 #include "emptyServerFunctions.h"
 
@@ -14,13 +14,13 @@
 #include <sstream>
 
 using namespace boost::unit_test_framework;
-using namespace mtca4u;
+using namespace ChimeraTK;
 
 template <typename T>
 class TestableDoocsArray : public DoocsProcessArray<T>{
 public:
   TestableDoocsArray( EqFct * const eqFct,
-		      boost::shared_ptr< typename mtca4u::ProcessArray<T> > const & processArray,
+		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
     : DoocsProcessArray<T>( eqFct, processArray, syncUtility){}
 

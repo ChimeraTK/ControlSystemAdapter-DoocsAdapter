@@ -2,7 +2,7 @@
 #include "DoocsPVFactory.h"
 #include "splitStringAtFirstSlash.h"
 
-namespace mtca4u{
+namespace ChimeraTK{
 
   bool CSAdapterEqFct::emptyLocationVariablesHandled = false;
   
@@ -18,7 +18,7 @@ namespace mtca4u{
      controlSystemPVManager_(controlSystemPVManager),
      fctCode_(fctCode){
     
-    syncUtility_.reset (new mtca4u::ControlSystemSynchronizationUtility(controlSystemPVManager_));
+    syncUtility_.reset (new ChimeraTK::ControlSystemSynchronizationUtility(controlSystemPVManager_));
     registerProcessVariablesInDoocs();
   }
   
@@ -33,7 +33,7 @@ namespace mtca4u{
     // the "deviceToControlSystem" variables, so Doocs knows the current values.
     // Only do this for the variables in this EqFct. All others have no callbacks in
     // this sync utility.
-    syncUtility_->receive(mtca4uReceivers_);
+    syncUtility_->receive(chimeraTKReceivers_);
   }
     
   int CSAdapterEqFct::fct_code(){
@@ -50,18 +50,18 @@ namespace mtca4u{
     doocsProperties_.reserve( processVariablesInThisLocation.size() );
 
     // now create the doocs properties using the factory
-    for( auto mtca4uVariable : processVariablesInThisLocation ){
-      doocsProperties_.push_back( factory.create( mtca4uVariable ) );
-      // we also have to remember which mtca4u variables we have to receive
-      if ( mtca4uVariable->isReceiver() ){
-	mtca4uReceivers_.push_back(mtca4uVariable);
+    for( auto chimeraTKVariable : processVariablesInThisLocation ){
+      doocsProperties_.push_back( factory.create( chimeraTKVariable ) );
+      // we also have to remember which chimeraTK variables we have to receive
+      if ( chimeraTKVariable->isReceiver() ){
+	chimeraTKReceivers_.push_back(chimeraTKVariable);
       }
     }
   }
 
-  std::vector < mtca4u::ProcessVariable::SharedPtr >
+  std::vector < ChimeraTK::ProcessVariable::SharedPtr >
     CSAdapterEqFct::getProcessVariablesInThisLocation(){
-    std::vector < mtca4u::ProcessVariable::SharedPtr > pvsInThisLocation;
+    std::vector < ChimeraTK::ProcessVariable::SharedPtr > pvsInThisLocation;
 
     auto allPVs = controlSystemPVManager_->getAllProcessVariables();
 
@@ -82,4 +82,4 @@ namespace mtca4u{
 
 
 
-}// namespace mtca4u
+}// namespace ChimeraTK

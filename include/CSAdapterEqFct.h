@@ -2,13 +2,13 @@
 #define CS_ADAPTER_EQ_FCT_H
 
 #include <eq_fct.h>
-#include <ControlSystemAdapter/ProcessVariable.h>
-#include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
-namespace mtca4u{
+namespace ChimeraTK{
 
 class CSAdapterEqFct : public EqFct , boost::noncopyable {
  protected:
@@ -16,9 +16,9 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     boost::shared_ptr< ControlSystemSynchronizationUtility > syncUtility_;
     int fctCode_;
     std::vector< boost::shared_ptr<D_fct> > doocsProperties_;
-    std::vector< boost::shared_ptr<mtca4u::ProcessVariable> > mtca4uReceivers_;
+    std::vector< boost::shared_ptr<ChimeraTK::ProcessVariable> > chimeraTKReceivers_;
     void registerProcessVariablesInDoocs();
-    std::vector < mtca4u::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
+    std::vector < ChimeraTK::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
 
     static bool emptyLocationVariablesHandled;
     
@@ -35,6 +35,6 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     int fct_code();
 };
 
-}// namespace mtca4u
+}// namespace ChimeraTK
 
 #endif// CS_ADAPTER_EQ_FCT_H

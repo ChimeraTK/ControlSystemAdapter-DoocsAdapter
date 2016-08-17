@@ -1,7 +1,7 @@
 #ifndef _DOOCS_ADAPTER_SPLIT_STRING_AT_FIRST_SLASH_
 #define _DOOCS_ADAPTER_SPLIT_STRING_AT_FIRST_SLASH_
 
-namespace mtca4u{
+namespace ChimeraTK{
 
   inline std::pair< std::string, std::string > splitStringAtFirstSlash(std::string input){
     auto slashPosition = input.find_first_of("/");

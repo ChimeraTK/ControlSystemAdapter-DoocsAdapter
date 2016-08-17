@@ -2,9 +2,9 @@
 #define __DOOCS_PROCESS_SCALAR_H__
 
 #include <string>
-#include <ControlSystemAdapter/ProcessScalar.h>
-#include <ControlSystemAdapter/ProcessVariableListener.h>
-#include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <boost/shared_ptr.hpp>
 //#include <boost/function.hpp>
 #include "splitStringAtFirstSlash.h"
@@ -12,10 +12,10 @@
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
 
-namespace mtca4u {
+namespace ChimeraTK {
 
 /** The DoocsProcessScalar has three template parameters:
- *  \li \c T, The primitive value type of the mtca4u process variable
+ *  \li \c T, The primitive value type of the ChimeraTK process variable
  *  \li \c DOOCS_T, The Doocs type which is used
  *  \li \c DOOCS_VALUE_T, The primitive type of the Doocs type, which is not necessarily the same as T
  * 
@@ -53,7 +53,7 @@ protected:
 
 public:
   DoocsProcessScalar( EqFct * const eqFct,
-		      boost::shared_ptr< typename mtca4u::ProcessScalar<T> > const & processScalar,
+		      boost::shared_ptr< typename ChimeraTK::ProcessScalar<T> > const & processScalar,
 		      ControlSystemSynchronizationUtility & syncUtility)
     : DOOCS_T( splitStringAtFirstSlash(processScalar->getName()).second.c_str(), eqFct),
       _processScalar(processScalar) {
@@ -90,7 +90,7 @@ public:
 
 
 
-} // namespace mtca4u
+} // namespace ChimeraTK
 
 
 #endif // __DOOCS_PROCESS_SCALAR_H__

@@ -1,6 +1,6 @@
 #include "DoocsAdapter.h"
 
-namespace mtca4u{
+namespace ChimeraTK{
 
   DoocsAdapter::DoocsAdapter(){
     // Create the managers. We need both
@@ -19,4 +19,4 @@ namespace mtca4u{
     return _controlSystemPVManager;
   }
 
-}//namespace mtca4u
+}//namespace ChimeraTK

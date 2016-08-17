@@ -5,14 +5,14 @@
 #include <boost/mpl/list.hpp>
 
 #include "DoocsProcessScalar.h"
-#include <ControlSystemAdapter/ControlSystemPVManager.h>
-#include <ControlSystemAdapter/DevicePVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <d_fct.h>
 
 #include "emptyServerFunctions.h"
 
 using namespace boost::unit_test_framework;
-using namespace mtca4u;
+using namespace ChimeraTK;
 
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type

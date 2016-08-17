@@ -7,12 +7,12 @@
 #include "emptyServerFunctions.h"
 #include "DoocsAdapter.h"
 
-#include <ControlSystemAdapter/DevicePVManager.h>
-#include <ControlSystemAdapter/ProcessScalar.h>
-#include <ControlSystemAdapter/SynchronizationDirection.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 
 using namespace boost::unit_test_framework;
-using namespace mtca4u;
+using namespace ChimeraTK;
 
 // expose the properties vector for testing
 class TestableCSAdapterEqFct: public CSAdapterEqFct{
@@ -31,7 +31,7 @@ struct BusinessLogic{
   ProcessScalar<int>::SharedPtr toDeviceInt;
   ProcessScalar<int>::SharedPtr fromDeviceInt;
 
-  BusinessLogic(boost::shared_ptr<mtca4u::DevicePVManager> const & pvManager)
+  BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const & pvManager)
     : toDeviceInt(pvManager->createProcessScalar<int>(
 	controlSystemToDevice, "TO_DEVICE_INT") ),
       fromDeviceInt(pvManager->createProcessScalar<int>(

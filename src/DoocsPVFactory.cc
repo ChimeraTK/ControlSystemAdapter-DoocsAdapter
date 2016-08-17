@@ -6,7 +6,7 @@
 
 #include "DoocsPVFactory.h"
 
-namespace mtca4u {
+namespace ChimeraTK {
 
   DoocsPVFactory::DoocsPVFactory(EqFct * const eqFct,
 				 boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility) 

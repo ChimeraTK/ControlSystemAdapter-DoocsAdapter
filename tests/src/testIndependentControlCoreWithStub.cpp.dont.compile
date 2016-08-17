@@ -3,10 +3,10 @@
 using namespace boost::unit_test_framework;
 
 #include "IndependentControlCore.h"
-#include <ControlSystemAdapter/PVManager.h>
-#include <ControlSystemAdapter/StubControlSystemPVFactory.h>
-#include <ControlSystemAdapter/ControlSystemPVManager.h>
-using namespace mtca4u;
+#include <ChimeraTK/ControlSystemAdapter/PVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/StubControlSystemPVFactory.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+using namespace ChimeraTK;
 
 #include <climits>
 

@@ -6,12 +6,12 @@
 #include "DoocsAdapter.h"
 #include "emptyServerFunctions.h"
 
-#include <ControlSystemAdapter/DevicePVManager.h>
-#include <ControlSystemAdapter/ProcessScalar.h>
-#include <ControlSystemAdapter/SynchronizationDirection.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 
 using namespace boost::unit_test_framework;
-using namespace mtca4u;
+using namespace ChimeraTK;
 
 BOOST_AUTO_TEST_SUITE( DoocsAdapterRestSuite )
 

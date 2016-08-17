@@ -4,16 +4,16 @@
 #include <D_spectrum.h>
 #include <boost/noncopyable.hpp>
 
-#include <ControlSystemAdapter/ProcessArray.h>
-#include <ControlSystemAdapter/ProcessVariableListener.h>
-#include <ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 
 #include "splitStringAtFirstSlash.h"
 
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
 
-namespace mtca4u {
+namespace ChimeraTK {
   
 template <typename T>
 class DoocsProcessArray :  public D_spectrum, public boost::noncopyable{
@@ -54,7 +54,7 @@ protected:
   boost::shared_ptr< ProcessArray<T> > _processArray;
 
   // Internal function which copies the content from the DOOCS container into the 
-  // mtca4u ProcessArray and calls the send method. Factored out to allow unit testing.
+  // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.
   void sendToDevice(){
     /** Brute force implementation with a loop. Works for all data types.
      */
@@ -69,7 +69,7 @@ protected:
 
 public:
   DoocsProcessArray( EqFct * const eqFct,
-		      boost::shared_ptr< typename mtca4u::ProcessArray<T> > const & processArray,
+		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
     : D_spectrum( splitStringAtFirstSlash(processArray->getName()).second.c_str(),
 		  processArray->get().size(), eqFct),
@@ -87,7 +87,7 @@ public:
 
 };
 
-} // namespace mtca4u
+} // namespace ChimeraTK
 
 #endif // __DOOCS_PROCESS_ARRAY_H__
 
