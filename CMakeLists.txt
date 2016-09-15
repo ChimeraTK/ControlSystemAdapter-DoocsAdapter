@@ -6,8 +6,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
 set(${PROJECT_NAME}_MINOR_VERSION 00)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
-set(${PROJECT_NAME}_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
-set(${PROJECT_NAME}_SOVERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION})
+include(cmake/set_version_numbers.cmake)
 
 #Moderate version of the compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -ansi -Wuninitialized")
@@ -18,17 +17,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 --coverage")
 # linker flags
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
-FIND_PACKAGE(ChimeraTK-ControlSystemAdapter REQUIRED)
-include_directories(SYSTEM ${ChimeraTK-ControlSystemAdapter_INCLUDE_DIRS})
-link_directories(${ChimeraTK-ControlSystemAdapter_LIBRARY_DIRS})
+include(cmake/add_dependency.cmake)
 
-FIND_PACKAGE(DOOCS 18.10.5 COMPONENTS server REQUIRED)
-include_directories(SYSTEM ${DOOCS_INCLUDE_DIRS})
-link_directories(${DOOCS_LIBRARY_DIRS})
-
-FIND_PACKAGE(mtca4u-doocsServerTestHelper REQUIRED)
-include_directories(SYSTEM ${mtca4u-doocsServerTestHelper_INCLUDE_DIRS})
-link_directories(${mtca4u-doocsServerTestHelper_LIBRARY_DIRS})
+add_dependency(ChimeraTK-ControlSystemAdapter REQUIRED)
+add_dependency(DOOCS 18.10.5 COMPONENTS server REQUIRED)
+add_dependency(doocs-server-test-helper REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
@@ -134,5 +127,3 @@ set(${PROJECT_NAME}_CXX_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS}")
 set(${PROJECT_NAME}_LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINK_FLAGS}")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
 
-# The instructions to create a debian package are loaded from a separate file
-#include(${CMAKE_SOURCE_DIR}/cmake/prepare_debian_package.cmake)
