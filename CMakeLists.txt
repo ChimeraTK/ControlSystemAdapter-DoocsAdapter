@@ -21,7 +21,6 @@ include(cmake/add_dependency.cmake)
 
 add_dependency(ChimeraTK-ControlSystemAdapter REQUIRED)
 add_dependency(DOOCS 18.10.5 COMPONENTS server REQUIRED)
-add_dependency(doocs-server-test-helper REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
@@ -55,7 +54,7 @@ if(TESTING_IS_ENABLED)
     add_executable(${excutableName} ${testExecutableSrcFile})
     set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
     set_target_properties(${excutableName} PROPERTIES LINK_FLAGS ${ChimeraTK-ControlSystemAdapter_LINK_FLAGS} ${DOOCS_LINK_FLAGS})
-    target_link_libraries(${excutableName} ${mtca4u-doocsServerTestHelper_LIBRARIES} ${DOOCS_LIBRARIES}  ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME}) 
+    target_link_libraries(${excutableName} ${DOOCS_LIBRARIES}  ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME})
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
@@ -82,7 +81,7 @@ target_link_libraries(${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
 set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
 set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS ${ChimeraTK-ControlSystemAdapter_LINK_FLAGS} ${DOOCS_LINK_FLAGS})
-target_link_libraries(referenceTestDoocsServer ${mtca4u-doocsServerTestHelper_LIBRARIES} ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME}) 
+target_link_libraries(referenceTestDoocsServer ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME})
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
 #configure a header file which contains the version information for use in C++
