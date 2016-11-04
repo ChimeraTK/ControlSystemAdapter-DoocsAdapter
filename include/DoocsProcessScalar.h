@@ -80,8 +80,8 @@ public:
   void set_value(DOOCS_VALUE_T t){
     DOOCS_T::set_value(t);
     *_processScalar = t;
-    if (_processScalar->isSender()){
-      _processScalar->send();
+    if (_processScalar->isWriteable()){
+      _processScalar->write();
     }
   }
 

@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   BOOST_CHECK( *controlSystemVariable == 42 );
 
   // receive on the device side and check that the value has arrived
-  deviceVariable->receive();
+  deviceVariable->readNonBlocking();
   BOOST_CHECK( *deviceVariable == 42 );
 
   // check with negative values, and cast so unsigned gets correct results
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   BOOST_CHECK( *controlSystemVariable == static_cast<T>(-13) );
 
   // receive on the device side and check that the value has arrived
-  deviceVariable->receive();
+  deviceVariable->readNonBlocking();
   BOOST_CHECK( *deviceVariable == static_cast<T>(-13) );
 }
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   BOOST_CHECK( *controlSystemFloat == 12.125 );
 
   // receive on the device side and check that the value has arrived
-  deviceFloat->receive();
+  deviceFloat->readNonBlocking();
   BOOST_CHECK( *deviceFloat == 12.125 );
 
   // check that the set_value overloading is working by calling the function of the base class
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   BOOST_CHECK( *controlSystemFloat == -13. );
 
   // receive on the device side and check that the value has arrived
-  deviceFloat->receive();
+  deviceFloat->readNonBlocking();
   BOOST_CHECK( *deviceFloat == -13. );
 }
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   BOOST_CHECK( *controlSystemDouble == 12.125 );
 
   // receive on the device side and check that the value has arrived
-  deviceDouble->receive();
+  deviceDouble->readNonBlocking();
   BOOST_CHECK( *deviceDouble == 12.125 );
 
   // check that the set_value overloading is working by calling the function of the base class
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   BOOST_CHECK( *controlSystemDouble == -13. );
 
   // receive on the device side and check that the value has arrived
-  deviceDouble->receive();
+  deviceDouble->readNonBlocking();
   BOOST_CHECK( *deviceDouble == -13. );
 }
 
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   doocsScalar=0;
 
   *deviceVariable=42;
-  deviceVariable->send();
+  deviceVariable->write();
 
   BOOST_CHECK( *controlSystemVariable == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
 
   // negative test for signed int, with cast for uints
   *deviceVariable=-13;
-  deviceVariable->send();
+  deviceVariable->write();
   syncUtil.receiveAll();
   BOOST_CHECK( doocsScalar.value() == static_cast<int>(static_cast<T>(-13)) );
 }
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   doocsScalar=0;
 
   *deviceVariable=12.125;
-  deviceVariable->send();
+  deviceVariable->write();
 
   BOOST_CHECK( *controlSystemVariable == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   doocsScalar=0;
 
   *deviceVariable=12.125;
-  deviceVariable->send();
+  deviceVariable->write();
 
   BOOST_CHECK( *controlSystemVariable == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );

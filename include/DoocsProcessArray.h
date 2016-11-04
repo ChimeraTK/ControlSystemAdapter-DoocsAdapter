@@ -64,7 +64,7 @@ protected:
     for (size_t i=0; i < arraySize; ++i){
       processVector[i] = read_spectrum(i);
     }
-    _processArray->send();
+    _processArray->write();
   }
 
 public:

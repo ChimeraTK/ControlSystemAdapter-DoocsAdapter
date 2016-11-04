@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( independentControlCoreTest ){
   // done manually for just the one variable we are receiving.
   for (size_t i=0; i<  100; ++i){
     boost::this_thread::sleep_for( boost::chrono::milliseconds(10) );
-    if (monitorVoltage->receive()){
+    if (monitorVoltage->readNonBlocking()){
       break;
     }
   }
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( independentControlCoreTest ){
   BOOST_CHECK(  *monitorVoltage == 0 );
 
   *targetVoltage = 42;
-  targetVoltage->send();
+  targetVoltage->write();
 
   // Wait until we read something back and check that the expected value is there.
   // This is not nevessarily the case on the first read, so we put a limit to 10.
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( independentControlCoreTest ){
   // read every 10 ms while the other side is sending every 100 ms.
   for (size_t receiveCounter=0; receiveCounter<  10; /*empty*/){
     boost::this_thread::sleep_for( boost::chrono::milliseconds(10) );
-    if (monitorVoltage->receive()){
+    if (monitorVoltage->readNonBlocking()){
       ++receiveCounter;
       if (*monitorVoltage == 42){
 	break;

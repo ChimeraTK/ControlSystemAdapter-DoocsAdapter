@@ -73,21 +73,21 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
 
   // write once and check
   doocsProperties["TO_DEVICE_INT "]->set_value(13);
-  businessLogic.toDeviceInt->receive();
+  businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK( *(businessLogic.toDeviceInt) == 13 );
   // change and observe the change in the device
   doocsProperties["TO_DEVICE_INT "]->set_value(14);
-  businessLogic.toDeviceInt->receive();
+  businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK( *(businessLogic.toDeviceInt) == 14 );
   
   // and the other direction
   *(businessLogic.fromDeviceInt) = 12;
-  businessLogic.fromDeviceInt->send();
+  businessLogic.fromDeviceInt->write();
   eqFct.update();
   BOOST_CHECK( doocsProperties["FROM_DEVICE_INT "]->value() == 12);
 
   *(businessLogic.fromDeviceInt) = 15;
-  businessLogic.fromDeviceInt->send();
+  businessLogic.fromDeviceInt->write();
   eqFct.update();
   BOOST_CHECK( doocsProperties["FROM_DEVICE_INT "]->value() == 15);
 }
