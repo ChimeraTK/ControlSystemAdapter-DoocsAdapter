@@ -24,14 +24,14 @@ BOOST_AUTO_TEST_CASE( independentControlCoreTest ){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  ProcessScalar<int>::SharedPtr targetVoltage 
-    = csManager->getProcessScalar<int>("TARGET_VOLTAGE");
-  ProcessScalar<int>::SharedPtr monitorVoltage 
-    = csManager->getProcessScalar<int>("MONITOR_VOLTAGE");
+  ProcessArray<int>::SharedPtr targetVoltage 
+    = csManager->getProcessArray<int>("TARGET_VOLTAGE");
+  ProcessArray<int>::SharedPtr monitorVoltage 
+    = csManager->getProcessArray<int>("MONITOR_VOLTAGE");
 
   // start with -1 for both voltages
-  *targetVoltage = -1;
-  *monitorVoltage = -1;
+  targetVoltage->accessData(0) = -1;
+  monitorVoltage->accessData(0) = -1;
 
   // the other side has a timeout of 100 ms, so we wait 1 second to be safe,
   // but we look every 10 ms (not too frequent, but only with 10 % of additional latency)
@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE( independentControlCoreTest ){
   }
 
   // the target voltage must not have changed
-  BOOST_CHECK(  *targetVoltage == -1 );
+  BOOST_CHECK(  targetVoltage->accessData(0) == -1 );
   // the monitor voltage has to be 0 now, like in the hardware
-  BOOST_CHECK(  *monitorVoltage == 0 );
+  BOOST_CHECK(  monitorVoltage->accessData(0) == 0 );
 
-  *targetVoltage = 42;
+  targetVoltage->accessData(0) = 42;
   targetVoltage->write();
 
   // Wait until we read something back and check that the expected value is there.
@@ -61,13 +61,13 @@ BOOST_AUTO_TEST_CASE( independentControlCoreTest ){
     boost::this_thread::sleep_for( boost::chrono::milliseconds(10) );
     if (monitorVoltage->readNonBlocking()){
       ++receiveCounter;
-      if (*monitorVoltage == 42){
+      if (monitorVoltage->accessData(0) == 42){
 	break;
       }
     }
   }
 
-  BOOST_CHECK(*monitorVoltage == 42);
+  BOOST_CHECK(monitorVoltage->accessData(0) == 42);
   
 }
 
