@@ -8,7 +8,7 @@
 #include "DoocsAdapter.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
 #include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 
 using namespace boost::unit_test_framework;
@@ -28,14 +28,14 @@ public:
 };
 
 struct BusinessLogic{
-  ProcessScalar<int>::SharedPtr toDeviceInt;
-  ProcessScalar<int>::SharedPtr fromDeviceInt;
+  ProcessArray<int>::SharedPtr toDeviceInt;
+  ProcessArray<int>::SharedPtr fromDeviceInt;
 
   BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const & pvManager)
-    : toDeviceInt(pvManager->createProcessScalar<int>(
-	controlSystemToDevice, "TO_DEVICE_INT") ),
-      fromDeviceInt(pvManager->createProcessScalar<int>(
-	deviceToControlSystem, "FROM_DEVICE_INT") ){
+    : toDeviceInt(pvManager->createProcessArray<int>(
+	controlSystemToDevice, "TO_DEVICE_INT",1) ),
+      fromDeviceInt(pvManager->createProcessArray<int>(
+	deviceToControlSystem, "FROM_DEVICE_INT",1) ){
   }
 };
 
@@ -74,19 +74,19 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   // write once and check
   doocsProperties["TO_DEVICE_INT "]->set_value(13);
   businessLogic.toDeviceInt->readNonBlocking();
-  BOOST_CHECK( *(businessLogic.toDeviceInt) == 13 );
+  BOOST_CHECK( businessLogic.toDeviceInt->accessData(0) == 13 );
   // change and observe the change in the device
   doocsProperties["TO_DEVICE_INT "]->set_value(14);
   businessLogic.toDeviceInt->readNonBlocking();
-  BOOST_CHECK( *(businessLogic.toDeviceInt) == 14 );
+  BOOST_CHECK( businessLogic.toDeviceInt->accessData(0) == 14 );
   
   // and the other direction
-  *(businessLogic.fromDeviceInt) = 12;
+  businessLogic.fromDeviceInt->accessData(0) = 12;
   businessLogic.fromDeviceInt->write();
   eqFct.update();
   BOOST_CHECK( doocsProperties["FROM_DEVICE_INT "]->value() == 12);
 
-  *(businessLogic.fromDeviceInt) = 15;
+  businessLogic.fromDeviceInt->accessData(0) = 15;
   businessLogic.fromDeviceInt->write();
   eqFct.update();
   BOOST_CHECK( doocsProperties["FROM_DEVICE_INT "]->value() == 15);

@@ -26,11 +26,9 @@ namespace ChimeraTK {
     EqFct * _eqFct; //< The EqFct which is holding the factory. Needed in the constructor of the doocs properties.
     boost::shared_ptr<ControlSystemSynchronizationUtility> _syncUtility; //< The syncUtility is needed to register listeners
 
+    // create the DOOCS property. Note: DOOCS_T and DOOCS_VALUE_T are only used for scalar properties, not for arrays!
     template<class T, class DOOCS_T, class DOOCS_VALUE_T>
-    typename  boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable);
-
-    template<class T>
-    typename  boost::shared_ptr<D_fct> createDoocsArray(typename ProcessVariable::SharedPtr & processVariable);
+    typename boost::shared_ptr<D_fct> createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable);
  
   };
 

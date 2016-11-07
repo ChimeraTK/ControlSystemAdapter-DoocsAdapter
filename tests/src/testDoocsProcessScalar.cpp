@@ -30,34 +30,34 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  boost::shared_ptr< ProcessScalar< T> > deviceVariable =
-    devManager->createProcessScalar<T>(controlSystemToDevice,"toDeviceVariable");
-  boost::shared_ptr< ProcessScalar<T> > controlSystemVariable = 
-    csManager->getProcessScalar<T>("toDeviceVariable");
+  boost::shared_ptr< ProcessArray<T> > deviceVariable =
+    devManager->createProcessArray<T>(controlSystemToDevice,"toDeviceVariable", 1);
+  boost::shared_ptr< ProcessArray<T> > controlSystemVariable = 
+    csManager->getProcessArray<T>("toDeviceVariable");
   // set the variables to 0
-  *deviceVariable=0;
-  *controlSystemVariable=0;
+  deviceVariable->accessData(0)=0;
+  controlSystemVariable->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
 
   doocsScalar=42;
-  BOOST_CHECK( *controlSystemVariable == 42 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 42 );
 
   // receive on the device side and check that the value has arrived
   deviceVariable->readNonBlocking();
-  BOOST_CHECK( *deviceVariable == 42 );
+  BOOST_CHECK( deviceVariable->accessData(0) == 42 );
 
   // check with negative values, and cast so unsigned gets correct results
 
   // check that the set_value overloading is working by calling the function of the base class
   // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
   static_cast<D_int&>(doocsScalar).set_value(-13);
-  BOOST_CHECK( *controlSystemVariable == static_cast<T>(-13) );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == static_cast<T>(-13) );
 
   // receive on the device side and check that the value has arrived
   deviceVariable->readNonBlocking();
-  BOOST_CHECK( *deviceVariable == static_cast<T>(-13) );
+  BOOST_CHECK( deviceVariable->accessData(0) == static_cast<T>(-13) );
 }
 
 // as boost testing does not allow multiple template parameters we use code
@@ -71,32 +71,32 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  boost::shared_ptr< ProcessScalar<float> > deviceFloat =
-    devManager->createProcessScalar<float>(controlSystemToDevice,"toDeviceFloat");
-  boost::shared_ptr< ProcessScalar<float> > controlSystemFloat = 
-    csManager->getProcessScalar<float>("toDeviceFloat");
+  boost::shared_ptr< ProcessArray<float> > deviceFloat =
+    devManager->createProcessArray<float>(controlSystemToDevice,"toDeviceFloat",1);
+  boost::shared_ptr< ProcessArray<float> > controlSystemFloat = 
+    csManager->getProcessArray<float>("toDeviceFloat");
   // set the variables to 0
-  *deviceFloat=0;
-  *controlSystemFloat=0;
+  deviceFloat->accessData(0)=0;
+  controlSystemFloat->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemFloat, syncUtil );
 
   doocsScalar=12.125;
-  BOOST_CHECK( *controlSystemFloat == 12.125 );
+  BOOST_CHECK( controlSystemFloat->accessData(0) == 12.125 );
 
   // receive on the device side and check that the value has arrived
   deviceFloat->readNonBlocking();
-  BOOST_CHECK( *deviceFloat == 12.125 );
+  BOOST_CHECK( deviceFloat->accessData(0) == 12.125 );
 
   // check that the set_value overloading is working by calling the function of the base class
   // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
   static_cast<D_float&>(doocsScalar).set_value(-13.);
-  BOOST_CHECK( *controlSystemFloat == -13. );
+  BOOST_CHECK( controlSystemFloat->accessData(0) == -13. );
 
   // receive on the device side and check that the value has arrived
   deviceFloat->readNonBlocking();
-  BOOST_CHECK( *deviceFloat == -13. );
+  BOOST_CHECK( deviceFloat->accessData(0) == -13. );
 }
 
 BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
@@ -107,32 +107,32 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  boost::shared_ptr< ProcessScalar<double> > deviceDouble =
-    devManager->createProcessScalar<double>(controlSystemToDevice,"toDeviceDouble");
-  boost::shared_ptr< ProcessScalar<double> > controlSystemDouble = 
-    csManager->getProcessScalar<double>("toDeviceDouble");
+  boost::shared_ptr< ProcessArray<double> > deviceDouble =
+    devManager->createProcessArray<double>(controlSystemToDevice,"toDeviceDouble",1);
+  boost::shared_ptr< ProcessArray<double> > controlSystemDouble = 
+    csManager->getProcessArray<double>("toDeviceDouble");
   // set the variables to 0
-  *deviceDouble=0;
-  *controlSystemDouble=0;
+  deviceDouble->accessData(0)=0;
+  controlSystemDouble->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemDouble, syncUtil );
 
   doocsScalar=12.125;
-  BOOST_CHECK( *controlSystemDouble == 12.125 );
+  BOOST_CHECK( controlSystemDouble->accessData(0) == 12.125 );
 
   // receive on the device side and check that the value has arrived
   deviceDouble->readNonBlocking();
-  BOOST_CHECK( *deviceDouble == 12.125 );
+  BOOST_CHECK( deviceDouble->accessData(0) == 12.125 );
 
   // check that the set_value overloading is working by calling the function of the base class
   // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
   static_cast<D_double&>(doocsScalar).set_value(-13.);
-  BOOST_CHECK( *controlSystemDouble == -13. );
+  BOOST_CHECK( controlSystemDouble->accessData(0) == -13. );
 
   // receive on the device side and check that the value has arrived
   deviceDouble->readNonBlocking();
-  BOOST_CHECK( *deviceDouble == -13. );
+  BOOST_CHECK( deviceDouble->accessData(0) == -13. );
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types ){
@@ -143,30 +143,30 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  typename ProcessScalar<T>::SharedPtr deviceVariable =
-    devManager->createProcessScalar<T>(deviceToControlSystem,"fromDeviceVariable");
-  typename ProcessScalar<T>::SharedPtr controlSystemVariable = 
-    csManager->getProcessScalar<T>("fromDeviceVariable");
+  typename ProcessArray<T>::SharedPtr deviceVariable =
+    devManager->createProcessArray<T>(deviceToControlSystem,"fromDeviceVariable",1);
+  typename ProcessArray<T>::SharedPtr controlSystemVariable = 
+    csManager->getProcessArray<T>("fromDeviceVariable");
   // set the variables to 0
-  *deviceVariable=0;
-  *controlSystemVariable=0;
+  deviceVariable->accessData(0)=0;
+  controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
   DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
   doocsScalar=0;
 
-  *deviceVariable=42;
+  deviceVariable->accessData(0)=42;
   deviceVariable->write();
 
-  BOOST_CHECK( *controlSystemVariable == 0 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
 
   syncUtil.receiveAll();
-  BOOST_CHECK( *controlSystemVariable == 42 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 42 );
   BOOST_CHECK( doocsScalar.value() == 42 );
 
   // negative test for signed int, with cast for uints
-  *deviceVariable=-13;
+  deviceVariable->accessData(0)=-13;
   deviceVariable->write();
   syncUtil.receiveAll();
   BOOST_CHECK( doocsScalar.value() == static_cast<int>(static_cast<T>(-13)) );
@@ -180,26 +180,26 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  ProcessScalar<float>::SharedPtr deviceVariable =
-    devManager->createProcessScalar<float>(deviceToControlSystem,"fromDeviceVariable");
-  ProcessScalar<float>::SharedPtr controlSystemVariable = 
-    csManager->getProcessScalar<float>("fromDeviceVariable");
+  ProcessArray<float>::SharedPtr deviceVariable =
+    devManager->createProcessArray<float>(deviceToControlSystem,"fromDeviceVariable",1);
+  ProcessArray<float>::SharedPtr controlSystemVariable = 
+    csManager->getProcessArray<float>("fromDeviceVariable");
   // set the variables to 0
-  *deviceVariable=0;
-  *controlSystemVariable=0;
+  deviceVariable->accessData(0)=0;
+  controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
   DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemVariable, syncUtil );
   doocsScalar=0;
 
-  *deviceVariable=12.125;
+  deviceVariable->accessData(0)=12.125;
   deviceVariable->write();
 
-  BOOST_CHECK( *controlSystemVariable == 0 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
 
   syncUtil.receiveAll();
-  BOOST_CHECK( *controlSystemVariable == 12.125 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 12.125 );
   BOOST_CHECK( doocsScalar.value() == 12.125 );
 }
 
@@ -211,26 +211,26 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  ProcessScalar<double>::SharedPtr deviceVariable =
-    devManager->createProcessScalar<double>(deviceToControlSystem,"fromDeviceVariable");
-  ProcessScalar<double>::SharedPtr controlSystemVariable = 
-    csManager->getProcessScalar<double>("fromDeviceVariable");
+  ProcessArray<double>::SharedPtr deviceVariable =
+    devManager->createProcessArray<double>(deviceToControlSystem,"fromDeviceVariable",1);
+  ProcessArray<double>::SharedPtr controlSystemVariable = 
+    csManager->getProcessArray<double>("fromDeviceVariable");
   // set the variables to 0
-  *deviceVariable=0;
-  *controlSystemVariable=0;
+  deviceVariable->accessData(0)=0;
+  controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
   DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemVariable, syncUtil );
   doocsScalar=0;
 
-  *deviceVariable=12.125;
+  deviceVariable->accessData(0)=12.125;
   deviceVariable->write();
 
-  BOOST_CHECK( *controlSystemVariable == 0 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
 
   syncUtil.receiveAll();
-  BOOST_CHECK( *controlSystemVariable == 12.125 );
+  BOOST_CHECK( controlSystemVariable->accessData(0) == 12.125 );
   BOOST_CHECK( doocsScalar.value() == 12.125 );
 }
 
