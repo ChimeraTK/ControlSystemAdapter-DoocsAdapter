@@ -4,7 +4,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
 #include <ChimeraTK/ControlSystemAdapter/DeviceSynchronizationUtility.h>
 #include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 
@@ -28,10 +28,10 @@ class IndependentControlCore{
   ChimeraTK::DevicePVManager::SharedPtr _processVariableManager;
 
   /** The target voltage to be transmitted to the hardware */
-  ChimeraTK::ProcessScalar<int>::SharedPtr _targetVoltage;
+  ChimeraTK::ProcessArray<int>::SharedPtr _targetVoltage;
 
   /** The monitor voltage which is read back from the hardware */
-  ChimeraTK::ProcessScalar<int>::SharedPtr _monitorVoltage;
+  ChimeraTK::ProcessArray<int>::SharedPtr _monitorVoltage;
   
   Hardware _hardware; ///< Some hardware
  
@@ -46,13 +46,13 @@ class IndependentControlCore{
   IndependentControlCore(boost::shared_ptr<ChimeraTK::DevicePVManager> const & processVariableManager)
     //initialise all process variables, using the factory
     : _processVariableManager( processVariableManager ),
-    _targetVoltage( processVariableManager->createProcessScalar<int>(ChimeraTK::controlSystemToDevice,"TARGET_VOLTAGE") ),
-    _monitorVoltage( processVariableManager->createProcessScalar<int>(ChimeraTK::deviceToControlSystem,"MONITOR_VOLTAGE") ){
+    _targetVoltage( processVariableManager->createProcessArray<int>(ChimeraTK::controlSystemToDevice,"TARGET_VOLTAGE", 1) ),
+    _monitorVoltage( processVariableManager->createProcessArray<int>(ChimeraTK::deviceToControlSystem,"MONITOR_VOLTAGE", 1) ){
 
     // initialise the hardware here
-    *_targetVoltage = 0;
-    *_monitorVoltage = 0;
-    _hardware.setVoltage(*_targetVoltage);
+    _targetVoltage->accessData(0) = 0;
+    _monitorVoltage->accessData(0) = 0;
+    _hardware.setVoltage( _targetVoltage->accessData(0) );
 
     // start the device thread, which is executing the main loop
     _deviceThread.reset( new boost::thread( boost::bind( &IndependentControlCore::mainLoop, this ) ) );
@@ -71,9 +71,9 @@ inline void IndependentControlCore::mainLoop(){
  
   while (!boost::this_thread::interruption_requested()) {
     syncUtil.receiveAll();
-    *_monitorVoltage = _hardware.getVoltage();
+    _monitorVoltage->accessData(0) = _hardware.getVoltage();
 
-    _hardware.setVoltage( *_targetVoltage );
+    _hardware.setVoltage( _targetVoltage->accessData(0) );
     syncUtil.sendAll();
     boost::this_thread::sleep_for( boost::chrono::milliseconds(100) );
   }

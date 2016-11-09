@@ -53,7 +53,7 @@ namespace ChimeraTK{
     for( auto chimeraTKVariable : processVariablesInThisLocation ){
       doocsProperties_.push_back( factory.create( chimeraTKVariable ) );
       // we also have to remember which chimeraTK variables we have to receive
-      if ( chimeraTKVariable->isReceiver() ){
+      if ( chimeraTKVariable->isReadable() ){
 	chimeraTKReceivers_.push_back(chimeraTKVariable);
       }
     }

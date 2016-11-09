@@ -5,6 +5,10 @@ namespace ChimeraTK{
 
   inline std::pair< std::string, std::string > splitStringAtFirstSlash(std::string input){
     auto slashPosition = input.find_first_of("/");
+    if(slashPosition == 0) {    // ignore leading slash
+      input = input.substr(1);
+      slashPosition = input.find_first_of("/");
+    }
     if (slashPosition == std::string::npos){
       return std::make_pair( std::string(), input);
     }

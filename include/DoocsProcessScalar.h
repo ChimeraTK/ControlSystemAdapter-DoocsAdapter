@@ -41,19 +41,19 @@ protected:
        */
       void notify(boost::shared_ptr< ProcessVariable > processVariable){
 	// It is safe to static cast because the DoocsScalarListener is inside a 
-	// DoocsProcessScalar, which always holds a ProcessScalar, never a ProcessArray
-	_doocsVariable->set_value( static_cast< ProcessScalar<T> & >(*processVariable) );
+	// DoocsProcessScalar, which always holds the right type
+        _doocsVariable->set_value( (static_cast< ProcessArray<T> & >(*processVariable)).accessData(0) );
       }
 
     private:
       DOOCS_T * _doocsVariable;
     };
  
-  boost::shared_ptr< ProcessScalar<T> > _processScalar;
+    boost::shared_ptr< ProcessArray<T> > _processScalar;
 
 public:
   DoocsProcessScalar( EqFct * const eqFct,
-		      boost::shared_ptr< typename ChimeraTK::ProcessScalar<T> > const & processScalar,
+		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processScalar,
 		      ControlSystemSynchronizationUtility & syncUtility)
     : DOOCS_T( splitStringAtFirstSlash(processScalar->getName()).second.c_str(), eqFct),
       _processScalar(processScalar) {
@@ -79,9 +79,9 @@ public:
    */
   void set_value(DOOCS_VALUE_T t){
     DOOCS_T::set_value(t);
-    *_processScalar = t;
-    if (_processScalar->isSender()){
-      _processScalar->send();
+    _processScalar->accessData(0) = t;
+    if (_processScalar->isWriteable()){
+      _processScalar->write();
     }
   }
 

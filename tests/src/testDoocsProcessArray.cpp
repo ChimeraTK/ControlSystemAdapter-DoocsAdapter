@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   doocsArray.sendToDevice();
 
   // receive on the device side and check that the value has arrived
-  deviceVariable->receive();
+  deviceVariable->readNonBlocking();
   
   std::vector<T> & deviceVector = deviceVariable->get();
   for (size_t i =0; i < arraySize; ++i){
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   for (size_t i =0; i < arraySize; ++i){
     deviceVector[i] = (sign*static_cast<T>(i*i) + offset) ;
   }
-  deviceVariable->send();
+  deviceVariable->write();
 
   // everything should still be 0 on the CS side
   std::vector<T> & csVector = controlSystemVariable->get();
