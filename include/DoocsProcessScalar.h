@@ -84,6 +84,17 @@ public:
       _processScalar->write();
     }
   }
+  
+  /** Override the Doocs auto_init() method, which is called after initialising the value of
+   *  the property from the config file. */
+  void auto_init (void) {
+    DOOCS_T::auto_init();
+    // send the current value to the device
+    if (_processScalar->isWriteable()){
+      _processScalar->accessData(0) = DOOCS_T::value();
+      _processScalar->write();
+    }
+  }
 
   
 };

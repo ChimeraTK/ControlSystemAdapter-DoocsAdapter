@@ -84,6 +84,16 @@ public:
     D_spectrum::set(eqAdr, data1, data2, eqFct);
     sendToDevice();
   }
+  
+  /** Override the Doocs auto_init() method, which is called after initialising the value of
+   *  the property from the config file. */
+  void auto_init (void) {
+    D_spectrum::auto_init();
+    // send the current value to the device
+    if (_processArray->isWriteable()){
+      sendToDevice();
+    }
+  }
 
 };
 
