@@ -22,6 +22,8 @@ class DoocsAdapter{
 }//namespace ChimeraTK
 
 /** Concenience macros to reduce the amount of boiler plate code.
+ * 
+ *  TODO @todo These macros are deprecated. Use the ApplicationBase class instead!
  */
 #define BEGIN_DOOCS_SERVER( SERVER_NAME, EQ_CODE )\
   const char * object_name = SERVER_NAME;	  \
