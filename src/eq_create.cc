@@ -14,9 +14,13 @@ EqFct* eq_create (int eq_code, void *) {
       // Create static instances for all applications cores. They must not have overlapping
       // process variable names ("location/protery" must be unique).
       ChimeraTK::ApplicationBase::getInstance().setPVManager(doocsAdapter.getDevicePVManager());
-      ChimeraTK::ApplicationBase::getInstance().run();
+      ChimeraTK::ApplicationBase::getInstance().initialise();
       isInitialised = true;
     }
 
     return new ChimeraTK::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager());
+}
+
+void eq_init_epilog() {
+  ChimeraTK::ApplicationBase::getInstance().run();
 }
