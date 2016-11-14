@@ -88,11 +88,9 @@ public:
   /** Override the Doocs auto_init() method, which is called after initialising the value of
    *  the property from the config file. */
   void auto_init (void) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
     DOOCS_T::auto_init();
     // send the current value to the device
     if (_processScalar->isWriteable()){
-      std::cout << "write... " << _processScalar->getName() << std::endl;
       _processScalar->accessData(0) = DOOCS_T::value();
       _processScalar->write();
     }
