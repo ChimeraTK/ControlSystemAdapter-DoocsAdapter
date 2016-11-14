@@ -88,9 +88,11 @@ public:
   /** Override the Doocs auto_init() method, which is called after initialising the value of
    *  the property from the config file. */
   void auto_init (void) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
     D_spectrum::auto_init();
     // send the current value to the device
     if (_processArray->isWriteable()){
+      std::cout << "write... " << _processArray->getName() << std::endl;
       sendToDevice();
     }
   }
