@@ -13,7 +13,7 @@
 #include "DoocsProcessArray.h"
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
 
 #include "emptyServerFunctions.h"
 

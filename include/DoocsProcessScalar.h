@@ -2,7 +2,7 @@
 #define __DOOCS_PROCESS_SCALAR_H__
 
 #include <string>
-#include <ChimeraTK/ControlSystemAdapter/ProcessScalar.h>
+#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <boost/shared_ptr.hpp>
