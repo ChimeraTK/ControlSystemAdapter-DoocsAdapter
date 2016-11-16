@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE( testSpitting ) {
 
   splitResult = splitStringAtFirstSlash("string/With/twoSlashes");
   BOOST_CHECK( splitResult.first == "string" );
-  BOOST_CHECK( splitResult.second == "With/twoSlashes" );
+  BOOST_CHECK( splitResult.second == "With.twoSlashes" ); // second slash gets replaced with dot
   
 }
 
