@@ -46,11 +46,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
-  
   static const size_t arraySize = 8;
   boost::shared_ptr< ProcessArray< T> > deviceVariable =
     devManager->createProcessArray<T>(
-      controlSystemToDevice, "toDeviceVariable", arraySize, 0 /*start value*/);
+      controlSystemToDevice, "toDeviceVariable", arraySize);
   boost::shared_ptr< ProcessArray<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("toDeviceVariable");
 
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   static const size_t arraySize = 8;
   typename ProcessArray<T>::SharedPtr deviceVariable =
     devManager->createProcessArray<T>(
-      deviceToControlSystem, "fromDeviceVariable", arraySize, 0);
+      deviceToControlSystem, "fromDeviceVariable", arraySize);
   typename ProcessArray<T>::SharedPtr controlSystemVariable = 
     csManager->getProcessArray<T>("fromDeviceVariable");
 
