@@ -53,7 +53,7 @@ if(TESTING_IS_ENABLED)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
     set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS ${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS})
+    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
     target_link_libraries(${excutableName} ${DOOCS_LIBRARIES}  ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME})
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
@@ -80,7 +80,7 @@ target_link_libraries(${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
 set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS ${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS})
+set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
 target_link_libraries(referenceTestDoocsServer ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME})
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
