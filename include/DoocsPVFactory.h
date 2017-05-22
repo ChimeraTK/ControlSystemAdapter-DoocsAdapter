@@ -32,6 +32,12 @@ namespace ChimeraTK {
  
   };
 
+
+  // specialisation for strings
+  template<>
+  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty<std::string, D_string, std::string>(typename ProcessVariable::SharedPtr & processVariable);
+  
+  
 }//namespace ChimeraTK
 
 #endif // CHIMERATK_DOOCS_PV_FACTORY_H

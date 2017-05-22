@@ -32,6 +32,22 @@ namespace ChimeraTK {
     }
   }
 
+  template<>
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty<std::string, D_string, std::string>(
+            boost::shared_ptr<ProcessVariable> & processVariable) {
+    // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
+    boost::shared_ptr<ProcessArray<std::string>> processArray
+      = boost::dynamic_pointer_cast< ProcessArray<std::string> >(processVariable);
+    if (!processArray){
+      throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
+                                  + processVariable->getValueType().name());
+    }
+    
+    assert(processArray->getNumberOfChannels() == 1);
+    assert(processArray->getNumberOfSamples() == 1);    // array of strings is not supported
+    return boost::shared_ptr<D_fct>( new DoocsProcessScalar<std::string, D_string, std::string>(_eqFct, processArray, *_syncUtility) );
+  }
+
  boost::shared_ptr<D_fct> DoocsPVFactory::create( ProcessVariable::SharedPtr & processVariable ){
     std::type_info const & valueType = processVariable->getValueType();
 
@@ -54,6 +70,8 @@ namespace ChimeraTK {
       return createDoocsProperty<float, D_float, float>(processVariable);
     } else if (valueType == typeid(double)) {
       return createDoocsProperty<double, D_double, double>(processVariable);
+    } else if (valueType == typeid(std::string)) {
+      return createDoocsProperty<std::string, D_string, std::string>(processVariable);
     } else {
       throw std::invalid_argument("unsupported value type");
     }
