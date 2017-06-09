@@ -51,6 +51,11 @@ protected:
  
     boost::shared_ptr< ProcessArray<T> > _processScalar;
 
+private:
+    // This class is neither assignable nor copy-constructible
+    DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T > & operator= (DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T> const &other);
+    DoocsProcessScalar(DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T> const &other);
+  
 public:
   DoocsProcessScalar( EqFct * const eqFct,
 		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processScalar,
@@ -59,17 +64,6 @@ public:
       _processScalar(processScalar) {
     syncUtility.addReceiveNotificationListener( processScalar->getName(),
       ProcessVariableListener::SharedPtr( new DoocsScalarListener(this) ) );
-  }
-
-  DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T > & operator= (DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T> const &other){
-    // this uses the conversion operator to T when set_value is called
-    set_value( other );
-    return *this;
-  }
-
-  DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T > & operator= (T const &t){
-    set_value(t);
-    return *this;
   }
 
   /** Override the Doocs set_value method. This is called by all assignment operators
