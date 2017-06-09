@@ -8,6 +8,7 @@
 #include <boost/shared_ptr.hpp>
 //#include <boost/function.hpp>
 #include "splitStringAtFirstSlash.h"
+#include <d_fct.h>
 
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
@@ -42,7 +43,7 @@ protected:
       void notify(boost::shared_ptr< ProcessVariable > processVariable){
 	// It is safe to static cast because the DoocsScalarListener is inside a 
 	// DoocsProcessScalar, which always holds the right type
-        _doocsVariable->set_value( (static_cast< ProcessArray<T> & >(*processVariable)).accessData(0) );
+        _doocsVariable->set_and_archive( (static_cast< ProcessArray<T> & >(*processVariable)).accessData(0) );
       }
 
     private:
@@ -60,21 +61,21 @@ public:
   DoocsProcessScalar( EqFct * const eqFct,
 		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processScalar,
 		      ControlSystemSynchronizationUtility & syncUtility)
-    : DOOCS_T( splitStringAtFirstSlash(processScalar->getName()).second.c_str(), eqFct),
+    : DOOCS_T( eqFct, splitStringAtFirstSlash(processScalar->getName()).second.c_str()),
       _processScalar(processScalar) {
     syncUtility.addReceiveNotificationListener( processScalar->getName(),
       ProcessVariableListener::SharedPtr( new DoocsScalarListener(this) ) );
   }
 
-  /** Override the Doocs set_value method. This is called by all assignment operators
-   *  and the DOOCS_T::set() method which is triggered by the RPC calls.
-   *  For the overloading to work the signature has to be exactly as in DOOCS_T, so we need
-   *  the value type (int for D_int, for instance). This is not necessarily the same as T.
+  /** Override the Doocs set method which is triggered by the RPC calls.
    */
-  void set_value(DOOCS_VALUE_T t){
-    DOOCS_T::set_value(t);
-    _processScalar->accessData(0) = t;
+  void set(EqAdr *adr, EqData *data1, EqData *data2, EqFct *eqfct) override{
+    // only assign the value if the variable is writeable
+    // Otherwise the content displayed by Doocs and the value in the application are inconsistent
     if (_processScalar->isWriteable()){
+      DOOCS_T::set(adr, data1, data2, eqfct);
+      // let the DOOCS_T set function do all the dirty work and use the get_value function afterwards to get the already assigned value
+      _processScalar->accessData(0) = this->value();
       _processScalar->write();
     }
   }
