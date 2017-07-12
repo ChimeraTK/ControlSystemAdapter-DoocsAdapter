@@ -10,6 +10,7 @@
 #include <d_fct.h>
 
 #include "emptyServerFunctions.h"
+#include "set_doocs_value.h"
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -41,7 +42,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
 
-  doocsScalar=42;
+  BOOST_CHECK(set_doocs_value(doocsScalar,42) == 0);
   BOOST_CHECK( controlSystemVariable->accessData(0) == 42 );
 
   // receive on the device side and check that the value has arrived
@@ -50,9 +51,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 
   // check with negative values, and cast so unsigned gets correct results
 
-  // check that the set_value overloading is working by calling the function of the base class
+  // check that the set() overloading is working by calling the function of the base class
   // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
-  static_cast<D_int&>(doocsScalar).set_value(-13);
+  BOOST_CHECK(set_doocs_value( static_cast<D_int&>(doocsScalar), -13.)==0);
   BOOST_CHECK( controlSystemVariable->accessData(0) == static_cast<T>(-13) );
 
   // receive on the device side and check that the value has arrived
@@ -82,16 +83,16 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemFloat, syncUtil );
 
-  doocsScalar=12.125;
+  BOOST_CHECK(set_doocs_value(doocsScalar,12.125) == 0);
   BOOST_CHECK( controlSystemFloat->accessData(0) == 12.125 );
 
   // receive on the device side and check that the value has arrived
   deviceFloat->readNonBlocking();
   BOOST_CHECK( deviceFloat->accessData(0) == 12.125 );
 
-  // check that the set_value overloading is working by calling the function of the base class
+  // check that the value() overloading is working by calling the function of the base class
   // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
-  static_cast<D_float&>(doocsScalar).set_value(-13.);
+  BOOST_CHECK(set_doocs_value( static_cast<D_float&>(doocsScalar), -13.)==0);
   BOOST_CHECK( controlSystemFloat->accessData(0) == -13. );
 
   // receive on the device side and check that the value has arrived
@@ -118,16 +119,16 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemDouble, syncUtil );
 
-  doocsScalar=12.125;
+  BOOST_CHECK(set_doocs_value(doocsScalar,12.125) == 0);
   BOOST_CHECK( controlSystemDouble->accessData(0) == 12.125 );
 
   // receive on the device side and check that the value has arrived
   deviceDouble->readNonBlocking();
   BOOST_CHECK( deviceDouble->accessData(0) == 12.125 );
 
-  // check that the set_value overloading is working by calling the function of the base class
+  // check that the value() overloading is working by calling the function of the base class
   // (note: cast to a reference, otherwise inheritance/ virtual functions calls do not work)
-  static_cast<D_double&>(doocsScalar).set_value(-13.);
+  BOOST_CHECK(set_doocs_value( static_cast<D_double&>(doocsScalar), -13.)==0);
   BOOST_CHECK( controlSystemDouble->accessData(0) == -13. );
 
   // receive on the device side and check that the value has arrived
@@ -153,7 +154,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
 
   // initialise the doocs scalar
   DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
-  doocsScalar=0;
+  BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=42;
   deviceVariable->write();
@@ -190,7 +191,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
 
   // initialise the doocs scalar
   DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemVariable, syncUtil );
-  doocsScalar=0;
+  BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=12.125;
   deviceVariable->write();
@@ -221,7 +222,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
 
   // initialise the doocs scalar
   DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemVariable, syncUtil );
-  doocsScalar=0;
+  BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=12.125;
   deviceVariable->write();

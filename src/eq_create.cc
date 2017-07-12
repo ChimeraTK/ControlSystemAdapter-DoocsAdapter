@@ -15,6 +15,9 @@ void eq_init_prolog() {
     // process variable names ("location/protery" must be unique).
     ChimeraTK::ApplicationBase::getInstance().setPVManager(doocsAdapter.getDevicePVManager());
     ChimeraTK::ApplicationBase::getInstance().initialise();
+
+    // activate the advanced archiver to have histories
+    set_arch_mode(1);
 }
 
 /* eq_create returns a ControlSystemAdapter-based location for any location type */

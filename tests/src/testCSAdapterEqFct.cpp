@@ -5,6 +5,7 @@
 
 #include "CSAdapterEqFct.h"
 #include "emptyServerFunctions.h"
+#include "set_doocs_value.h"
 #include "DoocsAdapter.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
@@ -72,11 +73,11 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   BOOST_REQUIRE( doocsProperties.find("FROM_DEVICE_INT ") != doocsProperties.end() );
 
   // write once and check
-  doocsProperties["TO_DEVICE_INT "]->set_value(13);
+  set_doocs_value(*(doocsProperties["TO_DEVICE_INT "]),13);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK( businessLogic.toDeviceInt->accessData(0) == 13 );
   // change and observe the change in the device
-  doocsProperties["TO_DEVICE_INT "]->set_value(14);
+  set_doocs_value(*(doocsProperties["TO_DEVICE_INT "]),14);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK( businessLogic.toDeviceInt->accessData(0) == 14 );
   
