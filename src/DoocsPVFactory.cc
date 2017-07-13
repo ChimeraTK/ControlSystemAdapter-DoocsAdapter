@@ -28,7 +28,13 @@ namespace ChimeraTK {
       return boost::shared_ptr<D_fct>( new DoocsProcessArray<T>(_eqFct, processArray, *_syncUtility) );
     }
     else {
-      return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(_eqFct, processArray, *_syncUtility) );
+      // histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names
+      if(processArray->getName().length() <= 64) {
+        return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(_eqFct, processArray, *_syncUtility) );
+      }
+      else {
+        return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(processArray, _eqFct, *_syncUtility) );
+      }
     }
   }
 

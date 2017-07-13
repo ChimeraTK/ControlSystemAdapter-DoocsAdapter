@@ -67,6 +67,15 @@ public:
       ProcessVariableListener::SharedPtr( new DoocsScalarListener(this) ) );
   }
 
+  DoocsProcessScalar( boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processScalar,
+                      EqFct * const eqFct,
+		      ControlSystemSynchronizationUtility & syncUtility)
+    : DOOCS_T( splitStringAtFirstSlash(processScalar->getName()).second.c_str(), eqFct ),
+      _processScalar(processScalar) {
+    syncUtility.addReceiveNotificationListener( processScalar->getName(),
+      ProcessVariableListener::SharedPtr( new DoocsScalarListener(this) ) );
+  }
+
   /** Override the Doocs set method which is triggered by the RPC calls.
    */
   void set(EqAdr *adr, EqData *data1, EqData *data2, EqFct *eqfct) override{
