@@ -22,14 +22,15 @@ namespace ChimeraTK {
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
 				  + processVariable->getValueType().name());
     }
-    
+
     assert(processArray->getNumberOfChannels() == 1);
     if(processArray->getNumberOfSamples() > 1 ) {
       return boost::shared_ptr<D_fct>( new DoocsProcessArray<T>(_eqFct, processArray, *_syncUtility) );
     }
     else {
-      // histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names
-      if(processArray->getName().length() <= 64) {
+      // Histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names.
+      // The DOOCS property name is the variable name without the location name and the separating slash between location and property name.
+      if(processArray->getName().length() - 1 - std::strlen(_eqFct->name_str()) <= 64) {
         return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(_eqFct, processArray, *_syncUtility) );
       }
       else {
