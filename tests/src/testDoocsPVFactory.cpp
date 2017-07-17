@@ -82,7 +82,9 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
 
-  DoocsPVFactory factory(NULL /*eqFct*/, syncUtil);
+  
+  EqFct myEqFct("MY_EQ_FCT");
+  DoocsPVFactory factory(&myEqFct, syncUtil);
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
   // These checkpoints are always true.
@@ -131,7 +133,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
-  DoocsPVFactory factory(NULL /*eqFct*/, syncUtil);
+
+  EqFct myEqFct("MY_EQ_FCT");
+  DoocsPVFactory factory(&myEqFct, syncUtil);
 
   // have the variable created and check that it is the right type
   ProcessVariable::SharedPtr processVariable = 

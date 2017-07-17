@@ -11,6 +11,7 @@ namespace ChimeraTK {
   DoocsPVFactory::DoocsPVFactory(EqFct * const eqFct,
 				 boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility) 
     : _eqFct(eqFct), _syncUtility(syncUtility) {
+      assert(eqFct != nullptr);
   }
 
   template<class T, class DOOCS_T, class DOOCS_VALUE_T>
