@@ -28,6 +28,8 @@ typedef boost::mpl::list<int32_t, uint32_t,
 			 int8_t, uint8_t,
 			 float, double> simple_test_types;
 
+EqFct myEqFct("MY_EQ_FCT");
+
 // class which exposes the protected member functions for testing
 class TestableDoocsPVFactory: public DoocsPVFactory{
 public:
@@ -83,7 +85,6 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
     new ControlSystemSynchronizationUtility(csManager));
 
   
-  EqFct myEqFct("MY_EQ_FCT");
   DoocsPVFactory factory(&myEqFct, syncUtil);
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
@@ -134,7 +135,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
 
-  EqFct myEqFct("MY_EQ_FCT");
   DoocsPVFactory factory(&myEqFct, syncUtil);
 
   // have the variable created and check that it is the right type
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
-  TestableDoocsPVFactory testableFactory(NULL /*eqFct*/, syncUtil);
+  TestableDoocsPVFactory testableFactory(&myEqFct, syncUtil);
 
   ProcessVariable::SharedPtr processScalar = 
     csManager->getProcessArray<int64_t>("toDeviceInt");
