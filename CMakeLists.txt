@@ -53,8 +53,7 @@ if(TESTING_IS_ENABLED)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
     set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
-    target_link_libraries(${excutableName} ${DOOCS_LIBRARIES}  ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME})
+    target_link_libraries(${excutableName} ${PROJECT_NAME} ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES})
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
@@ -74,6 +73,9 @@ add_library(${PROJECT_NAME} SHARED ${library_sources} )
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
 target_link_libraries(${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES} ${Boost_LIBRARIES})
+
+# do not remove runtime path of the library when installing
+set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
