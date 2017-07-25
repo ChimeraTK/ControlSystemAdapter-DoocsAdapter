@@ -60,13 +60,11 @@ if(TESTING_IS_ENABLED)
 
   #The make coverage command is only available in debug mode
   IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    configure_file(cmake/Makefile.coverage.in
-      ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
-    add_custom_target(coverage
-      make -f Makefile.coverage
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      COMMENT "Generating test coverage documentation" VERBATIM
-      )
+    configure_file(cmake/Makefile.coverage.in ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
+    add_custom_target( coverage
+                       make -f Makefile.coverage
+                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                       COMMENT "Generating test coverage documentation" VERBATIM )
   ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 endif(TESTING_IS_ENABLED)
@@ -92,11 +90,10 @@ find_package(Doxygen)
 if(DOXYGEN_FOUND)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile.in.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.in @ONLY)
   configure_file(${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-  add_custom_target(doc ALL
-    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating API documentation with Doxygen" VERBATIM
-    )
+  add_custom_target( doc ALL
+                     ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                     COMMENT "Generating API documentation with Doxygen" VERBATIM )
   install(DIRECTORY ${CMAKE_BINARY_DIR}/doc DESTINATION .)
 else(DOXYGEN_FOUND)
   message("Doxygen not found, documentation will not be build.")
@@ -104,19 +101,17 @@ endif(DOXYGEN_FOUND)
 
 
 #Install the library and the executables
-install(TARGETS ${PROJECT_NAME}
-            RUNTIME DESTINATION bin
-	    LIBRARY DESTINATION lib
-  )
+install( TARGETS ${PROJECT_NAME}
+         RUNTIME DESTINATION bin
+	     LIBRARY DESTINATION lib )
 
 #all include files go into include/PROJECT_NAME
 #The exclusion of ${PROJECT_NAME} prevents the recursive installation of the files just being installed.
 #The original headers are in include/*.h, the installed ones in include/PROJECT_NAME/*.h.
-install(DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
-          FILES_MATCHING PATTERN "*.h"
-	  PATTERN ".svn" EXCLUDE
-	  PATTERN "${PROJECT_NAME}" EXCLUDE
-	  )
+install( DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
+         FILES_MATCHING PATTERN "*.h"
+         PATTERN ".svn" EXCLUDE
+         PATTERN "${PROJECT_NAME}" EXCLUDE )
 
 # generate cmake config so other projects can find this library
 set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${ChimeraTK-ControlSystemAdapter_INCLUDE_DIRS}")
