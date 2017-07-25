@@ -33,11 +33,9 @@ struct BusinessLogic{
   ProcessArray<int>::SharedPtr fromDeviceInt;
 
   BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const & pvManager)
-    : toDeviceInt(pvManager->createProcessArray<int>(
-	controlSystemToDevice, "TO_DEVICE_INT",1) ),
-      fromDeviceInt(pvManager->createProcessArray<int>(
-	deviceToControlSystem, "FROM_DEVICE_INT",1) ){
-  }
+  : toDeviceInt(pvManager->createProcessArray<int>(controlSystemToDevice, "TO_DEVICE_INT",1)),
+    fromDeviceInt(pvManager->createProcessArray<int>(deviceToControlSystem, "FROM_DEVICE_INT",1))
+  {}
 };
 
 BOOST_AUTO_TEST_SUITE( CSAdapterEqFctTestSuite )
@@ -51,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
 
   // Test that the right number of properties is created.
   // Currently the vector is still empty.
-  BOOST_CHECK( eqFct.fct_code() == 42);
+  BOOST_CHECK( eqFct.fct_code() == 42 );
   BOOST_REQUIRE( eqFct.getDoocsProperties().size() == 2 );
 
   // extract the two properties and test the send/receive functionality
@@ -62,8 +60,7 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   std::map< std::string, D_int *> doocsProperties;
   
   for (size_t i = 0; i < eqFct.getDoocsProperties().size(); ++i){
-    D_int * doocsInt = 
-      dynamic_cast< D_int * >(eqFct.getDoocsProperties()[i].get() );
+    D_int *doocsInt = dynamic_cast<D_int*>(eqFct.getDoocsProperties()[i].get());
     BOOST_REQUIRE(doocsInt);
     doocsProperties[doocsInt->property_name()] = doocsInt;
   }
@@ -75,22 +72,22 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   // write once and check
   set_doocs_value(*(doocsProperties["TO_DEVICE_INT "]),13);
   businessLogic.toDeviceInt->readNonBlocking();
-  BOOST_CHECK( businessLogic.toDeviceInt->accessData(0) == 13 );
+  BOOST_CHECK_EQUAL( businessLogic.toDeviceInt->accessData(0), 13 );
   // change and observe the change in the device
   set_doocs_value(*(doocsProperties["TO_DEVICE_INT "]),14);
   businessLogic.toDeviceInt->readNonBlocking();
-  BOOST_CHECK( businessLogic.toDeviceInt->accessData(0) == 14 );
+  BOOST_CHECK_EQUAL( businessLogic.toDeviceInt->accessData(0), 14 );
   
   // and the other direction
   businessLogic.fromDeviceInt->accessData(0) = 12;
   businessLogic.fromDeviceInt->write();
   eqFct.update();
-  BOOST_CHECK( doocsProperties["FROM_DEVICE_INT "]->value() == 12);
+  BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE_INT "]->value(), 12);
 
   businessLogic.fromDeviceInt->accessData(0) = 15;
   businessLogic.fromDeviceInt->write();
   eqFct.update();
-  BOOST_CHECK( doocsProperties["FROM_DEVICE_INT "]->value() == 15);
+  BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE_INT "]->value(), 15);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

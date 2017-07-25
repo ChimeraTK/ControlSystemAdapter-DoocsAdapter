@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   // receive on the device side and check that the value has arrived
   deviceVariable->readNonBlocking();
   
-  std::vector<T> & deviceVector = deviceVariable->get();
+  std::vector<T> & deviceVector = deviceVariable->accessChannel(0);
   for (size_t i =0; i < arraySize; ++i){
     std::stringstream errorMessage;
     errorMessage << "i = " <<i<< ", deviceVector[i] = " 
@@ -109,14 +109,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   T sign = (std::numeric_limits<T>::is_signed ? -1 : 1 );
   T offset = (std::numeric_limits<T>::is_integer ? sizeof(T) : 1./sizeof(T) );
 
-  std::vector<T> & deviceVector = deviceVariable->get();
+  std::vector<T> & deviceVector = deviceVariable->accessChannel(0);
   for (size_t i =0; i < arraySize; ++i){
     deviceVector[i] = (sign*static_cast<T>(i*i) + offset) ;
   }
   deviceVariable->write();
 
   // everything should still be 0 on the CS side
-  std::vector<T> & csVector = controlSystemVariable->get();
+  std::vector<T> & csVector = controlSystemVariable->accessChannel(0);
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == 0 );
     BOOST_CHECK( doocsArray.read_spectrum(i) == 0 );
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
 
   syncUtil.receiveAll();
   // The actual vector buffer has changed. We have to get the new reference.
-  csVector = controlSystemVariable->get();  
+  csVector = controlSystemVariable->accessChannel(0);  
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == sign*static_cast<T>(i*i) + offset );
     BOOST_CHECK( doocsArray.read_spectrum(i) == sign*static_cast<T>(i*i) + offset );
