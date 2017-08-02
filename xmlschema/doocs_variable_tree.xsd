@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter"
+            xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+     Variable tree definition for the ChimeraTK DOOCS Adapter.
+     NOTE: This is a first draft version! Do not use for production!
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="doocs_variable_tree" type="DoocsTreeType"/>
+
+  <xs:complexType name="DoocsTreeType">
+    <xs:sequence>
+      <xs:element name="facility" type="FacilityType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FacilityType">
+    <xs:sequence>
+      <xs:element name="device" type="DeviceType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DeviceType">
+    <xs:sequence>
+      <xs:element name="location" type="LocationType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LocationType">
+    <xs:sequence>
+      <xs:element name="property" type="PropertyType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PropertyType">
+    <xs:sequence>
+      <xs:element name="has_history" type="xs:boolean" default="true"/>
+      <xs:element name="is_constant" type="xs:boolean" default="false"/>
+      <xs:element name="spectrum" type="SpectrumType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+
+ 
+   <xs:complexType name="SpectrumType">
+     <xs:attribute name="start" type="xs:float" default="0.0"/>
+     <xs:attribute name="increment" type="xs:float" default="1.0"/>
+  </xs:complexType>
+
+ </xs:schema>
