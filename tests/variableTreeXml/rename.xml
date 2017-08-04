@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <location name="DUMMY_LOCATION">
+    <property source="/A/b/cd/e" name="LOLO"/>
+    <property source="jo" name="yep"/>
+  </location>
+</device_server>

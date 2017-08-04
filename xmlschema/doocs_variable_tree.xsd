@@ -12,36 +12,27 @@
     </xs:documentation>
   </xs:annotation>
 
-  <xs:element name="doocs_variable_tree" type="DoocsTreeType"/>
-
-  <xs:complexType name="DoocsTreeType">
-    <xs:sequence>
-      <xs:element name="facility" type="FacilityType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="FacilityType">
-    <xs:sequence>
-      <xs:element name="device" type="DeviceType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
+  <xs:element name="device_server" type="DeviceType"/>
 
   <xs:complexType name="DeviceType">
     <xs:sequence>
-      <xs:element name="location" type="LocationType" maxOccurs="unbounded"/>
-    </xs:sequence>
+      <xs:element name="location" type="LocationType"  minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="import" type="xs:string"  minOccurs="0" maxOccurs="unbounded"/>
+   </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="LocationType">
     <xs:sequence>
-      <xs:element name="property" type="PropertyType" maxOccurs="unbounded"/>
+      <xs:element name="property" type="PropertyType"  minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="import" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-  </xs:complexType>
+     <xs:attribute name="name" type="xs:string" use="required"/>
+ </xs:complexType>
 
   <xs:complexType name="PropertyType">
     <xs:sequence>
-      <xs:element name="has_history" type="xs:boolean" default="true"/>
-      <xs:element name="is_constant" type="xs:boolean" default="false"/>
+      <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
+      <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
       <xs:element name="spectrum" type="SpectrumType" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="source" type="xs:string" use="required"/>
