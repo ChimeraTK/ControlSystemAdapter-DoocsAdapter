@@ -21,7 +21,6 @@
 └── DIRECT
     ├── DOUBLE
     ├── DOUBLE_ARRAY
-    ├── DOUBLT
     ├── INT
     └── INT_ARRAY
 

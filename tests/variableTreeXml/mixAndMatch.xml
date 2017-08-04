@@ -14,6 +14,24 @@
     <property source="INT" name="FOO"/>
     <property source="/DIRECT/DOUBLE" name="BAR"/>
   </location>
+  
   <!-- Import everything that has not been treated yet as is -->
   <import>/</import>
 </device_server>
+
+<!-- expected output:
+     SUB/be
+     SUB/de
+     MIX/a.di
+     MIX/a.do
+     MIX/b
+     MIX/a.dr
+     MIX/c.de
+     MIX/c.gne
+     DIRECT/FOO
+     DIRECT/BAR
+     DIRECT/DOUBLE_ARRAY
+     DIRECT/INT_ARRAY
+     C/a.da
+     C/b.ge
+-->
