@@ -1,0 +1,27 @@
+/
+├── A
+│   ├── a
+│   │   ├── di
+│   │   └── do
+│   └── b
+├── B
+│   ├── a
+│   │   └── dr
+│   └── c
+│       ├── de
+│       └── gne
+├── C
+│   ├── a
+│   │   └── da
+│   ├── b
+│   │   └── ge
+│   └── c
+│       ├── be
+│       └── de
+└── DIRECT
+    ├── DOUBLE
+    ├── DOUBLE_ARRAY
+    ├── DOUBLT
+    ├── INT
+    └── INT_ARRAY
+
