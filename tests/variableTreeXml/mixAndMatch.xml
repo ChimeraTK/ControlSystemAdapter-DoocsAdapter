@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  
+  <location name="SUB">
+    <import>/C/c</import>
+  </location>
+
+  <location name="MIX">
+    <import>/A</import>    
+    <import>/B</import>    
+  </location>
+
+  <location name="DIRECT">
+    <property source="INT" name="FOO"/>
+    <property source="/DIRECT/DOUBLE" name="BAR"/>
+  </location>
+  <!-- Import everything that has not been treated yet as is -->
+  <import>/</import>
+</device_server>
