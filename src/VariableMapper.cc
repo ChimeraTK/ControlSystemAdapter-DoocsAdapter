@@ -102,7 +102,8 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     return instance;
   }
 
-  //  void VariableManager::processLocation(xmlpp::Node const * location
+  void VariableMapper::processLocation(xmlpp::Node const * location){
+  }
 
   void VariableMapper::prepareOutput(std::string xmlFile, std::set< std::string > inputVariables){
     xmlpp::DomParser parser;
@@ -111,6 +112,10 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     parser.parse_file(xmlFile);
     
     if(parser){
+      _locationDefaults.clear();
+      _globalDefaults = PropertyAttributes();
+      _inputSortedDescriptions.clear();
+        
       //Walk the tree:
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); //deleted by DomParser.
 

@@ -5,6 +5,10 @@
 #include <map>
 #include <set>
 
+namespace xmlpp{
+  class Node;
+}
+
 namespace ChimeraTK{
 
   class VariableMapper{
@@ -33,14 +37,16 @@ namespace ChimeraTK{
     VariableMapper(VariableMapper &)=delete;
     void operator=(VariableMapper const &)=delete;
     
-  private:
+  protected:
     VariableMapper()=default;
 
-    std::map<std::string, PropertyAttributes> locationDefaults;
-    PropertyAttributes globalDefaults;
+    void processLocation(xmlpp::Node const * location);
+    
+    std::map<std::string, PropertyAttributes> _locationDefaults;
+    PropertyAttributes _globalDefaults;
 
     // PropertyDescriptions, sorted by input, i.e. the ChimeraTK PV name
-    std::map<std::string, PropertyDescription> inputSortedDescriptions;
+    std::map<std::string, PropertyDescription> _inputSortedDescriptions;
   };
 
 } // namespace ChimeraTK
