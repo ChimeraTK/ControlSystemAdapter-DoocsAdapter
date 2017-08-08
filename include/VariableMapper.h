@@ -28,6 +28,7 @@ namespace ChimeraTK{
     };
 
     std::map< std::string, PropertyDescription > getPropertiesInLocation(std::string location);
+    std::map< std::string, PropertyDescription > const & getAllProperties();
 
     VariableMapper(VariableMapper &)=delete;
     void operator=(VariableMapper const &)=delete;

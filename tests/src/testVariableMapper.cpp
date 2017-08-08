@@ -61,7 +61,24 @@ std::set< std::string > generateInputVariables(){
   return inputVariables;
 }
 
-BOOST_AUTO_TEST_CASE( testRename ){
+void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::PropertyDescription > propertyMap){
   VariableMapper & vm = VariableMapper::getInstance();
-  vm.prepareOutput("variableTreeXml/rename.xml", generateInputVariables());
+  vm.prepareOutput(xmlFile, generateInputVariables());
+
+}
+
+BOOST_AUTO_TEST_CASE( testRename ){
+  testXmlParsing("variableTreeXml/rename.xml", {});
+}
+
+BOOST_AUTO_TEST_CASE( testImportLocation ){
+  testXmlParsing("variableTreeXml/importLocation.xml", {});
+}
+
+BOOST_AUTO_TEST_CASE( testImportAll ){
+  testXmlParsing("variableTreeXml/importAll.xml", {});
+}
+
+BOOST_AUTO_TEST_CASE( testImportAndRename ){
+  testXmlParsing("variableTreeXml/importAndRename.xml", {});
 }

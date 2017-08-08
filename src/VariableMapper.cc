@@ -115,7 +115,6 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); //deleted by DomParser.
 
       std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
-
       print_node(rootNode);
 
       std::cout << "\n My interpretation:\n===================================" << std::endl;
@@ -129,8 +128,8 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
         if (mainNode->get_name() == "location"){
           std::cout << "processing location" << std::endl;
         }else{
-          std::cout << "FIXME: Implement main node " << mainNode->get_name()
-                    << "! Current implementation does nothing" << std::endl;
+          std::cout << "FIXME: Implement main node '" << mainNode->get_name()
+                    << "'! Current implementation does nothing" << std::endl;
         }
       }
 
