@@ -102,7 +102,55 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     return instance;
   }
 
-  void VariableMapper::processLocation(xmlpp::Node const * location){
+  void VariableMapper::processLocation(xmlpp::Node const * locationNode){
+    const xmlpp::Element* location = dynamic_cast<const xmlpp::Element*>(locationNode);
+    std::string name = location->get_attribute("name")->get_value();
+
+    std::cout << "Found location: " << name << std::endl;
+
+    for (auto const & node : location->get_children()){
+        if (nodeIsWhitespace(node)) continue;
+        
+        if (node->get_name() == "property"){
+          processProperty(node, name);
+        }else{
+          std::cout << "FIXME: Implement location node '" << node->get_name()
+                    << "'! Current implementation does nothing" << std::endl;
+        }
+      }
+
+    
+  }
+
+  void VariableMapper::processProperty(xmlpp::Node const * propertyNode, std::string locationName){
+    const xmlpp::Element* property = dynamic_cast<const xmlpp::Element*>(propertyNode);
+
+    std::string source = property->get_attribute("source")->get_value();
+
+    std::string name;
+    const xmlpp::Attribute* nameAttribute = property->get_attribute("name");
+    if (nameAttribute){
+      name = nameAttribute->get_value();
+    }else{
+      std::cout << "Whoopy, name from source is not implemented yet" << std::endl;
+      name = "Whoopsy";
+    }
+    std::string absoluteSource;
+    if (source[0] == '/'){
+      absoluteSource=source;
+    }else{
+      absoluteSource=std::string("/")+locationName+"/"+source;
+    }
+    std::cout << "going to create property: " << locationName << "/" << name
+              << " from " << absoluteSource << std::endl;
+    auto existingCandidate = _inputSortedDescriptions.find(absoluteSource);
+    if (existingCandidate != _inputSortedDescriptions.end()){
+      auto existingPropertyDescription = existingCandidate->second;
+      throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ locationName+"/" +name +". Process variable already defined to point to " + existingPropertyDescription.location + "/" + existingPropertyDescription.name);
+    }else{
+      _inputSortedDescriptions[absoluteSource] = PropertyDescription(locationName, name);
+    }
+   
   }
 
   void VariableMapper::prepareOutput(std::string xmlFile, std::set< std::string > inputVariables){
@@ -119,19 +167,16 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
       //Walk the tree:
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); //deleted by DomParser.
 
-      std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
-      print_node(rootNode);
+      //      std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
+      //      print_node(rootNode);
 
-      std::cout << "\n My interpretation:\n===================================" << std::endl;
+      std::cout << "\n My interpretation for "<< xmlFile << "\n===================================" << std::endl;
       
       for (auto const & mainNode : rootNode->get_children()){
-        if (nodeIsWhitespace(mainNode)){
-          std::cout << "..skipping whitespace" << std::endl;
-          continue;
-        }
+        if (nodeIsWhitespace(mainNode)) continue;
         
         if (mainNode->get_name() == "location"){
-          std::cout << "processing location" << std::endl;
+          processLocation(mainNode);
         }else{
           std::cout << "FIXME: Implement main node '" << mainNode->get_name()
                     << "'! Current implementation does nothing" << std::endl;
@@ -141,6 +186,10 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     }else{
       throw std::invalid_argument(std::string("Error parsing xml file ") + xmlFile + ". No document produced.");
     }
+  }
+
+  std::map< std::string, VariableMapper::PropertyDescription > const & VariableMapper::getAllProperties() const{
+    return _inputSortedDescriptions;
   }
 
 } // namespace ChimeraTK

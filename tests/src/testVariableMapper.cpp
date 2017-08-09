@@ -61,14 +61,23 @@ std::set< std::string > generateInputVariables(){
   return inputVariables;
 }
 
+template <typename Map>
+bool mapCompare (Map const &lhs, Map const &rhs) {
+  // No predicate needed because there is operator== for pairs already.
+  return lhs.size() == rhs.size()
+    && std::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
 void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::PropertyDescription > propertyMap){
   VariableMapper & vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
-
+  BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
 }
 
 BOOST_AUTO_TEST_CASE( testRename ){
-  testXmlParsing("variableTreeXml/rename.xml", {});
+  testXmlParsing("variableTreeXml/rename.xml", { {"/A/b/do",{"DIRECT","LOLO"}},
+                                                 {"/DIRECT/INT",{"DIRECT","TEMP"}}
+                                               } );
 }
 
 BOOST_AUTO_TEST_CASE( testImportLocation ){
