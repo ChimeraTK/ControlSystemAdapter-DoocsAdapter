@@ -113,13 +113,13 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
         
         if (node->get_name() == "property"){
           processProperty(node, name);
+        }else if (node->get_name() == "import"){
+          processLocationImport(node, name);
         }else{
           std::cout << "FIXME: Implement location node '" << node->get_name()
                     << "'! Current implementation does nothing" << std::endl;
         }
-      }
-
-    
+    }
   }
 
   void VariableMapper::processProperty(xmlpp::Node const * propertyNode, std::string locationName){
@@ -153,6 +153,14 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
    
   }
 
+  void VariableMapper::processLocationImport(xmlpp::Node const * importNode, std::string locationName){
+    for (auto const & node : importNode->get_children()){
+      const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
+      std::cout << "Importing location: " <<  nodeAsText->get_content() << std::endl;
+      // loop source tree, cut beginning, replace / with _ and add a property 
+    }
+  }
+    
   void VariableMapper::prepareOutput(std::string xmlFile, std::set< std::string > inputVariables){
     xmlpp::DomParser parser;
     //    parser.set_validate();
@@ -167,8 +175,8 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
       //Walk the tree:
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); //deleted by DomParser.
 
-      //      std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
-      //      print_node(rootNode);
+      std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
+      print_node(rootNode);
 
       std::cout << "\n My interpretation for "<< xmlFile << "\n===================================" << std::endl;
       
