@@ -64,6 +64,7 @@ std::set< std::string > generateInputVariables(){
 template <typename Map>
 bool mapCompare (Map const &lhs, Map const &rhs) {
   // No predicate needed because there is operator== for pairs already.
+  std::cout << "lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;
   return lhs.size() == rhs.size()
     && std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
@@ -81,13 +82,34 @@ BOOST_AUTO_TEST_CASE( testRename ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportLocation ){
-  testXmlParsing("variableTreeXml/importLocation.xml", {});
+  testXmlParsing("variableTreeXml/importLocation.xml", { {"/A/a/di",  {"B","a_di"}},
+                                                         {"/A/a/do",  {"B","a_do"}},
+                                                         {"/A/b",     {"B","b"}}
+                                                       });
 }
 
 BOOST_AUTO_TEST_CASE( testImportAll ){
-  testXmlParsing("variableTreeXml/importAll.xml", {});
+  testXmlParsing("variableTreeXml/importAll.xml", { {"/A/a/di",  {"A","a_di"}},
+                                                    {"/A/a/do",  {"A","a_do"}},
+                                                    {"/A/b",     {"A","b"}},
+                                                    {"/B/a/dr",  {"B","a_dr"}},
+                                                    {"/B/c/de",  {"B","c_de"}},
+                                                    {"/B/c/gne", {"B","c_gne"}},
+                                                    {"/C/a/da",  {"C","a_da"}},
+                                                    {"/C/b/ge",  {"C","b_ge"}},
+                                                    {"/C/c/be",  {"C","c_be"}},
+                                                    {"/C/c/de",  {"C","c_de"}},
+                                                    {"/DIRECT/DOUBLE",  {"DIRECT","DOUBLE"}},
+                                                    {"/DIRECT/DOUBLE",  {"DIRECT","DOUBLE_ARRAY"}},
+                                                    {"/DIRECT/INT",  {"DIRECT","INT"}},
+                                                    {"/DIRECT/INT",  {"DIRECT","INT_ARRAY"}}
+                                                  });
 }
 
 BOOST_AUTO_TEST_CASE( testImportAndRename ){
-  testXmlParsing("variableTreeXml/importAndRename.xml", {});
+  testXmlParsing("variableTreeXml/importAndRename.xml", { {"/DIRECT/DOUBLE",  {"DIRECT","BAR"}},
+                                                          {"/DIRECT/DOUBLE_ARRAY",  {"DIRECT","DOUBLE_ARRAY"}},
+                                                          {"/DIRECT/INT",  {"DIRECT","FOO"}},
+                                                          {"/DIRECT/INT_ARRAY",  {"DIRECT","INT_ARRAY"}}
+                                                         });
 }
