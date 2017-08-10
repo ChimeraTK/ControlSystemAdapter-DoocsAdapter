@@ -2,6 +2,7 @@
 
 #include <libxml++/libxml++.h>
 #include <iostream>
+#include <regex>
 
 namespace ChimeraTK{
 void print_indentation(unsigned int indentation)
@@ -156,12 +157,33 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
   void VariableMapper::processLocationImport(xmlpp::Node const * importNode, std::string locationName){
     for (auto const & node : importNode->get_children()){
       const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
-      std::cout << "Importing location: " <<  nodeAsText->get_content() << std::endl;
-      // loop source tree, cut beginning, replace / with _ and add a property 
+      std::string importSource = nodeAsText->get_content();
+      std::cout << "Importing in location '"<<locationName <<"': " <<  importSource << std::endl;
+      
+      // loop source tree, cut beginning, replace / with _ and add a property
+      for (auto const & processVariable : _inputVariables){
+        if (_inputSortedDescriptions.find(processVariable) != _inputSortedDescriptions.end()){
+          std::cout << processVariable << " alread in the map. Not importing" << std::endl;
+          continue;
+        }
+        
+        if ( processVariable.find( importSource+"/") == 0 ){
+          // processVariable starts with wanted source
+          std::cout << "importing " << processVariable << " from " <<  importSource << " into "
+                    << locationName << std::endl;
+          auto propertyNameSource = processVariable.substr( importSource.size() + 1); // add the slash to be removed
+          std::cout << "propertyNameSource " << propertyNameSource << std::endl;
+          auto propertyName = std::regex_replace(propertyNameSource, std::regex("/"), ".");
+          std::cout << "new property name is " << propertyName << std::endl;
+          _inputSortedDescriptions[processVariable] = PropertyDescription(locationName, propertyName);
+        }
+      }
     }
   }
     
   void VariableMapper::prepareOutput(std::string xmlFile, std::set< std::string > inputVariables){
+    _inputVariables=inputVariables;
+    
     xmlpp::DomParser parser;
     //    parser.set_validate();
     parser.set_substitute_entities(); //We just want the text to be resolved/unescaped automatically.
@@ -175,8 +197,8 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
       //Walk the tree:
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); //deleted by DomParser.
 
-      std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
-      print_node(rootNode);
+      //      std::cout << "****************************\nPredefined printout in "<< xmlFile<<":\n" << std::endl;
+      //      print_node(rootNode);
 
       std::cout << "\n My interpretation for "<< xmlFile << "\n===================================" << std::endl;
       

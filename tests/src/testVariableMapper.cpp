@@ -64,9 +64,11 @@ std::set< std::string > generateInputVariables(){
 template <typename Map>
 bool mapCompare (Map const &lhs, Map const &rhs) {
   // No predicate needed because there is operator== for pairs already.
-  std::cout << "lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;
-  return lhs.size() == rhs.size()
-    && std::equal(lhs.begin(), lhs.end(), rhs.begin());
+  if ( lhs.size() != rhs.size() ){
+    std::cout << "Map size comparison failed: lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;
+    return false;
+  }
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::PropertyDescription > propertyMap){
@@ -82,27 +84,27 @@ BOOST_AUTO_TEST_CASE( testRename ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportLocation ){
-  testXmlParsing("variableTreeXml/importLocation.xml", { {"/A/a/di",  {"B","a_di"}},
-                                                         {"/A/a/do",  {"B","a_do"}},
+  testXmlParsing("variableTreeXml/importLocation.xml", { {"/A/a/di",  {"B","a.di"}},
+                                                         {"/A/a/do",  {"B","a.do"}},
                                                          {"/A/b",     {"B","b"}}
                                                        });
 }
 
 BOOST_AUTO_TEST_CASE( testImportAll ){
-  testXmlParsing("variableTreeXml/importAll.xml", { {"/A/a/di",  {"A","a_di"}},
-                                                    {"/A/a/do",  {"A","a_do"}},
+  testXmlParsing("variableTreeXml/importAll.xml", { {"/A/a/di",  {"A","a.di"}},
+                                                    {"/A/a/do",  {"A","a.do"}},
                                                     {"/A/b",     {"A","b"}},
-                                                    {"/B/a/dr",  {"B","a_dr"}},
-                                                    {"/B/c/de",  {"B","c_de"}},
-                                                    {"/B/c/gne", {"B","c_gne"}},
-                                                    {"/C/a/da",  {"C","a_da"}},
-                                                    {"/C/b/ge",  {"C","b_ge"}},
-                                                    {"/C/c/be",  {"C","c_be"}},
-                                                    {"/C/c/de",  {"C","c_de"}},
+                                                    {"/B/a/dr",  {"B","a.dr"}},
+                                                    {"/B/c/de",  {"B","c.de"}},
+                                                    {"/B/c/gne", {"B","c.gne"}},
+                                                    {"/C/a/da",  {"C","a.da"}},
+                                                    {"/C/b/ge",  {"C","b.ge"}},
+                                                    {"/C/c/be",  {"C","c.be"}},
+                                                    {"/C/c/de",  {"C","c.de"}},
                                                     {"/DIRECT/DOUBLE",  {"DIRECT","DOUBLE"}},
-                                                    {"/DIRECT/DOUBLE",  {"DIRECT","DOUBLE_ARRAY"}},
+                                                    {"/DIRECT/DOUBLE_ARRAY",  {"DIRECT","DOUBLE_ARRAY"}},
                                                     {"/DIRECT/INT",  {"DIRECT","INT"}},
-                                                    {"/DIRECT/INT",  {"DIRECT","INT_ARRAY"}}
+                                                    {"/DIRECT/INT_ARRAY",  {"DIRECT","INT_ARRAY"}}
                                                   });
 }
 
