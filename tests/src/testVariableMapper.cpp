@@ -108,6 +108,12 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
                                                   });
 }
 
+BOOST_AUTO_TEST_CASE( testGlobalImportPart ){
+  testXmlParsing("variableTreeXml/globalImportPart.xml", { {"/B/a/dr",  {"a","dr"}},
+                                                           {"/B/c/de",  {"c","de"}},
+                                                           {"/B/c/gne", {"c","gne"}} });
+}
+
 BOOST_AUTO_TEST_CASE( testImportAndRename ){
   testXmlParsing("variableTreeXml/importAndRename.xml", { {"/DIRECT/DOUBLE",  {"DIRECT","BAR"}},
                                                           {"/DIRECT/DOUBLE_ARRAY",  {"DIRECT","DOUBLE_ARRAY"}},
