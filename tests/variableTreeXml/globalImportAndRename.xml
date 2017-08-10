@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <location name="DIRECT">
+    <property source="INT" name="FOO"/>
+    <property source="/DIRECT/DOUBLE" name="BAR"/>
+  </location>
+  <import>/</import>
+</device_server>

@@ -91,7 +91,8 @@ BOOST_AUTO_TEST_CASE( testImportLocation ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportAll ){
-  testXmlParsing("variableTreeXml/importAll.xml", { {"/A/a/di",  {"A","a.di"}},
+  std::map< std::string, VariableMapper::PropertyDescription > propertyMap(
+                                                  { {"/A/a/di",  {"A","a.di"}},
                                                     {"/A/a/do",  {"A","a.do"}},
                                                     {"/A/b",     {"A","b"}},
                                                     {"/B/a/dr",  {"B","a.dr"}},
@@ -106,6 +107,17 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
                                                     {"/DIRECT/INT",  {"DIRECT","INT"}},
                                                     {"/DIRECT/INT_ARRAY",  {"DIRECT","INT_ARRAY"}}
                                                   });
+  testXmlParsing("variableTreeXml/importAll.xml", propertyMap);
+
+  // modify the expected property map for the renaming case
+  propertyMap["/DIRECT/DOUBLE"]= VariableMapper::PropertyDescription("DIRECT","BAR");
+  propertyMap["/DIRECT/INT"]= VariableMapper::PropertyDescription("DIRECT","FOO");
+  testXmlParsing("variableTreeXml/globalImportAndRename.xml", propertyMap);
+}
+
+BOOST_AUTO_TEST_CASE( testImportTooShort ){
+  BOOST_CHECK_THROW(testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {}),
+                    std::logic_error);
 }
 
 BOOST_AUTO_TEST_CASE( testGlobalImportPart ){
@@ -120,4 +132,11 @@ BOOST_AUTO_TEST_CASE( testImportAndRename ){
                                                           {"/DIRECT/INT",  {"DIRECT","FOO"}},
                                                           {"/DIRECT/INT_ARRAY",  {"DIRECT","INT_ARRAY"}}
                                                          });
+}
+
+BOOST_AUTO_TEST_CASE( testCherryPicking ){
+  testXmlParsing("variableTreeXml/cherryPick.xml", { {"/A/b/do",  {"DIRECT","A.b.do"}},
+        
+                                                     {"/DIRECT/INT",  {"DIRECT","INT"}}
+                                                   });
 }

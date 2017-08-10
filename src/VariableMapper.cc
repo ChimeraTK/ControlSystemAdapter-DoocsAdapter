@@ -6,6 +6,7 @@
 #include "splitStringAtFirstSlash.h"
 
 namespace ChimeraTK{
+//LCOV_EXCL_START
 void print_indentation(unsigned int indentation)
 {
   for(unsigned int i = 0; i < indentation; ++i)
@@ -98,7 +99,8 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     }
   }
 }
-
+//LCOV_EXCL_STOP
+  
   VariableMapper & VariableMapper::getInstance(){
     static VariableMapper instance;
     return instance;
@@ -134,9 +136,15 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     if (nameAttribute){
       name = nameAttribute->get_value();
     }else{
-      std::cout << "Whoopy, name from source is not implemented yet" << std::endl;
-      name = "Whoopsy";
+      if (source[0] == '/'){
+        name = source.substr(1);
+      }else{
+        name = source;
+      }
+      // replace / with . in name
+      name = std::regex_replace(name, std::regex("/"), ".");
     }
+
     std::string absoluteSource;
     if (source[0] == '/'){
       absoluteSource=source;
