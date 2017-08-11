@@ -115,6 +115,26 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
   testXmlParsing("variableTreeXml/globalImportAndRename.xml", propertyMap);
 }
 
+BOOST_AUTO_TEST_CASE( testImportIntoLocation ){
+  std::map< std::string, VariableMapper::PropertyDescription > propertyMap(
+                                                  { {"/A/a/di",  {"MASTER","A.a.di"}},
+                                                    {"/A/a/do",  {"MASTER","A.a.do"}},
+                                                    {"/A/b",     {"MASTER","A.b"}},
+                                                    {"/B/a/dr",  {"MASTER","B.a.dr"}},
+                                                    {"/B/c/de",  {"MASTER","B.c.de"}},
+                                                    {"/B/c/gne", {"MASTER","B.c.gne"}},
+                                                    {"/C/a/da",  {"MASTER","C.a.da"}},
+                                                    {"/C/b/ge",  {"MASTER","C.b.ge"}},
+                                                    {"/C/c/be",  {"MASTER","C.c.be"}},
+                                                    {"/C/c/de",  {"MASTER","C.c.de"}},
+                                                      {"/DIRECT/DOUBLE",  {"MASTER","DIRECT.DOUBLE"}},
+                                                    {"/DIRECT/DOUBLE_ARRAY",  {"MASTER","DIRECT.DOUBLE_ARRAY"}},
+                                                    {"/DIRECT/INT",  {"MASTER","DIRECT.INT"}},
+                                                    {"/DIRECT/INT_ARRAY",  {"MASTER","DIRECT.INT_ARRAY"}}
+                                                  });
+  testXmlParsing("variableTreeXml/importAllIntoLocation.xml", propertyMap);
+}
+
 BOOST_AUTO_TEST_CASE( testImportTooShort ){
   try{
     testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {});

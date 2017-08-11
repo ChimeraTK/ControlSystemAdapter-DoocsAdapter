@@ -167,7 +167,12 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
       const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
       std::string importSource = nodeAsText->get_content();
       std::cout << "Importing in location '"<<locationName <<"': " <<  importSource << std::endl;
-      
+
+      // a slash will be added after the source, so we make the source empty for an import of everything
+      if (importSource == "/"){
+        importSource = "";
+      }
+     
       // loop source tree, cut beginning, replace / with _ and add a property
       for (auto const & processVariable : _inputVariables){
         if (_inputSortedDescriptions.find(processVariable) != _inputSortedDescriptions.end()){
