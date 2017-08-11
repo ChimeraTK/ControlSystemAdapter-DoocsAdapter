@@ -68,9 +68,11 @@ namespace ChimeraTK{
 
     std::set< std::string > _inputVariables;
   
-    void processLocation(xmlpp::Node const * locationNode);
-    void processProperty(xmlpp::Node const * propertyNode, std::string locationName);
-    void processImport(xmlpp::Node const * importNode, std::string importLocationName=std::string());
+    void processLocationNode(xmlpp::Node const * locationNode);
+    void processPropertyNode(xmlpp::Node const * propertyNode, std::string locationName);
+    void processImportNode(xmlpp::Node const * importNode, std::string importLocationName=std::string());
+
+    void import(std::string importSource, std::string importLocationName);
    
     std::map<std::string, PropertyAttributes> _locationDefaults;
     PropertyAttributes _globalDefaults;
