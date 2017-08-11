@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testImportAndRename ){
 
 BOOST_AUTO_TEST_CASE( testCherryPicking ){
   testXmlParsing("variableTreeXml/cherryPick.xml", { {"/A/b/do",  {"DIRECT","A.b.do"}},
-        
+                                                     {"/B/c/de",  {"B","c.de"}},
                                                      {"/DIRECT/INT",  {"DIRECT","INT"}}
                                                    });
 }
