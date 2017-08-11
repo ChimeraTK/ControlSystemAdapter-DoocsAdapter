@@ -65,8 +65,8 @@ template <typename Map>
 bool mapCompare (Map const &lhs, Map const &rhs) {
   // No predicate needed because there is operator== for pairs already.
   if ( lhs.size() != rhs.size() ){
-    std::cout << "Map size comparison failed: lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;
-    return false;
+    std::cout << "Map size comparison failed: lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;// LCOV_EXCL_LINE
+    return false;// LCOV_EXCL_LINE
   }
   return std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
@@ -116,8 +116,13 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportTooShort ){
-  BOOST_CHECK_THROW(testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {}),
-                    std::logic_error);
+  try{
+    testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {});
+    BOOST_ERROR("testImportTooShort did not throw as expected.");// LCOV_EXCL_LINE
+  }catch(std::logic_error & e){
+    std::cout << "For manually checking the exception message for too short tree depth:\n"
+              << e.what() << std::endl;
+  }
 }
 
 BOOST_AUTO_TEST_CASE( testGlobalImportPart ){
@@ -139,4 +144,34 @@ BOOST_AUTO_TEST_CASE( testCherryPicking ){
                                                      {"/B/c/de",  {"B","c.de"}},
                                                      {"/DIRECT/INT",  {"DIRECT","INT"}}
                                                    });
+}
+
+BOOST_AUTO_TEST_CASE( testDuplicateSource ){
+  try{
+    testXmlParsing("variableTreeXml/duplicateSource.xml", {});
+    BOOST_ERROR("testDuplicateSource did not throw as expected"); // LCOV_EXCL_LINE
+  }catch(std::logic_error & e){
+    std::cout << "For manually checking the exception message for duplicate sources:\n"
+              << e.what() << std::endl;
+  }
+}
+
+BOOST_AUTO_TEST_CASE( testUnknownMainNode ){
+  try{
+    testXmlParsing("variableTreeXml/unknownMainNode.xml", {});
+    BOOST_ERROR("testUnknownMainNode did not throw as expected"); // LCOV_EXCL_LINE
+  }catch(std::logic_error & e){
+    std::cout << "For manually checking the exception message for unknown main node:\n"
+              << e.what() << std::endl;
+  }
+}
+
+BOOST_AUTO_TEST_CASE( testUnkownLocationNode ){
+  try{
+    testXmlParsing("variableTreeXml/unknownLocationNode.xml", {});
+    BOOST_ERROR("testUnknownLocationNode did not throw as expected"); // LCOV_EXCL_LINE
+  }catch(std::logic_error & e){
+    std::cout << "For manually checking the exception message for unknown location node:\n"
+              << e.what() << std::endl;
+  }
 }

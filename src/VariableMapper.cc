@@ -108,20 +108,19 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
 
   void VariableMapper::processLocation(xmlpp::Node const * locationNode){
     const xmlpp::Element* location = dynamic_cast<const xmlpp::Element*>(locationNode);
-    std::string name = location->get_attribute("name")->get_value();
+    std::string locationName = location->get_attribute("name")->get_value();
 
-    std::cout << "Found location: " << name << std::endl;
+    std::cout << "Found location: " << locationName << std::endl;
 
     for (auto const & node : location->get_children()){
         if (nodeIsWhitespace(node)) continue;
         
         if (node->get_name() == "property"){
-          processProperty(node, name);
+          processProperty(node, locationName);
         }else if (node->get_name() == "import"){
-          processLocationImport(node, name);
+          processLocationImport(node, locationName);
         }else{
-          std::cout << "FIXME: Implement location node '" << node->get_name()
-                    << "'! Current implementation does nothing" << std::endl;
+          throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": Unknown node '"+node->get_name()+"'");
         }
     }
   }
@@ -253,8 +252,7 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
         }else if (mainNode->get_name() == "import"){
           processGlobalImport(mainNode);
         }else{
-          std::cout << "FIXME: Implement main node '" << mainNode->get_name()
-                    << "'! Current implementation does nothing" << std::endl;
+          throw std::invalid_argument(std::string("Error parsing xml file ") + xmlFile + ": Unknown node '"+mainNode->get_name()+"'");
         }
       }
 
