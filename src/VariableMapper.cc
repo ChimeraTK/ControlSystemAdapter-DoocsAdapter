@@ -118,7 +118,7 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
         if (node->get_name() == "property"){
           processProperty(node, locationName);
         }else if (node->get_name() == "import"){
-          processLocationImport(node, locationName);
+          processImport(node, locationName);
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": Unknown node '"+node->get_name()+"'");
         }
@@ -162,11 +162,11 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
    
   }
 
-  void VariableMapper::processLocationImport(xmlpp::Node const * importNode, std::string locationName){
+  void VariableMapper::processImport(xmlpp::Node const * importNode, std::string importLocationName){
     for (auto const & node : importNode->get_children()){
       const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
       std::string importSource = nodeAsText->get_content();
-      std::cout << "Importing in location '"<<locationName <<"': " <<  importSource << std::endl;
+      std::cout << "Importing in location '"<<importLocationName <<"': " <<  importSource << std::endl;
 
       // a slash will be added after the source, so we make the source empty for an import of everything
       if (importSource == "/"){
@@ -183,10 +183,26 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
         if ( processVariable.find( importSource+"/") == 0 ){
           // processVariable starts with wanted source
           std::cout << "importing " << processVariable << " from " <<  importSource << " into "
-                    << locationName << std::endl;
-          auto propertyNameSource = processVariable.substr( importSource.size() + 1); // add the slash to be removed
-          std::cout << "propertyNameSource " << propertyNameSource << std::endl;
-          auto propertyName = std::regex_replace(propertyNameSource, std::regex("/"), ".");
+                    << importLocationName << std::endl;
+          auto nameSource = processVariable.substr( importSource.size() + 1); // add the slash to be removed
+          std::cout << "nameSource " << nameSource << std::endl;
+          std::string propertyName;
+          std::string locationName;
+          if (importLocationName.empty()){
+            // a global import, try to get the location name from the source
+            auto locationAndPropertyName = splitStringAtFirstSlash(nameSource);
+            locationName = locationAndPropertyName.first;
+            std::cout << "new location name is " << locationName << std::endl;
+            propertyName = locationAndPropertyName.second;
+            if (locationName.empty() ){
+              throw std::logic_error(std::string("Invalid XML content in global import of ") + importSource + ":  Cannot create location name from '" + nameSource + "', one hirarchy level is missing.");
+            }
+          }else{
+            // import into a location, we know the location name. Just replace / with .
+            propertyName = std::regex_replace(nameSource, std::regex("/"), ".");
+            locationName = importLocationName;
+          }
+
           std::cout << "new property name is " << propertyName << std::endl;
           _inputSortedDescriptions[processVariable] = PropertyDescription(locationName, propertyName);
         }
@@ -194,40 +210,6 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
     }
   }
 
-  void VariableMapper::processGlobalImport(xmlpp::Node const * importNode){
-    for (auto const & node : importNode->get_children()){
-      const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
-      std::string importSource = nodeAsText->get_content();
-      std::cout << "Globaly importing in : " <<  importSource << std::endl;
-
-      // a slash will be added, so we make the source empty for a global import of everything
-      if (importSource == "/"){
-        importSource = "";
-      }
-      
-      for (auto const & processVariable : _inputVariables){
-        if (_inputSortedDescriptions.find(processVariable) != _inputSortedDescriptions.end()){
-          std::cout << processVariable << " alread in the map. Not importing" << std::endl;
-          continue;
-        }
-
-        if ( processVariable.find( importSource+"/") == 0 ){
-          std::cout << "about to import " << processVariable << std::endl;
-          // This variable is to be imported
-          auto nameSource = processVariable.substr( importSource.size() + 1); // add the slash to be removed
-          auto locationAndPropertyName = splitStringAtFirstSlash(nameSource);
-          auto locationName = locationAndPropertyName.first;
-          auto propertyName = locationAndPropertyName.second;
-          if (locationName.empty() ){
-            throw std::logic_error(std::string("Invalid XML content in global import of ") + importSource + ":  Cannot create location name from '" + nameSource + "', one hirarchy level is missing.");
-          }
-          _inputSortedDescriptions[processVariable] = PropertyDescription(locationName, propertyName);
-        }
-      }
-      
-    }
-  }
-    
   void VariableMapper::prepareOutput(std::string xmlFile, std::set< std::string > inputVariables){
     _inputVariables=inputVariables;
     
@@ -255,7 +237,7 @@ void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
         if (mainNode->get_name() == "location"){
           processLocation(mainNode);
         }else if (mainNode->get_name() == "import"){
-          processGlobalImport(mainNode);
+          processImport(mainNode);
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file ") + xmlFile + ": Unknown node '"+mainNode->get_name()+"'");
         }
