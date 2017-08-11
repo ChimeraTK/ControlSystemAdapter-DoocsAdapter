@@ -71,13 +71,15 @@ namespace ChimeraTK{
     void processLocation(xmlpp::Node const * locationNode);
     void processProperty(xmlpp::Node const * propertyNode, std::string locationName);
     void processImport(xmlpp::Node const * importNode, std::string importLocationName=std::string());
-    //    void processGlobalImport(xmlpp::Node const * importNode);
    
     std::map<std::string, PropertyAttributes> _locationDefaults;
     PropertyAttributes _globalDefaults;
 
     // PropertyDescriptions, sorted by input, i.e. the ChimeraTK PV name
     std::map<std::string, PropertyDescription> _inputSortedDescriptions;
+
+    /// An internal helper function to abbreviate the syntax
+    bool nodeIsWhitespace(const xmlpp::Node* node);
   };
 
 } // namespace ChimeraTK

@@ -115,6 +115,20 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
   testXmlParsing("variableTreeXml/globalImportAndRename.xml", propertyMap);
 }
 
+BOOST_AUTO_TEST_CASE( testGetPropertiesInLocation ){
+  // same input as for testAll, so we know the overall output is OK due to the separate test.
+  VariableMapper & vm = VariableMapper::getInstance();
+  vm.prepareOutput("variableTreeXml/importAll.xml", generateInputVariables());
+  BOOST_CHECK( mapCompare( vm.getPropertiesInLocation("A"), { {"/A/a/di",  {"A","a.di"}},
+                                                              {"/A/a/do",  {"A","a.do"}},
+                                                              {"/A/b",     {"A","b"}}
+                                                             } ) );
+  BOOST_CHECK( mapCompare( vm.getPropertiesInLocation("B"), { {"/B/a/dr",  {"B","a.dr"}},
+                                                              {"/B/c/de",  {"B","c.de"}},
+                                                              {"/B/c/gne",     {"B","c.gne"}}
+                                                             } ) );
+}
+
 BOOST_AUTO_TEST_CASE( testImportIntoLocation ){
   std::map< std::string, VariableMapper::PropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"MASTER","A.a.di"}},
