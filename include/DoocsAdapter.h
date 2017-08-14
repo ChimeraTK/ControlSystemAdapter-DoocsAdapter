@@ -21,23 +21,4 @@ class DoocsAdapter{
 
 }//namespace ChimeraTK
 
-/** Concenience macros to reduce the amount of boiler plate code.
- * 
- *  TODO @todo These macros are deprecated. Use the ApplicationBase class instead!
- */
-#define BEGIN_DOOCS_SERVER( SERVER_NAME, EQ_CODE )\
-  const char * object_name = SERVER_NAME;	  \
-  int csAdapterEqCode = EQ_CODE;\
-  EqFct * eq_create (int eq_code, void *){	\
-    static ChimeraTK::DoocsAdapter doocsAdapter;
-
-
-#define END_DOOCS_SERVER()\
-    if (eq_code == csAdapterEqCode){\
-      return new ChimeraTK::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager());\
-    }else{\
-      return NULL;\
-    }\
-  }
-
 #endif // _CHIMERATK_DOOCS_ADAPTER_H_
