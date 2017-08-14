@@ -109,6 +109,11 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
                                                   });
   testXmlParsing("variableTreeXml/importAll.xml", propertyMap);
 
+  // test direct mapping without xml
+  VariableMapper & vm = VariableMapper::getInstance();
+  vm.directImport( generateInputVariables());
+  BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
+
   // modify the expected property map for the renaming case
   propertyMap["/DIRECT/DOUBLE"]= VariableMapper::PropertyDescription("DIRECT","BAR");
   propertyMap["/DIRECT/INT"]= VariableMapper::PropertyDescription("DIRECT","FOO");

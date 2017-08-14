@@ -167,6 +167,14 @@ namespace ChimeraTK{
     return output;
   }
 
+  void VariableMapper::directImport(std::set< std::string > inputVariables){
+    _inputVariables=inputVariables;
+    _locationDefaults.clear();
+    _globalDefaults = PropertyAttributes();
+    _inputSortedDescriptions.clear();
+
+    import("/",""); // import from /, create location names from first level of the tree
+  }
 
 } // namespace ChimeraTK
 

@@ -62,6 +62,8 @@ namespace ChimeraTK{
 
     VariableMapper(VariableMapper &)=delete;
     void operator=(VariableMapper const &)=delete;
+
+    void directImport(std::set< std::string > inputVariables);
     
   protected:
     VariableMapper()=default;
