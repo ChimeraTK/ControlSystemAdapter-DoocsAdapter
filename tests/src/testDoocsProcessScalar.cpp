@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   controlSystemVariable->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, "TO_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
 
   BOOST_CHECK(set_doocs_value(doocsScalar,42) == 0);
   BOOST_CHECK( controlSystemVariable->accessData(0) == 42 );
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   controlSystemFloat->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemFloat, syncUtil );
+  DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, "TO_DEVICE_FLOAT", controlSystemFloat, syncUtil );
 
   BOOST_CHECK(set_doocs_value(doocsScalar,12.125) == 0);
   BOOST_CHECK( controlSystemFloat->accessData(0) == 12.125 );
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   controlSystemDouble->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemDouble, syncUtil );
+  DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, "TO_DEVICE_DOUBLE", controlSystemDouble, syncUtil );
 
   BOOST_CHECK(set_doocs_value(doocsScalar,12.125) == 0);
   BOOST_CHECK( controlSystemDouble->accessData(0) == 12.125 );
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<T, D_int, int> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
   BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=42;
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<float, D_float, float> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
   BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=12.125;
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, controlSystemVariable, syncUtil );
+  DoocsProcessScalar<double, D_double, double> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
   BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=12.125;

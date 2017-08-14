@@ -6,7 +6,6 @@
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <boost/shared_ptr.hpp>
-#include "splitStringAtFirstSlash.h"
 #include <d_fct.h>
 
 // Just declare the EqFct class. We only need the pointer in this header.
@@ -67,20 +66,19 @@ namespace ChimeraTK {
       
     public:
 
-      DoocsProcessScalar( EqFct *eqFct,
+      DoocsProcessScalar( EqFct *eqFct, std::string doocsPropertyName,
                           boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const &processScalar,
                           ControlSystemSynchronizationUtility &syncUtility )
-      : DOOCS_T(eqFct, splitStringAtFirstSlash(processScalar->getName()).second.c_str()),
-        _processScalar(processScalar)
+      : DOOCS_T(eqFct, doocsPropertyName.c_str()), _processScalar(processScalar)
       {
         syncUtility.addReceiveNotificationListener( processScalar->getName(),
                                                     ProcessVariableListener::SharedPtr(new DoocsScalarListener(this)) );
       }
 
-      DoocsProcessScalar( boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const &processScalar,
-                          EqFct *eqFct, ControlSystemSynchronizationUtility &syncUtility )
-      : DOOCS_T( splitStringAtFirstSlash(processScalar->getName()).second.c_str(), eqFct),
-        _processScalar(processScalar)
+      DoocsProcessScalar( std::string doocsPropertyName, EqFct *eqFct,
+                          boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const &processScalar,
+                          ControlSystemSynchronizationUtility &syncUtility )
+      : DOOCS_T(doocsPropertyName.c_str(), eqFct), _processScalar(processScalar)
       {
         syncUtility.addReceiveNotificationListener( processScalar->getName(),
                                                     ProcessVariableListener::SharedPtr(new DoocsScalarListener(this)) );
