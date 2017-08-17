@@ -19,7 +19,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 
 include(cmake/add_dependency.cmake)
 
-add_dependency(ChimeraTK-ControlSystemAdapter 00.05 REQUIRED)
+add_dependency(ChimeraTK-ControlSystemAdapter 00.06 REQUIRED)
 add_dependency(DOOCS 18.10.5 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
@@ -67,7 +67,7 @@ if(TESTING_IS_ENABLED)
   file(GLOB XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/variableTreeXml/*.xml)
   file(COPY ${XML_FILES} DESTINATION ${PROJECT_BINARY_DIR}/variableTreeXml)
 
-  file(GLOB TEST_XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/variableTreeXml/*.xml)
+  file(GLOB TEST_XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/*.xml)
   file(COPY ${TEST_XML_FILES} DESTINATION ${PROJECT_BINARY_DIR})
 
   #The make coverage command is only available in debug mode
