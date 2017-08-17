@@ -71,7 +71,7 @@ namespace ChimeraTK {
                           ControlSystemSynchronizationUtility &syncUtility )
       : DOOCS_T(eqFct, doocsPropertyName.c_str()), _processScalar(processScalar)
       {
-        syncUtility.addReceiveNotificationListener( processScalar->getName(),
+        syncUtility.addReceiveNotificationListener( processScalar,
                                                     ProcessVariableListener::SharedPtr(new DoocsScalarListener(this)) );
       }
 
@@ -80,7 +80,7 @@ namespace ChimeraTK {
                           ControlSystemSynchronizationUtility &syncUtility )
       : DOOCS_T(doocsPropertyName.c_str(), eqFct), _processScalar(processScalar)
       {
-        syncUtility.addReceiveNotificationListener( processScalar->getName(),
+        syncUtility.addReceiveNotificationListener( processScalar,
                                                     ProcessVariableListener::SharedPtr(new DoocsScalarListener(this)) );
       }
 

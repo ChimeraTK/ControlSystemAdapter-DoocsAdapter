@@ -83,7 +83,7 @@ namespace ChimeraTK {
                     processArray->getNumberOfSamples(), eqFct),
         _processArray(processArray)
       {
-        syncUtility.addReceiveNotificationListener( processArray->getName(),
+        syncUtility.addReceiveNotificationListener( processArray,
                                                     ProcessVariableListener::SharedPtr(new DoocsArrayListener(this)) );
       }
 
