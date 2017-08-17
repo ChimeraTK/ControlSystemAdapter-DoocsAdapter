@@ -111,13 +111,14 @@ namespace ChimeraTK{
           propertyName = std::regex_replace(nameSource, std::regex("/"), ".");
           locationName = importLocationName;
         }
-        
+
         _inputSortedDescriptions[processVariable] = PropertyDescription(locationName, propertyName);
       }
     }
   }
 
   void VariableMapper::prepareOutput(std::string xmlFile, std::set< std::string > inputVariables){
+    clear();
     _inputVariables=inputVariables;
     
     xmlpp::DomParser parser;
@@ -126,10 +127,6 @@ namespace ChimeraTK{
     parser.parse_file(xmlFile);
     
     if(parser){
-      _locationDefaults.clear();
-      _globalDefaults = PropertyAttributes();
-      _inputSortedDescriptions.clear();
-        
       //Walk the tree:
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); //deleted by DomParser.
       
@@ -168,12 +165,16 @@ namespace ChimeraTK{
   }
 
   void VariableMapper::directImport(std::set< std::string > inputVariables){
+    clear();
     _inputVariables=inputVariables;
+    import("/",""); // import from /, create location names from first level of the tree
+  }
+
+  void VariableMapper::clear(){
+    _inputVariables.clear();
     _locationDefaults.clear();
     _globalDefaults = PropertyAttributes();
     _inputSortedDescriptions.clear();
-
-    import("/",""); // import from /, create location names from first level of the tree
   }
 
 } // namespace ChimeraTK
