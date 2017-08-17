@@ -16,6 +16,8 @@
 #include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
 
 #include "emptyServerFunctions.h"
+#include "getAllVariableNames.h"
+#include "VariableMapper.h"
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -51,7 +53,7 @@ public:
 
 template<class T, class DOOCS_T, class DOOCS_VALUE_T>
 static void testCreateProcessScalar(typename ProcessVariable::SharedPtr processVariable,
-				    DoocsPVFactory & factory){
+				    DoocsPVFactory & factory, std::string const & expectedPropertyName){
   // have the variable created and check that it is the right type
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create( processVariable );
   // get the raw pointer and dynamic cast it to the expected type
@@ -61,6 +63,7 @@ static void testCreateProcessScalar(typename ProcessVariable::SharedPtr processV
   std::stringstream errorMessage;
   errorMessage << "testCreateProcessScalar failed for type " << typeid(T).name();
   BOOST_CHECK_MESSAGE(doocsScalarType, errorMessage.str());
+  BOOST_CHECK( expectedPropertyName == doocsVariableAsDFct->property_name() );
 }
 
 BOOST_AUTO_TEST_SUITE( PVManagerTestSuite )
@@ -72,54 +75,56 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   // create all process variables before creating the sync util
-  devManager->createProcessArray<int32_t>(controlSystemToDevice,"int32",1);
-  devManager->createProcessArray<uint32_t>(controlSystemToDevice,"uint32",1);
-  devManager->createProcessArray<int16_t>(controlSystemToDevice,"int16",1);
-  devManager->createProcessArray<uint16_t>(controlSystemToDevice,"uint16",1);
-  devManager->createProcessArray<int8_t>(controlSystemToDevice,"int8",1);
-  devManager->createProcessArray<uint8_t>(controlSystemToDevice,"uint8",1);
-  devManager->createProcessArray<float>(controlSystemToDevice,"float",1);
-  devManager->createProcessArray<double>(controlSystemToDevice,"double",1);
+  devManager->createProcessArray<int32_t>(controlSystemToDevice,"/I/int32",1);
+  devManager->createProcessArray<uint32_t>(controlSystemToDevice,"/U/uint32",1);
+  devManager->createProcessArray<int16_t>(controlSystemToDevice,"/I/int16",1);
+  devManager->createProcessArray<uint16_t>(controlSystemToDevice,"/U/uint16",1);
+  devManager->createProcessArray<int8_t>(controlSystemToDevice,"/I/int8",1);
+  devManager->createProcessArray<uint8_t>(controlSystemToDevice,"/U/uint8",1);
+  devManager->createProcessArray<float>(controlSystemToDevice,"/FP/float",1);
+  devManager->createProcessArray<double>(controlSystemToDevice,"/FP/double",1);
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
 
+  // populate the variable mapper
+  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
   
   DoocsPVFactory factory(&myEqFct, syncUtil);
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
   // These checkpoints are always true.
   testCreateProcessScalar<int32_t, D_int, int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int32_t>("int32")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int32_t>("I/int32")),
+    factory, "int32");
   BOOST_CHECK(-32);
   testCreateProcessScalar<uint32_t, D_int, int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint32_t>("uint32")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint32_t>("U/uint32")),
+    factory, "uint32");
   BOOST_CHECK(32);
   testCreateProcessScalar<int16_t, D_int, int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int16_t>("int16")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int16_t>("I/int16")),
+    factory, "int16");
   BOOST_CHECK(-16);
   testCreateProcessScalar<uint16_t, D_int, int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint16_t>("uint16")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint16_t>("U/uint16")),
+    factory, "uint16");
   BOOST_CHECK(16);
   testCreateProcessScalar<int8_t, D_int, int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int8_t>("int8")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int8_t>("I/int8")),
+    factory, "int8");
   BOOST_CHECK(-8);
   testCreateProcessScalar<uint8_t, D_int, int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint8_t>("uint8")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint8_t>("U/uint8")),
+    factory, "uint8");
   BOOST_CHECK(8);
   testCreateProcessScalar<float, D_float, float>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<float>("float")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<float>("FP/float")),
+    factory, "float");
   BOOST_CHECK(0.5);
   testCreateProcessScalar<double, D_double, double>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<double>("double")),
-    factory);
+    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<double>("FP/double")),
+    factory, "double");
   
 }
 
@@ -130,7 +135,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 10;
-  devManager->createProcessArray<T>(controlSystemToDevice,"toDeviceArray",arraySize);
+  devManager->createProcessArray<T>(controlSystemToDevice,"A/toDeviceArray",arraySize);
+
+  // populate the variable mapper before creating the DoocsPVFactory
+  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
@@ -139,7 +147,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
 
   // have the variable created and check that it is the right type
   ProcessVariable::SharedPtr processVariable = 
-    csManager->getProcessArray<T>("toDeviceArray");
+    csManager->getProcessArray<T>("A/toDeviceArray");
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
 
   // get the raw pointer and dynamic cast it to the expected type
@@ -159,15 +167,18 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   static const size_t arraySize = 10;
   // int64 is not supported yet
-  devManager->createProcessArray<int64_t>(controlSystemToDevice,"toDeviceArray",arraySize);
-  devManager->createProcessArray<int64_t>(controlSystemToDevice,"toDeviceInt",1);
+  devManager->createProcessArray<int64_t>(controlSystemToDevice,"A/toDeviceArray",arraySize);
+  devManager->createProcessArray<int64_t>(controlSystemToDevice,"I/toDeviceInt",1);
+
+  // populate the variable mapper before creating the DoocsPVFactory
+  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
   TestableDoocsPVFactory testableFactory(&myEqFct, syncUtil);
 
   ProcessVariable::SharedPtr processScalar = 
-    csManager->getProcessArray<int64_t>("toDeviceInt");
+    csManager->getProcessArray<int64_t>("I/toDeviceInt");
   // Intentionally put the int64 scalar to the int32 create function.
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
@@ -180,7 +191,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   }
 
   // now the same with arrays
-  ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("toDeviceArray");
+  ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("A/toDeviceArray");
   BOOST_CHECK_THROW( ( testableFactory.createDoocsArray<int32_t, D_int, int>(processArray) ),
 		      std::invalid_argument );
 
