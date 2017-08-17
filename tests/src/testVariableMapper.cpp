@@ -111,6 +111,8 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
 
   // test direct mapping without xml
   VariableMapper & vm = VariableMapper::getInstance();
+  vm.clear();
+  BOOST_CHECK(  vm.getAllProperties().empty() );
   vm.directImport( generateInputVariables());
   BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
 
