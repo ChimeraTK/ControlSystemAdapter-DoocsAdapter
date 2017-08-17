@@ -7,6 +7,8 @@
 #include "emptyServerFunctions.h"
 #include "set_doocs_value.h"
 #include "DoocsAdapter.h"
+#include "getAllVariableNames.h"
+#include "VariableMapper.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
@@ -33,8 +35,8 @@ struct BusinessLogic{
   ProcessArray<int>::SharedPtr fromDeviceInt;
 
   BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const & pvManager)
-  : toDeviceInt(pvManager->createProcessArray<int>(controlSystemToDevice, "TO_DEVICE_INT",1)),
-    fromDeviceInt(pvManager->createProcessArray<int>(deviceToControlSystem, "FROM_DEVICE_INT",1))
+  : toDeviceInt(pvManager->createProcessArray<int>(controlSystemToDevice, "test/TO_DEVICE/INT",1)),
+    fromDeviceInt(pvManager->createProcessArray<int>(deviceToControlSystem, "test/FROM_DEVICE/INT",1))
   {}
 };
 
@@ -44,8 +46,11 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   DoocsAdapter doocsAdapter;
   // first create the business logic, which registers the PVs to the manager
   BusinessLogic businessLogic( doocsAdapter.getDevicePVManager() );
+  // we also have to initialise the mapping (direct 1:1 from the input without xml)
+  auto csManager = doocsAdapter.getControlSystemPVManager();
+  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );  
   // after that create the EqFct
-  TestableCSAdapterEqFct eqFct(42, doocsAdapter.getControlSystemPVManager(), "test");
+  TestableCSAdapterEqFct eqFct(42, csManager, "test");
 
   // Test that the right number of properties is created.
   // Currently the vector is still empty.
@@ -66,15 +71,15 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   }
   // note: doocs property names always have a space (and a comment which can
   // be empty, but the space is always there)"
-  BOOST_REQUIRE( doocsProperties.find("TO_DEVICE_INT ") != doocsProperties.end() );
-  BOOST_REQUIRE( doocsProperties.find("FROM_DEVICE_INT ") != doocsProperties.end() );
+  BOOST_REQUIRE( doocsProperties.find("TO_DEVICE.INT ") != doocsProperties.end() );
+  BOOST_REQUIRE( doocsProperties.find("FROM_DEVICE.INT ") != doocsProperties.end() );
 
   // write once and check
-  set_doocs_value(*(doocsProperties["TO_DEVICE_INT "]),13);
+  set_doocs_value(*(doocsProperties["TO_DEVICE.INT "]),13);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK_EQUAL( businessLogic.toDeviceInt->accessData(0), 13 );
   // change and observe the change in the device
-  set_doocs_value(*(doocsProperties["TO_DEVICE_INT "]),14);
+  set_doocs_value(*(doocsProperties["TO_DEVICE.INT "]),14);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK_EQUAL( businessLogic.toDeviceInt->accessData(0), 14 );
   
@@ -82,12 +87,12 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   businessLogic.fromDeviceInt->accessData(0) = 12;
   businessLogic.fromDeviceInt->write();
   eqFct.update();
-  BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE_INT "]->value(), 12);
+  BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE.INT "]->value(), 12);
 
   businessLogic.fromDeviceInt->accessData(0) = 15;
   businessLogic.fromDeviceInt->write();
   eqFct.update();
-  BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE_INT "]->value(), 15);
+  BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE.INT "]->value(), 15);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
