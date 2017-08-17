@@ -95,4 +95,36 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE.INT "]->value(), 15);
 }
 
+BOOST_AUTO_TEST_CASE( testWithMapping ) {
+  // This test is a bit redundant because the mapping is tested separately. Just to see that it
+  // works after integration.
+
+  // This is basically a stripped down copy of the test before, so we leave out all comments
+  // and just comment what is different.
+
+  DoocsAdapter doocsAdapter;
+  BusinessLogic businessLogic( doocsAdapter.getDevicePVManager() );
+
+  // Initialse the mapping with an xml file.
+  auto csManager = doocsAdapter.getControlSystemPVManager();
+
+  VariableMapper::getInstance().prepareOutput( "EqFctTest.xml", getAllVariableNames(csManager ) );
+
+// in the mapping two locations are created
+  TestableCSAdapterEqFct toDeviceEqFct(42, csManager, "test.TO_DEVICE");
+  TestableCSAdapterEqFct fromDeviceEqFct(42, csManager, "test.FROM_DEVICE");
+
+  BOOST_REQUIRE( toDeviceEqFct.getDoocsProperties().size() == 1 );
+  BOOST_REQUIRE( fromDeviceEqFct.getDoocsProperties().size() == 1 );
+
+  // extract the two properties and check the name
+  std::map< std::string, D_int *> doocsProperties;
+  
+  // both properties are called int, but are in different locations
+  D_int *doocsInt = dynamic_cast<D_int*>(toDeviceEqFct.getDoocsProperties()[0].get());
+  BOOST_REQUIRE( std::string(doocsInt->property_name()) == "INT ");
+  doocsInt = dynamic_cast<D_int*>(fromDeviceEqFct.getDoocsProperties()[0].get());
+  BOOST_REQUIRE( std::string(doocsInt->property_name()) == "INT ");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

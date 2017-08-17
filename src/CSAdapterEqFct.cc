@@ -1,6 +1,6 @@
 #include "CSAdapterEqFct.h"
 #include "DoocsPVFactory.h"
-#include "splitStringAtFirstSlash.h"
+#include "VariableMapper.h"
 
 namespace ChimeraTK{
 
@@ -46,40 +46,20 @@ namespace ChimeraTK{
     // We only need the factory inside this function
     DoocsPVFactory factory(this, syncUtility_);
 
-    auto processVariablesInThisLocation = getProcessVariablesInThisLocation();
-    doocsProperties_.reserve( processVariablesInThisLocation.size() );
+    auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fct_name());
+    doocsProperties_.reserve( mappingForThisLocation.size() );
 
-    // now create the doocs properties using the factory
-    for( auto chimeraTKVariable : processVariablesInThisLocation ){
-      doocsProperties_.push_back( factory.create( chimeraTKVariable ) );
+    for (auto & pvNameAndPropertyDescrition : mappingForThisLocation){
+      auto pvName = pvNameAndPropertyDescrition.first;
+      // we just need the pv name, not the description yet. The factory does that for us.
+      auto chimeraTkVariable = controlSystemPVManager_->getProcessVariable(pvName);
+
+      doocsProperties_.push_back( factory.create( chimeraTkVariable ) );
       // we also have to remember which chimeraTK variables we have to receive
-      if ( chimeraTKVariable->isReadable() ){
-	chimeraTKReceivers_.push_back(chimeraTKVariable);
+      if ( chimeraTkVariable->isReadable() ){
+	chimeraTKReceivers_.push_back(chimeraTkVariable);
       }
     }
   }
-
-  std::vector < ChimeraTK::ProcessVariable::SharedPtr >
-    CSAdapterEqFct::getProcessVariablesInThisLocation(){
-    std::vector < ChimeraTK::ProcessVariable::SharedPtr > pvsInThisLocation;
-
-    auto allPVs = controlSystemPVManager_->getAllProcessVariables();
-
-    for (auto pv : allPVs){
-      auto locationAndName = splitStringAtFirstSlash( pv->getName() );
-      if ( locationAndName.first == fct_name() ){
-	pvsInThisLocation.push_back( pv );
-      }else if(locationAndName.first == "" && emptyLocationVariablesHandled == false) {
-	pvsInThisLocation.push_back( pv );
-      }
-    }
-
-    // the first location to run this function is getting the PVs with empty location name
-    emptyLocationVariablesHandled = true;
-
-    return pvsInThisLocation;
-  }
-
-
 
 }// namespace ChimeraTK

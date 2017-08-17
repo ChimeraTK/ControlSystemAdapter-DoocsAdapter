@@ -67,6 +67,8 @@ if(TESTING_IS_ENABLED)
   file(GLOB XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/variableTreeXml/*.xml)
   file(COPY ${XML_FILES} DESTINATION ${PROJECT_BINARY_DIR}/variableTreeXml)
 
+  file(COPY ${CMAKE_SOURCE_DIR}/tests/EqFctTest.xml DESTINATION ${PROJECT_BINARY_DIR})
+
   #The make coverage command is only available in debug mode
   IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     configure_file(cmake/Makefile.coverage.in ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
