@@ -60,10 +60,11 @@ static void testCreateProcessScalar(typename ProcessVariable::SharedPtr processV
   DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T> * doocsScalarType = 
     dynamic_cast< DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T> * > (doocsVariableAsDFct.get());
   // if the cast succeeds the factory works as expected we are done
-  std::stringstream errorMessage;
-  errorMessage << "testCreateProcessScalar failed for type " << typeid(T).name();
-  BOOST_CHECK_MESSAGE(doocsScalarType, errorMessage.str());
-  BOOST_CHECK( expectedPropertyName == doocsVariableAsDFct->property_name() );
+  std::string errorMessage = std::string("testCreateProcessScalar failed for type ") + typeid(T).name();
+  BOOST_CHECK_MESSAGE(doocsScalarType, errorMessage);
+  errorMessage = std::string("Error checking property name: expectedPropertyName '")
+    + expectedPropertyName + "', property_name() '" + doocsVariableAsDFct->property_name() + "'";
+  BOOST_CHECK_MESSAGE( expectedPropertyName == doocsVariableAsDFct->property_name() , errorMessage);
 }
 
 BOOST_AUTO_TEST_SUITE( PVManagerTestSuite )
@@ -96,35 +97,35 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   // These checkpoints are always true.
   testCreateProcessScalar<int32_t, D_int, int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int32_t>("I/int32")),
-    factory, "int32");
+    factory, "int32 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-32);
   testCreateProcessScalar<uint32_t, D_int, int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint32_t>("U/uint32")),
-    factory, "uint32");
+    factory, "uint32 ");
   BOOST_CHECK(32);
   testCreateProcessScalar<int16_t, D_int, int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int16_t>("I/int16")),
-    factory, "int16");
+    factory, "int16 ");
   BOOST_CHECK(-16);
   testCreateProcessScalar<uint16_t, D_int, int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint16_t>("U/uint16")),
-    factory, "uint16");
+    factory, "uint16 ");
   BOOST_CHECK(16);
   testCreateProcessScalar<int8_t, D_int, int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int8_t>("I/int8")),
-    factory, "int8");
+    factory, "int8 ");
   BOOST_CHECK(-8);
   testCreateProcessScalar<uint8_t, D_int, int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint8_t>("U/uint8")),
-    factory, "uint8");
+    factory, "uint8 ");
   BOOST_CHECK(8);
   testCreateProcessScalar<float, D_float, float>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<float>("FP/float")),
-    factory, "float");
+    factory, "float ");
   BOOST_CHECK(0.5);
   testCreateProcessScalar<double, D_double, double>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<double>("FP/double")),
-    factory, "double");
+    factory, "double ");
   
 }
 
