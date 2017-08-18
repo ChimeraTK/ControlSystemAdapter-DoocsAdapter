@@ -118,12 +118,12 @@ namespace ChimeraTK{
           locationName = locationAndPropertyName.first;
           propertyName = locationAndPropertyName.second;
           if (locationName.empty() ){
-            throw std::logic_error(std::string("Invalid XML content in global import of ") + importSource + ":  Cannot create location name from '" + nameSource + "', one hirarchy level is missing.");
+            throw std::logic_error(std::string("Invalid XML content in global import of ") +  (importSource.empty()?"/":importSource) + ":  Cannot create location name from '" + nameSource + "', one hirarchy level is missing.");
           }
           // convenience for the user: You get an error message is you try a global import
           // with directory (in case you did not validate your xml against the schema).
           if (!directory.empty()){
-            throw std::logic_error(std::string("Invalid XML content in global import of ") + importSource + ":  You cannot have a directory in a global import.");
+            throw std::logic_error(std::string("Invalid XML content in global import of ") + (importSource.empty()?"/":importSource) + ":  You cannot have a directory in a global import.");
           }
         }else{
           // import into a location, we know the location name.

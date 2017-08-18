@@ -168,6 +168,17 @@ BOOST_AUTO_TEST_CASE( testImportWithDirectory ){
   testXmlParsing("variableTreeXml/importWithDirectory.xml", propertyMap);
 }
 
+BOOST_AUTO_TEST_CASE( testWrongGlobalDirectory ){
+  // directory is not allowed in global imports, only when importing inside a location
+  try{
+    testXmlParsing("variableTreeXml/wrongGlobalDirectory.xml", {});
+    BOOST_ERROR("testWrongGlobalDirectory did not throw as expected.");// LCOV_EXCL_LINE
+  }catch(std::logic_error & e){
+    std::cout << "For manually checking the exception message for directory in global import:\n"
+              << e.what() << std::endl;
+  }
+}
+
 BOOST_AUTO_TEST_CASE( testImportTooShort ){
   try{
     testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {});
