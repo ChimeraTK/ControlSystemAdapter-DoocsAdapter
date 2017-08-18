@@ -21,25 +21,32 @@
    </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="LocationType">
-    <xs:sequence>
-      <xs:element name="property" type="PropertyType"  minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="import" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
+   <xs:complexType name="LocationType">
+     <xs:sequence>
+       <xs:element name="property" type="PropertyType"  minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="import" type="LocationImportType" minOccurs="0" maxOccurs="unbounded"/>
+     </xs:sequence>
      <xs:attribute name="name" type="xs:string" use="required"/>
- </xs:complexType>
+   </xs:complexType>
+   
+   <xs:complexType name="PropertyType">
+     <xs:sequence>
+       <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
+       <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
+       <xs:element name="spectrum" type="SpectrumType" minOccurs="0"/>
+     </xs:sequence>
+     <xs:attribute name="source" type="xs:string" use="required"/>
+     <xs:attribute name="name" type="xs:string"/>
+   </xs:complexType>
+   
+   <xs:complexType name="LocationImportType">
+     <xs:simpleContent>
+       <xs:extension base="xs:string">
+         <xs:attribute name="directory" type="xs:string" />
+       </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
 
-  <xs:complexType name="PropertyType">
-    <xs:sequence>
-      <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
-      <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
-      <xs:element name="spectrum" type="SpectrumType" minOccurs="0"/>
-    </xs:sequence>
-    <xs:attribute name="source" type="xs:string" use="required"/>
-    <xs:attribute name="name" type="xs:string"/>
-  </xs:complexType>
-
- 
    <xs:complexType name="SpectrumType">
      <xs:attribute name="start" type="xs:float" default="0.0"/>
      <xs:attribute name="increment" type="xs:float" default="1.0"/>

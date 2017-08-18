@@ -3,6 +3,8 @@
 #include <libxml++/libxml++.h>
 #include <regex>
 #include "splitStringAtFirstSlash.h"
+#include <mtca4u/RegisterPath.h>
+#include <iostream>
 
 namespace ChimeraTK{
   
@@ -73,15 +75,25 @@ namespace ChimeraTK{
   }
 
   void VariableMapper::processImportNode(xmlpp::Node const * importNode, std::string importLocationName){
+    const xmlpp::Element* importElement = dynamic_cast<const xmlpp::Element*>(importNode);
+    std::string directory;
+    if (importElement){
+      // look for a directory attribute
+      const xmlpp::Attribute* directoryAttribute = importElement->get_attribute("directory");
+      if (directoryAttribute){
+        directory = directoryAttribute->get_value();
+      }
+    }
+    
     for (auto const & node : importNode->get_children()){
       const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
       std::string importSource = nodeAsText->get_content();
-
-      import(importSource, importLocationName);
+      import(importSource, importLocationName, directory);
     }
   }
 
-  void VariableMapper::import(std::string importSource, std::string importLocationName){
+  void VariableMapper::import(std::string importSource, std::string importLocationName,
+                              std::string directory){
     // a slash will be added after the source, so we make the source empty for an import of everything
     if (importSource == "/"){
       importSource = "";
@@ -96,7 +108,9 @@ namespace ChimeraTK{
       if ( processVariable.find( importSource+"/") == 0 ){
         // processVariable starts with wanted source
         auto nameSource = processVariable.substr( importSource.size() + 1); // add the slash to be removed
-        std::string propertyName;
+        // we use the register path because it removes duplicate separators and allows to use
+        // . as separater to replace all / with .
+        mtca4u::RegisterPath propertyName;
         std::string locationName;
         if (importLocationName.empty()){
           // a global import, try to get the location name from the source
@@ -106,13 +120,22 @@ namespace ChimeraTK{
           if (locationName.empty() ){
             throw std::logic_error(std::string("Invalid XML content in global import of ") + importSource + ":  Cannot create location name from '" + nameSource + "', one hirarchy level is missing.");
           }
+          // convenience for the user: You get an error message is you try a global import
+          // with directory (in case you did not validate your xml against the schema).
+          if (!directory.empty()){
+            throw std::logic_error(std::string("Invalid XML content in global import of ") + importSource + ":  You cannot have a directory in a global import.");
+          }
         }else{
-          // import into a location, we know the location name. Just replace / with .
-          propertyName = std::regex_replace(nameSource, std::regex("/"), ".");
+          // import into a location, we know the location name.
+          // add the directory first, then add the name source property
+          propertyName /= directory;
+          propertyName /= nameSource;
           locationName = importLocationName;
         }
 
-        _inputSortedDescriptions[processVariable] = PropertyDescription(locationName, propertyName);
+        // get the property name with . instead of /
+        propertyName.setAltSeparator(".");
+        _inputSortedDescriptions[processVariable] = PropertyDescription(locationName, propertyName.getWithAltSeparator());
       }
     }
   }
