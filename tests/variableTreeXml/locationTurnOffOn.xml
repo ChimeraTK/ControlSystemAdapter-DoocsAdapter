@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <location name="DUMMY_LOCATION">
+    <has_history>false</has_history>
+    <property source="/A/b/do">
+      <has_history>true</has_history>
+    </property>
+    <import>/A</import>
+  </location>
+  <location name="ANOTHER_LOCATION">
+    <is_writeable>false</is_writeable>
+    <property source="B/c/gne" name="WRITE_ME">
+      <is_writeable>true</is_writeable>
+    </property>
+    <import>/B</import>
+  </location>
+</device_server>
