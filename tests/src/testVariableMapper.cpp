@@ -74,7 +74,27 @@ bool mapCompare (Map const &lhs, Map const &rhs) {
 void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::PropertyDescription > propertyMap){
   VariableMapper & vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
+  //  vm.print();
   BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
+}
+
+BOOST_AUTO_TEST_CASE( testEvaluateBool ){
+  // typo/ invalid syntax
+  try{
+    VariableMapper::evaluateBool("fale");
+    BOOST_ERROR("testEvaluateBool did not throw as expected"); // LCOV_EXCL_LINE
+  }catch(std::logic_error & e){
+    std::cout << "For manually checking the exception message for invalid bool syntax:\n"
+              << e.what() << std::endl;
+  }
+  BOOST_CHECK( VariableMapper::evaluateBool("false") == false);
+  BOOST_CHECK( VariableMapper::evaluateBool("False") == false);
+  BOOST_CHECK( VariableMapper::evaluateBool("FALSE") == false);
+  BOOST_CHECK( VariableMapper::evaluateBool("true"));
+  BOOST_CHECK( VariableMapper::evaluateBool("True"));
+  BOOST_CHECK( VariableMapper::evaluateBool("TRUE"));
+  BOOST_CHECK( VariableMapper::evaluateBool("0") == false);
+  BOOST_CHECK( VariableMapper::evaluateBool("1"));
 }
 
 BOOST_AUTO_TEST_CASE( testRename ){
@@ -246,6 +266,6 @@ BOOST_AUTO_TEST_CASE( testLocationTurnOffOn ){
                                                             {"/A/b",     {"DUMMY_LOCATION","b",false}},
                                                             {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",false}},
                                                             {"/B/c/de",  {"ANOTHER_LOCATION","c.de",false}},
-	                                                    {"/B/c/gne", {"ANOTHER_LOCATION","B.c.gne"}},
+	                                                    {"/B/c/gne", {"ANOTHER_LOCATION","WRITE_ME"}},
                                                        });
 }

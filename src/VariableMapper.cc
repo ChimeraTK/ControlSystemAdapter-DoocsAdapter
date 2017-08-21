@@ -5,6 +5,8 @@
 #include "splitStringAtFirstSlash.h"
 #include <mtca4u/RegisterPath.h>
 #include <iostream>
+#include <locale>
+#include <algorithm>
 
 namespace ChimeraTK{
   
@@ -32,6 +34,10 @@ namespace ChimeraTK{
           processPropertyNode(node, locationName);
         }else if (node->get_name() == "import"){
           processImportNode(node, locationName);
+        }else if (node->get_name() == "has_history"){
+          std::cout << "FIXME: implement has_history" << std::endl;
+        }else if (node->get_name() == "is_writeable"){
+          std::cout << "FIXME: implement is_writeable" << std::endl;
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": Unknown node '"+node->get_name()+"'");
         }
@@ -55,6 +61,17 @@ namespace ChimeraTK{
       }
       // replace / with . in name
       name = std::regex_replace(name, std::regex("/"), ".");
+    }
+
+    // prepare the property description
+    PropertyDescription propertyDescription(locationName, name);
+    for (auto const & node : property->get_children()){
+        if (nodeIsWhitespace(node)) continue;
+        
+        if (node->get_name() == "has_history"){
+          std::cout << "found has history node" << std::endl;
+          print_node(node);
+        }
     }
 
     std::string absoluteSource;
@@ -90,7 +107,7 @@ namespace ChimeraTK{
       std::string importSource = nodeAsText->get_content();
       import(importSource, importLocationName, directory);
     }
-  }
+   }
 
   void VariableMapper::import(std::string importSource, std::string importLocationName,
                               std::string directory){
@@ -198,6 +215,27 @@ namespace ChimeraTK{
     _locationDefaults.clear();
     _globalDefaults = PropertyAttributes();
     _inputSortedDescriptions.clear();
+  }
+
+  /// printing the map is useful for debugging
+  void VariableMapper::print(std::ostream & os) const {
+    for (auto & variableNameAndPropertyDescription : _inputSortedDescriptions ){
+      auto & variableName = variableNameAndPropertyDescription.first;
+      auto & propertyDescription = variableNameAndPropertyDescription.second;
+      os << variableName << " -> " << propertyDescription.location << " / " << propertyDescription.name << std::endl;
+    }
+  }
+
+  bool VariableMapper::evaluateBool(std::string txt){
+    transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
+    std::cout << "txt now is '" << txt << "'" << std::endl;
+    if (txt=="false" or txt=="0"){
+      return false;
+    }else if (txt=="true" or txt=="1"){
+      return true;
+    }else{
+      throw std::invalid_argument(std::string("Error parsing xml file: could not convert to bool: ") + txt);
+    }
   }
 
 } // namespace ChimeraTK

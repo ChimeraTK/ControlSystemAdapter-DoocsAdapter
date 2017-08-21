@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <iostream>
 
 namespace xmlpp{
   class Node;
@@ -50,8 +51,8 @@ namespace ChimeraTK{
       public PropertyAttributes{
       std::string location;
       std::string name;
-      PropertyDescription(std::string location_="", std::string name_="")
-        : location(location_), name(name_){}
+      PropertyDescription(std::string location_="", std::string name_="", bool hasHistory_ = true, bool isWriteable_=true)
+        : PropertyAttributes(hasHistory_, isWriteable_), location(location_), name(name_){}
       bool operator==(PropertyDescription const & other) const{
         return location==other.location && name==other.name && static_cast< const PropertyAttributes *>(this)->operator==(other);
       }
@@ -67,7 +68,13 @@ namespace ChimeraTK{
     
     // empty the created mapping 
     void clear();
+
+    /// printing the map is useful for debugging
+    void print(std::ostream & os = std::cout) const;
     
+    /// Note on the input: we intentionally make a because we modify it inside.
+    static bool evaluateBool(std::string txt);
+
   protected:
     VariableMapper()=default;
 
