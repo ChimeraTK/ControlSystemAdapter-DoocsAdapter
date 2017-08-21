@@ -58,6 +58,16 @@ namespace ChimeraTK{
       }
     };
 
+    // This is the per location information which are used as default for the properties in this
+    // location
+    struct LocationInfo: public PropertyAttributes{
+      bool useHasHistoryDefault;
+      bool useIsWriteableDefault;
+      LocationInfo(bool useHasHistoryDefault_,  bool useIsWriteableDefault_)
+        : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_){
+      }
+    };
+    
     std::map< std::string, PropertyDescription > getPropertiesInLocation(std::string location) const;
     std::map< std::string, PropertyDescription > const & getAllProperties() const;
 

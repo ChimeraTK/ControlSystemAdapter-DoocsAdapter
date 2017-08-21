@@ -65,13 +65,28 @@ namespace ChimeraTK{
 
     // prepare the property description
     PropertyDescription propertyDescription(locationName, name);
+    bool useDefaultHasHistory = true;
     for (auto const & node : property->get_children()){
         if (nodeIsWhitespace(node)) continue;
         
         if (node->get_name() == "has_history"){
-          std::cout << "found has history node" << std::endl;
-          print_node(node);
+          std::cout << "found has_history node" << std::endl;
+          for (auto const & innerNode : node->get_children()){
+            const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(innerNode);
+            if (nodeAsText){
+              // only process the text stuff
+              propertyDescription.hasHistory= evaluateBool(nodeAsText->get_content());
+              std::cout << "setting hasHistory of "<< name << " to " << propertyDescription.hasHistory << std::endl;
+              useDefaultHasHistory= false;
+            }
+          }
         }
+    }
+
+    // fixme : there is a check on location xml missing if it has the has_history
+    if (useDefaultHasHistory){
+      std::cout << "setting hasHistory default of "<< name << " to " << propertyDescription.hasHistory << std::endl;
+      propertyDescription.hasHistory = _globalDefaults.hasHistory;
     }
 
     std::string absoluteSource;
@@ -228,7 +243,6 @@ namespace ChimeraTK{
 
   bool VariableMapper::evaluateBool(std::string txt){
     transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
-    std::cout << "txt now is '" << txt << "'" << std::endl;
     if (txt=="false" or txt=="0"){
       return false;
     }else if (txt=="true" or txt=="1"){
