@@ -74,7 +74,7 @@ bool mapCompare (Map const &lhs, Map const &rhs) {
 void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::PropertyDescription > propertyMap){
   VariableMapper & vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
-  //  vm.print();
+  vm.print();
   BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
 }
 
@@ -261,11 +261,11 @@ BOOST_AUTO_TEST_CASE( testUnkownLocationNode ){
 }
 
 BOOST_AUTO_TEST_CASE( testLocationTurnOffOn ){
-  testXmlParsing("variableTreeXml/locationTurnOffOn.xml", { {"/A/a/di",  {"DUMMY_LOCATION","a.di",false}},
-	                                                    {"/A/a/do",  {"DUMMY_LOCATION","A.a.do"}},
-                                                            {"/A/b",     {"DUMMY_LOCATION","b",false}},
-                                                            {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",false}},
-                                                            {"/B/c/de",  {"ANOTHER_LOCATION","c.de",false}},
+  testXmlParsing("variableTreeXml/locationTurnOffOn.xml", { {"/A/a/di",  {"DUMMY_LOCATION","a.di",true}},
+                                                            {"/A/a/do",  {"DUMMY_LOCATION","A.a.do",false}},
+                                                            {"/A/b",     {"DUMMY_LOCATION","b",true}},
+                                                            {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",true}},
+                                                            {"/B/c/de",  {"ANOTHER_LOCATION","c.de",true}},
 	                                                    {"/B/c/gne", {"ANOTHER_LOCATION","WRITE_ME"}},
                                                        });
 }

@@ -3,7 +3,7 @@
   <location name="DUMMY_LOCATION">
     <has_history>false</has_history>
     <property source="/A/a/do">
-      <has_history>true</has_history>
+      <has_history>false</has_history>
     </property>
     <import>/A</import>
   </location>

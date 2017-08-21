@@ -101,7 +101,7 @@ namespace ChimeraTK{
       auto existingPropertyDescription = existingCandidate->second;
       throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ locationName+"/" +name +". Process variable already defined to point to " + existingPropertyDescription.location + "/" + existingPropertyDescription.name);
     }else{
-      _inputSortedDescriptions[absoluteSource] = PropertyDescription(locationName, name);
+      _inputSortedDescriptions[absoluteSource] = propertyDescription;
     }
    
   }
@@ -237,7 +237,9 @@ namespace ChimeraTK{
     for (auto & variableNameAndPropertyDescription : _inputSortedDescriptions ){
       auto & variableName = variableNameAndPropertyDescription.first;
       auto & propertyDescription = variableNameAndPropertyDescription.second;
-      os << variableName << " -> " << propertyDescription.location << " / " << propertyDescription.name << std::endl;
+      os << variableName << " -> " << propertyDescription.location << " / " << propertyDescription.name
+         << " hasHistory:" << propertyDescription.hasHistory
+         << std::endl;
     }
   }
 
