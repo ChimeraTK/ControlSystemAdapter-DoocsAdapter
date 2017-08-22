@@ -15,7 +15,7 @@
     <property source="/B/c/gne" name="WRITE_ME">
       <is_writeable>true</is_writeable>
     </property>
-    <property source="/B/a/de" name="a.dr"/>
+    <property source="/B/a/dr" name="a.dr"/>
     <import>/B</import>
   </location>
 </device_server>

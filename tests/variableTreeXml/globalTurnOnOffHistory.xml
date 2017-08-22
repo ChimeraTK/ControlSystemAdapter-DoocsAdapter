@@ -16,7 +16,7 @@
     <property source="/B/c/gne" name="DONT_WRITE_ME">
       <is_writeable>false</is_writeable>
     </property>
-    <property source="/B/a/de" name="a.dr"/>
+    <property source="/B/a/dr" name="a.dr"/>
     <import>/B</import>
   </location>
   <location name="NO_LOCATION_MODIFIERS">
