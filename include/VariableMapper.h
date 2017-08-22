@@ -100,7 +100,8 @@ namespace ChimeraTK{
     void processImportNode(xmlpp::Node const * importNode, std::string importLocationName=std::string());
 
     void import(std::string importSource, std::string importLocationName, std::string directory="");
-   
+    bool getHasHistoryDefault(std::string const & locationName);
+    
     std::map<std::string, LocationInfo> _locationDefaults;
     PropertyAttributes _globalDefaults;
 
