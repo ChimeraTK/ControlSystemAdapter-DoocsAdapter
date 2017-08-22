@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <has_history>false</has_history>
+  <location name="DUMMY_LOCATION">
+    <has_history>true</has_history>
+    <property source="/A/a/do">
+      <has_history>false</has_history>
+    </property>
+    <!-- to test that it picks up the default when explicitly mentiones as property-->
+    <property source="/A/a/di" name="a.di"/>
+    <!-- to test that it picks up the default when being imported-->
+    <import>/A</import>
+  </location>
+  <location name="ANOTHER_LOCATION">
+    <is_writeable>true</is_writeable>
+    <property source="/B/c/gne" name="DONT_WRITE_ME">
+      <is_writeable>false</is_writeable>
+    </property>
+    <property source="/B/a/de" name="a.dr"/>
+    <import>/B</import>
+  </location>
+  <location name="NO_LOCATION_MODIFIERS">
+    <property source="/C/a/da" name="a.da">
+      <has_history>true</has_history>
+    </property>
+    <property source="/C/b/ge" name="b.ge">
+      <is_writeable>true</is_writeable>
+    </property>
+    <import>/C</import>
+  </location>
+  <import>/</import>
+</device_server>
