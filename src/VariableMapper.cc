@@ -193,6 +193,10 @@ namespace ChimeraTK{
           processLocationNode(mainNode);
         }else if (mainNode->get_name() == "import"){
           processImportNode(mainNode);
+        }else if (mainNode->get_name() == "has_history"){
+          _globalDefaults.hasHistory = evaluateBool(getContentString(mainNode));
+        }else if (mainNode->get_name() == "is_writeable"){
+          _globalDefaults.isWriteable = evaluateBool(getContentString(mainNode));
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file ") + xmlFile + ": Unknown node '"+mainNode->get_name()+"'");
         }
@@ -240,6 +244,7 @@ namespace ChimeraTK{
       auto & propertyDescription = variableNameAndPropertyDescription.second;
       os << variableName << " -> " << propertyDescription.location << " / " << propertyDescription.name
          << " hasHistory:" << propertyDescription.hasHistory
+         << " isWriteable:" << propertyDescription.isWriteable
          << std::endl;
     }
   }

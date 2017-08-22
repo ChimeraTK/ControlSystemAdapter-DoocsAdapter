@@ -74,7 +74,7 @@ bool mapCompare (Map const &lhs, Map const &rhs) {
 void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::PropertyDescription > propertyMap){
   VariableMapper & vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
-  //  vm.print();
+  //vm.print();
   BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
 }
 
@@ -278,10 +278,10 @@ BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnHistory ){
                    {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",false}},
                    {"/B/c/de",  {"ANOTHER_LOCATION","c.de",false}},
                    {"/B/c/gne", {"ANOTHER_LOCATION","DONT_WRITE_ME",false,false}},
-                   {"/C/a/da",  {"C","a.da",true}},
-                   {"/C/b/ge",  {"C","b.ge",false}},
-                   {"/C/c/be",  {"C","c.be",false}},
-                   {"/C/c/de",  {"C","c.de",false}},
+                   {"/C/a/da",  {"NO_LOCATION_MODIFIERS","a.da",true}},
+                   {"/C/b/ge",  {"NO_LOCATION_MODIFIERS","b.ge",false}},
+                   {"/C/c/be",  {"NO_LOCATION_MODIFIERS","c.be",false}},
+                   {"/C/c/de",  {"NO_LOCATION_MODIFIERS","c.de",false}},
                    {"/DIRECT/DOUBLE",  {"DIRECT","DOUBLE",false}},
                    {"/DIRECT/DOUBLE_ARRAY",  {"DIRECT","DOUBLE_ARRAY",false}},
                    {"/DIRECT/INT",  {"DIRECT","INT",false}},
@@ -293,14 +293,14 @@ BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnWriteable ){
   testXmlParsing("variableTreeXml/globalTurnOnOffWriteable.xml",
                  { {"/A/a/di",  {"DUMMY_LOCATION","a.di",true,false}},
                    {"/A/a/do",  {"DUMMY_LOCATION","A.a.do",false,false}},
-                   {"/A/b",     {"DUMMY_LOCATION","b",true,true}},
-                   {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",false, true}},
-                   {"/B/c/de",  {"ANOTHER_LOCATION","c.de",false, true}},
+                   {"/A/b",     {"DUMMY_LOCATION","b",true,false}},
+                   {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",true, true}},
+                   {"/B/c/de",  {"ANOTHER_LOCATION","c.de",true, true}},
                    {"/B/c/gne", {"ANOTHER_LOCATION","DONT_WRITE_ME",true,false}},
-                   {"/C/a/da",  {"C","a.da",true,false}},
-                   {"/C/b/ge",  {"C","b.ge",true,true}},
-                   {"/C/c/be",  {"C","c.be",true,false}},
-                   {"/C/c/de",  {"C","c.de",true,false}},
+                   {"/C/a/da",  {"NO_LOCATION_MODIFIERS","a.da",true,false}},
+                   {"/C/b/ge",  {"NO_LOCATION_MODIFIERS","b.ge",true,true}},
+                   {"/C/c/be",  {"NO_LOCATION_MODIFIERS","c.be",true,false}},
+                   {"/C/c/de",  {"NO_LOCATION_MODIFIERS","c.de",true,false}},
                    {"/DIRECT/DOUBLE",  {"DIRECT","DOUBLE",true,false}},
                    {"/DIRECT/DOUBLE_ARRAY",  {"DIRECT","DOUBLE_ARRAY",true,false}},
                    {"/DIRECT/INT",  {"DIRECT","INT",true,false}},
