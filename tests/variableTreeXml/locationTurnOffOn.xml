@@ -6,8 +6,7 @@
       <has_history>true</has_history>
     </property>
     <!-- to test that it picks up the default when explicitly mentiones as property-->
-    <property source="/A/a/di" name="a.di">
-    </property>
+    <property source="/A/a/di" name="a.di"/>
     <!-- to test that it picks up the default when being imported-->
     <import>/A</import>
   </location>
@@ -16,6 +15,7 @@
     <property source="/B/c/gne" name="WRITE_ME">
       <is_writeable>true</is_writeable>
     </property>
+    <property source="/B/a/de" name="a.dr"/>
     <import>/B</import>
   </location>
 </device_server>

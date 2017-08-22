@@ -264,8 +264,8 @@ BOOST_AUTO_TEST_CASE( testLocationTurnOffOn ){
   testXmlParsing("variableTreeXml/locationTurnOffOn.xml", { {"/A/a/di",  {"DUMMY_LOCATION","a.di",false}},
                                                             {"/A/a/do",  {"DUMMY_LOCATION","A.a.do",true}},
                                                             {"/A/b",     {"DUMMY_LOCATION","b",false}},
-                                                            {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",true}},
-                                                            {"/B/c/de",  {"ANOTHER_LOCATION","c.de",true}},
+                                                            {"/B/a/dr",  {"ANOTHER_LOCATION","a.dr",true, false}},
+                                                            {"/B/c/de",  {"ANOTHER_LOCATION","c.de",true, false}},
 	                                                    {"/B/c/gne", {"ANOTHER_LOCATION","WRITE_ME"}},
                                                        });
 }
