@@ -3,8 +3,12 @@
   <location name="DUMMY_LOCATION">
     <has_history>false</has_history>
     <property source="/A/a/do">
-      <has_history>false</has_history>
+      <has_history>true</has_history>
     </property>
+    <!-- to test that it picks up the default when explicitly mentiones as property-->
+    <property source="/A/a/di" name="a.di">
+    </property>
+    <!-- to test that it picks up the default when being imported-->
     <import>/A</import>
   </location>
   <location name="ANOTHER_LOCATION">

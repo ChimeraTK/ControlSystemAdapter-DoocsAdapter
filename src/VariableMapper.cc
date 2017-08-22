@@ -29,13 +29,19 @@ namespace ChimeraTK{
 
     for (auto const & node : location->get_children()){
         if (nodeIsWhitespace(node)) continue;
-        
+        if (dynamic_cast<xmlpp::CommentNode const *>(node)) continue;        
+
         if (node->get_name() == "property"){
           processPropertyNode(node, locationName);
         }else if (node->get_name() == "import"){
           processImportNode(node, locationName);
         }else if (node->get_name() == "has_history"){
-          std::cout << "FIXME: implement has_history" << std::endl;
+          std::cout << "FIXME: implementing has_history" << std::endl;
+          auto & locationInfo = _locationDefaults[locationName];
+          locationInfo.useHasHistoryDefault = true;
+          locationInfo.hasHistory = evaluateBool(getContentString(node));
+          std::cout << "locationName " << locationName << ", stringContent " << getContentString(node)<< std::endl;
+          // FIXME: I need a one-liner to extract true/false from the node and place it into locationInfo
         }else if (node->get_name() == "is_writeable"){
           std::cout << "FIXME: implement is_writeable" << std::endl;
         }else{
@@ -85,8 +91,23 @@ namespace ChimeraTK{
 
     // fixme : there is a check on location xml missing if it has the has_history
     if (useDefaultHasHistory){
-      std::cout << "setting hasHistory default of "<< name << " to " << propertyDescription.hasHistory << std::endl;
-      propertyDescription.hasHistory = _globalDefaults.hasHistory;
+      std::cout << "useDefaultHasHistory in " << locationName << std::endl;
+      auto locationInfoIter = _locationDefaults.find(locationName);
+      if (locationInfoIter != _locationDefaults.end()){
+        std::cout << "found info on location " << locationName << std::endl;
+        auto locationInfo =locationInfoIter->second; 
+        if (locationInfo.useHasHistoryDefault){
+          
+           propertyDescription.hasHistory = locationInfo.hasHistory;
+           std::cout << "setting hasHistory default from location info of "<< name << " to " << propertyDescription.hasHistory << std::endl;
+        }else{
+          propertyDescription.hasHistory = _globalDefaults.hasHistory;
+          std::cout << "locationInfo does not have default settings. setting global hasHistory default of "<< name << " to " << propertyDescription.hasHistory << std::endl;
+        }
+      }else{ 
+        propertyDescription.hasHistory = _globalDefaults.hasHistory;
+        std::cout << "setting hasHistory default of "<< name << " to " << propertyDescription.hasHistory << std::endl;
+      }
     }
 
     std::string absoluteSource;
@@ -254,5 +275,19 @@ namespace ChimeraTK{
     }
   }
 
+  std::string VariableMapper::getContentString(xmlpp::Node const *node){
+    for (auto const & subNode : node->get_children()){
+      const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(subNode);
+      if(nodeAsText){
+        if (nodeAsText->is_white_space()){
+          continue;
+        }
+        return nodeAsText->get_content();
+      }
+    }
+    throw std::invalid_argument(std::string("Error parsing xml file: node ") + node->get_name() +
+                                " does not have text nodes as children."); 
+  }
+  
 } // namespace ChimeraTK
 

@@ -63,7 +63,7 @@ namespace ChimeraTK{
     struct LocationInfo: public PropertyAttributes{
       bool useHasHistoryDefault;
       bool useIsWriteableDefault;
-      LocationInfo(bool useHasHistoryDefault_,  bool useIsWriteableDefault_)
+      LocationInfo(bool useHasHistoryDefault_=false,  bool useIsWriteableDefault_=false)
         : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_){
       }
     };
@@ -82,9 +82,14 @@ namespace ChimeraTK{
     /// printing the map is useful for debugging
     void print(std::ostream & os = std::cout) const;
     
-    /// Note on the input: we intentionally make a because we modify it inside.
+    /// Function to get a bool out of the texts true/True/TRUE/false/False/FALSE/1/0.
+    /// Note on the input: we intentionally make a copy because we modify it inside.
     static bool evaluateBool(std::string txt);
 
+    /// Loop through the sub nodes and take the string from the first non-empty
+    /// which can be casted to a string-node
+    static std::string getContentString(xmlpp::Node const *node);
+     
   protected:
     VariableMapper()=default;
 
@@ -96,7 +101,7 @@ namespace ChimeraTK{
 
     void import(std::string importSource, std::string importLocationName, std::string directory="");
    
-    std::map<std::string, PropertyAttributes> _locationDefaults;
+    std::map<std::string, LocationInfo> _locationDefaults;
     PropertyAttributes _globalDefaults;
 
     // PropertyDescriptions, sorted by input, i.e. the ChimeraTK PV name
