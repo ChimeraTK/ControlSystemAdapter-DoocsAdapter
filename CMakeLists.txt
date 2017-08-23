@@ -64,7 +64,7 @@ if(TESTING_IS_ENABLED)
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
-  file(GLOB XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/variableTreeXml/*.xml)
+  file(GLOB XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/variableTreeXml/*.xml ${CMAKE_SOURCE_DIR}/tests/variableTreeXml/intentionallyBroken/*.xml)
   file(COPY ${XML_FILES} DESTINATION ${PROJECT_BINARY_DIR}/variableTreeXml)
 
   file(GLOB TEST_XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/*.xml)

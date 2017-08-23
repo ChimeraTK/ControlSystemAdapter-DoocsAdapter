@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testEvaluateBool ){
     VariableMapper::evaluateBool("fale");
     BOOST_ERROR("testEvaluateBool did not throw as expected"); // LCOV_EXCL_LINE
   }catch(std::logic_error & e){
-    std::cout << "For manually checking the exception message for invalid bool syntax:\n"
+    std::cout << " -- For manually checking the exception message for invalid bool syntax:\n      "
               << e.what() << std::endl;
   }
   BOOST_CHECK( VariableMapper::evaluateBool("false") == false);
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( testWrongGlobalDirectory ){
     testXmlParsing("variableTreeXml/wrongGlobalDirectory.xml", {});
     BOOST_ERROR("testWrongGlobalDirectory did not throw as expected.");// LCOV_EXCL_LINE
   }catch(std::logic_error & e){
-    std::cout << "For manually checking the exception message for directory in global import:\n"
+    std::cout << " -- For manually checking the exception message for directory in global import:\n      "
               << e.what() << std::endl;
   }
 }
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testImportTooShort ){
     testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {});
     BOOST_ERROR("testImportTooShort did not throw as expected.");// LCOV_EXCL_LINE
   }catch(std::logic_error & e){
-    std::cout << "For manually checking the exception message for too short tree depth:\n"
+    std::cout << " -- For manually checking the exception message for too short tree depth:\n      "
               << e.what() << std::endl;
   }
 }
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( testDuplicateSource ){
     testXmlParsing("variableTreeXml/duplicateSource.xml", {});
     BOOST_ERROR("testDuplicateSource did not throw as expected"); // LCOV_EXCL_LINE
   }catch(std::logic_error & e){
-    std::cout << "For manually checking the exception message for duplicate sources:\n"
+    std::cout << " -- For manually checking the exception message for duplicate sources:\n      "
               << e.what() << std::endl;
   }
 }
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE( testUnknownMainNode ){
     testXmlParsing("variableTreeXml/unknownMainNode.xml", {});
     BOOST_ERROR("testUnknownMainNode did not throw as expected"); // LCOV_EXCL_LINE
   }catch(std::logic_error & e){
-    std::cout << "For manually checking the exception message for unknown main node:\n"
+    std::cout << " -- For manually checking the exception message for unknown main node:\n      "
               << e.what() << std::endl;
   }
 }
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testUnkownLocationNode ){
     testXmlParsing("variableTreeXml/unknownLocationNode.xml", {});
     BOOST_ERROR("testUnknownLocationNode did not throw as expected"); // LCOV_EXCL_LINE
   }catch(std::logic_error & e){
-    std::cout << "For manually checking the exception message for unknown location node:\n"
+    std::cout << " -- For manually checking the exception message for unknown location node:\n      "
               << e.what() << std::endl;
   }
 }
