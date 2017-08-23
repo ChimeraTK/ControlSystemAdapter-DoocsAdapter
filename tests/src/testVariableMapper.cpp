@@ -307,3 +307,22 @@ BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnWriteable ){
                    {"/DIRECT/INT_ARRAY",  {"DIRECT","INT_ARRAY",true,false}}
                  });
 }
+
+BOOST_AUTO_TEST_CASE( testCompareDoocsTypeDescriptions ){
+  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions(boost::any(), boost::any()));
+
+  // Fixme? This does not throw, should it?
+  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions(boost::any(), 42)== false);
+  // FIXME: the throw check is implementation detail(?). Maybe not if I compare two equal, unknown types???
+  BOOST_CHECK_THROW( VariableMapper::compareDoocsTypeDescriptions(42, boost::any()), std::invalid_argument);
+
+  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( VariableMapper::SpectrumDescription(),
+                                                             boost::any()) == false);
+  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( boost::any(),
+                                                             VariableMapper::SpectrumDescription()) == false);
+  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( VariableMapper::SpectrumDescription(),
+                                                             VariableMapper::SpectrumDescription()) );
+  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( VariableMapper::SpectrumDescription(0.1),
+                                                             VariableMapper::SpectrumDescription()) == false);
+  // don't test the equals operator of the SeptrumDescription here. This is done implicitly in the other content tests. It's enouch to have to have one equal and one different.
+}

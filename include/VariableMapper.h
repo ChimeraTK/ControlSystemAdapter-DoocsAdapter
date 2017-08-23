@@ -6,6 +6,7 @@
 #include <set>
 #include <memory>
 #include <iostream>
+#include <boost/any.hpp>
 
 namespace xmlpp{
   class Node;
@@ -27,21 +28,33 @@ namespace ChimeraTK{
         return start==other.start && increment==other.increment;
       }
     };
+
+    template<class T>
+    static bool castAndCompare(boost::any const &t1, boost::any const &t2){
+      try{
+        auto casted1 = boost::any_cast<T>(t1);
+        auto casted2 = boost::any_cast<T>(t2);
+        // both casts have to succeed
+        return casted1==casted2;
+      }catch(const boost::bad_any_cast &){
+        return false;
+      }
+    }
     
+    static bool compareDoocsTypeDescriptions(boost::any const &description1, boost::any const &description2);
+
     // PropertyAttributes are used in the property description itself, and
     // as default values (global and in the locations)
     struct PropertyAttributes{
       bool hasHistory;
       bool isWriteable;
-      bool hasSpectrum;
-      SpectrumDescription spectrum;
-      PropertyAttributes(bool hasHistory_ = true, bool isWriteable_=true, bool hasSpectrum_=true)
-      : hasHistory(hasHistory_), isWriteable(isWriteable_), hasSpectrum(hasSpectrum_){}
+      boost::any doocsTypeDescription;
+      PropertyAttributes(bool hasHistory_ = true, bool isWriteable_=true)
+      : hasHistory(hasHistory_), isWriteable(isWriteable_){}
       bool operator==(PropertyAttributes const & other) const{
-        return hasHistory == other.hasHistory
-          && isWriteable == other.isWriteable
-          && hasSpectrum == other.hasSpectrum
-          && spectrum == other.spectrum;
+        return (hasHistory == other.hasHistory
+                && isWriteable == other.isWriteable
+                && VariableMapper::compareDoocsTypeDescriptions(doocsTypeDescription, other.doocsTypeDescription));
       }
     };
 
