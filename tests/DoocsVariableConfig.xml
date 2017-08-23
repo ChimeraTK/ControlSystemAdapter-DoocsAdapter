@@ -3,5 +3,10 @@
   <location name="MY_RENAMED_INTEGER_LOCATION">
     <import>/INT</import>
   </location>
+  <location name="DOUBLE">  
+    <property source="DATA_TYPE_CONSTANT">
+      <has_history>false</has_history>
+    </property>
+  </location>
   <import>/</import>
 </device_server>

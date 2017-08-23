@@ -48,7 +48,13 @@ namespace ChimeraTK {
           void notify(boost::shared_ptr< ProcessVariable > processVariable) {
             // It is safe to static cast because the DoocsScalarListener is inside a 
             // DoocsProcessScalar, which always holds the right type
-            _doocsVariable->set_and_archive( (static_cast< ProcessArray<T> & >(*processVariable)).accessData(0) );
+            auto data = (static_cast< ProcessArray<T> & >(*processVariable)).accessData(0);
+            // we must not call set_and_archive if there is no history (otherwise it will be activated), but we have to if it is there. -> Abstraction, please!
+            if (_doocsVariable->get_histPointer()){
+              _doocsVariable->set_and_archive(data);
+            }else{
+              _doocsVariable->set_value(data);
+            }
           }
 
         private:
