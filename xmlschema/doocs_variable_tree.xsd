@@ -34,6 +34,7 @@
    <xs:complexType name="Property">
      <xs:sequence>
         <xs:group ref="PropertyDetails"/>
+        <xs:element name= "doocs_type" type="DoocsType" minOccurs="0"/>
      </xs:sequence>
      <xs:attribute name="source" type="xs:string" use="required"/>
      <xs:attribute name="name" type="xs:string"/>
@@ -51,11 +52,20 @@
      <xs:sequence>
        <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
        <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
-       <xs:element name="spectrum" type="Spectrum" minOccurs="0"/>
      </xs:sequence>
-   </xs:group> 
+   </xs:group>
+
+   <xs:complexType name="DoocsType">
+     <xs:choice>
+        <xs:element name="D_spectrum" type="D_spectrum"/>
+        <xs:element name="automatic" type="Empty"/>
+        <!-- Add more doocs types here. -->
+     </xs:choice>
+  </xs:complexType>   
    
-   <xs:complexType name="LocationImport">
+  <xs:complexType name="Empty"/>
+
+  <xs:complexType name="LocationImport">
      <xs:simpleContent>
        <xs:extension base="xs:string">
          <xs:attribute name="directory" type="xs:string" />
@@ -63,9 +73,11 @@
      </xs:simpleContent>
    </xs:complexType>
 
-   <xs:complexType name="Spectrum">
-     <xs:attribute name="start" type="xs:float" default="0.0"/>
-     <xs:attribute name="increment" type="xs:float" default="1.0"/>
+   <xs:complexType name="D_spectrum">
+     <xs:sequence>
+       <xs:element name="start" type="xs:float" default="0.0" minOccurs="0"/>
+       <xs:element name="increment" type="xs:float" default="1.0" minOccurs="0"/>
+     </xs:sequence>
   </xs:complexType>
 
  </xs:schema>
