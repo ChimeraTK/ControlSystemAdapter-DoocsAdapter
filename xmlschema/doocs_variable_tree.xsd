@@ -12,34 +12,50 @@
     </xs:documentation>
   </xs:annotation>
 
-  <xs:element name="device_server" type="DeviceType"/>
+  <xs:element name="device_server" type="Device"/>
 
-  <xs:complexType name="DeviceType">
+  <xs:complexType name="Device">
     <xs:sequence>
-      <xs:element name="location" type="LocationType"  minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="PropertyDetails"/>
+      <xs:element name="location" type="Location"  minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="import" type="xs:string"  minOccurs="0" maxOccurs="unbounded"/>
    </xs:sequence>
   </xs:complexType>
 
-   <xs:complexType name="LocationType">
+   <xs:complexType name="Location">
      <xs:sequence>
-       <xs:element name="property" type="PropertyType"  minOccurs="0" maxOccurs="unbounded"/>
-       <xs:element name="import" type="LocationImportType" minOccurs="0" maxOccurs="unbounded"/>
+       <xs:group ref="PropertyDetails"/>
+       <xs:element name="property" type="Property"  minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="import" type="LocationImport" minOccurs="0" maxOccurs="unbounded"/>
      </xs:sequence>
      <xs:attribute name="name" type="xs:string" use="required"/>
    </xs:complexType>
    
-   <xs:complexType name="PropertyType">
+   <xs:complexType name="Property">
      <xs:sequence>
-       <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
-       <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
-       <xs:element name="spectrum" type="SpectrumType" minOccurs="0"/>
+        <xs:group ref="PropertyDetails"/>
      </xs:sequence>
      <xs:attribute name="source" type="xs:string" use="required"/>
      <xs:attribute name="name" type="xs:string"/>
    </xs:complexType>
+
+   <!-- This group describes if a "DOOCS property" has history, which type it is etc.
+        Unfortunately the name property is already taken (otherwise I would call it property of a
+        process variable), and attribute is taken by xml (it cannot be an xml attribute because
+        those are only simple types, and to call the group PropertyAttributes but they are not
+        xml attributes would be completely confusing).
+        Also the Device and the Location will have PropertyDetails, which will serve as default
+        values.
+   -->
+   <xs:group name="PropertyDetails">
+     <xs:sequence>
+       <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
+       <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
+       <xs:element name="spectrum" type="Spectrum" minOccurs="0"/>
+     </xs:sequence>
+   </xs:group> 
    
-   <xs:complexType name="LocationImportType">
+   <xs:complexType name="LocationImport">
      <xs:simpleContent>
        <xs:extension base="xs:string">
          <xs:attribute name="directory" type="xs:string" />
@@ -47,7 +63,7 @@
      </xs:simpleContent>
    </xs:complexType>
 
-   <xs:complexType name="SpectrumType">
+   <xs:complexType name="Spectrum">
      <xs:attribute name="start" type="xs:float" default="0.0"/>
      <xs:attribute name="increment" type="xs:float" default="1.0"/>
   </xs:complexType>
