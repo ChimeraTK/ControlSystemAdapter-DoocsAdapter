@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
   <location name="A">
-    <property source="fromDeviceArray1">
-      <doocs_type><D_spectrum/></doocs_type>
-    </property>
-    <property source="fromDeviceArray2">
-      <doocs_type>
-        <D_spectrum>
-          <start>123.</start>
-          <increment>0.56</increment>
-        </D_spectrum>
-      </doocs_type>
-    </property>
+    <D_spectrum source="fromDeviceArray1"/>
+    <D_spectrum source="fromDeviceArray2">
+      <start>123.</start>
+      <increment>0.56</increment>
+    </D_spectrum>
   </location>
 </device_server>

@@ -24,17 +24,24 @@
 
    <xs:complexType name="Location">
      <xs:sequence>
-       <xs:group ref="PropertyDetails"/>
-       <xs:element name="property" type="Property"  minOccurs="0" maxOccurs="unbounded"/>
+       <xs:group ref="PropertyDetails" minOccurs="0"/>
+       <xs:group ref="Property" minOccurs="0" maxOccurs="unbounded"/>
        <xs:element name="import" type="LocationImport" minOccurs="0" maxOccurs="unbounded"/>
      </xs:sequence>
      <xs:attribute name="name" type="xs:string" use="required"/>
    </xs:complexType>
-   
-   <xs:complexType name="Property">
+
+   <!-- The property group basically is the choice of the different property types we have-->
+   <xs:group name="Property">
+     <xs:choice>
+       <xs:element name="property" type="AutoProperty"/>
+       <xs:element name="D_spectrum" type="D_spectrum"/>
+     </xs:choice>
+   </xs:group>
+  
+   <xs:complexType name="AutoProperty">
      <xs:sequence>
-        <xs:group ref="PropertyDetails"/>
-        <xs:element name= "doocs_type" type="DoocsType" minOccurs="0"/>
+        <xs:group ref="PropertyDetails" minOccurs="0"/>
      </xs:sequence>
      <xs:attribute name="source" type="xs:string" use="required"/>
      <xs:attribute name="name" type="xs:string"/>
@@ -55,16 +62,6 @@
      </xs:sequence>
    </xs:group>
 
-   <xs:complexType name="DoocsType">
-     <xs:choice>
-        <xs:element name="D_spectrum" type="D_spectrum"/>
-        <xs:element name="automatic" type="Empty"/>
-        <!-- Add more doocs types here. -->
-     </xs:choice>
-  </xs:complexType>   
-   
-  <xs:complexType name="Empty"/>
-
   <xs:complexType name="LocationImport">
      <xs:simpleContent>
        <xs:extension base="xs:string">
@@ -75,9 +72,12 @@
 
    <xs:complexType name="D_spectrum">
      <xs:sequence>
+       <xs:group ref="PropertyDetails" minOccurs="0"/>
        <xs:element name="start" type="xs:float" default="0.0" minOccurs="0"/>
        <xs:element name="increment" type="xs:float" default="1.0" minOccurs="0"/>
      </xs:sequence>
+     <xs:attribute name="source" type="xs:string" use="required"/>
+     <xs:attribute name="name" type="xs:string"/>
   </xs:complexType>
 
  </xs:schema>
