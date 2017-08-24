@@ -125,36 +125,36 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
-  std::pair< shared_ptr<ControlSystemPVManager>,
-	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
-  shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
-  shared_ptr<DevicePVManager> devManager = pvManagers.second;
-
-  static const size_t arraySize = 10;
-  devManager->createProcessArray<T>(controlSystemToDevice,"A/toDeviceArray",arraySize);
-
-  // populate the variable mapper before creating the DoocsPVFactory
-  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
-
-  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
-    new ControlSystemSynchronizationUtility(csManager));
-
-  DoocsPVFactory factory(&myEqFct, syncUtil);
-
-  // have the variable created and check that it is the right type
-  ProcessVariable::SharedPtr processVariable = 
-    csManager->getProcessArray<T>("A/toDeviceArray");
-  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
-
-  // get the raw pointer and dynamic cast it to the expected type
-  DoocsProcessArray<T> * doocsArray = 
-    dynamic_cast< DoocsProcessArray<T> * > (doocsVariableAsDFct.get());
-
-  // if the cast succeeds the factory works as expected we are done
-  BOOST_REQUIRE(doocsArray);
-  BOOST_CHECK( static_cast<size_t>(doocsArray->max_length()) == arraySize );
-}
+//BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
+//  std::pair< shared_ptr<ControlSystemPVManager>,
+//	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+//  shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+//  shared_ptr<DevicePVManager> devManager = pvManagers.second;
+//
+//  static const size_t arraySize = 10;
+//  devManager->createProcessArray<T>(controlSystemToDevice,"A/toDeviceArray",arraySize);
+//
+//  // populate the variable mapper before creating the DoocsPVFactory
+//  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
+//
+//  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
+//    new ControlSystemSynchronizationUtility(csManager));
+//
+//  DoocsPVFactory factory(&myEqFct, syncUtil);
+//
+//  // have the variable created and check that it is the right type
+//  ProcessVariable::SharedPtr processVariable = 
+//    csManager->getProcessArray<T>("A/toDeviceArray");
+//  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
+//
+//  // get the raw pointer and dynamic cast it to the expected type
+//  DoocsProcessArray<T> * doocsArray = 
+//    dynamic_cast< DoocsProcessArray<T> * > (doocsVariableAsDFct.get());
+//
+//  // if the cast succeeds the factory works as expected we are done
+//  BOOST_REQUIRE(doocsArray);
+//  BOOST_CHECK( static_cast<size_t>(doocsArray->max_length()) == arraySize );
+//}
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   std::pair< shared_ptr<ControlSystemPVManager>,
