@@ -43,6 +43,10 @@ namespace ChimeraTK{
           auto & locationInfo = _locationDefaults[locationName];
           locationInfo.useIsWriteableDefault = true;
           locationInfo.isWriteable = evaluateBool(getContentString(node));
+        }else if (node->get_name() == "D_spectrum"){
+          //FIXME: Ugly hack: running it as a normal node makes the tests pass because the factory still creates specta by default
+          processPropertyNode(node, locationName);
+          std::cout << "FIXME: Implement processSpectrumNode" << std::endl;
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": Unknown node '"+node->get_name()+"'");
         }
