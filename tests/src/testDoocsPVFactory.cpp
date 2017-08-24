@@ -11,6 +11,7 @@
 #include "DoocsPVFactory.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsProcessArray.h"
+#include "DoocsSpectrum.h"
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
@@ -41,13 +42,8 @@ public:
   }
 
   template<class T, class DOOCS_T, class DOOCS_VALUE_T>
-  typename boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable){
+  typename boost::shared_ptr<D_fct> createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable){
     return DoocsPVFactory::createDoocsProperty<T, DOOCS_T, DOOCS_VALUE_T>(processVariable);
-  }
-
-  template<class T, class DOOCS_T, class DOOCS_VALUE_T>
-  typename boost::shared_ptr<D_fct> createDoocsArray(typename ProcessVariable::SharedPtr & processVariable){
-    return DoocsPVFactory::createDoocsProperty<T, DOOCS_T, DOOCS_VALUE_T>(processVariable);   
   }
 };
 
@@ -160,6 +156,44 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   BOOST_CHECK( static_cast<size_t>(doocsArray->max_length()) == arraySize );
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
+  std::pair< shared_ptr<ControlSystemPVManager>,
+	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+  shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+  shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+  static const size_t arraySize = 10;
+  // array 1 will have default settings, array 2 custom start and increment
+  devManager->createProcessArray<T>(controlSystemToDevice,"A/fromDeviceArray1",arraySize);
+  devManager->createProcessArray<T>(controlSystemToDevice,"A/fromDeviceArray2",arraySize);
+
+  // we need this later anyway, do we make a temporary variable
+  auto pvNames = ChimeraTK::getAllVariableNames( csManager );
+  // populate the variable mapper before creating the DoocsPVFactory, with array becoming D_spectrum
+  VariableMapper::getInstance().prepareOutput("testSpectrum.xml",pvNames);
+  
+  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
+    new ControlSystemSynchronizationUtility(csManager));
+
+  DoocsPVFactory factory(&myEqFct, syncUtil);
+
+  // have the variable created and check that it is the right type
+  for (auto const & pvName : pvNames){
+    ProcessVariable::SharedPtr processVariable = 
+      csManager->getProcessArray<T>(pvName);
+    boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
+
+    // get the raw pointer and dynamic cast it to the expected type
+    DoocsSpectrum<T> * doocsSpectrum = 
+      dynamic_cast< DoocsSpectrum<T> * > (doocsVariableAsDFct.get());
+
+    // if the cast succeeds the factory works as expected we are done
+    BOOST_REQUIRE(doocsSpectrum);
+    BOOST_CHECK( static_cast<size_t>(doocsSpectrum->max_length()) == arraySize );
+  }
+  // FIXME: add tests for x-axis config
+}
+
 BOOST_AUTO_TEST_CASE( testErrorHandling ){
     std::pair< shared_ptr<ControlSystemPVManager>,
 	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
@@ -184,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
   try{
-    testableFactory.createDoocsScalar<int32_t, D_int, int>( processScalar );
+    testableFactory.createDoocsProperty<int32_t, D_int, int>( processScalar );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
     BOOST_FAIL( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
@@ -193,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   // now the same with arrays
   ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("A/toDeviceArray");
-  BOOST_CHECK_THROW( ( testableFactory.createDoocsArray<int32_t, D_int, int>(processArray) ),
+  BOOST_CHECK_THROW( ( testableFactory.createDoocsProperty<int32_t, D_int, int>(processArray) ),
 		      std::invalid_argument );
 
    // finally we check that the create method catches the not-supported type.

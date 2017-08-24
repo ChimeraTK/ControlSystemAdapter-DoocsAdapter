@@ -2,6 +2,7 @@
 
 #include "DoocsProcessScalar.h"
 #include "DoocsProcessArray.h"
+#include "DoocsSpectrum.h"
 #include <d_fct.h>
 
 #include "DoocsPVFactory.h"
@@ -31,7 +32,7 @@ namespace ChimeraTK {
     assert(processArray->getNumberOfChannels() == 1);
     boost::shared_ptr<D_fct> doocsPV;
     if(processArray->getNumberOfSamples() > 1 ) {
-      doocsPV.reset( new DoocsProcessArray<T>(_eqFct, processArray, *_syncUtility) );
+      doocsPV.reset( new DoocsSpectrum<T>(_eqFct, processArray, *_syncUtility) );
     }
     else { // scalar
       // Histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names.
