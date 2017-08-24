@@ -1,10 +1,10 @@
-#define BOOST_TEST_MODULE DoocsProcessArrayTest
+#define BOOST_TEST_MODULE DoocsSpectrumTest
 // Only after defining the name include the unit test header.
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
 
-#include "DoocsProcessArray.h"
+#include "DoocsSpectrum.h"
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 
@@ -17,15 +17,15 @@ using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
 template <typename T>
-class TestableDoocsArray : public DoocsProcessArray<T>{
+class TestableDoocsSpectrum : public DoocsSpectrum<T>{
 public:
-  TestableDoocsArray( EqFct * const eqFct,
+  TestableDoocsSpectrum( EqFct * const eqFct,
 		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
-    : DoocsProcessArray<T>( eqFct, processArray, syncUtility){}
+    : DoocsSpectrum<T>( eqFct, processArray, syncUtility){}
 
   void sendToDevice(){
-    DoocsProcessArray<T>::sendToDevice();
+    DoocsSpectrum<T>::sendToDevice();
   }
 	
 };
@@ -37,7 +37,7 @@ typedef boost::mpl::list<int32_t, uint32_t,
 			 int8_t, uint8_t,
 			 float, double> simple_test_types;
 
-BOOST_AUTO_TEST_SUITE( DoocsProcessArrayTestSuite )
+BOOST_AUTO_TEST_SUITE( DoocsSpectrumTestSuite )
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
@@ -53,10 +53,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   boost::shared_ptr< ProcessArray<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("toDeviceVariable");
 
-  // Write to the doocs array and send it.
+  // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise is 
   // protected.
-  TestableDoocsArray<T> doocsArray( NULL, controlSystemVariable, syncUtil );
+  TestableDoocsSpectrum<T> doocsSpectrum( NULL, controlSystemVariable, syncUtil );
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   T offset = (std::numeric_limits<T>::is_integer ? sizeof(T) : 1./sizeof(T) );
   
   for (size_t i =0; i < arraySize; ++i){
-    doocsArray.fill_spectrum(i, sign*static_cast<T>(i*i) + offset);
+    doocsSpectrum.fill_spectrum(i, sign*static_cast<T>(i*i) + offset);
   }
-  doocsArray.sendToDevice();
+  doocsSpectrum.sendToDevice();
 
   // receive on the device side and check that the value has arrived
   deviceVariable->readNonBlocking();
@@ -99,10 +99,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   typename ProcessArray<T>::SharedPtr controlSystemVariable = 
     csManager->getProcessArray<T>("fromDeviceVariable");
 
-  // initialise the doocs array
-  DoocsProcessArray<T> doocsArray( NULL, controlSystemVariable, syncUtil );
+  // initialise the doocs spectrum
+  DoocsSpectrum<T> doocsSpectrum( NULL, controlSystemVariable, syncUtil );
   for (size_t i =0; i < arraySize; ++i){
-    doocsArray.fill_spectrum(i, 0);
+    doocsSpectrum.fill_spectrum(i, 0);
   }
 
   // prepare the device side and send it
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   std::vector<T> & csVector = controlSystemVariable->accessChannel(0);
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == 0 );
-    BOOST_CHECK( doocsArray.read_spectrum(i) == 0 );
+    BOOST_CHECK( doocsSpectrum.read_spectrum(i) == 0 );
   }
 
   syncUtil.receiveAll();
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   csVector = controlSystemVariable->accessChannel(0);  
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == sign*static_cast<T>(i*i) + offset );
-    BOOST_CHECK( doocsArray.read_spectrum(i) == sign*static_cast<T>(i*i) + offset );
+    BOOST_CHECK( doocsSpectrum.read_spectrum(i) == sign*static_cast<T>(i*i) + offset );
   }
 
 }
