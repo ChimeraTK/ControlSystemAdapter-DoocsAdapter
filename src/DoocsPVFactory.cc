@@ -29,26 +29,29 @@ namespace ChimeraTK {
     auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
     
     assert(processArray->getNumberOfChannels() == 1);
+    boost::shared_ptr<D_fct> doocsPV;
     if(processArray->getNumberOfSamples() > 1 ) {
-      return boost::shared_ptr<D_fct>( new DoocsProcessArray<T>(_eqFct, processArray, *_syncUtility) );
+      doocsPV.reset( new DoocsProcessArray<T>(_eqFct, processArray, *_syncUtility) );
     }
     else { // scalar
       // Histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names.
       // The DOOCS property name is the variable name without the location name and the separating slash between location and property name.
       if(propertyDescription.name.length() > 64) {
         std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
-        return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(propertyDescription.name.c_str(), _eqFct, processArray, *_syncUtility) );
+        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(propertyDescription.name.c_str(), _eqFct, processArray, *_syncUtility) );
       }
       else{
         if (propertyDescription.hasHistory){
           // version with history: EqFtc first
-          return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(_eqFct, propertyDescription.name.c_str(), processArray, *_syncUtility) );
+          doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(_eqFct, propertyDescription.name.c_str(), processArray, *_syncUtility) );
         }else{
           // version without history: name first
-          return boost::shared_ptr<D_fct>( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(propertyDescription.name.c_str(), _eqFct, processArray, *_syncUtility) );
+          doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T>(propertyDescription.name.c_str(), _eqFct, processArray, *_syncUtility) );
         }
       }// if name too long
     }// if scalar
+
+    return doocsPV;
   }
 
   template<>
