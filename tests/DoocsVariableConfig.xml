@@ -7,6 +7,9 @@
     <property source="DATA_TYPE_CONSTANT">
       <has_history>false</has_history>
     </property>
+    <property source="TO_DEVICE_SCALAR">
+      <is_writeable>false</is_writeable>
+    </property>
   </location>
   <import>/</import>
 </device_server>

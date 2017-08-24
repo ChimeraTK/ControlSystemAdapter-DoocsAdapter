@@ -51,6 +51,11 @@ namespace ChimeraTK {
       }// if name too long
     }// if scalar
 
+    // set read only mode if configures in the xml file or for output variables
+    if (!processArray->isWriteable() || !propertyDescription.isWriteable){
+      doocsPV->set_ro_access();
+    }
+
     return doocsPV;
   }
 
