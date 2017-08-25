@@ -61,8 +61,8 @@ std::set< std::string > generateInputVariables(){
   return inputVariables;
 }
 
-bool mapCompare (std::map< std::string, std::shared_ptr< VariableMapper::PropertyDescription > > const & lhs,
-                 std::map< std::string, VariableMapper::AutoPropertyDescription > const & rhs) {
+bool mapCompare (std::map< std::string, std::shared_ptr< PropertyDescription > > const & lhs,
+                 std::map< std::string, AutoPropertyDescription > const & rhs) {
   // No predicate needed because there is operator== for pairs already.
   if ( lhs.size() != rhs.size() ){
     std::cout << "Map size comparison failed: lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;// LCOV_EXCL_LINE
@@ -74,7 +74,7 @@ bool mapCompare (std::map< std::string, std::shared_ptr< VariableMapper::Propert
       std::cout << "PV names are not equal: " <<  l->first << ", "<< r->first << std::endl;
       return false;
     }
-    auto castedLValue = std::dynamic_pointer_cast< VariableMapper::AutoPropertyDescription >(l->second);
+    auto castedLValue = std::dynamic_pointer_cast< AutoPropertyDescription >(l->second);
     if (!castedLValue){
       std::cout << "cast for " << l->first << " failed" << std::endl;      
       return false;
@@ -94,7 +94,7 @@ bool mapCompare (std::map< std::string, std::shared_ptr< VariableMapper::Propert
   return true;
 }
 
-void testXmlParsing(std::string xmlFile, std::map< std::string, VariableMapper::AutoPropertyDescription > const & propertyMap){
+void testXmlParsing(std::string xmlFile, std::map< std::string, AutoPropertyDescription > const & propertyMap){
   VariableMapper & vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
   //vm.print();
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testImportLocation ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportAll ){
-  std::map< std::string, VariableMapper::AutoPropertyDescription > propertyMap(
+  std::map< std::string, AutoPropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"/A/a/di", "A","a.di"}},
                                                     {"/A/a/do",  {"/A/a/do", "A","a.do"}},
                                                     {"/A/b",     {"/A/b",    "A","b"}},
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE( testImportAll ){
   BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
 
   // modify the expected property map for the renaming case
-  propertyMap["/DIRECT/DOUBLE"]= VariableMapper::AutoPropertyDescription("/DIRECT/DOUBLE","DIRECT","BAR");
-  propertyMap["/DIRECT/INT"]= VariableMapper::AutoPropertyDescription("/DIRECT/INT","DIRECT","FOO");
+  propertyMap["/DIRECT/DOUBLE"]= AutoPropertyDescription("/DIRECT/DOUBLE","DIRECT","BAR");
+  propertyMap["/DIRECT/INT"]= AutoPropertyDescription("/DIRECT/INT","DIRECT","FOO");
   testXmlParsing("variableTreeXml/globalImportAndRename.xml", propertyMap);
 }
 
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testGetPropertiesInLocation ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportIntoLocation ){
-  std::map< std::string, VariableMapper::AutoPropertyDescription > propertyMap(
+  std::map< std::string, AutoPropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"/A/a/di", "MASTER","A.a.di"}},
                                                     {"/A/a/do",  {"/A/a/do", "MASTER","A.a.do"}},
                                                     {"/A/b",     {"/A/b",    "MASTER","A.b"}},
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( testImportIntoLocation ){
 }
 
 BOOST_AUTO_TEST_CASE( testImportWithDirectory ){
-  std::map< std::string, VariableMapper::AutoPropertyDescription > propertyMap(
+  std::map< std::string, AutoPropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"/A/a/di", "MASTER","myStuff.a.di"}},
                                                     {"/A/a/do",  {"/A/a/do", "MASTER","myStuff.a.do"}},
                                                     {"/A/b",     {"/A/b",    "MASTER","myStuff.b"}},
@@ -331,21 +331,3 @@ BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnWriteable ){
                  });
 }
 
-BOOST_AUTO_TEST_CASE( testCompareDoocsTypeDescriptions ){
-  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions(boost::any(), boost::any()));
-
-  // Fixme? This does not throw, should it?
-  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions(boost::any(), 42)== false);
-  // FIXME: the throw check is implementation detail(?). Maybe not if I compare two equal, unknown types???
-  BOOST_CHECK_THROW( VariableMapper::compareDoocsTypeDescriptions(42, boost::any()), std::invalid_argument);
-
-  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( VariableMapper::SpectrumDescription(),
-                                                             boost::any()) == false);
-  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( boost::any(),
-                                                             VariableMapper::SpectrumDescription()) == false);
-  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( VariableMapper::SpectrumDescription(),
-                                                             VariableMapper::SpectrumDescription()) );
-  BOOST_CHECK( VariableMapper::compareDoocsTypeDescriptions( VariableMapper::SpectrumDescription(0.1),
-                                                             VariableMapper::SpectrumDescription()) == false);
-  // don't test the equals operator of the SeptrumDescription here. This is done implicitly in the other content tests. It's enouch to have to have one equal and one different.
-}

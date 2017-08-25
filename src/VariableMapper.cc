@@ -211,11 +211,11 @@ namespace ChimeraTK{
     }
   }
 
-  std::map< std::string, std::shared_ptr<VariableMapper::PropertyDescription> > const & VariableMapper::getAllProperties() const{
+  std::map< std::string, std::shared_ptr<PropertyDescription> > const & VariableMapper::getAllProperties() const{
     return _inputSortedDescriptions;
   }
 
-  std::map< std::string, std::shared_ptr<VariableMapper::PropertyDescription> > VariableMapper::getPropertiesInLocation(std::string location) const{
+  std::map< std::string, std::shared_ptr<PropertyDescription> > VariableMapper::getPropertiesInLocation(std::string location) const{
     std::map< std::string, std::shared_ptr<PropertyDescription> > output;
 
     for (auto const & variable : _inputSortedDescriptions){
@@ -299,18 +299,6 @@ namespace ChimeraTK{
       return _globalDefaults.isWriteable;
     }
   }
-
-  bool VariableMapper::compareDoocsTypeDescriptions(boost::any const &description1, boost::any const &description2){
-    if (description1.empty()){
-      return description2.empty();
-    }
-    // this is not symmetric. If type 2 is unknown the comparison will just return false, not throw.
-    if (description1.type() == typeid(SpectrumDescription) ){
-      return castAndCompare<SpectrumDescription>(description1, description2);
-    }
-    throw std::invalid_argument("unknown doocs type description");
-  }
-
 
 } // namespace ChimeraTK
 

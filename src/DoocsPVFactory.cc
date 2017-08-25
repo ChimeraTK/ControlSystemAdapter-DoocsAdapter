@@ -29,7 +29,7 @@ namespace ChimeraTK {
 
     auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
     // FIXME: This has to go for scalars
-    auto autoPropertyDescription = std::dynamic_pointer_cast<VariableMapper::AutoPropertyDescription>(propertyDescription);
+    auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
     
     assert(processArray->getNumberOfChannels() == 1);
     boost::shared_ptr<D_fct> doocsPV;
@@ -114,11 +114,11 @@ namespace ChimeraTK {
     }
  }
 
-  boost::shared_ptr<D_fct>  DoocsPVFactory::new_create( std::shared_ptr<VariableMapper::PropertyDescription> const & propertyDescription ){
+  boost::shared_ptr<D_fct>  DoocsPVFactory::new_create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     auto & requestedType = propertyDescription->type();
-    if (requestedType == typeid(VariableMapper::AutoPropertyDescription)){
+    if (requestedType == typeid(AutoPropertyDescription)){
       // do auto creation
-      auto pvName = std::static_pointer_cast<VariableMapper::AutoPropertyDescription>(propertyDescription)->source;
+      auto pvName = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription)->source;
       auto pv = _controlSystemPVManager->getProcessVariable(pvName);
       return create(pv);
     }else{
