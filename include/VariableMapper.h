@@ -7,6 +7,7 @@
 #include <memory>
 #include <iostream>
 #include <boost/any.hpp>
+#include <mtca4u/RegisterPath.h>
 
 namespace xmlpp{
   class Node;
@@ -48,26 +49,46 @@ namespace ChimeraTK{
     struct PropertyAttributes{
       bool hasHistory;
       bool isWriteable;
-      boost::any doocsTypeDescription;
       PropertyAttributes(bool hasHistory_ = true, bool isWriteable_=true)
       : hasHistory(hasHistory_), isWriteable(isWriteable_){}
       bool operator==(PropertyAttributes const & other) const{
         return (hasHistory == other.hasHistory
-                && isWriteable == other.isWriteable
-                && VariableMapper::compareDoocsTypeDescriptions(doocsTypeDescription, other.doocsTypeDescription));
+                && isWriteable == other.isWriteable);
       }
     };
 
-    // extends the PropertyAttributes by a name
+    // Common for all properties, the base class to be stored.
     // FIXME: should sort by name to put it into a set?
-    struct PropertyDescription:
-      public PropertyAttributes{
+    struct PropertyDescription{
       std::string location;
       std::string name;
-      PropertyDescription(std::string location_="", std::string name_="", bool hasHistory_ = true, bool isWriteable_=true)
-        : PropertyAttributes(hasHistory_, isWriteable_), location(location_), name(name_){}
-      bool operator==(PropertyDescription const & other) const{
-        return location==other.location && name==other.name && static_cast< const PropertyAttributes *>(this)->operator==(other);
+      PropertyDescription(std::string location_="", std::string name_="")
+      : location(location_), name(name_){}
+      virtual bool operator==(PropertyDescription const & other) const{
+        return location==other.location && name==other.name;
+      }
+      virtual const std::type_info& type() const{
+        return typeid(PropertyDescription);
+      }
+    };
+
+    // Combines property attributes and the base description
+    // FIXME: should sort by name to put it into a set?
+    struct AutoPropertyDescription:
+      public PropertyDescription, public PropertyAttributes{
+      mtca4u::RegisterPath source;
+     AutoPropertyDescription(mtca4u::RegisterPath const & source_="", std::string location_="", std::string name_="", bool hasHistory_ = true, bool isWriteable_=true)
+      : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_){}
+      virtual bool operator==(PropertyDescription const & other) const override{
+        if (other.type() == typeid(AutoPropertyDescription)){
+          auto casted_other = static_cast<AutoPropertyDescription const &>(other);
+          return source==casted_other.source && location==other.location && name==other.name && static_cast< const PropertyAttributes *>(this)->operator==(casted_other);
+        }else{
+          return false;
+        }
+      }
+      virtual const std::type_info& type() const override{
+        return typeid(AutoPropertyDescription);
       }
     };
 
@@ -81,8 +102,8 @@ namespace ChimeraTK{
       }
     };
     
-    std::map< std::string, PropertyDescription > getPropertiesInLocation(std::string location) const;
-    std::map< std::string, PropertyDescription > const & getAllProperties() const;
+    std::map< std::string, std::shared_ptr<PropertyDescription> > getPropertiesInLocation(std::string location) const;
+    std::map< std::string, std::shared_ptr<PropertyDescription> > const & getAllProperties() const;
 
     VariableMapper(VariableMapper &)=delete;
     void operator=(VariableMapper const &)=delete;
@@ -120,7 +141,7 @@ namespace ChimeraTK{
     PropertyAttributes _globalDefaults;
 
     // PropertyDescriptions, sorted by input, i.e. the ChimeraTK PV name
-    std::map<std::string, PropertyDescription> _inputSortedDescriptions;
+    std::map<std::string, std::shared_ptr<PropertyDescription> > _inputSortedDescriptions;
 
     /// An internal helper function to abbreviate the syntax
     bool nodeIsWhitespace(const xmlpp::Node* node);

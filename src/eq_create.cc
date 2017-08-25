@@ -32,7 +32,7 @@ void eq_init_prolog() {
     }
     std::cout << "here is the mappging:" << std::endl;
     for (auto &tmp : ChimeraTK::VariableMapper::getInstance().getAllProperties() ){
-      std::cout << tmp.first << " -> " << tmp.second.location << " / " << tmp.second.name << std::endl;
+      std::cout << tmp.first << " -> " << tmp.second->location << " / " << tmp.second->name << std::endl;
     }
     
     // activate the advanced archiver to have histories

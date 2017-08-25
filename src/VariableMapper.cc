@@ -72,22 +72,6 @@ namespace ChimeraTK{
       name = std::regex_replace(name, std::regex("/"), ".");
     }
 
-    // prepare the property description
-    PropertyDescription propertyDescription(locationName, name);
-
-    auto hasHistoryNodes = property->get_children("has_history");
-    if (!hasHistoryNodes.empty()){
-      propertyDescription.hasHistory= evaluateBool(getContentString(hasHistoryNodes.front()));
-    }else{
-      propertyDescription.hasHistory = getHasHistoryDefault(locationName);
-    }
-    auto isWriteableNodes = property->get_children("is_writeable");
-    if (!isWriteableNodes.empty()){
-      propertyDescription.isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
-    }else{
-      propertyDescription.isWriteable = getIsWriteableDefault(locationName);
-    }
-
     std::string absoluteSource;
     if (source[0] == '/'){
       absoluteSource=source;
@@ -95,12 +79,28 @@ namespace ChimeraTK{
       absoluteSource=std::string("/")+locationName+"/"+source;
     }
 
+    // prepare the property description
+    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name);
+
+    auto hasHistoryNodes = property->get_children("has_history");
+    if (!hasHistoryNodes.empty()){
+      autoPropertyDescription->hasHistory= evaluateBool(getContentString(hasHistoryNodes.front()));
+    }else{
+      autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
+    }
+    auto isWriteableNodes = property->get_children("is_writeable");
+    if (!isWriteableNodes.empty()){
+      autoPropertyDescription->isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
+    }else{
+      autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
+    }
+
     auto existingCandidate = _inputSortedDescriptions.find(absoluteSource);
     if (existingCandidate != _inputSortedDescriptions.end()){
       auto existingPropertyDescription = existingCandidate->second;
-      throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ locationName+"/" +name +". Process variable already defined to point to " + existingPropertyDescription.location + "/" + existingPropertyDescription.name);
+      throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ locationName+"/" +name +". Process variable already defined to point to " + existingPropertyDescription->location + "/" + existingPropertyDescription->name);
     }else{
-      _inputSortedDescriptions[absoluteSource] = propertyDescription;
+      _inputSortedDescriptions[absoluteSource] = std::dynamic_pointer_cast<PropertyDescription>(autoPropertyDescription);
     }
    
   }
@@ -166,13 +166,13 @@ namespace ChimeraTK{
 
         // get the property name with . instead of /
         propertyName.setAltSeparator(".");
-        PropertyDescription propertyDescription(locationName, propertyName.getWithAltSeparator());
+        auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(processVariable, locationName, propertyName.getWithAltSeparator());
 
         // we are importing, so all properties get the intended defaults (not individual settings)
-        propertyDescription.hasHistory = getHasHistoryDefault(locationName);
-        propertyDescription.isWriteable = getIsWriteableDefault(locationName);
+        autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
+        autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
         
-        _inputSortedDescriptions[processVariable] = propertyDescription;
+        _inputSortedDescriptions[processVariable] = std::dynamic_pointer_cast<PropertyDescription>(autoPropertyDescription);
       }
     }
   }
@@ -211,15 +211,15 @@ namespace ChimeraTK{
     }
   }
 
-  std::map< std::string, VariableMapper::PropertyDescription > const & VariableMapper::getAllProperties() const{
+  std::map< std::string, std::shared_ptr<VariableMapper::PropertyDescription> > const & VariableMapper::getAllProperties() const{
     return _inputSortedDescriptions;
   }
 
-  std::map< std::string, VariableMapper::PropertyDescription > VariableMapper::getPropertiesInLocation(std::string location) const{
-    std::map< std::string, PropertyDescription > output;
+  std::map< std::string, std::shared_ptr<VariableMapper::PropertyDescription> > VariableMapper::getPropertiesInLocation(std::string location) const{
+    std::map< std::string, std::shared_ptr<PropertyDescription> > output;
 
     for (auto const & variable : _inputSortedDescriptions){
-      if (variable.second.location == location){
+      if (variable.second->location == location){
         // no need to check return value. There cannot be duplicate entries because the values are
         // coming from another map.
         (void) output.insert( variable );
@@ -246,9 +246,9 @@ namespace ChimeraTK{
     for (auto & variableNameAndPropertyDescription : _inputSortedDescriptions ){
       auto & variableName = variableNameAndPropertyDescription.first;
       auto & propertyDescription = variableNameAndPropertyDescription.second;
-      os << variableName << " -> " << propertyDescription.location << " / " << propertyDescription.name
-         << " hasHistory:" << propertyDescription.hasHistory
-         << " isWriteable:" << propertyDescription.isWriteable
+      os << variableName << " -> " << propertyDescription->location << " / " << propertyDescription->name
+        // << " hasHistory:" << propertyDescription.hasHistory
+        // << " isWriteable:" << propertyDescription.isWriteable
          << std::endl;
     }
   }
