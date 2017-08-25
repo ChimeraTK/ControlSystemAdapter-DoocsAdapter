@@ -6,6 +6,7 @@
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
+#include "VariableMapper.h"
 
 namespace ChimeraTK {
 
@@ -18,13 +19,17 @@ namespace ChimeraTK {
      * The constructor needs a pointer to the EqFct. It is designed to be used inside the EqFct, so
      * the 'this' pointer will be given. As it is not copyable this is ok.
      */
-    DoocsPVFactory(EqFct * const eqFct, boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility);
+    DoocsPVFactory(EqFct * const eqFct, boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility, boost::shared_ptr<ControlSystemPVManager> const & csPVManager);
 
     boost::shared_ptr<D_fct> create( ProcessVariable::SharedPtr & processVariable );
 
+    /// @todo FIXME: This is for brainstorming and quick protoryping. Did not want to call it create.
+    boost::shared_ptr<D_fct> new_create( std::shared_ptr<VariableMapper::PropertyDescription> const & propertyDescription );
+      
   protected:
     EqFct * _eqFct; //< The EqFct which is holding the factory. Needed in the constructor of the doocs properties.
     boost::shared_ptr<ControlSystemSynchronizationUtility> _syncUtility; //< The syncUtility is needed to register listeners
+    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager; //< The pv manager, needed to get the instances @todo Do we need it in a proper design?
 
     // create the DOOCS property. Note: DOOCS_T and DOOCS_VALUE_T are only used for scalar properties, not for arrays!
     template<class T, class DOOCS_T, class DOOCS_VALUE_T>

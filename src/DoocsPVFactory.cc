@@ -12,8 +12,8 @@
 namespace ChimeraTK {
 
   DoocsPVFactory::DoocsPVFactory(EqFct * const eqFct,
-				 boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility) 
-    : _eqFct(eqFct), _syncUtility(syncUtility) {
+				 boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility, boost::shared_ptr<ControlSystemPVManager> const & csPVManager) 
+    : _eqFct(eqFct), _syncUtility(syncUtility), _controlSystemPVManager(csPVManager) {
       assert(eqFct != nullptr);
   }
 
@@ -112,9 +112,19 @@ namespace ChimeraTK {
     } else {
       throw std::invalid_argument("unsupported value type");
     }
+ }
 
-   
-}
-
+  boost::shared_ptr<D_fct>  DoocsPVFactory::new_create( std::shared_ptr<VariableMapper::PropertyDescription> const & propertyDescription ){
+    auto & requestedType = propertyDescription->type();
+    if (requestedType == typeid(VariableMapper::AutoPropertyDescription)){
+      // do auto creation
+      auto pvName = std::static_pointer_cast<VariableMapper::AutoPropertyDescription>(propertyDescription)->source;
+      auto pv = _controlSystemPVManager->getProcessVariable(pvName);
+      return create(pv);
+    }else{
+      throw std::invalid_argument("Sorry, your type is not supported yet.");
+    }
+  }
+  
 }// namespace
 

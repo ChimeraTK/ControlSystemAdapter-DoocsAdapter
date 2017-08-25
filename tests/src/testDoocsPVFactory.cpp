@@ -37,8 +37,9 @@ EqFct myEqFct("MY_EQ_FCT");
 class TestableDoocsPVFactory: public DoocsPVFactory{
 public:
   TestableDoocsPVFactory(EqFct * const eqFct,
-    boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility)
-  : DoocsPVFactory(eqFct, syncUtility){
+                         boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility,
+                         boost::shared_ptr<ControlSystemPVManager> const & csPVManager)
+    : DoocsPVFactory(eqFct, syncUtility, csPVManager){
   }
 
   template<class T, class DOOCS_T, class DOOCS_VALUE_T>
@@ -87,7 +88,7 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   // populate the variable mapper
   VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
   
-  DoocsPVFactory factory(&myEqFct, syncUtil);
+  DoocsPVFactory factory(&myEqFct, syncUtil, csManager);
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
   // These checkpoints are always true.
@@ -175,7 +176,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
 
-  DoocsPVFactory factory(&myEqFct, syncUtil);
+  DoocsPVFactory factory(&myEqFct, syncUtil, csManager);
 
   // have the variable created and check that it is the right type
   for (auto const & pvName : pvNames){
@@ -210,7 +211,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
-  TestableDoocsPVFactory testableFactory(&myEqFct, syncUtil);
+  TestableDoocsPVFactory testableFactory(&myEqFct, syncUtil, csManager);
 
   ProcessVariable::SharedPtr processScalar = 
     csManager->getProcessArray<int64_t>("I/toDeviceInt");
