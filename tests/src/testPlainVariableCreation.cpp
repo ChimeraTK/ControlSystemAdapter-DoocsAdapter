@@ -27,7 +27,19 @@ using namespace ChimeraTK;
 
 /// Check that all expected variables are there.
 void testVariableExistence(){
-  BOOST_ERROR("Not implemented yet");
+  // run update once to make sure the server is up and running
+  std::cout << "running update once " << std::endl;
+  DoocsServerTestHelper::runUpdate();
+  std::cout << "ran update once, let's test " << std::endl;
+
+  for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
+    for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
+      std::cout << "Getting Array " << "//"<<location << "/" << property<< std::endl;
+      // if this throws the property does not exist. we should always be able to read"
+      BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>( (std::string("//")+location+"/"+ property).c_str() ));
+    }
+  }
+      //  DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT")
 }
 
 // due to the doocs server thread you can only have one test suite

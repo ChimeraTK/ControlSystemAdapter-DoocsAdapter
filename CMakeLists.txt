@@ -72,6 +72,9 @@ if(TESTING_IS_ENABLED)
   file(GLOB TEST_XML_FILES variable  ${CMAKE_SOURCE_DIR}/tests/*.xml)
   file(COPY ${TEST_XML_FILES} DESTINATION ${PROJECT_BINARY_DIR})
 
+  file(GLOB TEST_CONF_FILES variable  ${CMAKE_SOURCE_DIR}/tests/*.conf)
+  file(COPY ${TEST_CONF_FILES} DESTINATION ${PROJECT_BINARY_DIR})
+
   #The make coverage command is only available in debug mode
   IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     configure_file(cmake/Makefile.coverage.in ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
