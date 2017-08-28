@@ -20,6 +20,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 include(cmake/add_dependency.cmake)
 
 add_dependency(ChimeraTK-ControlSystemAdapter 00.06 REQUIRED)
+add_dependency(doocs-server-test-helper 01.00 REQUIRED)
 add_dependency(DOOCS 18.10.5 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
@@ -60,7 +61,8 @@ if(TESTING_IS_ENABLED)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
     set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-    target_link_libraries(${excutableName} ${PROJECT_NAME} ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES})
+    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
+    target_link_libraries(${excutableName} ${PROJECT_NAME} ${doocs-server-test-helper_LIBRARIES})
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
