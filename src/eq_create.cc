@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 
 char const *object_name;
-static char const * DOOCS_VARIABLE_CONFIG_FILE = "DoocsVariableConfig.xml";
+static char const * XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
 
 static ChimeraTK::DoocsAdapter doocsAdapter;
 
@@ -23,14 +23,16 @@ void eq_init_prolog() {
     // the variable manager can only be filled after we have the CS manager
     auto pvNames = ChimeraTK::getAllVariableNames( doocsAdapter.getControlSystemPVManager() );
 
+    auto xmlFileName = ChimeraTK::ApplicationBase::getInstance().getName()+XML_CONFIG_SUFFIX;
+    
     struct stat buffer;
-    if (stat (DOOCS_VARIABLE_CONFIG_FILE, &buffer) == 0){ 
-      ChimeraTK::VariableMapper::getInstance().prepareOutput(DOOCS_VARIABLE_CONFIG_FILE, pvNames);
+    if (stat (xmlFileName.c_str(), &buffer) == 0){ 
+      ChimeraTK::VariableMapper::getInstance().prepareOutput(xmlFileName, pvNames);
     }else{
       std::cerr << "WARNIUNG: No XML file for the Doocs variable config found. Trying direct import." << std::endl;
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
-    std::cout << "here is the mappging:" << std::endl;
+    std::cout << "here is the mapping:" << std::endl;
     for (auto &tmp : ChimeraTK::VariableMapper::getInstance().getAllProperties() ){
       std::cout << tmp.first << " -> " << tmp.second->location << " / " << tmp.second->name << std::endl;
     }
