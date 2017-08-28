@@ -34,9 +34,12 @@ void testVariableExistence(){
 
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
     for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
-      std::cout << "Getting Array " << "//"<<location << "/" << property<< std::endl;
       // if this throws the property does not exist. we should always be able to read"
       BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>( (std::string("//")+location+"/"+ property).c_str() ));
+    }
+    for (auto const property : { "DATA_TYPE_CONSTANT", "FROM_DEVICE_SCALAR", "TO_DEVICE_SCALAR"} ){
+      // if this throws the property does not exist. we should always be able to read"
+      BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>( (std::string("//")+location+"/"+ property).c_str() ));
     }
   }
       //  DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT")
