@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <location name="MY_RENAMED_INTEGER_LOCATION">
+    <import>/INT</import>
+  </location>
+  <location name="DOUBLE">  
+    <property source="DATA_TYPE_CONSTANT" name="RENAMED_CONSTANT">
+      <has_history>false</has_history>
+    </property>
+    <property source="/FLOAT/TO_DEVICE_SCALAR" name="I_AM_A_FLOAT_SCALAR"/>
+    <property source="/DOUBLE/TO_DEVICE_SCALAR">
+      <is_writeable>false</is_writeable>
+    </property>
+    <import>/DOUBLE</import>
+  </location>
+  <import>/</import>
+</device_server>
