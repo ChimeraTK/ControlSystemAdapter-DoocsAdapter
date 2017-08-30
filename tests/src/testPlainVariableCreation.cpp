@@ -42,7 +42,7 @@ void testVariableExistence(){
       BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>( (std::string("//")+location+"/"+ property).c_str() ));
     }
   }
-      //  DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT")
+//  DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT")
 }
 
 // due to the doocs server thread you can only have one test suite
@@ -52,13 +52,8 @@ public:
     : test_suite("PlainVariableCreation test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    doocsServerThread.detach();
     add( BOOST_TEST_CASE( &testVariableExistence ) );
-  }
-  ~PlainVariableCreationTestSuite(){
-    // gracefully shut down the doocs server and wait for the thread to join
-    std::cout << "FIXME: I think you can ignore the folloging 'write_line' warning when stopping the doocs server" << std::endl;
-    DoocsServerTestHelper::doocsSet("//PLAIN_VARIABLE_CREATION_TEST._SVR/SVR.STOP_SVR",true);
-    doocsServerThread.join();
   }
 
 protected:
