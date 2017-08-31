@@ -120,52 +120,6 @@ BOOST_AUTO_TEST_CASE( testEvaluateBool ){
   BOOST_CHECK( VariableMapper::evaluateBool("1"));
 }
 
-BOOST_AUTO_TEST_CASE( testImportAll ){
-  std::map< std::string, AutoPropertyDescription > propertyMap(
-                                                  { {"/A/a/di",  {"/A/a/di", "A","a.di"}},
-                                                    {"/A/a/do",  {"/A/a/do", "A","a.do"}},
-                                                    {"/A/b",     {"/A/b",    "A","b"}},
-                                                    {"/B/a/dr",  {"/B/a/dr", "B","a.dr"}},
-                                                    {"/B/c/de",  {"/B/c/de", "B","c.de"}},
-                                                    {"/B/c/gne", {"/B/c/gne","B","c.gne"}},
-                                                    {"/C/a/da",  {"/C/a/da", "C","a.da"}},
-                                                    {"/C/b/ge",  {"/C/b/ge", "C","b.ge"}},
-                                                    {"/C/c/be",  {"/C/c/be", "C","c.be"}},
-                                                    {"/C/c/de",  {"/C/c/de", "C","c.de"}},
-                                                    {"/DIRECT/DOUBLE",  {"/DIRECT/DOUBLE","DIRECT","DOUBLE"}},
-                                                    {"/DIRECT/DOUBLE_ARRAY",  {"/DIRECT/DOUBLE_ARRAY","DIRECT","DOUBLE_ARRAY"}},
-                                                    {"/DIRECT/INT",  {"/DIRECT/INT", "DIRECT","INT"}},
-                                                    {"/DIRECT/INT_ARRAY",  {"/DIRECT/INT_ARRAY","DIRECT","INT_ARRAY"}}
-                                                  });
-  testXmlParsing("variableTreeXml/importAll.xml", propertyMap);
-
-  // test direct mapping without xml
-  VariableMapper & vm = VariableMapper::getInstance();
-  vm.clear();
-  BOOST_CHECK(  vm.getAllProperties().empty() );
-  vm.directImport( generateInputVariables());
-  BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
-
-  // modify the expected property map for the renaming case
-  propertyMap["/DIRECT/DOUBLE"]= AutoPropertyDescription("/DIRECT/DOUBLE","DIRECT","BAR");
-  propertyMap["/DIRECT/INT"]= AutoPropertyDescription("/DIRECT/INT","DIRECT","FOO");
-  testXmlParsing("variableTreeXml/globalImportAndRename.xml", propertyMap);
-}
-
-BOOST_AUTO_TEST_CASE( testGetPropertiesInLocation ){
-  // same input as for testAll, so we know the overall output is OK due to the separate test.
-  VariableMapper & vm = VariableMapper::getInstance();
-  vm.prepareOutput("variableTreeXml/importAll.xml", generateInputVariables());
-  BOOST_CHECK( mapCompare( vm.getPropertiesInLocation("A"), { {"/A/a/di",  {"/A/a/di","A","a.di"}},
-                                                              {"/A/a/do",  {"/A/a/do","A","a.do"}},
-                                                              {"/A/b",     {"/A/b",   "A","b"}}
-                                                             } ) );
-  BOOST_CHECK( mapCompare( vm.getPropertiesInLocation("B"), { {"/B/a/dr",  {"/B/a/dr", "B","a.dr"}},
-                                                              {"/B/c/de",  {"/B/c/de", "B","c.de"}},
-                                                              {"/B/c/gne", {"/B/c/gne","B","c.gne"}}
-                                                             } ) );
-}
-
 BOOST_AUTO_TEST_CASE( testImportIntoLocation ){
   std::map< std::string, AutoPropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"/A/a/di", "MASTER","A.a.di"}},
