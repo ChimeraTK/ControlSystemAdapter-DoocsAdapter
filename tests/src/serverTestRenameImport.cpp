@@ -7,7 +7,7 @@
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
 
-ReferenceTestApplication referenceTestApplication("testPlainVariableCreation");
+ReferenceTestApplication referenceTestApplication("serverTestRenameImport");
 
 // declare that we have some thing like a doocs server. is is linked from the doocs lib, but there is no header.
 extern int eq_server(int, char **);
@@ -32,7 +32,7 @@ void testVariableExistence(){
   DoocsServerTestHelper::runUpdate();
   std::cout << "ran update once, let's test " << std::endl;
 
-  for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
+  for (auto const location : { "CHAR", "MY_RENAMED_INTEGER_LOCATION", "SHORT", "UCHAR", "UINT", "USHORT"} ){
     for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
       // if this throws the property does not exist. we should always be able to read"
       BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>( (std::string("//")+location+"/"+ property).c_str() ));
@@ -42,13 +42,26 @@ void testVariableExistence(){
       BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>( (std::string("//")+location+"/"+ property).c_str() ));
     }
   }
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/CONSTANT_ARRAY") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/FROM_DEVICE_ARRAY") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/TO_DEVICE_ARRAY") );
+  BOOST_CHECK( DoocsServerTestHelper::doocsGet<double>("//DOUBLE/RENAMED_CONSTANT") == 1./8.);
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//DOUBLE/FROM_DEVICE_SCALAR") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//DOUBLE/DOUBLE.TO_DEVICE_SCALAR") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//DOUBLE/I_AM_A_FLOAT_SCALAR") );
+  // we moved one float scalar to the double location, so we cannot check for it in the loop above
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//FLOAT/CONSTANT_ARRAY") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//FLOAT/FROM_DEVICE_ARRAY") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//FLOAT/TO_DEVICE_ARRAY") );
+  BOOST_CHECK( DoocsServerTestHelper::doocsGet<float>("//FLOAT/DATA_TYPE_CONSTANT") == 1./4.);
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//FLOAT/FROM_DEVICE_SCALAR") );
 }
 
 // due to the doocs server thread you can only have one test suite
-class PlainVariableCreationTestSuite : public test_suite {
+class RenameImportServerTestSuite : public test_suite {
 public:
-  PlainVariableCreationTestSuite(int argc, char* argv[])
-    : test_suite("PlainVariableCreation test suite") ,
+  RenameImportServerTestSuite(int argc, char* argv[])
+    : test_suite("RenameImport server test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
     doocsServerThread.detach();
@@ -62,6 +75,6 @@ protected:
 test_suite*
 init_unit_test_suite( int argc, char* argv[] )
 {
-  framework::master_test_suite().p_name.value = "PlainVariableCreation test suite";
-  return new PlainVariableCreationTestSuite(argc, argv);
+  framework::master_test_suite().p_name.value = "RenameImport server test suite";
+  return new RenameImportServerTestSuite(argc, argv);
 }
