@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
   // populate the variable mapper before creating the DoocsPVFactory, with array becoming D_spectrum
-  VariableMapper::getInstance().prepareOutput("testSpectrum.xml",pvNames);
+  VariableMapper::getInstance().prepareOutput("variableTreeXml/testSpectrum.xml",pvNames);
   
   shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
     new ControlSystemSynchronizationUtility(csManager));
