@@ -120,19 +120,6 @@ BOOST_AUTO_TEST_CASE( testEvaluateBool ){
   BOOST_CHECK( VariableMapper::evaluateBool("1"));
 }
 
-BOOST_AUTO_TEST_CASE( testRename ){
-  testXmlParsing("variableTreeXml/rename.xml", { {"/A/b/do",{"/A/b/do","DIRECT","LOLO"}},
-                                                 {"/DIRECT/INT",{"/DIRECT/INT","DIRECT","TEMP"}}
-                                               } );
-}
-
-BOOST_AUTO_TEST_CASE( testImportLocation ){
-  testXmlParsing("variableTreeXml/importLocation.xml", { {"/A/a/di",  {"/A/a/di","B","a.di"}},
-                                                         {"/A/a/do",  {"/A/a/do","B","a.do"}},
-                                                         {"/A/b",     {"/A/b","B","b"}}
-                                                       });
-}
-
 BOOST_AUTO_TEST_CASE( testImportAll ){
   std::map< std::string, AutoPropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"/A/a/di", "A","a.di"}},
