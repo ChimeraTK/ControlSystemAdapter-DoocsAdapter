@@ -32,7 +32,7 @@ void testVariableExistence(){
   DoocsServerTestHelper::runUpdate();
   std::cout << "ran update once, let's test " << std::endl;
 
-  for (auto const location : { "CHAR", "MY_RENAMED_INTEGER_LOCATION", "SHORT", "UCHAR", "UINT", "USHORT"} ){
+  for (auto const location : { "CHAR", "SHORT", "UCHAR", "UINT", "USHORT"} ){
     for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
       // if this throws the property does not exist. we should always be able to read"
       BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>( (std::string("//")+location+"/"+ property).c_str() ));
@@ -42,6 +42,14 @@ void testVariableExistence(){
       BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>( (std::string("//")+location+"/"+ property).c_str() ));
     }
   }
+  
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_ARRAY") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_ARRAY") );
+  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//MY_RENAMED_INTEGER_LOCATION/DATA_TYPE_CONSTANT") == -4);
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_SCALAR") );
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_SCALAR") );
+
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/CONSTANT_ARRAY") );
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/FROM_DEVICE_ARRAY") );
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/TO_DEVICE_ARRAY") );

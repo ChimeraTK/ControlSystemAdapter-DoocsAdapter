@@ -76,10 +76,10 @@ namespace ChimeraTK {
 
     public:
 
-      DoocsSpectrum( EqFct *eqFct,
+      DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
                      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const &processArray,
                      ControlSystemSynchronizationUtility & syncUtility )
-      : D_spectrum( splitStringAtFirstSlash(processArray->getName()).second.c_str(),
+        : D_spectrum( doocsPropertyName.c_str(),
                     processArray->getNumberOfSamples(), eqFct),
         _processArray(processArray)
       {

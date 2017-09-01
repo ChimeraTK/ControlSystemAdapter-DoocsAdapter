@@ -19,10 +19,10 @@ using namespace ChimeraTK;
 template <typename T>
 class TestableDoocsSpectrum : public DoocsSpectrum<T>{
 public:
-  TestableDoocsSpectrum( EqFct * const eqFct,
+  TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
 		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
-    : DoocsSpectrum<T>( eqFct, processArray, syncUtility){}
+    : DoocsSpectrum<T>( eqFct, doocsPropertyName, processArray, syncUtility){}
 
   void sendToDevice(){
     DoocsSpectrum<T>::sendToDevice();
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise is 
   // protected.
-  TestableDoocsSpectrum<T> doocsSpectrum( NULL, controlSystemVariable, syncUtil );
+  TestableDoocsSpectrum<T> doocsSpectrum( NULL, "someName", controlSystemVariable, syncUtil );
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
     csManager->getProcessArray<T>("fromDeviceVariable");
 
   // initialise the doocs spectrum
-  DoocsSpectrum<T> doocsSpectrum( NULL, controlSystemVariable, syncUtil );
+  DoocsSpectrum<T> doocsSpectrum( NULL, "someName", controlSystemVariable, syncUtil );
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, 0);
   }

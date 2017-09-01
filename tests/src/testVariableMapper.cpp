@@ -120,26 +120,6 @@ BOOST_AUTO_TEST_CASE( testEvaluateBool ){
   BOOST_CHECK( VariableMapper::evaluateBool("1"));
 }
 
-BOOST_AUTO_TEST_CASE( testImportIntoLocation ){
-  std::map< std::string, AutoPropertyDescription > propertyMap(
-                                                  { {"/A/a/di",  {"/A/a/di", "MASTER","A.a.di"}},
-                                                    {"/A/a/do",  {"/A/a/do", "MASTER","A.a.do"}},
-                                                    {"/A/b",     {"/A/b",    "MASTER","A.b"}},
-                                                    {"/B/a/dr",  {"/B/a/dr", "MASTER","B.a.dr"}},
-                                                    {"/B/c/de",  {"/B/c/de", "MASTER","B.c.de"}},
-                                                    {"/B/c/gne", {"/B/c/gne","MASTER","B.c.gne"}},
-                                                    {"/C/a/da",  {"/C/a/da", "MASTER","C.a.da"}},
-                                                    {"/C/b/ge",  {"/C/b/ge", "MASTER","C.b.ge"}},
-                                                    {"/C/c/be",  {"/C/c/be", "MASTER","C.c.be"}},
-                                                    {"/C/c/de",  {"/C/c/de", "MASTER","C.c.de"}},
-                                                    {"/DIRECT/DOUBLE",  {"/DIRECT/DOUBLE","MASTER","DIRECT.DOUBLE"}},
-                                                    {"/DIRECT/DOUBLE_ARRAY",  {"/DIRECT/DOUBLE_ARRAY","MASTER","DIRECT.DOUBLE_ARRAY"}},
-                                                    {"/DIRECT/INT",  {"/DIRECT/INT","MASTER","DIRECT.INT"}},
-                                                    {"/DIRECT/INT_ARRAY",  {"/DIRECT/INT_ARRAY","MASTER","DIRECT.INT_ARRAY"}}
-                                                  });
-  testXmlParsing("variableTreeXml/importAllIntoLocation.xml", propertyMap);
-}
-
 BOOST_AUTO_TEST_CASE( testImportWithDirectory ){
   std::map< std::string, AutoPropertyDescription > propertyMap(
                                                   { {"/A/a/di",  {"/A/a/di", "MASTER","myStuff.a.di"}},

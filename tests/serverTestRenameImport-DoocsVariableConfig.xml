@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
   <location name="MY_RENAMED_INTEGER_LOCATION">
+    <property source="/INT/CONSTANT_ARRAY" name="RENAMED.CONST_ARRAY"/>
     <import>/INT</import>
   </location>
   <location name="DOUBLE">  
