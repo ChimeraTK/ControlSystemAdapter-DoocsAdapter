@@ -147,21 +147,6 @@ BOOST_AUTO_TEST_CASE( testGlobalImportPart ){
                                                            {"/B/c/gne", {"/B/c/gne","c","gne"}} });
 }
 
-BOOST_AUTO_TEST_CASE( testImportAndRename ){
-  testXmlParsing("variableTreeXml/importAndRename.xml", { {"/DIRECT/DOUBLE",  {"/DIRECT/DOUBLE","DIRECT","BAR"}},
-                                                          {"/DIRECT/DOUBLE_ARRAY",  {"/DIRECT/DOUBLE_ARRAY","DIRECT","DOUBLE_ARRAY"}},
-                                                          {"/DIRECT/INT",  {"/DIRECT/INT","DIRECT","FOO"}},
-                                                          {"/DIRECT/INT_ARRAY",  {"/DIRECT/INT_ARRAY","DIRECT","INT_ARRAY"}}
-                                                         });
-}
-
-BOOST_AUTO_TEST_CASE( testCherryPicking ){
-  testXmlParsing("variableTreeXml/cherryPick.xml", { {"/A/b/do",  {"/A/b/do", "DIRECT","A.b.do"}},
-                                                     {"/B/c/de",  {"/B/c/de", "B","c.de"}},
-                                                     {"/DIRECT/INT",  {"/DIRECT/INT","DIRECT","INT"}}
-                                                   });
-}
-
 BOOST_AUTO_TEST_CASE( testDuplicateSource ){
   try{
     testXmlParsing("variableTreeXml/duplicateSource.xml", {});
