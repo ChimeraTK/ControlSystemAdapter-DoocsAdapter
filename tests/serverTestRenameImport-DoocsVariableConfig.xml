@@ -1,18 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <!-- Test "renaming" a location, i.e. import something into an a location name that does not
+       exist as directory on the input. -->
   <location name="MY_RENAMED_INTEGER_LOCATION">
+    <!-- Test renaming of an array -->
     <property source="/INT/CONSTANT_ARRAY" name="RENAMED.CONST_ARRAY"/>
+    <!-- Test importin in this case into a location with a name different from the import-->
     <import>/INT</import>
   </location>
+
+  <location name="SHORT">
+    <!-- Test importing and adding a 'directory', i.e. a dot-separated prefix to the beginning of the property name -->
+    <import directory="myStuff">/SHORT</import>
+  </location>
+
   <location name="DOUBLE">  
+    <!-- test renaming a scalar-->
+    <!-- Also tests relative variable names. The input must be in a directory which is identical
+         top the ocation name, '/DOUBLE' in this case -->
     <property source="DATA_TYPE_CONSTANT" name="RENAMED_CONSTANT">
+      <!-- test turning off the history (on by default) -->
       <has_history>false</has_history>
     </property>
+    <!-- Test adding a scalar from another directory than the one imported. -->
     <property source="/FLOAT/TO_DEVICE_SCALAR" name="I_AM_A_FLOAT_SCALAR"/>
+    <!-- This variable is not renamed and will end with the property name DOUBLE.TEST_TO_DEVICE_SCALAR, hence the DOUBLE will be the location name AND it will appear in the property name -->
     <property source="/DOUBLE/TO_DEVICE_SCALAR">
+      <!-- Test turning off the writeable flag -->
       <is_writeable>false</is_writeable>
     </property>
+    <!-- Test importing a directory which has the same name as the location-->
     <import>/DOUBLE</import>
   </location>
+
+  <!-- Test the global import. The location name is the name of the first directory of the input.
+       Input variables already mentioned explicitly or already imported will not be added. -->
   <import>/</import>
+
 </device_server>

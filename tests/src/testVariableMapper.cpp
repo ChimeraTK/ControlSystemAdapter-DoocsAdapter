@@ -120,18 +120,6 @@ BOOST_AUTO_TEST_CASE( testEvaluateBool ){
   BOOST_CHECK( VariableMapper::evaluateBool("1"));
 }
 
-BOOST_AUTO_TEST_CASE( testImportWithDirectory ){
-  std::map< std::string, AutoPropertyDescription > propertyMap(
-                                                  { {"/A/a/di",  {"/A/a/di", "MASTER","myStuff.a.di"}},
-                                                    {"/A/a/do",  {"/A/a/do", "MASTER","myStuff.a.do"}},
-                                                    {"/A/b",     {"/A/b",    "MASTER","myStuff.b"}},
-                                                    {"/B/a/dr",  {"/B/a/dr", "DOT_REMOVER","stuffWithDot.a.dr"}},
-                                                    {"/B/c/de",  {"/B/c/de", "DOT_REMOVER","stuffWithDot.c.de"}},
-                                                    {"/B/c/gne", {"/B/c/gne","DOT_REMOVER","stuffWithDot.c.gne"}}
-                                                  });
-  testXmlParsing("variableTreeXml/importWithDirectory.xml", propertyMap);
-}
-
 BOOST_AUTO_TEST_CASE( testWrongGlobalDirectory ){
   // directory is not allowed in global imports, only when importing inside a location
   try{

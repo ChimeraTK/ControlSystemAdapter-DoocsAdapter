@@ -192,6 +192,7 @@ namespace ChimeraTK{
       
       for (auto const & mainNode : rootNode->get_children()){
         if (nodeIsWhitespace(mainNode)) continue;
+        if (dynamic_cast<xmlpp::CommentNode const *>(mainNode)) continue;        
         
         if (mainNode->get_name() == "location"){
           processLocationNode(mainNode);
