@@ -9,6 +9,11 @@
     <import>/INT</import>
   </location>
 
+  <!-- Test "Cherry picking": This location does not have an import but only hand-picked variables are in. -->
+  <location name="CHERRY_PICKED">
+    <property name="TO_DEVICE_SHORT" source="/SHORT/TO_DEVICE_SCALAR"/>
+  </location>
+
   <location name="SHORT">
     <!-- Test importing and adding a 'directory', i.e. a dot-separated prefix to the beginning of the property name -->
     <import directory="myStuff">/SHORT</import>

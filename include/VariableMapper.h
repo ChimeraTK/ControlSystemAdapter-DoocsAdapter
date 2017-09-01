@@ -13,6 +13,7 @@
 
 namespace xmlpp{
   class Node;
+  class Element;
 }
 
 namespace ChimeraTK{
@@ -65,6 +66,9 @@ namespace ChimeraTK{
 
     /// An internal helper function to abbreviate the syntax
     bool nodeIsWhitespace(const xmlpp::Node* node);
+
+    // Check if the attribute exists (throw if not) and get it's content
+    std::string getAttributeValue(const xmlpp::Element* node, std::string const & attributeName);
   };
 
 } // namespace ChimeraTK

@@ -23,9 +23,14 @@ namespace ChimeraTK{
     return false;
   }
 
+  
+
   void VariableMapper::processLocationNode(xmlpp::Node const * locationNode){
     const xmlpp::Element* location = dynamic_cast<const xmlpp::Element*>(locationNode);
-    std::string locationName = location->get_attribute("name")->get_value();
+    if (!location){
+      throw std::invalid_argument("Error parsing xml file in location node.");
+    }
+    std::string locationName = getAttributeValue(location,"name");
 
     for (auto const & node : location->get_children()){
         if (nodeIsWhitespace(node)) continue;
@@ -55,9 +60,12 @@ namespace ChimeraTK{
 
   void VariableMapper::processPropertyNode(xmlpp::Node const * propertyNode, std::string locationName){
     const xmlpp::Element* property = dynamic_cast<const xmlpp::Element*>(propertyNode);
+    if (!property){
+      throw std::invalid_argument("Error parsing xml file in property node in location" + locationName);
+    }
 
-    std::string source = property->get_attribute("source")->get_value();
-
+    std::string source = getAttributeValue(property, "source");
+    
     std::string name;
     const xmlpp::Attribute* nameAttribute = property->get_attribute("name");
     if (nameAttribute){
@@ -301,5 +309,13 @@ namespace ChimeraTK{
     }
   }
 
+  std::string VariableMapper::getAttributeValue(const xmlpp::Element* node, std::string const & attributeName){
+    auto attribute = node->get_attribute(attributeName);
+    if (!attribute){
+      throw std::invalid_argument("Error parsing xml file. Attribute '"+attributeName + "' not found in node '" + node->get_name() +"'.");
+    }
+    return attribute->get_value();
+  }
+  
 } // namespace ChimeraTK
 

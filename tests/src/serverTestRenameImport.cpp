@@ -55,7 +55,8 @@ void testVariableExistence(){
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//SHORT/myStuff.TO_DEVICE_ARRAY") );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//SHORT/myStuff.DATA_TYPE_CONSTANT") == -2);
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//SHORT/myStuff.FROM_DEVICE_SCALAR") );
-  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//SHORT/myStuff.TO_DEVICE_SCALAR") );
+
+  BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGet<int>("//CHERRY_PICKED/TO_DEVICE_SHORT") );
 
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/CONSTANT_ARRAY") );
   BOOST_CHECK_NO_THROW( DoocsServerTestHelper::doocsGetArray<int>("//DOUBLE/FROM_DEVICE_ARRAY") );
