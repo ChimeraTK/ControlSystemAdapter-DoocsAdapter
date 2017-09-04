@@ -141,12 +141,6 @@ BOOST_AUTO_TEST_CASE( testImportTooShort ){
   }
 }
 
-BOOST_AUTO_TEST_CASE( testGlobalImportPart ){
-  testXmlParsing("variableTreeXml/globalImportPart.xml", { {"/B/a/dr",  {"/B/a/dr", "a","dr"}},
-                                                           {"/B/c/de",  {"/B/c/de", "c","de"}},
-                                                           {"/B/c/gne", {"/B/c/gne","c","gne"}} });
-}
-
 BOOST_AUTO_TEST_CASE( testDuplicateSource ){
   try{
     testXmlParsing("variableTreeXml/duplicateSource.xml", {});
@@ -175,43 +169,5 @@ BOOST_AUTO_TEST_CASE( testUnkownLocationNode ){
     std::cout << " -- For manually checking the exception message for unknown location node:\n      "
               << e.what() << std::endl;
   }
-}
-
-BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnHistory ){
-  testXmlParsing("variableTreeXml/globalTurnOnOffHistory.xml",
-                 { {"/A/a/di",  {"/A/a/di","DUMMY_LOCATION","a.di",true}},
-                   {"/A/a/do",  {"/A/a/do","DUMMY_LOCATION","A.a.do",false}},
-                   {"/A/b",     {"/A/b",   "DUMMY_LOCATION","b",true}},
-                   {"/B/a/dr",  {"/B/a/dr","ANOTHER_LOCATION","a.dr",false}},
-                   {"/B/c/de",  {"/B/c/de","ANOTHER_LOCATION","c.de",false}},
-                   {"/B/c/gne", {"/B/c/gne","ANOTHER_LOCATION","DONT_WRITE_ME",false,false}},
-                   {"/C/a/da",  {"/C/a/da","NO_LOCATION_MODIFIERS","a.da",true}},
-                   {"/C/b/ge",  {"/C/b/ge","NO_LOCATION_MODIFIERS","b.ge",false}},
-                   {"/C/c/be",  {"/C/c/be","NO_LOCATION_MODIFIERS","c.be",false}},
-                   {"/C/c/de",  {"/C/c/de","NO_LOCATION_MODIFIERS","c.de",false}},
-                   {"/DIRECT/DOUBLE",  {"/DIRECT/DOUBLE","DIRECT","DOUBLE",false}},
-                   {"/DIRECT/DOUBLE_ARRAY",  {"/DIRECT/DOUBLE_ARRAY","DIRECT","DOUBLE_ARRAY",false}},
-                   {"/DIRECT/INT",  {"/DIRECT/INT","DIRECT","INT",false}},
-                   {"/DIRECT/INT_ARRAY",  {"/DIRECT/INT_ARRAY","DIRECT","INT_ARRAY",false}}
-                 });
-}
-
-BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnWriteable ){
-  testXmlParsing("variableTreeXml/globalTurnOnOffWriteable.xml",
-                 { {"/A/a/di",  {"/A/a/di","DUMMY_LOCATION","a.di",true,false}},
-                   {"/A/a/do",  {"/A/a/do","DUMMY_LOCATION","A.a.do",false,false}},
-                   {"/A/b",     {"/A/b",   "DUMMY_LOCATION","b",true,false}},
-                   {"/B/a/dr",  {"/B/a/dr","ANOTHER_LOCATION","a.dr",true, true}},
-                   {"/B/c/de",  {"/B/c/de","ANOTHER_LOCATION","c.de",true, true}},
-                   {"/B/c/gne", {"/B/c/gne","ANOTHER_LOCATION","DONT_WRITE_ME",true,false}},
-                   {"/C/a/da",  {"/C/a/da","NO_LOCATION_MODIFIERS","a.da",true,false}},
-                   {"/C/b/ge",  {"/C/b/ge","NO_LOCATION_MODIFIERS","b.ge",true,true}},
-                   {"/C/c/be",  {"/C/c/be","NO_LOCATION_MODIFIERS","c.be",true,false}},
-                   {"/C/c/de",  {"/C/c/de","NO_LOCATION_MODIFIERS","c.de",true,false}},
-                   {"/DIRECT/DOUBLE",  {"/DIRECT/DOUBLE","DIRECT","DOUBLE",true,false}},
-                   {"/DIRECT/DOUBLE_ARRAY",  {"/DIRECT/DOUBLE_ARRAY","DIRECT","DOUBLE_ARRAY",true,false}},
-                   {"/DIRECT/INT",  {"/DIRECT/INT","DIRECT","INT",true,false}},
-                   {"/DIRECT/INT_ARRAY",  {"/DIRECT/INT_ARRAY","DIRECT","INT_ARRAY",true,false}}
-                 });
 }
 
