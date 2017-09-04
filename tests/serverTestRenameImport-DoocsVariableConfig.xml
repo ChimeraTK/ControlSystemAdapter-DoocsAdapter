@@ -41,7 +41,7 @@
       <is_writeable>true</is_writeable>
     </property>
     <!-- all imported properties will have the history turned off -->
-    <import>/USHORT</import>
+    <import>/UCHAR</import>
   </location>    
   
   <location name="DOUBLE">  
