@@ -8,6 +8,10 @@
 #include <thread>
 #include "basenameFromAddress.h"
 
+// these constants don't exist in DOOCS, although they should. We define them here for better code readability
+static const int ACCESS_RO = 0; // read only
+static const int ACCESS_RW = 1; // read/write
+
 ReferenceTestApplication referenceTestApplication("serverTestRenameImport");
 
 // declare that we have some thing like a doocs server. is is linked from the doocs lib, but there is no header.
@@ -53,75 +57,87 @@ void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_h
   BOOST_REQUIRE_MESSAGE(property, "Could not find property " + propertyName + " (address "<< propertyAddress <<"), or property has unexpected type.");
 
   checkHistory(property, expected_has_history);
+
+  std::stringstream errorMessage;
+  errorMessage << "Access rights not correct for '" << propertyAddress << "': access word is "
+               << property->get_access() << ", expected " << (expected_is_writeable?ACCESS_RW:ACCESS_RO);
+  if (expected_is_writeable){
+    BOOST_CHECK_MESSAGE( property->get_access() == ACCESS_RW , errorMessage.str());
+  }else{
+    BOOST_CHECK( property->get_access() == ACCESS_RO );    
+  }
 }
 
 /// Check that all expected variables are there.
 void testVariableExistence(){
   // run update once to make sure the server is up and running
-  std::cout << "running update once " << std::endl;
   DoocsServerTestHelper::runUpdate();
-  std::cout << "ran update once, let's test " << std::endl;
 
-  for (auto const location : { "CHAR", "UINT"} ){
-    for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
-      // if this throws the property does not exist. we should always be able to read"
-      checkDoocsProperty<D_spectrum>( std::string("//")+location+"/"+ property);
-    }
-    for (auto const property : { "DATA_TYPE_CONSTANT", "FROM_DEVICE_SCALAR", "TO_DEVICE_SCALAR"} ){
-      // if this throws the property does not exist. we should always be able to read"
-      checkDoocsProperty<D_int>( (std::string("//")+location+"/"+ property).c_str());
-    }
-  }
-  
-  checkDoocsProperty<D_spectrum>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY");
-  checkDoocsProperty<D_spectrum>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_ARRAY" );
-  checkDoocsProperty<D_spectrum>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_ARRAY" );
-  checkDoocsProperty<D_int>("//MY_RENAMED_INTEGER_LOCATION/DATA_TYPE_CONSTANT");
+  checkDoocsProperty<D_spectrum>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY", true, false);
+  checkDoocsProperty<D_spectrum>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_ARRAY" , true, false);
+  checkDoocsProperty<D_spectrum>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_ARRAY", true, true );
+  checkDoocsProperty<D_int>("//MY_RENAMED_INTEGER_LOCATION/DATA_TYPE_CONSTANT", true, false);
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//MY_RENAMED_INTEGER_LOCATION/DATA_TYPE_CONSTANT") == -4);
-  checkDoocsProperty<D_int>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_SCALAR");
-  checkDoocsProperty<D_int>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_SCALAR");
+  checkDoocsProperty<D_int>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_SCALAR", true, false);
+  checkDoocsProperty<D_int>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_SCALAR", true ,true);
 
-  checkDoocsProperty<D_spectrum>("//SHORT/myStuff.CONSTANT_ARRAY" );
-  checkDoocsProperty<D_spectrum>("//SHORT/myStuff.FROM_DEVICE_ARRAY" );
+  checkDoocsProperty<D_spectrum>("//SHORT/myStuff.CONSTANT_ARRAY" , true, false);
+  checkDoocsProperty<D_spectrum>("//SHORT/myStuff.FROM_DEVICE_ARRAY", true, false );
   checkDoocsProperty<D_spectrum>("//SHORT/myStuff.TO_DEVICE_ARRAY" );
-  checkDoocsProperty<D_int>("//SHORT/myStuff.DATA_TYPE_CONSTANT");
+  checkDoocsProperty<D_int>("//SHORT/myStuff.DATA_TYPE_CONSTANT", true, false);
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//SHORT/myStuff.DATA_TYPE_CONSTANT") == -2);
-  checkDoocsProperty<D_int>("//SHORT/myStuff.FROM_DEVICE_SCALAR");
+  checkDoocsProperty<D_int>("//SHORT/myStuff.FROM_DEVICE_SCALAR", true, false);
 
   checkDoocsProperty<D_int>("//CHERRY_PICKED/TO_DEVICE_SHORT");
 
-  checkDoocsProperty<D_spectrum>("//DOUBLE/CONSTANT_ARRAY" );
-  checkDoocsProperty<D_spectrum>("//DOUBLE/FROM_DEVICE_ARRAY" );
+  checkDoocsProperty<D_spectrum>("//DOUBLE/CONSTANT_ARRAY" , true, false);
+  checkDoocsProperty<D_spectrum>("//DOUBLE/FROM_DEVICE_ARRAY", true, false );
   checkDoocsProperty<D_spectrum>("//DOUBLE/TO_DEVICE_ARRAY" );
-  checkDoocsProperty<D_double>("//DOUBLE/RENAMED_CONSTANT", false);
+  checkDoocsProperty<D_double>("//DOUBLE/RENAMED_CONSTANT", false, false);
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<double>("//DOUBLE/RENAMED_CONSTANT") == 1./8.);
-  checkDoocsProperty<D_double>("//DOUBLE/FROM_DEVICE_SCALAR");
-  checkDoocsProperty<D_double>("//DOUBLE/DOUBLE.TO_DEVICE_SCALAR");
+  checkDoocsProperty<D_double>("//DOUBLE/FROM_DEVICE_SCALAR", true, false);
+  checkDoocsProperty<D_double>("//DOUBLE/DOUBLE.TO_DEVICE_SCALAR", true, false);
   checkDoocsProperty<D_float>("//DOUBLE/I_AM_A_FLOAT_SCALAR");
 
   // we moved one float scalar to the double location, so we cannot check for it in the loop above
-  checkDoocsProperty<D_spectrum>("//FLOAT/CONSTANT_ARRAY" );
-  checkDoocsProperty<D_spectrum>("//FLOAT/FROM_DEVICE_ARRAY" );
+  checkDoocsProperty<D_spectrum>("//FLOAT/CONSTANT_ARRAY" , true, false);
+  checkDoocsProperty<D_spectrum>("//FLOAT/FROM_DEVICE_ARRAY", true, false );
   checkDoocsProperty<D_spectrum>("//FLOAT/TO_DEVICE_ARRAY" );
-  checkDoocsProperty<D_float>("//FLOAT/DATA_TYPE_CONSTANT" );
+  checkDoocsProperty<D_float>("//FLOAT/DATA_TYPE_CONSTANT", true, false );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<float>("//FLOAT/DATA_TYPE_CONSTANT") == 1./4.);
-  checkDoocsProperty<D_float>("//FLOAT/FROM_DEVICE_SCALAR");
+  checkDoocsProperty<D_float>("//FLOAT/FROM_DEVICE_SCALAR", true, false);
 
-  checkDoocsProperty<D_spectrum>("//USHORT/CONSTANT_ARRAY");
-  checkDoocsProperty<D_spectrum>("//USHORT/FROM_DEVICE_ARRAY" );
+  checkDoocsProperty<D_spectrum>("//UINT/CONSTANT_ARRAY", true, false);
+  checkDoocsProperty<D_spectrum>("//UINT/FROM_DEVICE_ARRAY", true, false );
+  checkDoocsProperty<D_spectrum>("//UINT/TO_DEVICE_ARRAY" );
+  checkDoocsProperty<D_int>("//UINT/DATA_TYPE_CONSTANT", true, false);
+  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//UINT/DATA_TYPE_CONSTANT") == 4);
+  checkDoocsProperty<D_int>("//UINT/FROM_DEVICE_SCALAR", true, false);
+  checkDoocsProperty<D_int>("//UINT/TO_DEVICE_SCALAR");
+
+  checkDoocsProperty<D_spectrum>("//USHORT/CONSTANT_ARRAY", true, false);
+  checkDoocsProperty<D_spectrum>("//USHORT/FROM_DEVICE_ARRAY", true, false);
   checkDoocsProperty<D_spectrum>("//USHORT/TO_DEVICE_ARRAY");
-  checkDoocsProperty<D_int>("//USHORT/DATA_TYPE_CONSTANT", false );
+  checkDoocsProperty<D_int>("//USHORT/DATA_TYPE_CONSTANT", false, false );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//USHORT/DATA_TYPE_CONSTANT") == 2);
-  checkDoocsProperty<D_int>("//USHORT/FROM_DEVICE_SCALAR", false);
-  checkDoocsProperty<D_int>("//USHORT/TO_DEVICE_SCALAR", true);
+  checkDoocsProperty<D_int>("//USHORT/FROM_DEVICE_SCALAR", false, false);
+  checkDoocsProperty<D_int>("//USHORT/TO_DEVICE_SCALAR", true, true);
 
-  checkDoocsProperty<D_spectrum>("//UCHAR/CONSTANT_ARRAY");
-  checkDoocsProperty<D_spectrum>("//UCHAR/FROM_DEVICE_ARRAY" );
-  checkDoocsProperty<D_spectrum>("//UCHAR/TO_DEVICE_ARRAY" );
-  checkDoocsProperty<D_int>("//UCHAR/DATA_TYPE_CONSTANT");
+  checkDoocsProperty<D_spectrum>("//UCHAR/CONSTANT_ARRAY", true, false);
+  checkDoocsProperty<D_spectrum>("//UCHAR/FROM_DEVICE_ARRAY", true, false );
+  checkDoocsProperty<D_spectrum>("//UCHAR/TO_DEVICE_ARRAY" , true, false);
+  checkDoocsProperty<D_int>("//UCHAR/DATA_TYPE_CONSTANT", true, false);
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//UCHAR/DATA_TYPE_CONSTANT") == 1);
-  checkDoocsProperty<D_int>("//UCHAR/FROM_DEVICE_SCALAR");
+  checkDoocsProperty<D_int>("//UCHAR/FROM_DEVICE_SCALAR", true, false);
   checkDoocsProperty<D_int>("//UCHAR/TO_DEVICE_SCALAR");
+
+  checkDoocsProperty<D_spectrum>("//CHAR/CONSTANT_ARRAY", true, false);
+  checkDoocsProperty<D_spectrum>("//CHAR/FROM_DEVICE_ARRAY", true, false );
+  checkDoocsProperty<D_spectrum>("//CHAR/TO_DEVICE_ARRAY" );
+  checkDoocsProperty<D_int>("//CHAR/DATA_TYPE_CONSTANT", true, false);
+  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1);
+  checkDoocsProperty<D_int>("//CHAR/FROM_DEVICE_SCALAR", true, false);
+  checkDoocsProperty<D_int>("//CHAR/TO_DEVICE_SCALAR");
 }
 
 // due to the doocs server thread you can only have one test suite
