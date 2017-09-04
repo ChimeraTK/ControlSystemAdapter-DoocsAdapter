@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <has_history>false</has_history>
+  <location name="DOUBLE">
+    <has_history>true</has_history>
+    <property source="TO_DEVICE_SCALAR">
+      <has_history>false</has_history>
+    </property>
+    <!-- to test that it picks up the default when explicitly mentioned as property-->
+    <property source="/DOUBLE/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR"/>
+    <!-- to test that it picks up the default when being imported-->
+    <import>/DOUBLE</import>
+  </location>
+  <location name="FLOAT">
+    <property source="TO_DEVICE_SCALAR">
+      <has_history>true</has_history>
+    </property>
+    <import>/FLOAT</import>
+  </location>
+  <import>/</import>
+</device_server>
