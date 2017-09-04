@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <is_writeable>false</is_writeable>
+  <location name="DOUBLE">
+    <is_writeable>true</is_writeable>
+    <property source="TO_DEVICE_SCALAR">
+      <is_writeable>false</is_writeable>
+    </property>
+    <!-- to test that it picks up the default when explicitly mentioned as property-->
+    <property source="/DOUBLE/TO_DEVICE_ARRAY" name="TO_DEVICE_ARRAY"/>
+    <!-- to test that it picks up the default when being imported-->
+    <import>/DOUBLE</import>
+  </location>
+  <location name="FLOAT">
+    <property source="TO_DEVICE_ARRAY">
+      <is_writeable>true</is_writeable>
+    </property>
+    <import>/FLOAT</import>
+  </location>
+  <import>/</import>
+</device_server>

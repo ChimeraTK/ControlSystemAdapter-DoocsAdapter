@@ -177,16 +177,6 @@ BOOST_AUTO_TEST_CASE( testUnkownLocationNode ){
   }
 }
 
-BOOST_AUTO_TEST_CASE( testLocationTurnOffOn ){
-  testXmlParsing("variableTreeXml/locationTurnOffOn.xml", { {"/A/a/di",  {"/A/a/di","DUMMY_LOCATION","a.di",false}},
-                                                            {"/A/a/do",  {"/A/a/do","DUMMY_LOCATION","A.a.do",true}},
-                                                            {"/A/b",     {"/A/b","DUMMY_LOCATION","b",false}},
-                                                            {"/B/a/dr",  {"/B/a/dr","ANOTHER_LOCATION","a.dr",true, false}},
-                                                            {"/B/c/de",  {"/B/c/de","ANOTHER_LOCATION","c.de",true, false}},
-	                                                    {"/B/c/gne", {"/B/c/gne","ANOTHER_LOCATION","WRITE_ME"}},
-                                                       });
-}
-
 BOOST_AUTO_TEST_CASE( testGlobalTurnOffOnHistory ){
   testXmlParsing("variableTreeXml/globalTurnOnOffHistory.xml",
                  { {"/A/a/di",  {"/A/a/di","DUMMY_LOCATION","a.di",true}},
