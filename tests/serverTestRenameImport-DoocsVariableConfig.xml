@@ -19,12 +19,37 @@
     <import directory="myStuff">/SHORT</import>
   </location>
 
+  <!-- Set the default for has_history to false in one location -->
+  <location name="USHORT">
+    <has_history>false</has_history>
+    <!-- Turn the history back on for one property, although the default is off.-->
+    <property source="TO_DEVICE_SCALAR">
+      <has_history>true</has_history>
+    </property>
+    <!-- all imported properties will have the history turned off -->
+    <import>/USHORT</import>
+  </location>    
+
+  <!-- Set the default for is_writeable to false in one location.
+       Intentionally use another location than for the has_history test to avoid missing
+       confusion in the parser (e.g. is_writeable allways acts on both, has_history has no effec,
+       but it's not seen because it's always tested together) -->
+  <location name="UCHAR">
+    <is_writeable>false</is_writeable>
+    <!-- Turn the history back on for one property, although the default is off.-->
+    <property source="TO_DEVICE_SCALAR">
+      <is_writeable>true</is_writeable>
+    </property>
+    <!-- all imported properties will have the history turned off -->
+    <import>/USHORT</import>
+  </location>    
+  
   <location name="DOUBLE">  
     <!-- test renaming a scalar-->
     <!-- Also tests relative variable names. The input must be in a directory which is identical
          top the ocation name, '/DOUBLE' in this case -->
     <property source="DATA_TYPE_CONSTANT" name="RENAMED_CONSTANT">
-      <!-- test turning off the history (on by default) -->
+      <!-- test turning off the history (no special default set per location, on by default) -->
       <has_history>false</has_history>
     </property>
     <!-- Test adding a scalar from another directory than the one imported. -->
