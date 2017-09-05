@@ -31,9 +31,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  boost::shared_ptr< ProcessArray<T> > deviceVariable =
+  boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(controlSystemToDevice,"toDeviceVariable", 1);
-  boost::shared_ptr< ProcessArray<T> > controlSystemVariable = 
+  boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("toDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0)=0;
@@ -144,9 +144,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
-  typename ProcessArray<T>::SharedPtr deviceVariable =
+  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(deviceToControlSystem,"fromDeviceVariable",1);
-  typename ProcessArray<T>::SharedPtr controlSystemVariable = 
+  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("fromDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0)=0;

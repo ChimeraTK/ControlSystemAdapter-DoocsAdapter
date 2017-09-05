@@ -20,7 +20,7 @@ template <typename T>
 class TestableDoocsSpectrum : public DoocsSpectrum<T>{
 public:
   TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
-		      boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const & processArray,
+                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
     : DoocsSpectrum<T>( eqFct, doocsPropertyName, processArray, syncUtility){}
 
@@ -47,10 +47,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
 
   ControlSystemSynchronizationUtility syncUtil(csManager);
   static const size_t arraySize = 8;
-  boost::shared_ptr< ProcessArray< T> > deviceVariable =
+  boost::shared_ptr< mtca4u::NDRegisterAccessor< T> > deviceVariable =
     devManager->createProcessArray<T>(
       controlSystemToDevice, "toDeviceVariable", arraySize);
-  boost::shared_ptr< ProcessArray<T> > controlSystemVariable = 
+  boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("toDeviceVariable");
 
   // Write to the doocs spectrum and send it.
@@ -93,10 +93,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   ControlSystemSynchronizationUtility syncUtil(csManager);
 
   static const size_t arraySize = 8;
-  typename ProcessArray<T>::SharedPtr deviceVariable =
+  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(
       deviceToControlSystem, "fromDeviceVariable", arraySize);
-  typename ProcessArray<T>::SharedPtr controlSystemVariable = 
+  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("fromDeviceVariable");
 
   // initialise the doocs spectrum

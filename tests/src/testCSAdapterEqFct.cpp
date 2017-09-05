@@ -11,7 +11,7 @@
 #include "VariableMapper.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
+#include <mtca4u/NDRegisterAccessor.h>
 #include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 
 using namespace boost::unit_test_framework;
@@ -31,8 +31,8 @@ public:
 };
 
 struct BusinessLogic{
-  ProcessArray<int>::SharedPtr toDeviceInt;
-  ProcessArray<int>::SharedPtr fromDeviceInt;
+  boost::shared_ptr< mtca4u::NDRegisterAccessor<int> > toDeviceInt;
+  boost::shared_ptr< mtca4u::NDRegisterAccessor<int> > fromDeviceInt;
 
   BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const & pvManager)
   : toDeviceInt(pvManager->createProcessArray<int>(controlSystemToDevice, "test/TO_DEVICE/INT",1)),
