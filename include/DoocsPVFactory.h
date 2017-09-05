@@ -31,8 +31,8 @@ namespace ChimeraTK {
     boost::shared_ptr<ControlSystemSynchronizationUtility> _syncUtility; //< The syncUtility is needed to register listeners
     boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager; //< The pv manager, needed to get the instances @todo Do we need it in a proper design?
 
-    // create the DOOCS property. Note: DOOCS_T and DOOCS_VALUE_T are only used for scalar properties, not for arrays!
-    template<class T, class DOOCS_T, class DOOCS_VALUE_T>
+    // create the DOOCS property. Note: DOOCS_T is only used for scalar properties, not for arrays!
+    template<class T, class DOOCS_T>
     typename boost::shared_ptr<D_fct> createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable);
  
   };
@@ -40,7 +40,7 @@ namespace ChimeraTK {
 
   // specialisation for strings
   template<>
-  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty<std::string, D_string, std::string>(typename ProcessVariable::SharedPtr & processVariable);
+  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty<std::string, D_string>(typename ProcessVariable::SharedPtr & processVariable);
   
   
 }//namespace ChimeraTK

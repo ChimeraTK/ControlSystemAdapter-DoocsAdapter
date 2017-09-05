@@ -42,20 +42,20 @@ public:
     : DoocsPVFactory(eqFct, syncUtility, csPVManager){
   }
 
-  template<class T, class DOOCS_T, class DOOCS_VALUE_T>
+  template<class T, class DOOCS_T>
   typename boost::shared_ptr<D_fct> createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable){
-    return DoocsPVFactory::createDoocsProperty<T, DOOCS_T, DOOCS_VALUE_T>(processVariable);
+    return DoocsPVFactory::createDoocsProperty<T, DOOCS_T>(processVariable);
   }
 };
 
-template<class T, class DOOCS_T, class DOOCS_VALUE_T>
+template<class T, class DOOCS_T>
 static void testCreateProcessScalar(typename ProcessVariable::SharedPtr processVariable,
 				    DoocsPVFactory & factory, std::string const & expectedPropertyName){
   // have the variable created and check that it is the right type
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create( processVariable );
   // get the raw pointer and dynamic cast it to the expected type
-  DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T> * doocsScalarType = 
-    dynamic_cast< DoocsProcessScalar<T, DOOCS_T, DOOCS_VALUE_T> * > (doocsVariableAsDFct.get());
+  DoocsProcessScalar<T, DOOCS_T> * doocsScalarType = 
+    dynamic_cast< DoocsProcessScalar<T, DOOCS_T> * > (doocsVariableAsDFct.get());
   // if the cast succeeds the factory works as expected we are done
   std::string errorMessage = std::string("testCreateProcessScalar failed for type ") + typeid(T).name();
   BOOST_CHECK_MESSAGE(doocsScalarType, errorMessage);
@@ -92,35 +92,35 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
   // These checkpoints are always true.
-  testCreateProcessScalar<int32_t, D_int, int>(
+  testCreateProcessScalar<int32_t, D_int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int32_t>("I/int32")),
     factory, "int32 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-32);
-  testCreateProcessScalar<uint32_t, D_int, int>(
+  testCreateProcessScalar<uint32_t, D_int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint32_t>("U/uint32")),
     factory, "uint32 ");
   BOOST_CHECK(32);
-  testCreateProcessScalar<int16_t, D_int, int>(
+  testCreateProcessScalar<int16_t, D_int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int16_t>("I/int16")),
     factory, "int16 ");
   BOOST_CHECK(-16);
-  testCreateProcessScalar<uint16_t, D_int, int>(
+  testCreateProcessScalar<uint16_t, D_int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint16_t>("U/uint16")),
     factory, "uint16 ");
   BOOST_CHECK(16);
-  testCreateProcessScalar<int8_t, D_int, int>(
+  testCreateProcessScalar<int8_t, D_int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int8_t>("I/int8")),
     factory, "int8 ");
   BOOST_CHECK(-8);
-  testCreateProcessScalar<uint8_t, D_int, int>(
+  testCreateProcessScalar<uint8_t, D_int>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint8_t>("U/uint8")),
     factory, "uint8 ");
   BOOST_CHECK(8);
-  testCreateProcessScalar<float, D_float, float>(
+  testCreateProcessScalar<float, D_float>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<float>("FP/float")),
     factory, "float ");
   BOOST_CHECK(0.5);
-  testCreateProcessScalar<double, D_double, double>(
+  testCreateProcessScalar<double, D_double>(
     boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<double>("FP/double")),
     factory, "double ");
   
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
   try{
-    testableFactory.createDoocsProperty<int32_t, D_int, int>( processScalar );
+    testableFactory.createDoocsProperty<int32_t, D_int>( processScalar );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
     BOOST_FAIL( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   // now the same with arrays
   ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("A/toDeviceArray");
-  BOOST_CHECK_THROW( ( testableFactory.createDoocsProperty<int32_t, D_int, int>(processArray) ),
+  BOOST_CHECK_THROW( ( testableFactory.createDoocsProperty<int32_t, D_int>(processArray) ),
 		      std::invalid_argument );
 
    // finally we check that the create method catches the not-supported type.

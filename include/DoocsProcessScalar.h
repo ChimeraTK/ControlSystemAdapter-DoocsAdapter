@@ -16,12 +16,8 @@ namespace ChimeraTK {
   /** The DoocsProcessScalar has three template parameters:
   *  \li \c T, The primitive value type of the ChimeraTK process variable
   *  \li \c DOOCS_T, The Doocs type which is used
-  *  \li \c DOOCS_VALUE_T, The primitive type of the Doocs type, which is not necessarily the same as T
-  * 
-  *  The last type is necessary for the set_value overloading to work. If for instance T is short, then
-  *  D_int is used and the signature is set_value(int), not set_value(short).
   */
-  template <typename T, typename DOOCS_T, typename DOOCS_VALUE_T>
+  template <typename T, typename DOOCS_T>
   class DoocsProcessScalar :  public DOOCS_T {
 
     protected:
@@ -67,8 +63,8 @@ namespace ChimeraTK {
     private:
 
       // This class is neither assignable nor copy-constructible
-      DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T > & operator= (DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T> const &other);
-      DoocsProcessScalar(DoocsProcessScalar< T, DOOCS_T, DOOCS_VALUE_T> const &other);
+      DoocsProcessScalar< T, DOOCS_T> & operator= (DoocsProcessScalar< T, DOOCS_T> const &other);
+      DoocsProcessScalar(DoocsProcessScalar< T, DOOCS_T> const &other);
       
     public:
 
