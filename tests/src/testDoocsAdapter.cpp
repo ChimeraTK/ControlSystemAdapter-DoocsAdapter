@@ -7,7 +7,6 @@
 #include "emptyServerFunctions.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
 #include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 
 using namespace boost::unit_test_framework;

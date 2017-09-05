@@ -20,8 +20,8 @@ namespace ChimeraTK {
   template<class T, class DOOCS_T>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable) {
     // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
-    typename ProcessArray<T>::SharedPtr processArray
-      = boost::dynamic_pointer_cast< ProcessArray<T> >(processVariable);
+    typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > processArray
+      = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<T> >(processVariable);
     if (!processArray){
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
 				  + processVariable->getValueType().name());
@@ -71,8 +71,8 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty<std::string, D_string>(
             boost::shared_ptr<ProcessVariable> & processVariable) {
     // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
-    boost::shared_ptr<ProcessArray<std::string>> processArray
-      = boost::dynamic_pointer_cast< ProcessArray<std::string> >(processVariable);
+    boost::shared_ptr< mtca4u::NDRegisterAccessor<std::string> > processArray
+      = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<std::string> >(processVariable);
     if (!processArray){
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
                                   + processVariable->getValueType().name());

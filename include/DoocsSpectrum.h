@@ -4,7 +4,7 @@
 #include <D_spectrum.h>
 #include <boost/noncopyable.hpp>
 
-#include <ChimeraTK/ControlSystemAdapter/ProcessArray.h>
+#include <mtca4u/NDRegisterAccessor.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 
@@ -40,9 +40,7 @@ namespace ChimeraTK {
            * The notification that is executed updates of the doocs process variable
            */
           void notify(boost::shared_ptr< ProcessVariable > processVariable) {
-            // It is safe to static cast because the DoocsArrayListener is inside a 
-            // DoocsSpectrum, which always holds a ProcessArray, never a ProcessScalar
-            ProcessArray<T> & processArray = static_cast< ProcessArray<T> & >(*processVariable);
+            auto & processArray = static_cast< mtca4u::NDRegisterAccessor<T> & >(*processVariable);
             
             // Brute force implementation. Works for all data types T.
             // always get a fresh reference
@@ -59,7 +57,7 @@ namespace ChimeraTK {
 
       };
 
-      boost::shared_ptr< ProcessArray<T> > _processArray;
+      boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > _processArray;
 
       // Internal function which copies the content from the DOOCS container into the 
       // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.
@@ -77,7 +75,7 @@ namespace ChimeraTK {
     public:
 
       DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
-                     boost::shared_ptr< typename ChimeraTK::ProcessArray<T> > const &processArray,
+                     boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const &processArray,
                      ControlSystemSynchronizationUtility & syncUtility )
         : D_spectrum( doocsPropertyName.c_str(),
                     processArray->getNumberOfSamples(), eqFct),
