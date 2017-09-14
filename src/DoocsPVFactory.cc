@@ -78,7 +78,22 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1);    // array of strings is not supported
-    return boost::shared_ptr<D_fct>( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription->name.c_str(), processArray, *_syncUtility) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription->name.c_str(), processArray, *_syncUtility) );
+
+    //fixme: factor this out into another function. Will be needed many times
+    auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
+    // FIXME: This has to go for scalars
+    // FIXME: Make it scalar and put it into one if query
+    if (autoPropertyDescription && !(autoPropertyDescription->isWriteable)){
+      doocsPV->set_ro_access();
+    }
+    
+    // set read only mode if configures in the xml file or for output variables
+    if (!processArray->isWriteable()){// || !propertyDescription.isWriteable){
+      doocsPV->set_ro_access();
+    }
+    
+    return doocsPV;
   }
 
   template<class T>
