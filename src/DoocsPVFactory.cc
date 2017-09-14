@@ -111,7 +111,7 @@ namespace ChimeraTK {
     auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
     
     assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, propertyDescription->name, getDecorator<float>(*processArray), *_syncUtility) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, propertyDescription->name, getDecorator<float>(*processArray)) );
 
     // FIXME: Make it scalar and put it into one if query
     if (autoPropertyDescription && !(autoPropertyDescription->isWriteable)){

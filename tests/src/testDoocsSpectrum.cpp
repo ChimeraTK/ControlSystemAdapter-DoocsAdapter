@@ -20,9 +20,8 @@ using namespace ChimeraTK;
 class TestableDoocsSpectrum : public DoocsSpectrum{
 public:
   TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
-                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray,
-		      ControlSystemSynchronizationUtility & syncUtility)
-    : DoocsSpectrum( eqFct, doocsPropertyName, processArray, syncUtility){}
+                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray)
+    : DoocsSpectrum( eqFct, doocsPropertyName, processArray){}
 
   void sendToDevice(){
     DoocsSpectrum::sendToDevice();
@@ -45,7 +44,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
   static const size_t arraySize = 8;
   boost::shared_ptr< mtca4u::NDRegisterAccessor< T> > deviceVariable =
     devManager->createProcessArray<T>(
@@ -56,7 +54,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise is 
   // protected.
-  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), syncUtil );
+  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable));
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -90,8 +88,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
-
   static const size_t arraySize = 8;
   typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(
@@ -100,7 +96,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
     csManager->getProcessArray<T>("fromDeviceVariable");
 
   // initialise the doocs spectrum
-  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), syncUtil );
+  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable) );
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, 0);
   }
@@ -122,13 +118,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
     BOOST_CHECK( doocsSpectrum.read_spectrum(i) == 0 );
   }
 
-  syncUtil.receiveAll();
+  doocsSpectrum.readLatest();
+  
   // The actual vector buffer has changed. We have to get the new reference.
   csVector = controlSystemVariable->accessChannel(0);  
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == sign*static_cast<T>(i*i) + offset );
-    std::cout << "check: csVector[" << i<< "] " << csVector[i] << " ,  doocsSpectrum.read_spectrum("
-              <<i <<") : "<< doocsSpectrum.read_spectrum(i) << std::endl;
     BOOST_CHECK( doocsSpectrum.read_spectrum(i) == sign*static_cast<T>(i*i) + offset );
   }
 
