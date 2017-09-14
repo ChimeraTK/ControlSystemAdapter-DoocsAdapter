@@ -9,6 +9,7 @@
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 
 #include "emptyServerFunctions.h"
+#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
 
 #include <limits>
 #include <sstream>
@@ -16,16 +17,15 @@
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
-template <typename T>
-class TestableDoocsSpectrum : public DoocsSpectrum<T>{
+class TestableDoocsSpectrum : public DoocsSpectrum{
 public:
   TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
-                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const & processArray,
+                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray,
 		      ControlSystemSynchronizationUtility & syncUtility)
-    : DoocsSpectrum<T>( eqFct, doocsPropertyName, processArray, syncUtility){}
+    : DoocsSpectrum( eqFct, doocsPropertyName, processArray, syncUtility){}
 
   void sendToDevice(){
-    DoocsSpectrum<T>::sendToDevice();
+    DoocsSpectrum::sendToDevice();
   }
 	
 };
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise is 
   // protected.
-  TestableDoocsSpectrum<T> doocsSpectrum( NULL, "someName", controlSystemVariable, syncUtil );
+  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), syncUtil );
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
     csManager->getProcessArray<T>("fromDeviceVariable");
 
   // initialise the doocs spectrum
-  DoocsSpectrum<T> doocsSpectrum( NULL, "someName", controlSystemVariable, syncUtil );
+  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), syncUtil );
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, 0);
   }
@@ -127,6 +127,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   csVector = controlSystemVariable->accessChannel(0);  
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == sign*static_cast<T>(i*i) + offset );
+    std::cout << "check: csVector[" << i<< "] " << csVector[i] << " ,  doocsSpectrum.read_spectrum("
+              <<i <<") : "<< doocsSpectrum.read_spectrum(i) << std::endl;
     BOOST_CHECK( doocsSpectrum.read_spectrum(i) == sign*static_cast<T>(i*i) + offset );
   }
 

@@ -188,8 +188,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
     boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
 
     // get the raw pointer and dynamic cast it to the expected type
-    DoocsSpectrum<T> * doocsSpectrum = 
-      dynamic_cast< DoocsSpectrum<T> * > (doocsVariableAsDFct.get());
+    DoocsSpectrum * doocsSpectrum = 
+      dynamic_cast< DoocsSpectrum * > (doocsVariableAsDFct.get());
 
     // if the cast succeeds the factory works as expected we are done
     BOOST_REQUIRE(doocsSpectrum);

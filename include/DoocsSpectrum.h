@@ -15,7 +15,6 @@ class EqFct;
 
 namespace ChimeraTK {
   
-  template <typename T>
   class DoocsSpectrum : public D_spectrum, public boost::noncopyable {
         
     protected:
@@ -32,19 +31,19 @@ namespace ChimeraTK {
           *  DoocsProcessVariable, we do not have to care about the scope of the pointer. It 
           *  will always be valid.
           */
-          DoocsSpectrumListener(D_spectrum * spectrum)
+          DoocsSpectrumListener(DoocsSpectrum * spectrum)
           : _spectrum(spectrum)
           {}
         
           /**
            * The notification that is executed updates of the doocs process variable
            */
-          void notify(boost::shared_ptr< ProcessVariable > processVariable) {
-            auto & processArray = static_cast< mtca4u::NDRegisterAccessor<T> & >(*processVariable);
+          void notify(boost::shared_ptr< ProcessVariable > /*processVariable*/) {
+            std::cout << "this is notify" << std::endl;
             
-            // Brute force implementation. Works for all data types T.
+            // FIXME: find the efficient memcopying implementation for float
             // always get a fresh reference
-            std::vector<T> & processVector = processArray.accessChannel(0); 
+            std::vector<float> & processVector = _spectrum->_processArray->accessChannel(0); 
             size_t arraySize = processVector.size();
             for(size_t i=0; i < arraySize; ++i) {
               _spectrum->fill_spectrum(i, processVector[i]);
@@ -53,18 +52,19 @@ namespace ChimeraTK {
           
         private:
 
-          D_spectrum * _spectrum;
+          DoocsSpectrum * _spectrum;
 
       };
 
-      boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > _processArray;
+      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _processArray;
 
       // Internal function which copies the content from the DOOCS container into the 
       // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.
       void sendToDevice() {
         // Brute force implementation with a loop. Works for all data types.
+        // FIXME: find the efficient, memcopying function for float
         // always get a fresh reference
-        std::vector<T> &processVector = _processArray->accessChannel(0); 
+        std::vector<float> &processVector = _processArray->accessChannel(0); 
         size_t arraySize = processVector.size();
         for (size_t i=0; i < arraySize; ++i){
           processVector[i] = read_spectrum(i);
@@ -74,12 +74,18 @@ namespace ChimeraTK {
 
     public:
 
+      /** The constructor expects an NDRegisterAccessor of float, which usually will be a decorator
+       *  to the implementation type. The decorator cannot be generated in the constructor
+       *  because the ProcessVariable aka TransferElement does not know about it's size,
+       *  which is needed by the D_spectrum constructor. This is not a big drawback because
+       *  the properties are greated by a factory function anyway.
+       */
       DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
-                     boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const &processArray,
+                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray,
                      ControlSystemSynchronizationUtility & syncUtility )
         : D_spectrum( doocsPropertyName.c_str(),
                     processArray->getNumberOfSamples(), eqFct),
-        _processArray(processArray)
+        _processArray( processArray )
       {
         syncUtility.addReceiveNotificationListener( processArray,
                                                     ProcessVariableListener::SharedPtr(new DoocsSpectrumListener(this)) );
