@@ -29,18 +29,22 @@ namespace ChimeraTK {
   protected:
     EqFct * _eqFct; //< The EqFct which is holding the factory. Needed in the constructor of the doocs properties.
     boost::shared_ptr<ControlSystemSynchronizationUtility> _syncUtility; //< The syncUtility is needed to register listeners
-    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager; //< The pv manager, needed to get the instances @todo Do we need it in a proper design?
+    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager; //< The pv manager, needed to get the instances
 
     // create the DOOCS property. Note: DOOCS_T is only used for scalar properties, not for arrays!
     template<class T, class DOOCS_T>
-    typename boost::shared_ptr<D_fct> createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable);
+    typename boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable);
+    template<class T>
+    typename boost::shared_ptr<D_fct> createDoocsSpectrum(typename ProcessVariable::SharedPtr & processVariable);
+
+    boost::shared_ptr<D_fct> autoCreate( std::shared_ptr<PropertyDescription> const & propertyDescription);
  
   };
 
 
   // specialisation for strings
   template<>
-  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsProperty<std::string, D_string>(typename ProcessVariable::SharedPtr & processVariable);
+  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(typename ProcessVariable::SharedPtr & processVariable);
   
   
 }//namespace ChimeraTK

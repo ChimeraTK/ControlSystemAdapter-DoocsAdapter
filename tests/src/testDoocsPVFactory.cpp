@@ -42,8 +42,8 @@ public:
   }
 
   template<class T, class DOOCS_T>
-  typename boost::shared_ptr<D_fct> createDoocsProperty(typename ProcessVariable::SharedPtr & processVariable){
-    return DoocsPVFactory::createDoocsProperty<T, DOOCS_T>(processVariable);
+  typename boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable){
+    return DoocsPVFactory::createDoocsScalar<T, DOOCS_T>(processVariable);
   }
 };
 
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
   try{
-    testableFactory.createDoocsProperty<int32_t, D_int>( processScalar );
+    testableFactory.createDoocsScalar<int32_t, D_int>( processScalar );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
     BOOST_FAIL( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   // now the same with arrays
   ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("A/toDeviceArray");
-  BOOST_CHECK_THROW( ( testableFactory.createDoocsProperty<int32_t, D_int>(processArray) ),
+  BOOST_CHECK_THROW( ( testableFactory.createDoocsScalar<int32_t, D_int>(processArray) ),
 		      std::invalid_argument );
 
    // finally we check that the create method catches the not-supported type.
