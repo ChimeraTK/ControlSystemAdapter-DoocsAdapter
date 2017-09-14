@@ -45,6 +45,10 @@ public:
   typename boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable){
     return DoocsPVFactory::createDoocsScalar<T, DOOCS_T>(processVariable);
   }
+  template<class T>
+  typename boost::shared_ptr<D_fct> createDoocsSpectrum(typename ProcessVariable::SharedPtr & processVariable){
+    return DoocsPVFactory::createDoocsSpectrum<T>(processVariable);
+  }
 };
 
 template<class T, class DOOCS_T>
@@ -227,7 +231,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   // now the same with arrays
   ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("A/toDeviceArray");
-  BOOST_CHECK_THROW( ( testableFactory.createDoocsScalar<int32_t, D_int>(processArray) ),
+  BOOST_CHECK_THROW( ( testableFactory.createDoocsSpectrum<int32_t>(processArray) ),
 		      std::invalid_argument );
 
    // finally we check that the create method catches the not-supported type.
