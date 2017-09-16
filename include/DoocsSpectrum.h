@@ -5,6 +5,7 @@
 #include <boost/noncopyable.hpp>
 
 #include <mtca4u/NDRegisterAccessor.h>
+#include "DoocsTransferElement.h"
 #include "splitStringAtFirstSlash.h"
 
 // Just declare the EqFct class. We only need the pointer in this header.
@@ -12,7 +13,7 @@ class EqFct;
 
 namespace ChimeraTK {
   
-  class DoocsSpectrum : public D_spectrum, public boost::noncopyable, public mtca4u::TransferElement {
+  class DoocsSpectrum : public D_spectrum, public boost::noncopyable, public DoocsTransferElement<float> {
         
     public:
 
@@ -26,7 +27,7 @@ namespace ChimeraTK {
                      boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray)
         : D_spectrum( doocsPropertyName.c_str(),
                     processArray->getNumberOfSamples(), eqFct),
-        _processArray( processArray )
+        DoocsTransferElement( processArray )
       {}
 
       /**
@@ -49,29 +50,13 @@ namespace ChimeraTK {
         }
       }
 
-      // implement the stuff needed by TransferElement
-      // FIXME: make this code reusable, just don't know how yet
-      virtual const std::type_info& getValueType() const override{
-        return typeid(float);
-      }
-      virtual TransferFuture& readAsync() override{
-        return _processArray->readAsync();
-      }
       virtual bool write(ChimeraTK::VersionNumber /*versionNumber*/={}) override{
         sendToDevice();
         // not checking for buffer overflow.
         //FIXEM: should this be writable at all?
         return false;
       }
-      virtual void doReadTransfer() override{
-        _processArray->doReadTransfer();
-      }
-      virtual bool doReadTransferNonBlocking() override{
-        return _processArray->doReadTransferNonBlocking();        
-      }
-      virtual bool doReadTransferLatest() override{
-        return _processArray->doReadTransferLatest();        
-      }
+
       virtual void postRead(){
         _processArray->postRead();
 
@@ -82,33 +67,7 @@ namespace ChimeraTK {
         }
       }
 
-      virtual bool isSameRegister(const boost::shared_ptr<TransferElement const> &other) const override{
-        return _processArray->isSameRegister(other);
-      }
-      virtual bool isReadOnly() const override{
-        //FIXME: We cannot access the doocs information here. 
-        // because get_access is not const,
-        // only provides an implementation dependent int without constant definitions anyway.
-        // And d_access is private, not protected.
-        return _processArray->isReadOnly();
-      }
-      virtual bool isWriteable() const override{
-        return _processArray->isWriteable();
-      }
-      virtual bool isReadable() const override{
-        return _processArray->isReadable();
-      }
-      virtual std::vector< boost::shared_ptr<TransferElement> > getHardwareAccessingElements() override{
-        return _processArray->getHardwareAccessingElements();
-      }
-      virtual void replaceTransferElement(boost::shared_ptr<TransferElement> newElement){
-        return _processArray->replaceTransferElement(newElement);
-      }
-
-      
   protected:
-
-      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _processArray;
 
       // Internal function which copies the content from the DOOCS container into the 
       // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.
