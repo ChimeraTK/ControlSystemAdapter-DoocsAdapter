@@ -33,7 +33,7 @@ namespace ChimeraTK {
       /**
        * Overload the set function which is called by DOOCS to inject sending to the device.
        */
-      void set(EqAdr *eqAdr, EqData *data1, EqData *data2, EqFct *eqFct) {
+      void set(EqAdr *eqAdr, EqData *data1, EqData *data2, EqFct *eqFct) override{
         D_spectrum::set(eqAdr, data1, data2, eqFct);
         sendToDevice();
       }
@@ -42,7 +42,7 @@ namespace ChimeraTK {
        * Override the Doocs auto_init() method, which is called after initialising the value of
        *  the property from the config file.
        */
-      void auto_init (void) {
+      void auto_init (void) override{
         D_spectrum::auto_init();
         // send the current value to the device
         if (_processArray->isWriteable()){
@@ -57,7 +57,7 @@ namespace ChimeraTK {
         return false;
       }
 
-      virtual void postRead(){
+      virtual void postRead() override{
         _processArray->postRead();
 
        // FIXME: find the efficient memcopying implementation for float
