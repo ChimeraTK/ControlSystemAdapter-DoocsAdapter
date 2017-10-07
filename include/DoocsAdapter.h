@@ -17,6 +17,8 @@ class DoocsAdapter{
  protected:
   boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
   boost::shared_ptr<DevicePVManager> _devicePVManager;
+
+  std::unordered_map<mtca4u::TransferElement *, std::function<void ()> > _toDoocsUpdateMap;
 };
 
 }//namespace ChimeraTK

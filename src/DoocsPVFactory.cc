@@ -13,8 +13,9 @@
 namespace ChimeraTK {
 
   DoocsPVFactory::DoocsPVFactory(EqFct * const eqFct,
-				 boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility, boost::shared_ptr<ControlSystemPVManager> const & csPVManager) 
-    : _eqFct(eqFct), _syncUtility(syncUtility), _controlSystemPVManager(csPVManager) {
+                                 DoocsUpdater & updater,
+                                 boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility, boost::shared_ptr<ControlSystemPVManager> const & csPVManager) 
+    : _eqFct(eqFct), _updater(updater), _syncUtility(syncUtility), _controlSystemPVManager(csPVManager) {
       assert(eqFct != nullptr);
   }
 
@@ -25,7 +26,7 @@ namespace ChimeraTK {
       = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<T> >(processVariable);
     if (!processArray){
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
-				  + processVariable->getValueType().name());
+                                  + processVariable->getValueType().name());
     }
 
     auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
@@ -103,7 +104,7 @@ namespace ChimeraTK {
       = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<T> >(processVariable);
     if (!processArray){
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
-				  + processVariable->getValueType().name());
+                                  + processVariable->getValueType().name());
     }
 
     auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
@@ -111,7 +112,7 @@ namespace ChimeraTK {
     auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
     
     assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, propertyDescription->name, getDecorator<float>(*processArray)) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, propertyDescription->name, getDecorator<float>(*processArray), _updater) );
 
     // FIXME: Make it scalar and put it into one if query
     if (autoPropertyDescription && !(autoPropertyDescription->isWriteable)){

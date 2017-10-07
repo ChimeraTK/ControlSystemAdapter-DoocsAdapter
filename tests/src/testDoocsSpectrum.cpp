@@ -20,8 +20,8 @@ using namespace ChimeraTK;
 class TestableDoocsSpectrum : public DoocsSpectrum{
 public:
   TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
-                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray)
-    : DoocsSpectrum( eqFct, doocsPropertyName, processArray){}
+                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray, DoocsUpdater & updater)
+    : DoocsSpectrum( eqFct, doocsPropertyName, processArray, updater){}
 
   void sendToDevice(){
     DoocsSpectrum::sendToDevice();
@@ -51,10 +51,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("toDeviceVariable");
 
+  DoocsUpdater updater;
+
   // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise is 
   // protected.
-  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable));
+  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), updater);
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -95,8 +97,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
     csManager->getProcessArray<T>("fromDeviceVariable");
 
+  DoocsUpdater updater;
+
   // initialise the doocs spectrum
-  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable) );
+  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), updater);
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, 0);
   }
@@ -118,7 +122,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
     BOOST_CHECK( doocsSpectrum.read_spectrum(i) == 0 );
   }
 
-  doocsSpectrum.readLatest();
+  updater.update();
   
   // The actual vector buffer has changed. We have to get the new reference.
   csVector = controlSystemVariable->accessChannel(0);  

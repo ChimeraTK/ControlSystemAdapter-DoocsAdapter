@@ -1,6 +1,7 @@
 #include "CSAdapterEqFct.h"
 #include "DoocsPVFactory.h"
 #include "VariableMapper.h"
+#include "DoocsUpdater.h"
 
 namespace ChimeraTK{
 
@@ -34,6 +35,8 @@ namespace ChimeraTK{
     // Only do this for the variables in this EqFct. All others have no callbacks in
     // this sync utility.
     syncUtility_->receive(chimeraTKReceivers_);
+    // The synchronisation towards doocs is done by the updater at the moment.
+    updater_.update();
   }
     
   int CSAdapterEqFct::fct_code(){
@@ -44,12 +47,14 @@ namespace ChimeraTK{
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs(){
     // We only need the factory inside this function
-    DoocsPVFactory factory(this, syncUtility_, controlSystemPVManager_);
+    DoocsPVFactory factory(this, updater_, syncUtility_, controlSystemPVManager_);
 
     auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fct_name());
     doocsProperties_.reserve( mappingForThisLocation.size() );
 
     for (auto & pvNameAndPropertyDescrition : mappingForThisLocation){
+      //      doocsProperties_.push_back( factory.new_create( pvNameAndPropertyDescrition ) );
+      
       auto pvName = pvNameAndPropertyDescrition.first;
       // we just need the pv name, not the description yet. The factory does that for us.
       auto chimeraTkVariable = controlSystemPVManager_->getProcessVariable(pvName);

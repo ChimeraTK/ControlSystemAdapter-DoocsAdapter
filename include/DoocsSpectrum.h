@@ -5,7 +5,7 @@
 #include <boost/noncopyable.hpp>
 
 #include <mtca4u/NDRegisterAccessor.h>
-#include "DoocsTransferElement.h"
+#include "DoocsUpdater.h"
 #include "splitStringAtFirstSlash.h"
 
 // Just declare the EqFct class. We only need the pointer in this header.
@@ -13,7 +13,7 @@ class EqFct;
 
 namespace ChimeraTK {
   
-  class DoocsSpectrum : public D_spectrum, public boost::noncopyable, public DoocsTransferElement<float> {
+  class DoocsSpectrum : public D_spectrum, public boost::noncopyable {
         
     public:
 
@@ -24,11 +24,15 @@ namespace ChimeraTK {
        *  the properties are greated by a factory function anyway.
        */
       DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
-                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray)
-        : D_spectrum( doocsPropertyName.c_str(),
-                    processArray->getNumberOfSamples(), eqFct),
-        DoocsTransferElement( processArray )
-      {}
+                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray,
+                     DoocsUpdater & updater)
+        : D_spectrum( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
+          _processArray( processArray )
+      {
+        if (processArray->isReadable()){
+          updater.addVariable( *processArray , std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
+        }
+      }
 
       /**
        * Overload the set function which is called by DOOCS to inject sending to the device.
@@ -50,16 +54,8 @@ namespace ChimeraTK {
         }
       }
 
-      virtual bool write(ChimeraTK::VersionNumber /*versionNumber*/={}) override{
-        sendToDevice();
-        // not checking for buffer overflow.
-        //FIXEM: should this be writable at all?
-        return false;
-      }
-
-      virtual void postRead() override{
-        _processArray->postRead();
-
+      // call this function after a tranfer element has requested it.
+      void updateDoocsBuffer(){
        // FIXME: find the efficient memcopying implementation for float
         std::vector<float> & processVector = _processArray->accessChannel(0); 
         for(size_t i=0; i < processVector.size(); ++i) {
@@ -68,6 +64,7 @@ namespace ChimeraTK {
       }
 
   protected:
+      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _processArray;
 
       // Internal function which copies the content from the DOOCS container into the 
       // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.

@@ -4,6 +4,8 @@
 #include <eq_fct.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include "DoocsUpdater.h"
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -21,6 +23,7 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     std::vector < ChimeraTK::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
 
     static bool emptyLocationVariablesHandled;
+    DoocsUpdater updater_;
     
  public:
     // The fctName (location name ) is usually coming from the config file and
