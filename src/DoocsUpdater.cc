@@ -8,9 +8,9 @@ namespace ChimeraTK{
   }
 
   void DoocsUpdater::update(){
-    for ( auto & transferElement : _elementsToRead ){
-      if (transferElement.get().readNonBlocking()){
-	_toDoocsUpdateMap[&(transferElement.get())]();
+    for ( auto & mapElem : _toDoocsUpdateMap ){
+      if (mapElem.first->readNonBlocking()){
+        mapElem.second();
       }
     }
   }
