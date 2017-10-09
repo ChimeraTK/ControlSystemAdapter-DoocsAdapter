@@ -43,7 +43,7 @@ void testReadWrite(){
 
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 42 );
   DoocsServerTestHelper::doocsSet<int>("//CHAR/TO_DEVICE_SCALAR", 44 );
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} );
+  DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   
   // running update now does not change anything, the application has not acted yet
   DoocsServerTestHelper::runUpdate();
@@ -62,14 +62,13 @@ void testReadWrite(){
 
   // we have to get stuff as float in order to work with spectra
   auto intArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
-  int testVal = 410;
+  int testVal = 140;
   for (auto val : intArray){
     BOOST_CHECK( std::fabs(val - testVal++) < 0.001 );
   }
 
   auto constArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY");
   for (int i =0; i < int(constArray.size()); ++i){
-    std::cout << "constArray["<<i<<"] " << constArray[i] << std::endl;
     BOOST_CHECK( std::fabs(constArray[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
   }
   
