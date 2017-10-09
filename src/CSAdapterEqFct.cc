@@ -30,11 +30,6 @@ namespace ChimeraTK{
   void CSAdapterEqFct::update(){
     // Sending is done automatically when the "to device" variable is updated by Doocs.
     // No action needed here.
-    // Call receive(), which triggers all receiveListeners and updates
-    // the "deviceToControlSystem" variables, so Doocs knows the current values.
-    // Only do this for the variables in this EqFct. All others have no callbacks in
-    // this sync utility.
-    syncUtility_->receive(chimeraTKReceivers_);
     // The synchronisation towards doocs is done by the updater at the moment.
     updater_.update();
   }

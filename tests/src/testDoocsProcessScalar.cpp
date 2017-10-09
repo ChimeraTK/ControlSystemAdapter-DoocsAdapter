@@ -7,6 +7,7 @@
 #include "DoocsProcessScalar.h"
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+#include "DoocsUpdater.h"
 #include <d_fct.h>
 
 #include "emptyServerFunctions.h"
@@ -29,7 +30,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
+  DoocsUpdater updater;
 
   boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(controlSystemToDevice,"toDeviceVariable", 1);
@@ -40,7 +41,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   controlSystemVariable->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<T, D_int> doocsScalar( NULL, "TO_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
+  DoocsProcessScalar<T, D_int> doocsScalar( NULL, "TO_DEVICE_VARIABLE", controlSystemVariable, updater );
 
   BOOST_CHECK(set_doocs_value(doocsScalar,42) == 0);
   BOOST_CHECK( controlSystemVariable->accessData(0) == 42 );
@@ -70,7 +71,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
+  DoocsUpdater updater;
 
   boost::shared_ptr< ProcessArray<float> > deviceFloat =
     devManager->createProcessArray<float>(controlSystemToDevice,"toDeviceFloat",1);
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   controlSystemFloat->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<float, D_float> doocsScalar( NULL, "TO_DEVICE_FLOAT", controlSystemFloat, syncUtil );
+  DoocsProcessScalar<float, D_float> doocsScalar( NULL, "TO_DEVICE_FLOAT", controlSystemFloat, updater );
 
   BOOST_CHECK(set_doocs_value(doocsScalar,12.125) == 0);
   BOOST_CHECK( controlSystemFloat->accessData(0) == 12.125 );
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
+  DoocsUpdater updater;
 
   boost::shared_ptr< ProcessArray<double> > deviceDouble =
     devManager->createProcessArray<double>(controlSystemToDevice,"toDeviceDouble",1);
@@ -117,7 +118,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   controlSystemDouble->accessData(0)=0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<double, D_double> doocsScalar( NULL, "TO_DEVICE_DOUBLE", controlSystemDouble, syncUtil );
+  DoocsProcessScalar<double, D_double> doocsScalar( NULL, "TO_DEVICE_DOUBLE", controlSystemDouble, updater );
 
   BOOST_CHECK(set_doocs_value(doocsScalar,12.125) == 0);
   BOOST_CHECK( controlSystemDouble->accessData(0) == 12.125 );
@@ -142,7 +143,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
+  DoocsUpdater updater;
 
   typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(deviceToControlSystem,"fromDeviceVariable",1);
@@ -153,7 +154,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<T, D_int> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
+  DoocsProcessScalar<T, D_int> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater );
   BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=42;
@@ -162,14 +163,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
   BOOST_CHECK( controlSystemVariable->accessData(0) == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
 
-  syncUtil.receiveAll();
+  updater.update();
   BOOST_CHECK( controlSystemVariable->accessData(0) == 42 );
   BOOST_CHECK( doocsScalar.value() == 42 );
 
   // negative test for signed int, with cast for uints
   deviceVariable->accessData(0)=-13;
   deviceVariable->write();
-  syncUtil.receiveAll();
+  updater.update();
   BOOST_CHECK( doocsScalar.value() == static_cast<int>(static_cast<T>(-13)) );
 }
 
@@ -179,7 +180,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
+  DoocsUpdater updater;
 
   ProcessArray<float>::SharedPtr deviceVariable =
     devManager->createProcessArray<float>(deviceToControlSystem,"fromDeviceVariable",1);
@@ -190,7 +191,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<float, D_float> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
+  DoocsProcessScalar<float, D_float> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater );
   BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=12.125;
@@ -199,7 +200,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   BOOST_CHECK( controlSystemVariable->accessData(0) == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
 
-  syncUtil.receiveAll();
+  updater.update();
   BOOST_CHECK( controlSystemVariable->accessData(0) == 12.125 );
   BOOST_CHECK( doocsScalar.value() == 12.125 );
 }
@@ -210,7 +211,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  ControlSystemSynchronizationUtility syncUtil(csManager);
+  DoocsUpdater updater;
 
   ProcessArray<double>::SharedPtr deviceVariable =
     devManager->createProcessArray<double>(deviceToControlSystem,"fromDeviceVariable",1);
@@ -221,7 +222,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   controlSystemVariable->accessData(0)=0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<double, D_double> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, syncUtil );
+  DoocsProcessScalar<double, D_double> doocsScalar( NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater );
   BOOST_CHECK(set_doocs_value(doocsScalar,0) == 0);
 
   deviceVariable->accessData(0)=12.125;
@@ -230,7 +231,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   BOOST_CHECK( controlSystemVariable->accessData(0) == 0 );
   BOOST_CHECK( doocsScalar.value() == 0 );
 
-  syncUtil.receiveAll();
+  updater.update();
   BOOST_CHECK( controlSystemVariable->accessData(0) == 12.125 );
   BOOST_CHECK( doocsScalar.value() == 12.125 );
 }

@@ -39,15 +39,15 @@ namespace ChimeraTK {
     // The DOOCS property name is the variable name without the location name and the separating slash between location and property name.
     if(propertyDescription->name.length() > 64) {
       std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
-      doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(propertyDescription->name.c_str(), _eqFct, processArray, *_syncUtility) );
+      doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(propertyDescription->name.c_str(), _eqFct, processArray, _updater) );
     }
     else{
       if (autoPropertyDescription && autoPropertyDescription->hasHistory){
         // version with history: EqFtc first
-        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(_eqFct, propertyDescription->name.c_str(), processArray, *_syncUtility) );
+        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(_eqFct, propertyDescription->name.c_str(), processArray, _updater) );
       }else{
         // version without history: name first
-        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(propertyDescription->name.c_str(), _eqFct, processArray, *_syncUtility) );
+        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(propertyDescription->name.c_str(), _eqFct, processArray, _updater) );
       }
     }// if name too long
 
@@ -79,7 +79,7 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1);    // array of strings is not supported
-    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription->name.c_str(), processArray, *_syncUtility) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription->name.c_str(), processArray, _updater) );
 
     //fixme: factor this out into another function. Will be needed many times
     auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
