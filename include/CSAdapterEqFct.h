@@ -3,7 +3,6 @@
 
 #include <eq_fct.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include "DoocsUpdater.h"
 
@@ -15,10 +14,8 @@ namespace ChimeraTK{
 class CSAdapterEqFct : public EqFct , boost::noncopyable {
  protected:
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
-    boost::shared_ptr< ControlSystemSynchronizationUtility > syncUtility_;
     int fctCode_;
     std::vector< boost::shared_ptr<D_fct> > doocsProperties_;
-    std::vector< boost::shared_ptr<ChimeraTK::ProcessVariable> > chimeraTKReceivers_;
     void registerProcessVariablesInDoocs();
     std::vector < ChimeraTK::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
 

@@ -37,9 +37,8 @@ class TestableDoocsPVFactory: public DoocsPVFactory{
 public:
   TestableDoocsPVFactory(EqFct * const eqFct,
                          DoocsUpdater & updater,
-                         boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility,
                          boost::shared_ptr<ControlSystemPVManager> const & csPVManager)
-    : DoocsPVFactory(eqFct, updater, syncUtility, csPVManager){
+    : DoocsPVFactory(eqFct, updater, csPVManager){
   }
 
   template<class T, class DOOCS_T>
@@ -76,7 +75,6 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  // create all process variables before creating the sync util
   devManager->createProcessArray<int32_t>(controlSystemToDevice,"/I/int32",1);
   devManager->createProcessArray<uint32_t>(controlSystemToDevice,"/U/uint32",1);
   devManager->createProcessArray<int16_t>(controlSystemToDevice,"/I/int16",1);
@@ -86,15 +84,12 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   devManager->createProcessArray<float>(controlSystemToDevice,"/FP/float",1);
   devManager->createProcessArray<double>(controlSystemToDevice,"/FP/double",1);
 
-  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
-    new ControlSystemSynchronizationUtility(csManager));
-
   // populate the variable mapper
   VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
 
   DoocsUpdater updater;
   
-  DoocsPVFactory factory(&myEqFct, updater, syncUtil, csManager);
+  DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
   // These checkpoints are always true.
@@ -144,10 +139,8 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
 //  // populate the variable mapper before creating the DoocsPVFactory
 //  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
 //
-//  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
-//    new ControlSystemSynchronizationUtility(csManager));
 //
-//  DoocsPVFactory factory(&myEqFct, syncUtil);
+//  DoocsPVFactory factory(&myEqFct);
 //
 //  // have the variable created and check that it is the right type
 //  ProcessVariable::SharedPtr processVariable = 
@@ -179,11 +172,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   // populate the variable mapper before creating the DoocsPVFactory, with array becoming D_spectrum
   VariableMapper::getInstance().prepareOutput("variableTreeXml/testSpectrum.xml",pvNames);
   
-  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
-    new ControlSystemSynchronizationUtility(csManager));
   DoocsUpdater updater;
   
-  DoocsPVFactory factory(&myEqFct, updater, syncUtil, csManager);
+  DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   // have the variable created and check that it is the right type
   for (auto const & pvName : pvNames){
@@ -216,11 +207,9 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   // populate the variable mapper before creating the DoocsPVFactory
   VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
 
-  shared_ptr<ControlSystemSynchronizationUtility> syncUtil(
-    new ControlSystemSynchronizationUtility(csManager));
   DoocsUpdater updater;
   
-  TestableDoocsPVFactory testableFactory(&myEqFct, updater, syncUtil, csManager);
+  TestableDoocsPVFactory testableFactory(&myEqFct, updater, csManager);
 
   ProcessVariable::SharedPtr processScalar = 
     csManager->getProcessArray<int64_t>("I/toDeviceInt");

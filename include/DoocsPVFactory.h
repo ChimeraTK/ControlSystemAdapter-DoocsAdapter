@@ -2,8 +2,8 @@
 #define CHIMERATK_DOOCS_PV_FACTORY_H
 
 #include <eq_fct.h>
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include "VariableMapper.h"
@@ -20,7 +20,7 @@ namespace ChimeraTK {
      * The constructor needs a pointer to the EqFct. It is designed to be used inside the EqFct, so
      * the 'this' pointer will be given. As it is not copyable this is ok.
      */
-    DoocsPVFactory(EqFct * const eqFct, DoocsUpdater & updater,boost::shared_ptr<ControlSystemSynchronizationUtility> const & syncUtility, boost::shared_ptr<ControlSystemPVManager> const & csPVManager);
+    DoocsPVFactory(EqFct * const eqFct, DoocsUpdater & updater, boost::shared_ptr<ControlSystemPVManager> const & csPVManager);
 
     boost::shared_ptr<D_fct> create( ProcessVariable::SharedPtr & processVariable );
 
@@ -30,7 +30,6 @@ namespace ChimeraTK {
   protected:
     EqFct * _eqFct; //< The EqFct which is holding the factory. Needed in the constructor of the doocs properties.
     DoocsUpdater & _updater;
-    boost::shared_ptr<ControlSystemSynchronizationUtility> _syncUtility; //< The syncUtility is needed to register listeners
     boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager; //< The pv manager, needed to get the instances
 
     // create the DOOCS property. Note: DOOCS_T is only used for scalar properties, not for arrays!
