@@ -60,6 +60,13 @@ namespace ChimeraTK{
       auto chimeraTkVariable = controlSystemPVManager_->getProcessVariable(pvName);
 
       doocsProperties_.push_back( factory.create( chimeraTkVariable ) );
+      //FIXME: Hack to keep spectra from being added to the list for the sync util. They
+      //are already switched to the new updater scheme. Remove everything below if we got rid of
+      //the syncutil
+      if (boost::dynamic_pointer_cast<D_spectrum>(doocsProperties_.back())){
+        continue;
+      }
+      
       // we also have to remember which chimeraTK variables we have to receive
       if ( chimeraTkVariable->isReadable() ){
 	chimeraTKReceivers_.push_back(chimeraTkVariable);
