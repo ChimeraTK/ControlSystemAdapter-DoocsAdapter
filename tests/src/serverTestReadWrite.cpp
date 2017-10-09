@@ -64,13 +64,13 @@ void testReadWrite(){
   auto intArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
   int testVal = 410;
   for (auto val : intArray){
-    BOOST_CHECK( (val - testVal++) < 0.001);
+    BOOST_CHECK( std::fabs(val - testVal++) < 0.001 );
   }
 
   auto constArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY");
   for (int i =0; i < int(constArray.size()); ++i){
     std::cout << "constArray["<<i<<"] " << constArray[i] << std::endl;
-    BOOST_CHECK( constArray[i] - (-4*i*i) < 0.001); // float check to compensate binary roundings errors
+    BOOST_CHECK( std::fabs(constArray[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
   }
   
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
