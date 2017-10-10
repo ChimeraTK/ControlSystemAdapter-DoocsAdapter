@@ -201,10 +201,7 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct>  DoocsPVFactory::new_create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     auto & requestedType = propertyDescription->type();
     if (requestedType == typeid(AutoPropertyDescription)){
-      // do auto creation
-      auto pvName = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription)->source;
-      auto pv = _controlSystemPVManager->getProcessVariable(pvName);
-      return create(pv);
+      return autoCreate(propertyDescription);
     }else{
       throw std::invalid_argument("Sorry, your type is not supported yet.");
     }

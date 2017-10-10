@@ -47,13 +47,7 @@ namespace ChimeraTK{
     doocsProperties_.reserve( mappingForThisLocation.size() );
 
     for (auto & pvNameAndPropertyDescrition : mappingForThisLocation){
-      //      doocsProperties_.push_back( factory.new_create( pvNameAndPropertyDescrition ) );
-      
-      auto pvName = pvNameAndPropertyDescrition.first;
-      // we just need the pv name, not the description yet. The factory does that for us.
-      auto chimeraTkVariable = controlSystemPVManager_->getProcessVariable(pvName);
-
-      doocsProperties_.push_back( factory.create( chimeraTkVariable ) );
+      doocsProperties_.push_back( factory.new_create( pvNameAndPropertyDescrition.second ) );
     }
   }
 
