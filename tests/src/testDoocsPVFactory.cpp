@@ -18,6 +18,7 @@
 #include "emptyServerFunctions.h"
 #include "getAllVariableNames.h"
 #include "VariableMapper.h"
+#include "PropertyDescription.h"
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -52,10 +53,11 @@ public:
 };
 
 template<class T, class DOOCS_T>
-static void testCreateProcessScalar(typename ProcessVariable::SharedPtr processVariable,
+static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const & propertyDescription,
 				    DoocsPVFactory & factory, std::string const & expectedPropertyName){
+  
   // have the variable created and check that it is the right type
-  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create( processVariable );
+  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.new_create( propertyDescription );
   // get the raw pointer and dynamic cast it to the expected type
   DoocsProcessScalar<T, DOOCS_T> * doocsScalarType = 
     dynamic_cast< DoocsProcessScalar<T, DOOCS_T> * > (doocsVariableAsDFct.get());
@@ -69,7 +71,7 @@ static void testCreateProcessScalar(typename ProcessVariable::SharedPtr processV
 
 BOOST_AUTO_TEST_SUITE( PVManagerTestSuite )
 
-BOOST_AUTO_TEST_CASE( testCreateScalars ) {
+BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
   std::pair< shared_ptr<ControlSystemPVManager>,
 	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
@@ -94,37 +96,29 @@ BOOST_AUTO_TEST_CASE( testCreateScalars ) {
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
   // These checkpoints are always true.
   testCreateProcessScalar<int32_t, D_int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int32_t>("I/int32")),
-    factory, "int32 ");// DOOCS property names always have a space (and potentially some description)"
+    std::make_shared<AutoPropertyDescription>("I/int32", "I", "int32"), factory, "int32 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-32);
   testCreateProcessScalar<uint32_t, D_int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint32_t>("U/uint32")),
-    factory, "uint32 ");
+    std::make_shared<AutoPropertyDescription>("U/uint32", "I", "uint32"), factory, "uint32 ");
   BOOST_CHECK(32);
   testCreateProcessScalar<int16_t, D_int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int16_t>("I/int16")),
-    factory, "int16 ");
+    std::make_shared<AutoPropertyDescription>("I/int16", "I", "int16"), factory, "int16 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-16);
   testCreateProcessScalar<uint16_t, D_int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint16_t>("U/uint16")),
-    factory, "uint16 ");
+    std::make_shared<AutoPropertyDescription>("U/uint16", "I", "uint16"), factory, "uint16 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(16);
   testCreateProcessScalar<int8_t, D_int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<int8_t>("I/int8")),
-    factory, "int8 ");
+    std::make_shared<AutoPropertyDescription>("I/int8", "I", "int8"), factory, "int8 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-8);
   testCreateProcessScalar<uint8_t, D_int>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<uint8_t>("U/uint8")),
-    factory, "uint8 ");
+    std::make_shared<AutoPropertyDescription>("U/uint8", "I", "uint8"), factory, "uint8 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(8);
   testCreateProcessScalar<float, D_float>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<float>("FP/float")),
-    factory, "float ");
+    std::make_shared<AutoPropertyDescription>("FP/float", "FP", "float"), factory, "float ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(0.5);
   testCreateProcessScalar<double, D_double>(
-    boost::dynamic_pointer_cast<ProcessVariable>(csManager->getProcessArray<double>("FP/double")),
-    factory, "double ");
-  
+    std::make_shared<AutoPropertyDescription>("FP/double", "FP", "double"), factory, "double ");// DOOCS property names always have a space (and potentially some description)"
+  BOOST_CHECK(32);
 }
 
 //BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
@@ -176,11 +170,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
+  auto propertyDescriptions = { std::make_shared<AutoPropertyDescription>("A/fromDeviceArray1","A","fromDeviceArray1"), std::make_shared<AutoPropertyDescription>("A/fromDeviceArray2","A","fromDeviceArray2")};
+  
   // have the variable created and check that it is the right type
-  for (auto const & pvName : pvNames){
-    ProcessVariable::SharedPtr processVariable = 
-      csManager->getProcessArray<T>(pvName);
-    boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
+  for (auto const & description : propertyDescriptions){
+    boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.new_create(description);
 
     // get the raw pointer and dynamic cast it to the expected type
     DoocsSpectrum * doocsSpectrum = 
@@ -220,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
     testableFactory.createDoocsScalar<int32_t, D_int>( processScalar );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
-    BOOST_FAIL( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
+    BOOST_ERROR( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
   }catch(std::invalid_argument &){
   }
 
@@ -229,18 +223,20 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   BOOST_CHECK_THROW( ( testableFactory.createDoocsSpectrum<int32_t>(processArray) ),
 		      std::invalid_argument );
 
+  auto description = std::make_shared<AutoPropertyDescription>("A/toDeviceArray","A","toDeviceArray");
+  
    // finally we check that the create method catches the not-supported type.
   try{
-    testableFactory.create( processScalar );
-    BOOST_FAIL( "create did not throw as expected");//LCOV_EXCL_LINE
+    testableFactory.new_create( description );
+    BOOST_ERROR( "create did not throw as expected");//LCOV_EXCL_LINE
   }catch(std::invalid_argument &e){
     BOOST_CHECK( std::string("unsupported value type") == e.what() );
   }
   
   // and the same for the scalar, just to cover all cases
   try{
-    testableFactory.create( processArray );
-    BOOST_FAIL( "create did not throw as expected");//LCOV_EXCL_LINE
+    testableFactory.new_create( description );
+    BOOST_ERROR( "create did not throw as expected");//LCOV_EXCL_LINE
   }catch(std::invalid_argument &e){
     BOOST_CHECK( std::string("unsupported value type") == e.what() );
   }

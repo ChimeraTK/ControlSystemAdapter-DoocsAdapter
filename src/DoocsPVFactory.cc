@@ -7,7 +7,6 @@
 
 #include "DoocsPVFactory.h"
 #include "splitStringAtFirstSlash.h"
-#include "VariableMapper.h"
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
 
 namespace ChimeraTK {
@@ -130,12 +129,8 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     // do auto creation
     auto pvName = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription)->source;
-    auto pv = _controlSystemPVManager->getProcessVariable(pvName);
-    // fixme: merge the create stuff in here and remove the create function.
-    return create( pv );
-  }
-  
-  boost::shared_ptr<D_fct> DoocsPVFactory::create( ProcessVariable::SharedPtr & processVariable ){
+    auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
+
     std::type_info const & valueType = processVariable->getValueType();
     // We use an int accessor decorator just to have some type.
     // All we need to do here is to determine the number of samples. No need to write an if/then/else
