@@ -144,7 +144,7 @@ namespace ChimeraTK {
     }
  }
 
-  boost::shared_ptr<D_fct>  DoocsPVFactory::new_create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
+  boost::shared_ptr<D_fct>  DoocsPVFactory::create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     auto & requestedType = propertyDescription->type();
     if (requestedType == typeid(AutoPropertyDescription)){
       return autoCreate(propertyDescription);

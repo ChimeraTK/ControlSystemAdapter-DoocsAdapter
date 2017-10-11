@@ -24,8 +24,7 @@ namespace ChimeraTK {
      */
     DoocsPVFactory(EqFct * const eqFct, DoocsUpdater & updater, boost::shared_ptr<ControlSystemPVManager> const & csPVManager);
 
-    /// @todo FIXME: This is for brainstorming and quick protoryping. Did not want to call it create.
-    boost::shared_ptr<D_fct> new_create( std::shared_ptr<PropertyDescription> const & propertyDescription );
+    boost::shared_ptr<D_fct> create( std::shared_ptr<PropertyDescription> const & propertyDescription );
       
   protected:
     EqFct * _eqFct; //< The EqFct which is holding the factory. Needed in the constructor of the doocs properties.

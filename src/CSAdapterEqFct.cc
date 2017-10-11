@@ -47,7 +47,7 @@ namespace ChimeraTK{
     doocsProperties_.reserve( mappingForThisLocation.size() );
 
     for (auto & pvNameAndPropertyDescrition : mappingForThisLocation){
-      doocsProperties_.push_back( factory.new_create( pvNameAndPropertyDescrition.second ) );
+      doocsProperties_.push_back( factory.create( pvNameAndPropertyDescrition.second ) );
     }
   }
 

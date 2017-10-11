@@ -37,7 +37,7 @@ static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const &
 				    DoocsPVFactory & factory, std::string const & expectedPropertyName){
   
   // have the variable created and check that it is the right type
-  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.new_create( propertyDescription );
+  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create( propertyDescription );
   // get the raw pointer and dynamic cast it to the expected type
   DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * doocsScalarType = 
     dynamic_cast< DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * > (doocsVariableAsDFct.get());
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   
   // have the variable created and check that it is the right type
   for (auto const & description : propertyDescriptions){
-    boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.new_create(description);
+    boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
     // get the raw pointer and dynamic cast it to the expected type
     DoocsSpectrum * doocsSpectrum = 
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
   auto description = std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt");
-  try{    factory.new_create( description );
+  try{    factory.create( description );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
     BOOST_ERROR( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
