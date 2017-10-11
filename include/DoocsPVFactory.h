@@ -4,10 +4,12 @@
 #include <eq_fct.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include "VariableMapper.h"
 #include "DoocsUpdater.h"
+#include "PropertyDescription.h"
 
 namespace ChimeraTK {
 
@@ -32,7 +34,7 @@ namespace ChimeraTK {
 
     // create the DOOCS property. Note: DOOCS_T is only used for scalar properties, not for arrays!
     template<class T, class DOOCS_T>
-    typename boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable);
+    typename boost::shared_ptr<D_fct> createDoocsScalar(AutoPropertyDescription const & propertyDescription, DecoratorType decoratorType);
     template<class T>
     typename boost::shared_ptr<D_fct> createDoocsSpectrum(typename ProcessVariable::SharedPtr & processVariable);
 
@@ -43,7 +45,7 @@ namespace ChimeraTK {
 
   // specialisation for strings
   template<>
-  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(typename ProcessVariable::SharedPtr & processVariable);
+  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(AutoPropertyDescription const & propertyDescription, DecoratorType decoratorType);
   
   
 }//namespace ChimeraTK

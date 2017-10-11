@@ -52,17 +52,17 @@ public:
   }
 };
 
-template<class T, class DOOCS_T>
+template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
 static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const & propertyDescription,
 				    DoocsPVFactory & factory, std::string const & expectedPropertyName){
   
   // have the variable created and check that it is the right type
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.new_create( propertyDescription );
   // get the raw pointer and dynamic cast it to the expected type
-  DoocsProcessScalar<T, DOOCS_T> * doocsScalarType = 
-    dynamic_cast< DoocsProcessScalar<T, DOOCS_T> * > (doocsVariableAsDFct.get());
+  DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * doocsScalarType = 
+    dynamic_cast< DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * > (doocsVariableAsDFct.get());
   // if the cast succeeds the factory works as expected we are done
-  std::string errorMessage = std::string("testCreateProcessScalar failed for type ") + typeid(T).name();
+  std::string errorMessage = std::string("testCreateProcessScalar failed for type ") + typeid(DOOCS_PRIMITIVE_T).name();
   BOOST_CHECK_MESSAGE(doocsScalarType, errorMessage);
   errorMessage = std::string("Error checking property name: expectedPropertyName '")
     + expectedPropertyName + "', property_name() '" + doocsVariableAsDFct->property_name() + "'";
@@ -86,9 +86,6 @@ BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
   devManager->createProcessArray<float>(controlSystemToDevice,"/FP/float",1);
   devManager->createProcessArray<double>(controlSystemToDevice,"/FP/double",1);
 
-  // populate the variable mapper
-  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
-
   DoocsUpdater updater;
   
   DoocsPVFactory factory(&myEqFct, updater, csManager);
@@ -98,19 +95,19 @@ BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
   testCreateProcessScalar<int32_t, D_int>(
     std::make_shared<AutoPropertyDescription>("I/int32", "I", "int32"), factory, "int32 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-32);
-  testCreateProcessScalar<uint32_t, D_int>(
+  testCreateProcessScalar<int32_t, D_int>(
     std::make_shared<AutoPropertyDescription>("U/uint32", "I", "uint32"), factory, "uint32 ");
   BOOST_CHECK(32);
-  testCreateProcessScalar<int16_t, D_int>(
+  testCreateProcessScalar<int32_t, D_int>(
     std::make_shared<AutoPropertyDescription>("I/int16", "I", "int16"), factory, "int16 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-16);
-  testCreateProcessScalar<uint16_t, D_int>(
+  testCreateProcessScalar<int32_t, D_int>(
     std::make_shared<AutoPropertyDescription>("U/uint16", "I", "uint16"), factory, "uint16 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(16);
-  testCreateProcessScalar<int8_t, D_int>(
+  testCreateProcessScalar<int32_t, D_int>(
     std::make_shared<AutoPropertyDescription>("I/int8", "I", "int8"), factory, "int8 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(-8);
-  testCreateProcessScalar<uint8_t, D_int>(
+  testCreateProcessScalar<int32_t, D_int>(
     std::make_shared<AutoPropertyDescription>("U/uint8", "I", "uint8"), factory, "uint8 ");// DOOCS property names always have a space (and potentially some description)"
   BOOST_CHECK(8);
   testCreateProcessScalar<float, D_float>(
@@ -210,8 +207,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   // Intentionally put the int64 scalar to the int32 create function.
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
-  try{
-    testableFactory.createDoocsScalar<int32_t, D_int>( processScalar );
+  try{    testableFactory.new_create( std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt") );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
     BOOST_ERROR( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE

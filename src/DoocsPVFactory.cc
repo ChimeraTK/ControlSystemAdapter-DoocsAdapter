@@ -18,45 +18,34 @@ namespace ChimeraTK {
       assert(eqFct != nullptr);
   }
 
-  template<class T, class DOOCS_T>
-  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable) {
-    // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
-    typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > processArray
-      = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<T> >(processVariable);
-    if (!processArray){
-      throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
-                                  + processVariable->getValueType().name());
-    }
+  // Fixme: is AutoPropertyDescription ok, or to we need IntDescripton, DoubleDescription etc.
+  template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
+  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar(AutoPropertyDescription const & propertyDescription, DecoratorType decoratorType) {
+    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
-    auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
-    // FIXME: This has to go for scalars
-    auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
+    // the DoocsProcessScalar needs the real ProcessScalar type, not just ProcessVariable
+    auto processArray =  getDecorator<DOOCS_PRIMITIVE_T>( *processVariable, decoratorType);
     
     assert(processArray->getNumberOfChannels() == 1);
     boost::shared_ptr<D_fct> doocsPV;
     // Histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names.
     // The DOOCS property name is the variable name without the location name and the separating slash between location and property name.
-    if(propertyDescription->name.length() > 64) {
+    if(propertyDescription.name.length() > 64) {
       std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
-      doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(propertyDescription->name.c_str(), _eqFct, processArray, _updater) );
+      doocsPV.reset( new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(propertyDescription.name.c_str(), _eqFct, processArray, _updater) );
     }
     else{
-      if (autoPropertyDescription && autoPropertyDescription->hasHistory){
+      if (propertyDescription.hasHistory){
         // version with history: EqFtc first
-        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(_eqFct, propertyDescription->name.c_str(), processArray, _updater) );
+        doocsPV.reset( new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(_eqFct, propertyDescription.name.c_str(), processArray, _updater) );
       }else{
         // version without history: name first
-        doocsPV.reset( new DoocsProcessScalar<T, DOOCS_T>(propertyDescription->name.c_str(), _eqFct, processArray, _updater) );
+        doocsPV.reset( new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(propertyDescription.name.c_str(), _eqFct, processArray, _updater) );
       }
     }// if name too long
 
-    // FIXME: Make it scalar and put it into one if query
-    if (autoPropertyDescription && !(autoPropertyDescription->isWriteable)){
-      doocsPV->set_ro_access();
-    }
-    
     // set read only mode if configures in the xml file or for output variables
-    if (!processArray->isWriteable()){// || !propertyDescription.isWriteable){
+    if (!processArray->isWriteable() || !propertyDescription.isWriteable){
       doocsPV->set_ro_access();
     }
     
@@ -65,7 +54,11 @@ namespace ChimeraTK {
 
   template<>
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(
-            boost::shared_ptr<ProcessVariable> & processVariable) {
+    AutoPropertyDescription const & propertyDescription, DecoratorType /*decoratorType*/){
+
+    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
+   
+    // FIXME: Use a decorator, but this has to be tested and implemented for strings first
     // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
     boost::shared_ptr< mtca4u::NDRegisterAccessor<std::string> > processArray
       = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<std::string> >(processVariable);
@@ -74,22 +67,12 @@ namespace ChimeraTK {
                                   + processVariable->getValueType().name());
     }
     
-    auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
-
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1);    // array of strings is not supported
-    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription->name.c_str(), processArray, _updater) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription.name.c_str(), processArray, _updater) );
 
-    //fixme: factor this out into another function. Will be needed many times
-    auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
-    // FIXME: This has to go for scalars
-    // FIXME: Make it scalar and put it into one if query
-    if (autoPropertyDescription && !(autoPropertyDescription->isWriteable)){
-      doocsPV->set_ro_access();
-    }
-    
     // set read only mode if configures in the xml file or for output variables
-    if (!processArray->isWriteable()){// || !propertyDescription.isWriteable){
+    if (!processArray->isWriteable() || !propertyDescription.isWriteable){
       doocsPV->set_ro_access();
     }
     
@@ -128,7 +111,9 @@ namespace ChimeraTK {
 
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     // do auto creation
-    auto pvName = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription)->source;
+    auto autoPropertyDescription = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription);
+
+    auto pvName = autoPropertyDescription->source;
     auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
 
     std::type_info const & valueType = processVariable->getValueType();
@@ -150,23 +135,23 @@ namespace ChimeraTK {
     // but the template parameter has to be known at compile time.
     if (nSamples == 1){
       if (valueType == typeid(int8_t)) {
-        return createDoocsScalar<int8_t, D_int>(processVariable);
+        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(uint8_t)) {
-        return createDoocsScalar<uint8_t, D_int>(processVariable);
+        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(int16_t)) {
-        return createDoocsScalar<int16_t, D_int>(processVariable);
+        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(uint16_t)) {
-        return createDoocsScalar<uint16_t, D_int>(processVariable);
+        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(int32_t)) {
-        return createDoocsScalar<int32_t, D_int>(processVariable);
+        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(uint32_t)) {
-        return createDoocsScalar<uint32_t, D_int>(processVariable);
+        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(float)) {
-        return createDoocsScalar<float, D_float>(processVariable);
+        return createDoocsScalar<float, D_float>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(double)) {
-        return createDoocsScalar<double, D_double>(processVariable);
+        return createDoocsScalar<double, D_double>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(std::string)) {
-        return createDoocsScalar<std::string, D_string>(processVariable);
+        return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else {
         throw std::invalid_argument("unsupported value type");
       }
