@@ -79,30 +79,14 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
-  template<class T>
-  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(typename ProcessVariable::SharedPtr & processVariable) {
-    // the DoocsProcessArray needs the real type, not just ProcessVariable
-    typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > processArray
-      = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<T> >(processVariable);
-    if (!processArray){
-      throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
-                                  + processVariable->getValueType().name());
-    }
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(AutoPropertyDescription const & spectrumDescription) {
+    auto processVariable = _controlSystemPVManager->getProcessVariable(spectrumDescription.source);
 
-    auto propertyDescription = VariableMapper::getInstance().getAllProperties().at(processVariable->getName());
-    // FIXME: This has to go for scalars
-    auto autoPropertyDescription = std::dynamic_pointer_cast<AutoPropertyDescription>(propertyDescription);
-    
-    assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, propertyDescription->name, getDecorator<float>(*processArray), _updater) );
-
-    // FIXME: Make it scalar and put it into one if query
-    if (autoPropertyDescription && !(autoPropertyDescription->isWriteable)){
-      doocsPV->set_ro_access();
-    }
+    //    assert(processArray->getNumberOfChannels() == 1);
+    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name, getDecorator<float>(*processVariable), _updater) );
 
     // set read only mode if configures in the xml file or for output variables
-    if (!processArray->isWriteable()){// || !propertyDescription.isWriteable){
+    if (!processVariable->isWriteable() || !spectrumDescription.isWriteable){
       doocsPV->set_ro_access();
     }
 
@@ -156,25 +140,7 @@ namespace ChimeraTK {
         throw std::invalid_argument("unsupported value type");
       }
     }else{ //nSamples > 1
-      if (valueType == typeid(int8_t)) {
-        return createDoocsSpectrum<int8_t>(processVariable);
-      } else if (valueType == typeid(uint8_t)) {
-        return createDoocsSpectrum<uint8_t>(processVariable);
-      } else if (valueType == typeid(int16_t)) {
-        return createDoocsSpectrum<int16_t>(processVariable);
-      } else if (valueType == typeid(uint16_t)) {
-        return createDoocsSpectrum<uint16_t>(processVariable);
-      } else if (valueType == typeid(int32_t)) {
-        return createDoocsSpectrum<int32_t>(processVariable);
-      } else if (valueType == typeid(uint32_t)) {
-        return createDoocsSpectrum<uint32_t>(processVariable);
-      } else if (valueType == typeid(float)) {
-        return createDoocsSpectrum<float>(processVariable);
-      } else if (valueType == typeid(double)) {
-        return createDoocsSpectrum<double>(processVariable);
-      } else {
-        throw std::invalid_argument("unsupported value type");
-      }
+        return createDoocsSpectrum(*autoPropertyDescription);
     }
  }
 

@@ -17,7 +17,6 @@
 
 #include "emptyServerFunctions.h"
 #include "getAllVariableNames.h"
-#include "VariableMapper.h"
 #include "PropertyDescription.h"
 
 using namespace boost::unit_test_framework;
@@ -32,25 +31,6 @@ typedef boost::mpl::list<int32_t, uint32_t,
 			 float, double> simple_test_types;
 
 EqFct myEqFct("MY_EQ_FCT");
-
-// class which exposes the protected member functions for testing
-class TestableDoocsPVFactory: public DoocsPVFactory{
-public:
-  TestableDoocsPVFactory(EqFct * const eqFct,
-                         DoocsUpdater & updater,
-                         boost::shared_ptr<ControlSystemPVManager> const & csPVManager)
-    : DoocsPVFactory(eqFct, updater, csPVManager){
-  }
-
-  template<class T, class DOOCS_T>
-  typename boost::shared_ptr<D_fct> createDoocsScalar(typename ProcessVariable::SharedPtr & processVariable){
-    return DoocsPVFactory::createDoocsScalar<T, DOOCS_T>(processVariable);
-  }
-  template<class T>
-  typename boost::shared_ptr<D_fct> createDoocsSpectrum(typename ProcessVariable::SharedPtr & processVariable){
-    return DoocsPVFactory::createDoocsSpectrum<T>(processVariable);
-  }
-};
 
 template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
 static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const & propertyDescription,
@@ -127,10 +107,6 @@ BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
 //  static const size_t arraySize = 10;
 //  devManager->createProcessArray<T>(controlSystemToDevice,"A/toDeviceArray",arraySize);
 //
-//  // populate the variable mapper before creating the DoocsPVFactory
-//  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
-//
-//
 //  DoocsPVFactory factory(&myEqFct);
 //
 //  // have the variable created and check that it is the right type
@@ -160,8 +136,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
-  // populate the variable mapper before creating the DoocsPVFactory, with array becoming D_spectrum
-  VariableMapper::getInstance().prepareOutput("variableTreeXml/testSpectrum.xml",pvNames);
   
   DoocsUpdater updater;
   
@@ -190,53 +164,26 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  static const size_t arraySize = 10;
   // int64 is not supported yet
-  devManager->createProcessArray<int64_t>(controlSystemToDevice,"A/toDeviceArray",arraySize);
   devManager->createProcessArray<int64_t>(controlSystemToDevice,"I/toDeviceInt",1);
-
-  // populate the variable mapper before creating the DoocsPVFactory
-  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
 
   DoocsUpdater updater;
   
-  TestableDoocsPVFactory testableFactory(&myEqFct, updater, csManager);
+  DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   ProcessVariable::SharedPtr processScalar = 
     csManager->getProcessArray<int64_t>("I/toDeviceInt");
   // Intentionally put the int64 scalar to the int32 create function.
   // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
   // so we have to trick it
-  try{    testableFactory.new_create( std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt") );
+  auto description = std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt");
+  try{    factory.new_create( description );
     // In a working unit test this line should not be hit, so er exclude it
     // from the coverage report.
     BOOST_ERROR( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
-  }catch(std::invalid_argument &){
-  }
-
-  // now the same with arrays
-  ProcessVariable::SharedPtr processArray = csManager->getProcessArray<int64_t>("A/toDeviceArray");
-  BOOST_CHECK_THROW( ( testableFactory.createDoocsSpectrum<int32_t>(processArray) ),
-		      std::invalid_argument );
-
-  auto description = std::make_shared<AutoPropertyDescription>("A/toDeviceArray","A","toDeviceArray");
-  
-   // finally we check that the create method catches the not-supported type.
-  try{
-    testableFactory.new_create( description );
-    BOOST_ERROR( "create did not throw as expected");//LCOV_EXCL_LINE
   }catch(std::invalid_argument &e){
     BOOST_CHECK( std::string("unsupported value type") == e.what() );
   }
-  
-  // and the same for the scalar, just to cover all cases
-  try{
-    testableFactory.new_create( description );
-    BOOST_ERROR( "create did not throw as expected");//LCOV_EXCL_LINE
-  }catch(std::invalid_argument &e){
-    BOOST_CHECK( std::string("unsupported value type") == e.what() );
-  }
-   
 }
 
 // After you finished all test you have to end the test suite.
