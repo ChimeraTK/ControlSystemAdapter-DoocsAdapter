@@ -133,9 +133,9 @@ namespace ChimeraTK {
       } else if (valueType == typeid(float)) {
         return createDoocsScalar<float, D_float>(*autoPropertyDescription, DecoratorType::C_style_conversion);
       } else if (valueType == typeid(double)) {
-        return createDoocsScalar<double, D_double>(*autoPropertyDescription, DecoratorType::C_style_conversion);
+        return createDoocsScalar<double, D_double>(*autoPropertyDescription, DecoratorType::range_checking);
       } else if (valueType == typeid(std::string)) {
-        return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::C_style_conversion);
+        return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::range_checking);
       } else {
         throw std::invalid_argument("unsupported value type");
       }
