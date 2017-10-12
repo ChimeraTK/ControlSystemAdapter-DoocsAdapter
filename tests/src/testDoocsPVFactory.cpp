@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
-  auto propertyDescriptions = { std::make_shared<AutoPropertyDescription>("A/fromDeviceArray1","A","fromDeviceArray1"), std::make_shared<AutoPropertyDescription>("A/fromDeviceArray2","A","fromDeviceArray2")};
+  auto propertyDescriptions = { std::make_shared<SpectrumDescription>("A/fromDeviceArray1","A","fromDeviceArray1"), std::make_shared<SpectrumDescription>("A/fromDeviceArray2","A","fromDeviceArray2")};
   
   // have the variable created and check that it is the right type
   for (auto const & description : propertyDescriptions){

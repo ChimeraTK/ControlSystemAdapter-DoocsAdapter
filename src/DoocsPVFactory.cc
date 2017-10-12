@@ -148,6 +148,8 @@ namespace ChimeraTK {
     auto & requestedType = propertyDescription->type();
     if (requestedType == typeid(AutoPropertyDescription)){
       return autoCreate(propertyDescription);
+    }else if (requestedType == typeid(SpectrumDescription)){
+      return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
     }else{
       throw std::invalid_argument("Sorry, your type is not supported yet.");
     }

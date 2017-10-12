@@ -60,15 +60,35 @@ namespace ChimeraTK{
       }
     };
 
-    struct SpectrumDescription{
-      float start;
-      float increment;
-      SpectrumDescription(float start_=0.0, float increment_=1.0)
-      : start(start_), increment(increment_){}
-      bool operator==(SpectrumDescription const & other) const{
-        return start==other.start && increment==other.increment;
+    struct ArrayDescription:
+      public AutoPropertyDescription{
+      using AutoPropertyDescription::AutoPropertyDescription;
+      virtual const std::type_info& type() const{
+        return typeid(ArrayDescription);
       }
     };
+
+    struct SpectrumDescription:
+      public AutoPropertyDescription{
+      using AutoPropertyDescription::AutoPropertyDescription;
+      virtual const std::type_info& type() const{
+        return typeid(SpectrumDescription);
+      }
+    };
+    
+//    struct SpectrumDescription:
+//      public PropertyDescription, public PropertyAttributes{
+//      float xStart;
+//      float xIncrement;
+//      mtca4u::RegisterPath mainSource;
+//      mtca4u::RegisterPath xStartSource;
+//      mtca4u::RegisterPath xIncrementSource;
+//      SpectrumDescription(float start_=0.0, float increment_=1.0)
+//      : start(start_), increment(increment_){}
+//      bool operator==(SpectrumDescription const & other) const{
+//        return start==other.start && increment==other.increment;
+//      }
+//    };
 
     // This is the per location information which are used as default for the properties in this
     // location
