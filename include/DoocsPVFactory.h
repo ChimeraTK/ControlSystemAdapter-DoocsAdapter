@@ -37,6 +37,12 @@ namespace ChimeraTK {
     /// @todo FIXME: use SpectrumDescription here
     boost::shared_ptr<D_fct> createDoocsSpectrum(AutoPropertyDescription const & spectrumDescription);
 
+    boost::shared_ptr<D_fct> createDoocsArray(std::shared_ptr<ArrayDescription> const & spectrumDescription);
+
+    template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
+    boost::shared_ptr<D_fct> typedCreateDoocsArray( ArrayDescription const & arrayDescription);
+
+
     boost::shared_ptr<D_fct> autoCreate( std::shared_ptr<PropertyDescription> const & propertyDescription);
  
   };

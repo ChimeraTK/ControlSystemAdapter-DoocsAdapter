@@ -144,12 +144,51 @@ namespace ChimeraTK {
     }
  }
 
-  boost::shared_ptr<D_fct>  DoocsPVFactory::create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
+  template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
+  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray( ArrayDescription const & arrayDescription){
+    auto processVariable = _controlSystemPVManager->getProcessVariable(arrayDescription.source);
+
+    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessArray< DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, arrayDescription.name, getDecorator<DOOCS_PRIMITIVE_T>(*processVariable), _updater) );
+
+    // set read only mode if configures in the xml file or for output variables
+    if (!processVariable->isWriteable() || !arrayDescription.isWriteable){
+      doocsPV->set_ro_access();
+    }
+
+    return doocsPV;
+  }
+  
+  boost::shared_ptr<D_fct>  DoocsPVFactory::createDoocsArray(  std::shared_ptr<ArrayDescription> const & arrayDescription ){
+    if(arrayDescription->dataType == ArrayDescription::DataType::Auto){
+      // leave the desision which array to produce to the auto creation algorithm. We need it there anyway
+      //FIXME: This does not produce arrays of length 1 because it will produce a scalar
+      return autoCreate(arrayDescription);
+    }else if(arrayDescription->dataType == ArrayDescription::DataType::Byte){
+      return typedCreateDoocsArray<int8_t, D_bytearray>(*arrayDescription);
+    }else if(arrayDescription->dataType == ArrayDescription::DataType::Short){
+      return typedCreateDoocsArray<int16_t, D_shortarray>(*arrayDescription);
+    }else if(arrayDescription->dataType == ArrayDescription::DataType::Int){
+      return typedCreateDoocsArray<int32_t, D_intarray>(*arrayDescription);
+    }else if(arrayDescription->dataType == ArrayDescription::DataType::Long){
+      return typedCreateDoocsArray<long long int, D_longarray>(*arrayDescription);
+    }else if(arrayDescription->dataType == ArrayDescription::DataType::Float){
+      return typedCreateDoocsArray<float, D_floatarray>(*arrayDescription);
+    }else if(arrayDescription->dataType == ArrayDescription::DataType::Double){
+      return typedCreateDoocsArray<double, D_doublearray>(*arrayDescription);
+    }else{
+      throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
+    }
+
+  }
+
+    boost::shared_ptr<D_fct>  DoocsPVFactory::create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     auto & requestedType = propertyDescription->type();
     if (requestedType == typeid(AutoPropertyDescription)){
       return autoCreate(propertyDescription);
     }else if (requestedType == typeid(SpectrumDescription)){
       return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
+    }else if (requestedType == typeid(ArrayDescription)){
+      return createDoocsArray(std::static_pointer_cast<ArrayDescription>(propertyDescription));
     }else{
       throw std::invalid_argument("Sorry, your type is not supported yet.");
     }

@@ -60,12 +60,28 @@ namespace ChimeraTK{
       }
     };
 
-    struct ArrayDescription:
-      public AutoPropertyDescription{
-      using AutoPropertyDescription::AutoPropertyDescription;
+    struct ArrayDescription: public AutoPropertyDescription{
+      enum class DataType{Byte, Short, Int, Long, Float, Double, Auto};
+
+      ArrayDescription(mtca4u::RegisterPath const & source_="", std::string location_="", std::string name_="", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_=true)
+        : AutoPropertyDescription(source_, location_, name_, hasHistory_, isWriteable_),
+        dataType(dataType_){
+      }
+      
+      virtual bool operator==(PropertyDescription const & other) const override{
+        if (other.type() == typeid(ArrayDescription)){
+          auto casted_other = static_cast<ArrayDescription const &>(other);
+          return dataType==casted_other.dataType && static_cast< const AutoPropertyDescription *>(this)->operator==(casted_other);
+        }else{
+          return false;
+        }
+      }
+      
       virtual const std::type_info& type() const{
         return typeid(ArrayDescription);
       }
+      DataType dataType;
+      
     };
 
     struct SpectrumDescription:

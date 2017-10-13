@@ -158,6 +158,44 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   // FIXME: add tests for x-axis config
 }
 
+template<class DOOCS_T>
+void testArrayIsCorrectType(DoocsPVFactory &factory, ArrayDescription::DataType dataType){
+  auto description = std::make_shared<ArrayDescription>("A/fromDeviceArray1","A","fromDeviceArray1", dataType);
+  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
+
+  // get the raw pointer and dynamic cast it to the expected type
+  DOOCS_T * doocsArray = 
+    dynamic_cast< DOOCS_T * > (doocsVariableAsDFct.get());
+  
+  // if the cast succeeds the factory works as expected we are done
+  BOOST_REQUIRE(doocsArray);
+  BOOST_CHECK( static_cast<size_t>(doocsArray->max_length()) == 10 );
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
+  std::pair< shared_ptr<ControlSystemPVManager>,
+	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+  shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+  shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+  static const size_t arraySize = 10;
+  devManager->createProcessArray<T>(controlSystemToDevice,"A/fromDeviceArray1",arraySize);
+
+  // we need this later anyway, do we make a temporary variable
+  auto pvNames = ChimeraTK::getAllVariableNames( csManager );
+  
+  DoocsUpdater updater;
+  
+  DoocsPVFactory factory(&myEqFct, updater, csManager);
+
+  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Byte);
+  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Short);
+  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Int);
+  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Long);
+  testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Float);
+  testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Double);
+}
+
 BOOST_AUTO_TEST_CASE( testErrorHandling ){
     std::pair< shared_ptr<ControlSystemPVManager>,
 	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
