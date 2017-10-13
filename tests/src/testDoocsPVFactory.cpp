@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
 }
 
 template<class DOOCS_T>
-void testArrayIsCorrectType(DoocsPVFactory &factory, ArrayDescription::DataType dataType){
-  auto description = std::make_shared<ArrayDescription>("A/fromDeviceArray1","A","fromDeviceArray1", dataType);
+void testArrayIsCorrectType(DoocsPVFactory &factory, ArrayDescription::DataType dataType, std::string name = "fromDeviceArray1"){
+  auto description = std::make_shared<ArrayDescription>("A/"+name,"A",name, dataType);
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
   // get the raw pointer and dynamic cast it to the expected type
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 10;
-  devManager->createProcessArray<T>(controlSystemToDevice,"A/fromDeviceArray1",arraySize);
+  devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray1",arraySize);
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
@@ -194,6 +194,43 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Long);
   testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Float);
   testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Double);
+}
+
+BOOST_AUTO_TEST_CASE( testAutoCreateArray ){
+  std::pair< shared_ptr<ControlSystemPVManager>,
+	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+  shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+  shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+  static const size_t arraySize = 10;
+  devManager->createProcessArray<int8_t>(controlSystemToDevice,"A/toDeviceCharArray",arraySize);
+  devManager->createProcessArray<uint8_t>(controlSystemToDevice,"A/toDeviceUCharArray",arraySize);
+  devManager->createProcessArray<int16_t>(controlSystemToDevice,"A/toDeviceShortArray",arraySize);
+  devManager->createProcessArray<uint16_t>(controlSystemToDevice,"A/toDeviceUShortArray",arraySize);
+  devManager->createProcessArray<int32_t>(controlSystemToDevice,"A/toDeviceIntArray",arraySize);
+  devManager->createProcessArray<uint32_t>(controlSystemToDevice,"A/toDeviceUIntArray",arraySize);
+  devManager->createProcessArray<int64_t>(controlSystemToDevice,"A/toDeviceLongArray",arraySize);
+  devManager->createProcessArray<uint64_t>(controlSystemToDevice,"A/toDeviceULongArray",arraySize);
+  devManager->createProcessArray<float>(controlSystemToDevice,"A/toDeviceFloatArray",arraySize);
+  devManager->createProcessArray<double>(controlSystemToDevice,"A/toDeviceDoubleArray",arraySize);
+
+  // we need this later anyway, do we make a temporary variable
+  auto pvNames = ChimeraTK::getAllVariableNames( csManager );
+  
+  DoocsUpdater updater;
+  
+  DoocsPVFactory factory(&myEqFct, updater, csManager);
+
+  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Auto, "toDeviceCharArray");
+  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Auto, "toDeviceUCharArray");
+  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Auto, "toDeviceShortArray");
+  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Auto, "toDeviceUShortArray");
+  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Auto, "toDeviceIntArray");
+  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Auto, "toDeviceUIntArray");
+  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Auto, "toDeviceLongArray");
+  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Auto, "toDeviceULongArray");
+  testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Auto, "toDeviceFloatArray");
+  testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Auto, "toDeviceDoubleArray");
 }
 
 BOOST_AUTO_TEST_CASE( testErrorHandling ){
