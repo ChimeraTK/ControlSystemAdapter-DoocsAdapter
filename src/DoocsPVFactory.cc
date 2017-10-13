@@ -140,7 +140,29 @@ namespace ChimeraTK {
         throw std::invalid_argument("unsupported value type");
       }
     }else{ //nSamples > 1
-        return createDoocsSpectrum(*autoPropertyDescription);
+      if (valueType == typeid(int8_t)) {
+        return  typedCreateDoocsArray<int8_t, D_bytearray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(uint8_t)) {
+        return  typedCreateDoocsArray<int8_t, D_bytearray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(int16_t)) {
+        return  typedCreateDoocsArray<int16_t, D_shortarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(uint16_t)) {
+        return  typedCreateDoocsArray<int16_t, D_shortarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(int32_t)) {
+        return  typedCreateDoocsArray<int32_t, D_intarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(uint32_t)) {
+        return  typedCreateDoocsArray<int32_t, D_intarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(int64_t)) {
+        return  typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(uint64_t)) {
+        return  typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(float)) {
+        return  typedCreateDoocsArray<float, D_floatarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else if (valueType == typeid(double)) {
+        return  typedCreateDoocsArray<double, D_doublearray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
+      } else {
+        throw std::invalid_argument("unsupported value type");
+      }
     }
  }
 

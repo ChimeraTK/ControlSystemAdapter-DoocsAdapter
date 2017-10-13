@@ -43,7 +43,7 @@ void testReadWrite(){
 
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 42 );
   DoocsServerTestHelper::doocsSet<int>("//CHAR/TO_DEVICE_SCALAR", 44 );
-  DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   
   // running update now does not change anything, the application has not acted yet
   DoocsServerTestHelper::runUpdate();

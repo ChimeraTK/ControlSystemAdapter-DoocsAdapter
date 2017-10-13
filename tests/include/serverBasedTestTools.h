@@ -16,8 +16,15 @@ void checkHistory(DOOCS_T * property, bool expected_has_history){
 
 template<>
 void checkHistory(D_spectrum * /*property*/, bool){
-  // nothing to do, spectra don't have history
+  #warning FIXME implement check on D_spectrum history
 }
+#warning FIXME implement check on array histories
+template<> void checkHistory(D_bytearray * /*property*/, bool){}
+template<> void checkHistory(D_shortarray * /*property*/, bool){}
+template<> void checkHistory(D_intarray * /*property*/, bool){}
+template<> void checkHistory(D_longarray * /*property*/, bool){}
+template<> void checkHistory(D_floatarray * /*property*/, bool){}
+template<> void checkHistory(D_doublearray * /*property*/, bool){}
 
 template<class DOOCS_T>
 void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true){

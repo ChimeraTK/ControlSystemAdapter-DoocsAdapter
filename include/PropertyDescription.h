@@ -67,7 +67,12 @@ namespace ChimeraTK{
         : AutoPropertyDescription(source_, location_, name_, hasHistory_, isWriteable_),
         dataType(dataType_){
       }
-      
+
+      ///Convenience constructor from an auto property description, just add the type
+      ArrayDescription(AutoPropertyDescription const & autoDescription, DataType dataType_)
+      : AutoPropertyDescription(autoDescription), dataType(dataType_){
+      }
+
       virtual bool operator==(PropertyDescription const & other) const override{
         if (other.type() == typeid(ArrayDescription)){
           auto casted_other = static_cast<ArrayDescription const &>(other);
