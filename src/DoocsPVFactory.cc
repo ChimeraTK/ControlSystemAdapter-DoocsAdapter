@@ -206,10 +206,13 @@ namespace ChimeraTK {
     boost::shared_ptr<D_fct>  DoocsPVFactory::create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     auto & requestedType = propertyDescription->type();
     if (requestedType == typeid(AutoPropertyDescription)){
+      std::cout << "creating auto for " << propertyDescription->name << std::endl;
       return autoCreate(propertyDescription);
     }else if (requestedType == typeid(SpectrumDescription)){
+      std::cout << "creating Spectrum for " << propertyDescription->name << std::endl;
       return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
     }else if (requestedType == typeid(ArrayDescription)){
+      std::cout << "creating Array for " << propertyDescription->name << std::endl;
       return createDoocsArray(std::static_pointer_cast<ArrayDescription>(propertyDescription));
     }else{
       throw std::invalid_argument("Sorry, your type is not supported yet.");

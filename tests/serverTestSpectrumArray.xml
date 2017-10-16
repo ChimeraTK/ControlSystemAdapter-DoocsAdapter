@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <!--Default settings for a spectrum -->
+  <location name="INT">
+    <D_spectrum source="TO_DEVICE_ARRAY"/>
+    <D_spectrum source="FROM_DEVICE_ARRAY"/>
+  </location>
+    
+  <location name="DOUBLE">
+    <D_spectrum source="TO_DEVICE_ARRAY"/>
+    <!--Custom spectrum settings -->
+    <D_spectrum source="FROM_DEVICE_ARRAY">
+      <start>123.</start>
+      <increment>0.56</increment>
+    </D_spectrum>
+  </location>
+</device_server>
