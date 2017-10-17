@@ -58,6 +58,32 @@ namespace ChimeraTK{
     }
   }
 
+  std::string determineName(const xmlpp::Element* property, std::string source){
+    const xmlpp::Attribute* nameAttribute = property->get_attribute("name");
+    // if a name is given in xml take it
+    if (nameAttribute){
+      return nameAttribute->get_value();
+    }else{// auto-determine the name from the source
+      ///@todo FIXME: use register path to do the slash and replace fiddeling
+      std::string name;
+      if (source[0] == '/'){
+        name = source.substr(1);
+      }else{
+        name = source;
+      }
+      // replace / with . in name
+      return std::regex_replace(name, std::regex("/"), ".");
+    }
+  }
+
+  std::string getAbsoluteSource(std::string source, std::string locationName){
+    if (source[0] == '/'){
+      return source;
+    }else{
+      return std::string("/")+locationName+"/"+source;
+    }
+  }
+  
   void VariableMapper::processPropertyNode(xmlpp::Node const * propertyNode, std::string locationName){
     const xmlpp::Element* property = dynamic_cast<const xmlpp::Element*>(propertyNode);
     if (!property){
@@ -65,27 +91,8 @@ namespace ChimeraTK{
     }
 
     std::string source = getAttributeValue(property, "source");
-    
-    std::string name;
-    const xmlpp::Attribute* nameAttribute = property->get_attribute("name");
-    if (nameAttribute){
-      name = nameAttribute->get_value();
-    }else{
-      if (source[0] == '/'){
-        name = source.substr(1);
-      }else{
-        name = source;
-      }
-      // replace / with . in name
-      name = std::regex_replace(name, std::regex("/"), ".");
-    }
-
-    std::string absoluteSource;
-    if (source[0] == '/'){
-      absoluteSource=source;
-    }else{
-      absoluteSource=std::string("/")+locationName+"/"+source;
-    }
+    std::string name = determineName(property, source);
+    std::string absoluteSource = getAbsoluteSource(source, locationName);
 
     // prepare the property description
     auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name);
@@ -111,6 +118,10 @@ namespace ChimeraTK{
       _inputSortedDescriptions[absoluteSource] = std::dynamic_pointer_cast<PropertyDescription>(autoPropertyDescription);
     }
    
+  }
+
+  void VariableMapper::processSpectrumNode(xmlpp::Node const * node, std::string locationName){
+    
   }
 
   void VariableMapper::processImportNode(xmlpp::Node const * importNode, std::string importLocationName){
