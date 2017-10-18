@@ -49,9 +49,7 @@ namespace ChimeraTK{
           locationInfo.useIsWriteableDefault = true;
           locationInfo.isWriteable = evaluateBool(getContentString(node));
         }else if (node->get_name() == "D_spectrum"){
-          //FIXME: Ugly hack: running it as a normal node makes the tests pass because the factory still creates specta by default
-          processPropertyNode(node, locationName);
-          std::cout << "FIXME: Implement processSpectrumNode" << std::endl;
+          processSpectrumNode(node, locationName);
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": Unknown node '"+node->get_name()+"'");
         }
@@ -136,7 +134,19 @@ namespace ChimeraTK{
 
 
   void VariableMapper::processSpectrumNode(xmlpp::Node const * node, std::string locationName){
-    
+    auto spectrumXml = asXmlElement(node);
+
+    // the "main source" of a spectum
+    std::string source = getAttributeValue(spectrumXml, "source");
+    std::string name = determineName(spectrumXml, source);
+    std::string absoluteSource = getAbsoluteSource(source, locationName);
+
+    // prepare the property description
+    auto spectrumDescription = std::make_shared<SpectrumDescription>(absoluteSource, locationName, name);
+
+    processHistoryAndWritableAttributes(spectrumDescription, spectrumXml, locationName);
+
+    addDescription(spectrumDescription, absoluteSource);
   }
 
   void VariableMapper::processImportNode(xmlpp::Node const * importNode, std::string importLocationName){
