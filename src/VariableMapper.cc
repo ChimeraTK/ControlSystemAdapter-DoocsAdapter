@@ -83,12 +83,44 @@ namespace ChimeraTK{
       return std::string("/")+locationName+"/"+source;
     }
   }
+
+  template<class PROPERTY_DESCRIPTION_TYPE>
+  void VariableMapper::processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,  const xmlpp::Element* propertyXmlElement, std::string locationName){
+    auto hasHistoryNodes = propertyXmlElement->get_children("has_history");
+    if (!hasHistoryNodes.empty()){
+      propertyDescription->hasHistory= evaluateBool(getContentString(hasHistoryNodes.front()));
+    }else{
+      propertyDescription->hasHistory = getHasHistoryDefault(locationName);
+    }
+    auto isWriteableNodes = propertyXmlElement->get_children("is_writeable");
+    if (!isWriteableNodes.empty()){
+      propertyDescription->isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
+    }else{
+      propertyDescription->isWriteable = getIsWriteableDefault(locationName);
+    }
+
+  }
+
+  void VariableMapper::addDescription(std::shared_ptr<PropertyDescription> const & propertyDescription, std::string const & absoluteSource){
+    auto existingCandidate = _inputSortedDescriptions.find(absoluteSource);
+    if (existingCandidate != _inputSortedDescriptions.end()){
+      auto existingPropertyDescription = existingCandidate->second;
+      throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ propertyDescription->location+"/" +propertyDescription->name +". Process variable already defined to point to " + existingPropertyDescription->location + "/" + existingPropertyDescription->name);
+    }else{
+      _inputSortedDescriptions[absoluteSource] = propertyDescription;
+    }
+  }
+
+  xmlpp::Element const * asXmlElement(xmlpp::Node const * node){
+    const xmlpp::Element* element = dynamic_cast<const xmlpp::Element*>(node);
+    if (!element){
+      throw std::invalid_argument("Error parsing xml file: Node is not an element node: " + node->get_name());
+    }
+    return element;
+  }
   
   void VariableMapper::processPropertyNode(xmlpp::Node const * propertyNode, std::string locationName){
-    const xmlpp::Element* property = dynamic_cast<const xmlpp::Element*>(propertyNode);
-    if (!property){
-      throw std::invalid_argument("Error parsing xml file in property node in location" + locationName);
-    }
+    auto property = asXmlElement(propertyNode);
 
     std::string source = getAttributeValue(property, "source");
     std::string name = determineName(property, source);
@@ -97,28 +129,11 @@ namespace ChimeraTK{
     // prepare the property description
     auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name);
 
-    auto hasHistoryNodes = property->get_children("has_history");
-    if (!hasHistoryNodes.empty()){
-      autoPropertyDescription->hasHistory= evaluateBool(getContentString(hasHistoryNodes.front()));
-    }else{
-      autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
-    }
-    auto isWriteableNodes = property->get_children("is_writeable");
-    if (!isWriteableNodes.empty()){
-      autoPropertyDescription->isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
-    }else{
-      autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
-    }
+    processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
 
-    auto existingCandidate = _inputSortedDescriptions.find(absoluteSource);
-    if (existingCandidate != _inputSortedDescriptions.end()){
-      auto existingPropertyDescription = existingCandidate->second;
-      throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ locationName+"/" +name +". Process variable already defined to point to " + existingPropertyDescription->location + "/" + existingPropertyDescription->name);
-    }else{
-      _inputSortedDescriptions[absoluteSource] = std::dynamic_pointer_cast<PropertyDescription>(autoPropertyDescription);
-    }
-   
+    addDescription(autoPropertyDescription, absoluteSource);
   }
+
 
   void VariableMapper::processSpectrumNode(xmlpp::Node const * node, std::string locationName){
     

@@ -70,6 +70,14 @@ namespace ChimeraTK{
 
     // Check if the attribute exists (throw if not) and get it's content
     std::string getAttributeValue(const xmlpp::Element* node, std::string const & attributeName);
+
+    template<class PROPERTY_DESCRIPTION_TYPE>
+    void processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,
+                                               const xmlpp::Element* propertyXmlElement,
+                                               std::string locationName);
+
+    void addDescription(std::shared_ptr<PropertyDescription> const & propertyDescription, std::string const & locationName);
+
   };
 
 } // namespace ChimeraTK
