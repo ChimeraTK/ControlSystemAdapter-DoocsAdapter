@@ -3,15 +3,30 @@
   <!--Default settings for a spectrum -->
   <location name="INT">
     <D_spectrum source="TO_DEVICE_ARRAY"/>
-    <D_spectrum source="FROM_DEVICE_ARRAY"/>
+    <D_spectrum source="FROM_DEVICE_ARRAY" name="MY_RENAMED_INTARRAY"/>
+  </location>
+
+  <location name="SHORT">
+    <D_array source="TO_DEVICE_ARRAY"/>
+    <D_array source="FROM_DEVICE_ARRAY" name="MY_RETYPED_SHORT_ARRAY" type="long"/>
   </location>
     
   <location name="DOUBLE">
     <D_spectrum source="TO_DEVICE_ARRAY"/>
-    <!--Custom spectrum settings -->
+    <!--Custom spectrum settings, fixed axis arguments -->
     <D_spectrum source="FROM_DEVICE_ARRAY">
       <start>123.</start>
       <increment>0.56</increment>
     </D_spectrum>
   </location>
+
+  <location name="FLOAT">
+    <D_spectrum source="TO_DEVICE_ARRAY"/>
+    <!--Dynamic axis settings -->
+    <D_spectrum source="FROM_DEVICE_ARRAY">
+      <startSource>"/FLOAT/FROM_DEVICE_SCALAR"</startSource>
+      <incrementSource>"/DOUBLE/FROM_DEVICE_SCALAR"</incrementSource>
+    </D_spectrum>
+  </location>
+
 </device_server>

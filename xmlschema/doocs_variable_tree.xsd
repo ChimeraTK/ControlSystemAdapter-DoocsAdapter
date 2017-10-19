@@ -36,6 +36,7 @@
      <xs:choice>
        <xs:element name="property" type="AutoProperty"/>
        <xs:element name="D_spectrum" type="D_spectrum"/>
+       <xs:element name="D_array" type="D_array"/>
      </xs:choice>
    </xs:group>
   
@@ -73,11 +74,38 @@
    <xs:complexType name="D_spectrum">
      <xs:sequence>
        <xs:group ref="PropertyDetails" minOccurs="0"/>
-       <xs:element name="start" type="xs:float" default="0.0" minOccurs="0"/>
-       <xs:element name="increment" type="xs:float" default="1.0" minOccurs="0"/>
+       <xs:choice minOccurs="0">
+         <xs:element name="start" type="xs:float"/>
+         <xs:element name="startSource" type="xs:string"/>
+       </xs:choice>
+       <xs:choice minOccurs="0">
+         <xs:element name="increment" type="xs:float"/>
+         <xs:element name="incrementSource" type="xs:string"/>
+       </xs:choice>
      </xs:sequence>
      <xs:attribute name="source" type="xs:string" use="required"/>
      <xs:attribute name="name" type="xs:string"/>
+   </xs:complexType>
+   
+   <xs:complexType name="D_array">
+     <xs:sequence>
+       <xs:group ref="PropertyDetails" minOccurs="0"/>
+     </xs:sequence>
+     <xs:attribute name="source" type="xs:string" use="required"/>
+     <xs:attribute name="name" type="xs:string"/>
+     <xs:attribute name="type" type="ArrayDataType" default="auto"/>
   </xs:complexType>
 
+  <xs:simpleType name="ArrayDataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="auto"/>
+      <xs:enumeration value="byte"/>
+      <xs:enumeration value="short"/>
+      <xs:enumeration value="int"/>
+      <xs:enumeration value="long"/>
+      <xs:enumeration value="float"/>
+      <xs:enumeration value="double"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
  </xs:schema>
