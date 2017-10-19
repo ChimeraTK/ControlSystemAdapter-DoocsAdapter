@@ -89,9 +89,20 @@ namespace ChimeraTK{
       
     };
 
-    struct SpectrumDescription:
-      public AutoPropertyDescription{
-      using AutoPropertyDescription::AutoPropertyDescription;
+    struct SpectrumDescription: public PropertyDescription, public PropertyAttributes{
+      mtca4u::RegisterPath source;
+      mtca4u::RegisterPath startSource;
+      mtca4u::RegisterPath incrementSource;
+      float start;
+      float increment;
+
+      SpectrumDescription(mtca4u::RegisterPath const & source_="",
+                          std::string location_="", std::string name_="",
+                          bool hasHistory_ = true, bool isWriteable_=true
+                          )
+        : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_), start(0), increment(1.0){}
+
+      
       virtual const std::type_info& type() const{
         return typeid(SpectrumDescription);
       }

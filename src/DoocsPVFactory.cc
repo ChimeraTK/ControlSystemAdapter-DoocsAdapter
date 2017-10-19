@@ -79,7 +79,7 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
-  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(AutoPropertyDescription const & spectrumDescription) {
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(SpectrumDescription const & spectrumDescription) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(spectrumDescription.source);
 
     //    assert(processArray->getNumberOfChannels() == 1);
@@ -90,6 +90,11 @@ namespace ChimeraTK {
       doocsPV->set_ro_access();
     }
 
+    // can use static cast, we know it's a D_spectrum, we just created it
+    auto spectrum = boost::static_pointer_cast<D_spectrum>(doocsPV);
+    spectrum->spectrum_parameter( spectrum->spec_time(), spectrumDescription.start,
+                                  spectrumDescription.increment, spectrum->spec_status() );
+    
     return doocsPV;
   }
 
