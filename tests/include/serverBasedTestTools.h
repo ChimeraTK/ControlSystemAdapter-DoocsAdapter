@@ -66,10 +66,6 @@ void checkSpectrum(std::string const & propertyAddress, bool expected_has_histor
   D_spectrum * spectrum = dynamic_cast< D_spectrum *>(eqFct->find_property(propertyName));
   BOOST_REQUIRE_MESSAGE(spectrum, "Could not find property " + propertyName + " (address "<< propertyAddress <<"), or property has unexpected type.");
 
-  std::cout << "The magic 4 " << spectrum->spec_time() << ", "
-            << spectrum->spec_start() << ", "
-            << spectrum->spec_inc() << ", "
-            << spectrum->spec_status() << std::endl;
   BOOST_CHECK( std::fabs(spectrum->spec_start() - expected_start) < 0.001 );
   BOOST_CHECK( std::fabs(spectrum->spec_inc() - expected_increment) < 0.001 );
 }

@@ -148,6 +148,15 @@ namespace ChimeraTK{
 
     processHistoryAndWritableAttributes(spectrumDescription, spectrumXml, locationName);
 
+    auto startNodes = spectrumXml->get_children("start");
+    if (!startNodes.empty()){
+      spectrumDescription->start = std::stof(getContentString(startNodes.front()));
+    }
+    auto incrementNodes = spectrumXml->get_children("increment");
+    if (!incrementNodes.empty()){
+      spectrumDescription->increment = std::stof(getContentString(incrementNodes.front()));
+    }
+
     addDescription(spectrumDescription, absoluteSource);
   }
 
