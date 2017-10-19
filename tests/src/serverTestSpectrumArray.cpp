@@ -6,6 +6,7 @@
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
+#include "serverBasedTestTools.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestSpectrumArray");
 
@@ -35,6 +36,13 @@ void testReadWrite(){
   DoocsServerTestHelper::runUpdate();
   std::cout << "ran update once, let's test " << std::endl;
 
+  checkSpectrum("//INT/TO_DEVICE_ARRAY");
+  checkSpectrum("//DOUBLE/TO_DEVICE_ARRAY");
+  checkSpectrum("//FLOAT/TO_DEVICE_ARRAY");
+  checkSpectrum("//INT/MY_RENAMED_INTARRAY",true, false);
+  checkSpectrum("//DOUBLE/FROM_DEVICE_ARRAY",true, false, 123., 0.56);
+  checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false);
+  
   DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   DoocsServerTestHelper::doocsSetSpectrum("//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3} ); 
   

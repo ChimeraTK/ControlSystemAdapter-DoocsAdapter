@@ -52,4 +52,26 @@ void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_h
   }
 }
 
+void checkSpectrum(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true, float expected_start = 0.0, float expected_increment = 1.0){
+  checkDoocsProperty<D_spectrum>(propertyAddress, expected_has_history, expected_is_writeable);
+
+  EqAdr ad;
+  EqData ed, res;
+  // obtain location pointer
+  ad.adr(propertyAddress.c_str());
+  EqFct *eqFct = eq_get(&ad);
+  BOOST_REQUIRE_MESSAGE( eqFct, "Could not get location for property "+propertyAddress);
+
+  auto propertyName = ChimeraTK::basenameFromAddress(propertyAddress);
+  D_spectrum * spectrum = dynamic_cast< D_spectrum *>(eqFct->find_property(propertyName));
+  BOOST_REQUIRE_MESSAGE(spectrum, "Could not find property " + propertyName + " (address "<< propertyAddress <<"), or property has unexpected type.");
+
+  std::cout << "The magic 4 " << spectrum->spec_time() << ", "
+            << spectrum->spec_start() << ", "
+            << spectrum->spec_inc() << ", "
+            << spectrum->spec_status() << std::endl;
+  BOOST_CHECK( std::fabs(spectrum->spec_start() - expected_start) < 0.001 );
+  BOOST_CHECK( std::fabs(spectrum->spec_inc() - expected_increment) < 0.001 );
+}
+
 #endif // SERVER_BASED_TEST_TOOLS_H
