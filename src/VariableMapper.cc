@@ -50,6 +50,8 @@ namespace ChimeraTK{
           locationInfo.isWriteable = evaluateBool(getContentString(node));
         }else if (node->get_name() == "D_spectrum"){
           processSpectrumNode(node, locationName);
+        }else if (node->get_name() == "D_array"){
+          processArrayNode(node, locationName);
         }else{
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": Unknown node '"+node->get_name()+"'");
         }
@@ -147,6 +149,40 @@ namespace ChimeraTK{
     processHistoryAndWritableAttributes(spectrumDescription, spectrumXml, locationName);
 
     addDescription(spectrumDescription, absoluteSource);
+  }
+
+  void VariableMapper::processArrayNode(xmlpp::Node const * node, std::string locationName){
+    auto arrayXml = asXmlElement(node);
+
+    // the "main source" of a spectum
+    std::string source = getAttributeValue(arrayXml, "source");
+    std::string name = determineName(arrayXml, source);
+
+    const xmlpp::Attribute* typeAttribute = arrayXml->get_attribute("type");
+    std::map< std::string, ArrayDescription::DataType > dataTypeMap(
+      { {"auto", ArrayDescription::DataType::Auto},
+        {"byte", ArrayDescription::DataType::Byte},
+        {"short", ArrayDescription::DataType::Short},
+        {"int", ArrayDescription::DataType::Int},
+        {"long", ArrayDescription::DataType::Long},
+        {"float", ArrayDescription::DataType::Float},
+        {"double", ArrayDescription::DataType::Double} });
+    
+    ArrayDescription::DataType type;
+    if (typeAttribute){
+      type = dataTypeMap[typeAttribute->get_value()];
+    }else{
+      type = ArrayDescription::DataType::Auto;
+    }
+    
+    std::string absoluteSource = getAbsoluteSource(source, locationName);
+
+    // prepare the property description
+    auto arrayDescription = std::make_shared<ArrayDescription>(absoluteSource, locationName, name);
+
+    processHistoryAndWritableAttributes(arrayDescription, arrayXml, locationName);
+
+    addDescription(arrayDescription, absoluteSource);
   }
 
   void VariableMapper::processImportNode(xmlpp::Node const * importNode, std::string importLocationName){

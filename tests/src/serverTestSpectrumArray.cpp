@@ -41,7 +41,7 @@ void testReadWrite(){
   // running update now does not change anything, the application has not acted yet
   DoocsServerTestHelper::runUpdate();
 
-  auto notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
+  auto notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
   for (auto val : notIntArray){
     BOOST_CHECK( std::fabs(val) < 0.001 );
   }
@@ -53,7 +53,7 @@ void testReadWrite(){
   // run the application loop. Still no changes until we run the doocs server update
   referenceTestApplication.runMainLoopOnce();
 
-  notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
+  notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
   for (auto val : notIntArray){
     BOOST_CHECK( std::fabs(val) < 0.001 );
   }
@@ -65,7 +65,7 @@ void testReadWrite(){
   // now finally after the next update we should see the new data in doocs
   DoocsServerTestHelper::runUpdate();
 
-  notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
+  notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
   int testVal = 140;
   for (auto val : notIntArray){
     BOOST_CHECK( std::fabs(val - testVal++) < 0.001 );
