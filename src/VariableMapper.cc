@@ -156,6 +156,14 @@ namespace ChimeraTK{
     if (!incrementNodes.empty()){
       spectrumDescription->increment = std::stof(getContentString(incrementNodes.front()));
     }
+    auto startSourceNodes = spectrumXml->get_children("startSource");
+    if (!startSourceNodes.empty()){
+      spectrumDescription->startSource = getContentString(startSourceNodes.front());
+    }
+    auto incrementSourceNodes = spectrumXml->get_children("incrementSource");
+    if (!incrementSourceNodes.empty()){
+      spectrumDescription->incrementSource = getContentString(incrementSourceNodes.front());
+    }
 
     addDescription(spectrumDescription, absoluteSource);
   }

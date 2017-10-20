@@ -9,7 +9,10 @@ namespace ChimeraTK{
 
   void DoocsUpdater::update(){
     for ( auto & mapElem : _toDoocsUpdateMap ){
-      if (mapElem.first->readNonBlocking()){
+      ///@todo FIXME: This should be readNonBlocking(), or better readAny on the whole map
+      // Currently this is consistent behaviour in the location update, and needed
+      // for consistent testing.
+      if (mapElem.first->readLatest()){
         mapElem.second();
       }
     }

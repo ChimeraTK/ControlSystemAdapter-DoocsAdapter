@@ -81,9 +81,25 @@ namespace ChimeraTK {
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(SpectrumDescription const & spectrumDescription) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(spectrumDescription.source);
+    float start =  spectrumDescription.start;
+    float increment =  spectrumDescription.increment;
 
+    // in case dynamic changing of the axis is requested replace the static values from the
+    // config file with the data from the accessors. The spectrum will keep the data updated.
+    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > startAccessor;
+    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > incrementAccessor;
+    
+    if ( spectrumDescription.startSource != ""){
+      startAccessor = getDecorator<float>(* _controlSystemPVManager->getProcessVariable(spectrumDescription.startSource) );
+      start = startAccessor->accessData(0);
+    }
+    if ( spectrumDescription.incrementSource != ""){
+      incrementAccessor = getDecorator<float>(* _controlSystemPVManager->getProcessVariable(spectrumDescription.incrementSource) );
+      increment = incrementAccessor->accessData(0);
+    }
+    
     //    assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name, getDecorator<float>(*processVariable), _updater, nullptr, nullptr) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name, getDecorator<float>(*processVariable), _updater, startAccessor, incrementAccessor) );
 
     // set read only mode if configures in the xml file or for output variables
     if (!processVariable->isWriteable() || !spectrumDescription.isWriteable){
@@ -92,8 +108,7 @@ namespace ChimeraTK {
 
     // can use static cast, we know it's a D_spectrum, we just created it
     auto spectrum = boost::static_pointer_cast<D_spectrum>(doocsPV);
-    spectrum->spectrum_parameter( spectrum->spec_time(), spectrumDescription.start,
-                                  spectrumDescription.increment, spectrum->spec_status() );
+    spectrum->spectrum_parameter( spectrum->spec_time(), start, increment, spectrum->spec_status() );
     
     return doocsPV;
   }
@@ -211,13 +226,10 @@ namespace ChimeraTK {
     boost::shared_ptr<D_fct>  DoocsPVFactory::create( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     auto & requestedType = propertyDescription->type();
     if (requestedType == typeid(AutoPropertyDescription)){
-      std::cout << "creating auto for " << propertyDescription->name << std::endl;
       return autoCreate(propertyDescription);
     }else if (requestedType == typeid(SpectrumDescription)){
-      std::cout << "creating Spectrum for " << propertyDescription->name << std::endl;
       return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
     }else if (requestedType == typeid(ArrayDescription)){
-      std::cout << "creating Array for " << propertyDescription->name << std::endl;
       return createDoocsArray(std::static_pointer_cast<ArrayDescription>(propertyDescription));
     }else{
       throw std::invalid_argument("Sorry, your type is not supported yet.");

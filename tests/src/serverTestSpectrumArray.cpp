@@ -30,18 +30,22 @@ using namespace ChimeraTK;
 void testReadWrite(){
   // halt the test application tread 
   referenceTestApplication.initialiseManualLoopControl();
-  std::cout << "got the application main lock" << std::endl;
-  // run update once to make sure the server is up and running
-  std::cout << "running update once " << std::endl;
+  // run update once to make sure the server is up and running, and empty the queues from the initial
+  // values.
   DoocsServerTestHelper::runUpdate();
-  std::cout << "ran update once, let's test " << std::endl;
 
+  // prepare the x-axis for the float array (we are using the float and double scalar)
+  DoocsServerTestHelper::doocsSet("//FLOAT/START",12.3);
+  DoocsServerTestHelper::doocsSet("//FLOAT/INCREMENT", 1.6);
+  referenceTestApplication.runMainLoopOnce();
+  DoocsServerTestHelper::runUpdate();
+  
   checkSpectrum("//INT/TO_DEVICE_ARRAY");
   checkSpectrum("//DOUBLE/TO_DEVICE_ARRAY");
   checkSpectrum("//FLOAT/TO_DEVICE_ARRAY");
   checkSpectrum("//INT/MY_RENAMED_INTARRAY",true, false);
   checkSpectrum("//DOUBLE/FROM_DEVICE_ARRAY",true, false, 123., 0.56);
-  checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false);
+  checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6); // are those working settings? 
 
   // check that the "short array" is of type long
   checkDataType("//SHORT/MY_RETYPED_SHORT_ARRAY", DATA_A_LONG);

@@ -24,9 +24,11 @@
     <D_spectrum source="TO_DEVICE_ARRAY"/>
     <!--Dynamic axis settings -->
     <D_spectrum source="FROM_DEVICE_ARRAY">
-      <startSource>"/FLOAT/FROM_DEVICE_SCALAR"</startSource>
-      <incrementSource>"/DOUBLE/FROM_DEVICE_SCALAR"</incrementSource>
+      <startSource>/FLOAT/FROM_DEVICE_SCALAR</startSource>
+      <incrementSource>/DOUBLE/FROM_DEVICE_SCALAR</incrementSource>
     </D_spectrum>
+    <property name="START" source="/FLOAT/TO_DEVICE_SCALAR"/>
+    <property name="INCREMENT" source="/DOUBLE/TO_DEVICE_SCALAR"/>
   </location>
 
 </device_server>
