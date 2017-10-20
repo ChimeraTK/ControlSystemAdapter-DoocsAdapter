@@ -25,12 +25,20 @@ namespace ChimeraTK {
        */
       DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
                      boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray,
-                     DoocsUpdater & updater)
-        : D_spectrum( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
-          _processArray( processArray )
+                     DoocsUpdater & updater,
+                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &startAccessor,
+                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &incrementAccessor)
+       : D_spectrum( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
+      _processArray( processArray ), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor)
       {
         if (processArray->isReadable()){
           updater.addVariable( *processArray , std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
+        }
+        if (startAccessor && startAccessor->isReadable()){
+          updater.addVariable( *startAccessor, std::bind(&DoocsSpectrum::updateParameters, this));
+        }
+        if (incrementAccessor && incrementAccessor->isReadable()){
+          updater.addVariable( *incrementAccessor, std::bind(&DoocsSpectrum::updateParameters, this));
         }
       }
 
@@ -63,8 +71,25 @@ namespace ChimeraTK {
         }
       }
 
+      void updateParameters(){
+        float start, increment;
+        if (_startAccessor){
+          start=_startAccessor->accessData(0);
+        }else{
+          start=this->spec_start();
+        }
+        if (_incrementAccessor){
+          increment=_incrementAccessor->accessData(0);
+        }else{
+          increment=this->spec_inc();
+        }
+        spectrum_parameter( this->spec_time(), start, increment, this->spec_status() );
+      }
+
   protected:
       boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _processArray;
+      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _startAccessor;
+      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _incrementAccessor;
 
       // Internal function which copies the content from the DOOCS container into the 
       // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.

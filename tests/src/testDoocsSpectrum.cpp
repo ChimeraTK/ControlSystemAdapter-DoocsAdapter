@@ -21,7 +21,7 @@ class TestableDoocsSpectrum : public DoocsSpectrum{
 public:
   TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
                          boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray, DoocsUpdater & updater)
-    : DoocsSpectrum( eqFct, doocsPropertyName, processArray, updater){}
+    : DoocsSpectrum( eqFct, doocsPropertyName, processArray, updater, nullptr, nullptr){}
 
   void sendToDevice(){
     DoocsSpectrum::sendToDevice();
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   DoocsUpdater updater;
 
   // initialise the doocs spectrum
-  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), updater);
+  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), updater, nullptr, nullptr);
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, 0);
   }
