@@ -187,7 +187,7 @@ namespace ChimeraTK{
     std::string absoluteSource = getAbsoluteSource(source, locationName);
 
     // prepare the property description
-    auto arrayDescription = std::make_shared<ArrayDescription>(absoluteSource, locationName, name);
+    auto arrayDescription = std::make_shared<ArrayDescription>(absoluteSource, locationName, name, type);
 
     processHistoryAndWritableAttributes(arrayDescription, arrayXml, locationName);
 

@@ -27,18 +27,24 @@ template<> void checkHistory(D_floatarray * /*property*/, bool){}
 template<> void checkHistory(D_doublearray * /*property*/, bool){}
 
 template<class DOOCS_T>
-void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true){
+DOOCS_T * getDoocsProperty(std::string const & propertyAddress){
   // copied from DoocsServerTestHelper::doocsGet
   EqAdr ad;
-  EqData ed, res;
   // obtain location pointer
   ad.adr(propertyAddress.c_str());
   EqFct *eqFct = eq_get(&ad);
   BOOST_REQUIRE_MESSAGE( eqFct, "Could not get location for property "+propertyAddress);
 
   auto propertyName = ChimeraTK::basenameFromAddress(propertyAddress);
-  DOOCS_T * property = dynamic_cast<DOOCS_T *>(eqFct->find_property(propertyName));
-  BOOST_REQUIRE_MESSAGE(property, "Could not find property " + propertyName + " (address "<< propertyAddress <<"), or property has unexpected type.");
+  return dynamic_cast<DOOCS_T *>(eqFct->find_property(propertyName));
+  
+}
+
+template<class DOOCS_T>
+void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true){
+
+  auto property = getDoocsProperty<DOOCS_T>(propertyAddress);
+  BOOST_REQUIRE_MESSAGE(property, "Could not find property address "<< propertyAddress <<"), or property has unexpected type.");
 
   checkHistory(property, expected_has_history);
 
@@ -55,19 +61,16 @@ void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_h
 void checkSpectrum(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true, float expected_start = 0.0, float expected_increment = 1.0){
   checkDoocsProperty<D_spectrum>(propertyAddress, expected_has_history, expected_is_writeable);
 
-  EqAdr ad;
-  EqData ed, res;
-  // obtain location pointer
-  ad.adr(propertyAddress.c_str());
-  EqFct *eqFct = eq_get(&ad);
-  BOOST_REQUIRE_MESSAGE( eqFct, "Could not get location for property "+propertyAddress);
-
-  auto propertyName = ChimeraTK::basenameFromAddress(propertyAddress);
-  D_spectrum * spectrum = dynamic_cast< D_spectrum *>(eqFct->find_property(propertyName));
-  BOOST_REQUIRE_MESSAGE(spectrum, "Could not find property " + propertyName + " (address "<< propertyAddress <<"), or property has unexpected type.");
+  auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
+  BOOST_REQUIRE_MESSAGE(spectrum, "Could not find property address "<< propertyAddress <<"), or property has unexpected type.");
 
   BOOST_CHECK( std::fabs(spectrum->spec_start() - expected_start) < 0.001 );
   BOOST_CHECK( std::fabs(spectrum->spec_inc() - expected_increment) < 0.001 );
+}
+
+void checkDataType(std::string const & propertyAddress, int dataType){
+  auto property = getDoocsProperty<D_fct>(propertyAddress);
+  BOOST_CHECK( property->data_type() == dataType);
 }
 
 #endif // SERVER_BASED_TEST_TOOLS_H

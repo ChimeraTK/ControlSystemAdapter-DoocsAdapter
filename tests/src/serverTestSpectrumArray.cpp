@@ -42,6 +42,9 @@ void testReadWrite(){
   checkSpectrum("//INT/MY_RENAMED_INTARRAY",true, false);
   checkSpectrum("//DOUBLE/FROM_DEVICE_ARRAY",true, false, 123., 0.56);
   checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false);
+
+  // check that the "short array" is of type long
+  checkDataType("//SHORT/MY_RETYPED_SHORT_ARRAY", DATA_A_LONG);
   
   DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   DoocsServerTestHelper::doocsSetSpectrum("//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3} ); 
