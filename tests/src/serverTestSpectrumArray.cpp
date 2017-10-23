@@ -45,7 +45,9 @@ void testReadWrite(){
   checkSpectrum("//FLOAT/TO_DEVICE_ARRAY");
   checkSpectrum("//INT/MY_RENAMED_INTARRAY",true, false);
   checkSpectrum("//DOUBLE/FROM_DEVICE_ARRAY",true, false, 123., 0.56);
-  checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6); // are those working settings? 
+  checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6);
+  // FIXME: currently not working, although not clear why float is. I would expect it the other way 
+  //  checkSpectrum("//UINT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6);
 
   // check that the "short array" is of type long
   checkDataType("//SHORT/MY_RETYPED_SHORT_ARRAY", DATA_A_LONG);
@@ -90,7 +92,30 @@ void testReadWrite(){
   for (auto val : notFloatArray){
     BOOST_CHECK( std::fabs(val - floatTestVal++) < 0.001 );
   }
+
 }
+
+void testPropertyDoesNotExist(std::string addressString){
+  EqAdr ad;
+  EqData ed, res;
+  // obtain location pointer
+  ad.adr(addressString.c_str());
+  EqFct *eqFct = eq_get(&ad);
+  BOOST_REQUIRE_MESSAGE(eqFct != NULL, "Could not get location for property.");
+  // obtain value
+  eqFct->lock();
+  eqFct->get(&ad,&ed,&res);
+  eqFct->unlock();
+  // check for errors
+  ///todo FIXME: check for the correct error code
+  BOOST_CHECK_MESSAGE(res.error() != 0, std::string("Could read from ")+ addressString +", but it should not be there");
+}
+
+void testPropertiesDontExist(){
+  testPropertyDoesNotExist("//FLOAT/FROM_DEVICE_SCALAR");
+  testPropertyDoesNotExist("//DOUBLE/FROM_DEVICE_SCALAR");
+}
+
 
 // due to the doocs server thread you can only have one test suite
 class DoocsServerTestSuite : public test_suite {
@@ -101,6 +126,7 @@ public:
   {
     doocsServerThread.detach();
     add( BOOST_TEST_CASE( &testReadWrite ) );
+    add( BOOST_TEST_CASE( &testPropertiesDontExist ) );
   }
   virtual ~DoocsServerTestSuite(){
     referenceTestApplication.releaseManualLoopControl();

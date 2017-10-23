@@ -31,4 +31,17 @@
     <property name="INCREMENT" source="/DOUBLE/TO_DEVICE_SCALAR"/>
   </location>
 
+   <location name="UINT">
+    <D_spectrum source="TO_DEVICE_ARRAY"/>
+    <!--Dynamic axis settings -->
+    <D_spectrum source="FROM_DEVICE_ARRAY">
+      <!-- it is possible to use the same startSource and incrementSource multiple times -->
+      <startSource>/FLOAT/FROM_DEVICE_SCALAR</startSource>
+      <incrementSource>/DOUBLE/FROM_DEVICE_SCALAR</incrementSource>
+    </D_spectrum>
+  </location>
+  
+    <!-- This should not import the variables used for startSource and startIncrement -->
+    <import>/</import>
+
 </device_server>
