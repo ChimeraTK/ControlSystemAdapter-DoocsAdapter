@@ -2,6 +2,7 @@
 #define CHIMERATK_DOOCS_ADAPTER_VARIABLE_MAPPER_H
 
 #include <string>
+#include <list>
 #include <map>
 #include <set>
 #include <memory>
@@ -23,8 +24,8 @@ namespace ChimeraTK{
     static VariableMapper & getInstance();
     void prepareOutput(std::string xmlFile, std::set< std::string > inputVariables);
 
-    std::map< std::string, std::shared_ptr<PropertyDescription> > getPropertiesInLocation(std::string location) const;
-    std::map< std::string, std::shared_ptr<PropertyDescription> > const & getAllProperties() const;
+    std::list< std::shared_ptr<PropertyDescription> > getPropertiesInLocation(std::string location) const;
+    std::list< std::shared_ptr<PropertyDescription> > const & getAllProperties() const;
 
     VariableMapper(VariableMapper &)=delete;
     void operator=(VariableMapper const &)=delete;
@@ -49,6 +50,7 @@ namespace ChimeraTK{
     VariableMapper()=default;
 
     std::set< std::string > _inputVariables;
+    std::set< std::string > _usedInputVariables; //For tracing which variables are not to be imported.
   
     void processLocationNode(xmlpp::Node const * locationNode);
     void processPropertyNode(xmlpp::Node const * propertyNode, std::string locationName);
@@ -63,8 +65,8 @@ namespace ChimeraTK{
     std::map<std::string, LocationInfo> _locationDefaults;
     PropertyAttributes _globalDefaults;
 
-    // PropertyDescriptions, sorted by input, i.e. the ChimeraTK PV name
-    std::map<std::string, std::shared_ptr<PropertyDescription> > _inputSortedDescriptions;
+    // The created PropertyDescriptions
+    std::list< std::shared_ptr<PropertyDescription> > _descriptions;
 
     /// An internal helper function to abbreviate the syntax
     bool nodeIsWhitespace(const xmlpp::Node* node);
@@ -77,7 +79,8 @@ namespace ChimeraTK{
                                                const xmlpp::Element* propertyXmlElement,
                                                std::string locationName);
 
-    void addDescription(std::shared_ptr<PropertyDescription> const & propertyDescription, std::string const & locationName);
+    void addDescription(std::shared_ptr<PropertyDescription> const & propertyDescription,
+                        std::list< std::string > const & absoluteSoures);
 
   };
 

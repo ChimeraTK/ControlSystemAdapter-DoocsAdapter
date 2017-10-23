@@ -101,13 +101,10 @@ namespace ChimeraTK{
 
   }
 
-  void VariableMapper::addDescription(std::shared_ptr<PropertyDescription> const & propertyDescription, std::string const & absoluteSource){
-    auto existingCandidate = _inputSortedDescriptions.find(absoluteSource);
-    if (existingCandidate != _inputSortedDescriptions.end()){
-      auto existingPropertyDescription = existingCandidate->second;
-      throw std::logic_error(std::string("Invalid XML content for ") + absoluteSource + " -> "+ propertyDescription->location+"/" +propertyDescription->name +". Process variable already defined to point to " + existingPropertyDescription->location + "/" + existingPropertyDescription->name);
-    }else{
-      _inputSortedDescriptions[absoluteSource] = propertyDescription;
+  void VariableMapper::addDescription(std::shared_ptr<PropertyDescription> const & propertyDescription, std::list< std::string > const & absoluteSources){
+    _descriptions.push_back( propertyDescription );
+    for (auto & source : absoluteSources ){
+      _usedInputVariables.insert(source);
     }
   }
 
@@ -131,7 +128,7 @@ namespace ChimeraTK{
 
     processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
 
-    addDescription(autoPropertyDescription, absoluteSource);
+    addDescription(autoPropertyDescription, {absoluteSource});
   }
 
 
@@ -152,21 +149,26 @@ namespace ChimeraTK{
     if (!startNodes.empty()){
       spectrumDescription->start = std::stof(getContentString(startNodes.front()));
     }
+    std::list< std::string > usedVariables({absoluteSource});
     auto incrementNodes = spectrumXml->get_children("increment");
     if (!incrementNodes.empty()){
       spectrumDescription->increment = std::stof(getContentString(incrementNodes.front()));
     }
     auto startSourceNodes = spectrumXml->get_children("startSource");
     if (!startSourceNodes.empty()){
-      spectrumDescription->startSource = getContentString(startSourceNodes.front());
-    }
+      auto startSource = getContentString(startSourceNodes.front());
+      spectrumDescription->startSource = startSource;
+      usedVariables.push_back(startSource);
+     }
     auto incrementSourceNodes = spectrumXml->get_children("incrementSource");
     if (!incrementSourceNodes.empty()){
-      spectrumDescription->incrementSource = getContentString(incrementSourceNodes.front());
+      auto incrementSource = getContentString(incrementSourceNodes.front());
+      spectrumDescription->incrementSource = incrementSource;
+      usedVariables.push_back(incrementSource);
     }
 
-    addDescription(spectrumDescription, absoluteSource);
-  }
+    addDescription(spectrumDescription, usedVariables);
+ }
 
   void VariableMapper::processArrayNode(xmlpp::Node const * node, std::string locationName){
     auto arrayXml = asXmlElement(node);
@@ -199,7 +201,7 @@ namespace ChimeraTK{
 
     processHistoryAndWritableAttributes(arrayDescription, arrayXml, locationName);
 
-    addDescription(arrayDescription, absoluteSource);
+    addDescription(arrayDescription, {absoluteSource});
   }
 
   void VariableMapper::processImportNode(xmlpp::Node const * importNode, std::string importLocationName){
@@ -229,7 +231,7 @@ namespace ChimeraTK{
      
     // loop source tree, cut beginning, replace / with _ and add a property
     for (auto const & processVariable : _inputVariables){
-      if (_inputSortedDescriptions.find(processVariable) != _inputSortedDescriptions.end()){
+      if (_usedInputVariables.find(processVariable) != _usedInputVariables.end()){
         continue;
       }
         
@@ -269,7 +271,7 @@ namespace ChimeraTK{
         autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
         autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
         
-        _inputSortedDescriptions[processVariable] = std::dynamic_pointer_cast<PropertyDescription>(autoPropertyDescription);
+        addDescription(autoPropertyDescription, {processVariable});
       }
     }
   }
@@ -309,18 +311,16 @@ namespace ChimeraTK{
     }
   }
 
-  std::map< std::string, std::shared_ptr<PropertyDescription> > const & VariableMapper::getAllProperties() const{
-    return _inputSortedDescriptions;
+  std::list< std::shared_ptr<PropertyDescription> > const & VariableMapper::getAllProperties() const{
+    return _descriptions;
   }
 
-  std::map< std::string, std::shared_ptr<PropertyDescription> > VariableMapper::getPropertiesInLocation(std::string location) const{
-    std::map< std::string, std::shared_ptr<PropertyDescription> > output;
+  std::list< std::shared_ptr<PropertyDescription> > VariableMapper::getPropertiesInLocation(std::string location) const{
+    std::list< std::shared_ptr<PropertyDescription> > output;
 
-    for (auto const & variable : _inputSortedDescriptions){
-      if (variable.second->location == location){
-        // no need to check return value. There cannot be duplicate entries because the values are
-        // coming from another map.
-        (void) output.insert( variable );
+    for (auto const & variable : _descriptions){
+      if (variable->location == location){
+        (void) output.push_back( variable );
       }
     }
     return output;
@@ -334,17 +334,18 @@ namespace ChimeraTK{
 
   void VariableMapper::clear(){
     _inputVariables.clear();
+    _usedInputVariables.clear();
     _locationDefaults.clear();
     _globalDefaults = PropertyAttributes();
-    _inputSortedDescriptions.clear();
+    _descriptions.clear();
   }
 
   /// printing the map is useful for debugging
   void VariableMapper::print(std::ostream & os) const {
-    for (auto & variableNameAndPropertyDescription : _inputSortedDescriptions ){
-      auto & variableName = variableNameAndPropertyDescription.first;
-      auto & propertyDescription = variableNameAndPropertyDescription.second;
-      os << variableName << " -> " << propertyDescription->location << " / " << propertyDescription->name
+    for (auto & description : _descriptions ){
+      // FIXME: commenting out the history already shows that there is something wrong
+      // each description needs << overloaded.
+      os << description->location << " / " << description->name
         // << " hasHistory:" << propertyDescription.hasHistory
         // << " isWriteable:" << propertyDescription.isWriteable
          << std::endl;
