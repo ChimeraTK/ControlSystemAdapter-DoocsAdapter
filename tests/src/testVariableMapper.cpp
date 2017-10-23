@@ -61,44 +61,11 @@ std::set< std::string > generateInputVariables(){
   return inputVariables;
 }
 
-bool mapCompare (std::map< std::string, std::shared_ptr< PropertyDescription > > const & lhs,
-                 std::map< std::string, AutoPropertyDescription > const & rhs) {
-  // No predicate needed because there is operator== for pairs already.
-  if ( lhs.size() != rhs.size() ){
-    std::cout << "Map size comparison failed: lhs.size() " << lhs.size() << ", rhs.size() " << rhs.size() << std::endl;// LCOV_EXCL_LINE
-    return false;// LCOV_EXCL_LINE
-  }
-  auto r=rhs.cbegin();
-  for (auto l=lhs.cbegin(); l != lhs.cend(); ++l){
-    if( l->first != r->first ){
-      std::cout << "PV names are not equal: " <<  l->first << ", "<< r->first << std::endl;
-      return false;
-    }
-    auto castedLValue = std::dynamic_pointer_cast< AutoPropertyDescription >(l->second);
-    if (!castedLValue){
-      std::cout << "cast for " << l->first << " failed" << std::endl;      
-      return false;
-    }
-    if ( !(r->second == (*castedLValue)) ){
-      std::cout << "### check this ###" << std::endl;
-      std::cout << r->second.source << " " << castedLValue->source << std::endl;
-      std::cout << r->second.location << " " << castedLValue->location << std::endl;
-      std::cout << r->second.name << " " << castedLValue->name << std::endl;
-      std::cout << r->second.hasHistory << " " << castedLValue->hasHistory << std::endl;
-      std::cout << r->second.isWriteable << " " << castedLValue->isWriteable << std::endl;
-      std::cout << "Internal comparisng for " << l->first << " failed" << std::endl;
-      return false;
-    }
-    ++r;
-  }
-  return true;
-}
-
-void testXmlParsing(std::string xmlFile, std::map< std::string, AutoPropertyDescription > const & propertyMap){
+void testXmlParsing(std::string xmlFile){
   VariableMapper & vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
   //vm.print();
-  // BOOST_CHECK( mapCompare( vm.getAllProperties(), propertyMap) );
+  // only used for error handling. nothing tested here
 }
 
 BOOST_AUTO_TEST_CASE( testEvaluateBool ){
@@ -123,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testEvaluateBool ){
 BOOST_AUTO_TEST_CASE( testWrongGlobalDirectory ){
   // directory is not allowed in global imports, only when importing inside a location
   try{
-    testXmlParsing("variableTreeXml/wrongGlobalDirectory.xml", {});
+    testXmlParsing("variableTreeXml/wrongGlobalDirectory.xml");
     BOOST_ERROR("testWrongGlobalDirectory did not throw as expected.");// LCOV_EXCL_LINE
   }catch(std::logic_error & e){
     std::cout << " -- For manually checking the exception message for directory in global import:\n      "
@@ -133,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testWrongGlobalDirectory ){
 
 BOOST_AUTO_TEST_CASE( testImportTooShort ){
   try{
-    testXmlParsing("variableTreeXml/globalImportPartTooShort.xml", {});
+    testXmlParsing("variableTreeXml/globalImportPartTooShort.xml");
     BOOST_ERROR("testImportTooShort did not throw as expected.");// LCOV_EXCL_LINE
   }catch(std::logic_error & e){
     std::cout << " -- For manually checking the exception message for too short tree depth:\n      "
@@ -141,19 +108,9 @@ BOOST_AUTO_TEST_CASE( testImportTooShort ){
   }
 }
 
-BOOST_AUTO_TEST_CASE( testDuplicateSource ){
-  try{
-    testXmlParsing("variableTreeXml/duplicateSource.xml", {});
-    BOOST_ERROR("testDuplicateSource did not throw as expected"); // LCOV_EXCL_LINE
-  }catch(std::logic_error & e){
-    std::cout << " -- For manually checking the exception message for duplicate sources:\n      "
-              << e.what() << std::endl;
-  }
-}
-
 BOOST_AUTO_TEST_CASE( testUnknownMainNode ){
   try{
-    testXmlParsing("variableTreeXml/unknownMainNode.xml", {});
+    testXmlParsing("variableTreeXml/unknownMainNode.xml");
     BOOST_ERROR("testUnknownMainNode did not throw as expected"); // LCOV_EXCL_LINE
   }catch(std::logic_error & e){
     std::cout << " -- For manually checking the exception message for unknown main node:\n      "
@@ -163,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testUnknownMainNode ){
 
 BOOST_AUTO_TEST_CASE( testUnkownLocationNode ){
   try{
-    testXmlParsing("variableTreeXml/unknownLocationNode.xml", {});
+    testXmlParsing("variableTreeXml/unknownLocationNode.xml");
     BOOST_ERROR("testUnknownLocationNode did not throw as expected"); // LCOV_EXCL_LINE
   }catch(std::logic_error & e){
     std::cout << " -- For manually checking the exception message for unknown location node:\n      "
