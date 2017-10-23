@@ -33,9 +33,7 @@ void eq_init_prolog() {
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
     std::cout << "here is the mapping:" << std::endl;
-    for (auto &tmp : ChimeraTK::VariableMapper::getInstance().getAllProperties() ){
-      std::cout << tmp.first << " -> " << tmp.second->location << " / " << tmp.second->name << std::endl;
-    }
+    ChimeraTK::VariableMapper::getInstance().print();
     
     // activate the advanced archiver to have histories
     set_arch_mode(1);

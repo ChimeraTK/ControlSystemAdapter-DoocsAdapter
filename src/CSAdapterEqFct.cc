@@ -46,8 +46,8 @@ namespace ChimeraTK{
     auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fct_name());
     doocsProperties_.reserve( mappingForThisLocation.size() );
 
-    for (auto & pvNameAndPropertyDescrition : mappingForThisLocation){
-      doocsProperties_.push_back( factory.create( pvNameAndPropertyDescrition.second ) );
+    for (auto & propertyDescrition : mappingForThisLocation){
+      doocsProperties_.push_back( factory.create( propertyDescrition ) );
     }
   }
 
