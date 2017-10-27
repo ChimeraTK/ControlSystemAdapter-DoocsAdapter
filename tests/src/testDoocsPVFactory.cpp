@@ -25,7 +25,8 @@ using boost::shared_ptr;
 
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type
-typedef boost::mpl::list<int32_t, uint32_t,
+typedef boost::mpl::list<int64_t, uint64_t,
+                         int32_t, uint32_t,
 			 int16_t, uint16_t,
 			 int8_t, uint8_t,
 			 float, double> simple_test_types;
@@ -179,7 +180,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 10;
+  // PVs can only get one decorator, so we have to put one array for each decorator/doocs type we want to test
   devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray1",arraySize);
+  devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray2",arraySize);
+  devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray3",arraySize);
+  devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray4",arraySize);
+  devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray5",arraySize);
+  devManager->createProcessArray<T>(deviceToControlSystem,"A/fromDeviceArray6",arraySize);
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
@@ -188,12 +195,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
-  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Byte);
-  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Short);
-  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Int);
-  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Long);
-  testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Float);
-  testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Double);
+  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Byte, "fromDeviceArray1");
+  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Short, "fromDeviceArray2");
+  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Int, "fromDeviceArray3");
+  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Long, "fromDeviceArray4");
+  testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Float, "fromDeviceArray5");
+  testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Double, "fromDeviceArray6");
 }
 
 BOOST_AUTO_TEST_CASE( testAutoCreateArray ){
@@ -233,13 +240,12 @@ BOOST_AUTO_TEST_CASE( testAutoCreateArray ){
   testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Auto, "toDeviceDoubleArray");
 }
 
-BOOST_AUTO_TEST_CASE( testErrorHandling ){
-    std::pair< shared_ptr<ControlSystemPVManager>,
+BOOST_AUTO_TEST_CASE( testInt64Scalar ){
+  std::pair< shared_ptr<ControlSystemPVManager>,
 	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  // int64 is not supported yet
   devManager->createProcessArray<int64_t>(controlSystemToDevice,"I/toDeviceInt",1);
 
   DoocsUpdater updater;
@@ -248,17 +254,11 @@ BOOST_AUTO_TEST_CASE( testErrorHandling ){
 
   ProcessVariable::SharedPtr processScalar = 
     csManager->getProcessArray<int64_t>("I/toDeviceInt");
-  // Intentionally put the int64 scalar to the int32 create function.
-  // Unfortunately BOOST_CHECK cannot deal with multiple template parameters,
-  // so we have to trick it
+
   auto description = std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt");
-  try{    factory.create( description );
-    // In a working unit test this line should not be hit, so er exclude it
-    // from the coverage report.
-    BOOST_ERROR( "createDoocsScalar did not throw as expected");//LCOV_EXCL_LINE
-  }catch(std::invalid_argument &e){
-    BOOST_CHECK( std::string("unsupported value type") == e.what() );
-  }
+  auto variable64 = factory.create( description );
+  // 64 bit integer scalars become D_longarrays because there is no 64 bit scalar representation in Doocs
+  BOOST_CHECK( boost::dynamic_pointer_cast<D_longarray>(variable64) );
 }
 
 // After you finished all test you have to end the test suite.

@@ -113,77 +113,68 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  // fixme: some of the variables needed here are redundant and can be sovled with mpl and/or fusion maps
+  template <class IMPL_T, class DOOCS_SCALAR_T, class DOOCS_PRIMITIVE_T, class DOOCS_ARRAY_T, class DOOCS_ARRAY_PRIMITIVE_T>
+  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray( ProcessVariable & processVariable, AutoPropertyDescription const & autoPropertyDescription, DecoratorType decoratorType, ArrayDescription::DataType arrayDataType){
+    // We have to convert to the original NDRegisterAccessor to determine the number of samples.
+    // We cannot use a decorator because scalar and array DOOCS_PRIMITIVE_T can be different,
+    // and once a decorator is created you cannot get the other type any more.
+
+    auto & ndAccessor = dynamic_cast<mtca4u::NDRegisterAccessor<IMPL_T> &>(processVariable);
+    auto nSamples = ndAccessor.getNumberOfSamples();
+
+    if (nSamples == 1){
+      return createDoocsScalar<DOOCS_PRIMITIVE_T, DOOCS_SCALAR_T>(autoPropertyDescription, decoratorType);
+    }else{
+      return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(ArrayDescription(autoPropertyDescription, arrayDataType));
+    }
+  }
+
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     // do auto creation
     auto autoPropertyDescription = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription);
-
+    
     auto pvName = autoPropertyDescription->source;
     auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
 
     std::type_info const & valueType = processVariable->getValueType();
-    // We use an int accessor decorator just to have some type.
-    // All we need to do here is to determine the number of samples. No need to write an if/then/else
-    // on the type, or a boot::fustion::for_each, which is in the decorator factory.
-    // Unfortynately we need different impl_type -> doocs_type decision for scalars and arrays,
-    // so we have to know this here.
-    auto intDecoratedPV = ChimeraTK::getDecorator<int>( *processVariable );
-    auto nSamples = intDecoratedPV->getNumberOfSamples();
-
     /*  TODO: 
         - create functions "createDoocsArray" and "createDoocsSpectrum"
         - first use spectrum here for 1D, then switch to array (tests need to be adapted)
         - create spectrum, array and d_int/float/double upon request from 1d (scalar for D_array and 1D)
     */
-    // Unfortunately we need a big if/else block to hard-code the template
-    // parameter. The value type in only known at run time,
-    // but the template parameter has to be known at compile time.
-    if (nSamples == 1){
-      if (valueType == typeid(int8_t)) {
-        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(uint8_t)) {
-        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(int16_t)) {
-        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(uint16_t)) {
-        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(int32_t)) {
-        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(uint32_t)) {
-        return createDoocsScalar<int32_t, D_int>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(float)) {
-        return createDoocsScalar<float, D_float>(*autoPropertyDescription, DecoratorType::C_style_conversion);
-      } else if (valueType == typeid(double)) {
-        return createDoocsScalar<double, D_double>(*autoPropertyDescription, DecoratorType::range_checking);
-      } else if (valueType == typeid(std::string)) {
-        return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::range_checking);
-      } else {
-        throw std::invalid_argument("unsupported value type");
-      }
-    }else{ //nSamples > 1
-      if (valueType == typeid(int8_t)) {
-        return  typedCreateDoocsArray<int8_t, D_bytearray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(uint8_t)) {
-        return  typedCreateDoocsArray<int8_t, D_bytearray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(int16_t)) {
-        return  typedCreateDoocsArray<int16_t, D_shortarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(uint16_t)) {
-        return  typedCreateDoocsArray<int16_t, D_shortarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(int32_t)) {
-        return  typedCreateDoocsArray<int32_t, D_intarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(uint32_t)) {
-        return  typedCreateDoocsArray<int32_t, D_intarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(int64_t)) {
-        return  typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(uint64_t)) {
-        return  typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(float)) {
-        return  typedCreateDoocsArray<float, D_floatarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else if (valueType == typeid(double)) {
-        return  typedCreateDoocsArray<double, D_doublearray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Byte));
-      } else {
-        throw std::invalid_argument("unsupported value type");
-      }
+
+    // fixme: make this a boost::foreach in the data types provided by DeviceAccess.
+    // This will detect uncovered new data types at compile time, not only at run time
+    if (valueType == typeid(int8_t)) {
+      return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, int8_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+    }else if (valueType == typeid(uint8_t)) {
+      return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, int8_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+
+    } else if (valueType == typeid(int16_t)) {
+      return typedCreateScalarOrArray<int16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
+    } else if (valueType == typeid(uint16_t)) {
+      return typedCreateScalarOrArray<uint16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
+    } else if (valueType == typeid(int32_t)) {
+      return typedCreateScalarOrArray<int32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
+    } else if (valueType == typeid(uint32_t)) {
+      return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
+    } else if (valueType == typeid(int64_t)) {
+      // there is no scalar int64 representation in doocs, so we always create an array, also for length = 1
+      return typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
+    } else if (valueType == typeid(uint64_t)) {
+      return typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
+    } else if (valueType == typeid(float)) {
+      return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Float);
+    } else if (valueType == typeid(double)) {
+      return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Double);
+    } else if (valueType == typeid(std::string)) {
+      // FIXME returning scalar also for arrays. This should result in an error
+      return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::range_checking);
+    } else {
+      throw std::invalid_argument("unsupported value type");
     }
+
  }
 
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
