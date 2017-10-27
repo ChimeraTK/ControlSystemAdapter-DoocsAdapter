@@ -32,7 +32,7 @@ void eq_init_prolog() {
       std::cerr << "WARNIUNG: No XML file for the Doocs variable config found. Trying direct import." << std::endl;
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
-    std::cout << "here is the mapping:" << std::endl;
+    // print the mapping for debug purposes
     ChimeraTK::VariableMapper::getInstance().print();
     
     // activate the advanced archiver to have histories

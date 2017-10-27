@@ -38,6 +38,10 @@ namespace ChimeraTK{
       virtual const std::type_info& type() const{
         return typeid(PropertyDescription);
       }
+      virtual void print(std::ostream & os = std::cout) const{
+        os << location << " / " << name
+           << std::endl;
+      }
     };
 
     // Combines property attributes and the base description
@@ -57,6 +61,10 @@ namespace ChimeraTK{
       }
       virtual const std::type_info& type() const override{
         return typeid(AutoPropertyDescription);
+      }
+      virtual void print(std::ostream & os = std::cout) const{
+        os << source << " -> " << location << " / " << name
+           << std::endl;
       }
     };
 
@@ -105,6 +113,12 @@ namespace ChimeraTK{
       
       virtual const std::type_info& type() const{
         return typeid(SpectrumDescription);
+      }
+      virtual void print(std::ostream & os = std::cout) const{
+        os << source << " -> " << location << " / " << name
+           << " (startSource = " << startSource 
+           << ", incrementSource = " << incrementSource <<")"
+           << std::endl;
       }
     };
     

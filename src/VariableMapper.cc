@@ -342,14 +342,11 @@ namespace ChimeraTK{
 
   /// printing the map is useful for debugging
   void VariableMapper::print(std::ostream & os) const {
+    os << "====== VariableMapper =====" << std::endl;
     for (auto & description : _descriptions ){
-      // FIXME: commenting out the history already shows that there is something wrong
-      // each description needs << overloaded.
-      os << description->location << " / " << description->name
-        // << " hasHistory:" << propertyDescription.hasHistory
-        // << " isWriteable:" << propertyDescription.isWriteable
-         << std::endl;
+      description->print(os);
     }
+    os << "======= Mapping End =======" << std::endl;
   }
 
   bool VariableMapper::evaluateBool(std::string txt){
