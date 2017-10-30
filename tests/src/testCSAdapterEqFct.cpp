@@ -23,7 +23,7 @@ public:
   TestableCSAdapterEqFct(int fctCode,
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
     std::string fctName):
-    CSAdapterEqFct(fctCode, controlSystemPVManager, fctName){
+    CSAdapterEqFct(fctCode, controlSystemPVManager, boost::make_shared<DoocsUpdater>(), fctName){
   }
   std::vector< boost::shared_ptr<D_fct> > & getDoocsProperties(){
     return doocsProperties_;

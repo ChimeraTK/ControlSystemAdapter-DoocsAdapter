@@ -20,7 +20,7 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     std::vector < ChimeraTK::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
 
     static bool emptyLocationVariablesHandled;
-    DoocsUpdater updater_;
+    boost::shared_ptr<DoocsUpdater> updater_;
     
  public:
     // The fctName (location name ) is usually coming from the config file and
@@ -28,6 +28,7 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     // you need it.
     CSAdapterEqFct(int fctCode,
 		   boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager,
+                   boost::shared_ptr<DoocsUpdater> const & updater,
 		   std::string fctName = std::string());
 
     void init();

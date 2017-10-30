@@ -3,6 +3,7 @@
 
 #include "DoocsPVFactory.h"
 #include "CSAdapterEqFct.h"
+#include "DoocsAdapter.h"
 
 namespace ChimeraTK{
 
@@ -13,6 +14,8 @@ class DoocsAdapter{
   DoocsAdapter();
   boost::shared_ptr<DevicePVManager> const & getDevicePVManager() const;
   boost::shared_ptr<ControlSystemPVManager> const & getControlSystemPVManager() const;
+
+  boost::shared_ptr<DoocsUpdater> updater;
 
  protected:
   boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;

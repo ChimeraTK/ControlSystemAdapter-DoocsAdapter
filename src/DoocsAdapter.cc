@@ -9,6 +9,8 @@ namespace ChimeraTK{
 
     _controlSystemPVManager = pvManagers.first;
     _devicePVManager = pvManagers.second;
+
+    updater = boost::make_shared<DoocsUpdater>();
   }
 
   boost::shared_ptr<DevicePVManager> const & DoocsAdapter::getDevicePVManager() const{

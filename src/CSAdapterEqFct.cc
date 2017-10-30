@@ -10,14 +10,14 @@ namespace ChimeraTK{
 
   CSAdapterEqFct::CSAdapterEqFct(int fctCode,
     boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager,
-    std::string fctName)
+    boost::shared_ptr<DoocsUpdater> const & updater, std::string fctName )
     // The second argument in EqFct has to be a pointer to string, and NULL pointer is
     // used when the name is coming from the config file. This interface is so ugly that
     // I changed it to std::string and need the ?: trick to get a NULL pointer in 
     // if the string is empty
     : EqFct ("NAME = CSAdapterEqFct", fctName.empty()?NULL:&fctName),
      controlSystemPVManager_(controlSystemPVManager),
-     fctCode_(fctCode){
+      fctCode_(fctCode), updater_(updater){
     
     registerProcessVariablesInDoocs();
   }
@@ -30,7 +30,7 @@ namespace ChimeraTK{
     // Sending is done automatically when the "to device" variable is updated by Doocs.
     // No action needed here.
     // The synchronisation towards doocs is done by the updater at the moment.
-    updater_.update();
+    updater_->update();
   }
     
   int CSAdapterEqFct::fct_code(){
@@ -41,7 +41,7 @@ namespace ChimeraTK{
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs(){
     // We only need the factory inside this function
-    DoocsPVFactory factory(this, updater_, controlSystemPVManager_);
+    DoocsPVFactory factory(this, *updater_, controlSystemPVManager_);
 
     auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fct_name());
     doocsProperties_.reserve( mappingForThisLocation.size() );

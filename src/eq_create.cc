@@ -41,7 +41,7 @@ void eq_init_prolog() {
 
 /* eq_create returns a ControlSystemAdapter-based location for any location type */
 EqFct* eq_create (int eq_code, void *) {
-  return new ChimeraTK::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager());
+  return new ChimeraTK::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager(), doocsAdapter.updater);
 }
 
 /* post_init_epilog is called after all DOOCS properties are fully intialised, including any value intialisation from

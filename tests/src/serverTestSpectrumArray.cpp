@@ -47,8 +47,7 @@ void testReadWrite(){
   checkSpectrum("//DOUBLE/FROM_DEVICE_ARRAY",true, false, 123., 0.56);
   checkSpectrum("//FLOAT/TO_DEVICE_ARRAY",true, true, 12.3, 1.6);
   checkSpectrum("//FLOAT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6);
-  // FIXME: This test cannot pass now. we have to move the updater out of the EqFct first.
-  //  checkSpectrum("//UINT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6);
+  checkSpectrum("//UINT/FROM_DEVICE_ARRAY",true, false, 12.3, 1.6);
 
   // check that the "short array" is of type long
   checkDataType("//SHORT/MY_RETYPED_SHORT_ARRAY", DATA_A_LONG);
