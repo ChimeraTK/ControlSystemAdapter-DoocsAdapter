@@ -21,8 +21,12 @@
   </location>
 
   <location name="FLOAT">
-    <D_spectrum source="TO_DEVICE_ARRAY"/>
     <!--Dynamic axis settings -->
+    <D_spectrum source="TO_DEVICE_ARRAY">
+      <startSource>/FLOAT/FROM_DEVICE_SCALAR</startSource>
+      <incrementSource>/DOUBLE/FROM_DEVICE_SCALAR</incrementSource>
+    </D_spectrum>
+    <!--We can reuse the same axis settings -->
     <D_spectrum source="FROM_DEVICE_ARRAY">
       <startSource>/FLOAT/FROM_DEVICE_SCALAR</startSource>
       <incrementSource>/DOUBLE/FROM_DEVICE_SCALAR</incrementSource>
@@ -35,7 +39,7 @@
     <D_spectrum source="TO_DEVICE_ARRAY"/>
     <!--Dynamic axis settings -->
     <D_spectrum source="FROM_DEVICE_ARRAY">
-      <!-- it is possible to use the same startSource and incrementSource multiple times -->
+      <!-- it is possible to use the same startSource and incrementSource from another location -->
       <startSource>/FLOAT/FROM_DEVICE_SCALAR</startSource>
       <incrementSource>/DOUBLE/FROM_DEVICE_SCALAR</incrementSource>
     </D_spectrum>
