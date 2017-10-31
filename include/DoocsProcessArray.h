@@ -10,8 +10,7 @@
 
 #include "splitStringAtFirstSlash.h"
 
-// Just declare the EqFct class. We only need the pointer in this header.
-class EqFct;
+#include <eq_fct.h>
 
 namespace ChimeraTK {
   
@@ -53,7 +52,17 @@ namespace ChimeraTK {
     void  updateDoocsBuffer(){
       auto & processVector = _processArray->accessChannel(0);
       // fixme: what about history?
+
+      // This function is called from some thread, so we have to use the location lock here
+      // Process scalars can also be created with a NULL EqFct for testing, so we have to cath
+      // this here. Obviously we can ignore the lock if there is no EqFct to access the content.
+      if (this->get_eqfct()){
+        this->get_eqfct()->lock();
+      }
       this->fill_array(processVector.data(), processVector.size());
+      if (this->get_eqfct()){
+        this->get_eqfct()->unlock();
+      }
     }
     
   protected:

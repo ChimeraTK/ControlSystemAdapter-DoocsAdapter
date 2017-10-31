@@ -6,9 +6,8 @@
 #include "DoocsUpdater.h"
 #include <boost/shared_ptr.hpp>
 #include <d_fct.h>
+#include <eq_fct.h>
 
-// Just declare the EqFct class. We only need the pointer in this header.
-class EqFct;
 
 namespace ChimeraTK {
 
@@ -23,11 +22,21 @@ namespace ChimeraTK {
 
     void  updateDoocsBuffer(){
       auto data = _processScalar->accessData(0);
+
+      // This function is called from some thread, so we have to use the location lock here
+      // Process scalars can also be created with a NULL EqFct for testing, so we have to cath
+      // this here. Obviously we can ignore the lock if there is no EqFct to access the content.
+      if (this->get_eqfct()){
+        this->get_eqfct()->lock();
+      }
       // we must not call set_and_archive if there is no history (otherwise it will be activated), but we have to if it is there. -> Abstraction, please!
       if (this->get_histPointer()){
         this->set_and_archive(data);
       }else{
         this->set_value(data);
+      }
+      if (this->get_eqfct()){
+        this->get_eqfct()->unlock();
       }
     }
     

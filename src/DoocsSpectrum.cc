@@ -41,8 +41,16 @@ namespace ChimeraTK {
     // FIXME: find the efficient memcopying implementation for float
     std::vector<float> & processVector = _processArray->accessChannel(0); 
     
+    if (this->get_eqfct()){
+      this->get_eqfct()->lock();
+    }
+    
     for(size_t i=0; i < processVector.size(); ++i) {
       fill_spectrum(i, processVector[i]);
+    }
+        
+    if (this->get_eqfct()){
+      this->get_eqfct()->unlock();
     }
   }
 
