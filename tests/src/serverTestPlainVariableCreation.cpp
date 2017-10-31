@@ -29,7 +29,7 @@ using namespace ChimeraTK;
 void testVariableExistence(){
   // run update once to make sure the server is up and running
   std::cout << "running update once " << std::endl;
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
   std::cout << "ran update once, let's test " << std::endl;
 
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){

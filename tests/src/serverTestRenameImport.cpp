@@ -29,7 +29,7 @@ using namespace ChimeraTK;
 /// Check that all expected variables are there.
 void testVariableExistence(){
   // run update once to make sure the server is up and running
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
 
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY", true, false);
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_ARRAY" , true, false);

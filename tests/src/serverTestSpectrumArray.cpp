@@ -32,13 +32,13 @@ void testReadWrite(){
   referenceTestApplication.initialiseManualLoopControl();
   // run update once to make sure the server is up and running, and empty the queues from the initial
   // values.
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
 
   // prepare the x-axis for the float array (we are using the float and double scalar)
   DoocsServerTestHelper::doocsSet("//FLOAT/START",12.3);
   DoocsServerTestHelper::doocsSet("//FLOAT/INCREMENT", 1.6);
   referenceTestApplication.runMainLoopOnce();
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
   
   checkSpectrum("//INT/TO_DEVICE_ARRAY");
   checkSpectrum("//DOUBLE/TO_DEVICE_ARRAY");
@@ -56,7 +56,7 @@ void testReadWrite(){
   DoocsServerTestHelper::doocsSetSpectrum("//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3} ); 
   
   // running update now does not change anything, the application has not acted yet
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
 
   auto notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
   for (auto val : notIntArray){
@@ -80,7 +80,7 @@ void testReadWrite(){
   }
   
   // now finally after the next update we should see the new data in doocs
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
 
   notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
   int testVal = 140;

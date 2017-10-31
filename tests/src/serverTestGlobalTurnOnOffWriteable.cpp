@@ -22,7 +22,7 @@ using namespace ChimeraTK;
 /// Check that all expected variables are there.
 void testVariableExistence(){
   // run update once to make sure the server is up and running
-  DoocsServerTestHelper::runUpdate();
+  sleep(1);
 
   // the stuff with default. We are lazy and put the integer types as we have to list D_double
   // and D_float separately anyway if we don't want to do meta-programming

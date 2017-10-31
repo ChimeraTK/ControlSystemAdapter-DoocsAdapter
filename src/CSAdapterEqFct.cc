@@ -31,24 +31,9 @@ namespace ChimeraTK{
     std::cout << "this is eqfct init of " << fct_name() << std::endl;
   }
 
-  void CSAdapterEqFct::update(){
-    // Sending is done automatically when the "to device" variable is updated by Doocs.
-    // No action needed here.
-    // The synchronisation towards doocs is done by the updater at the moment.
-
-    // dirty hack until this is moved to a thread: unlock this EqFct. The updater does the locking
-    // and the locks are not re-entrant
-    //unlock();
-    //updater_->update();
-    //lock();
-    sleep(1);
-  }
-    
   int CSAdapterEqFct::fct_code(){
     return fctCode_;
   }
-  
-
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs(){
     // We only need the factory inside this function

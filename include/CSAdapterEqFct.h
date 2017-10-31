@@ -32,9 +32,8 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
 		   std::string fctName = std::string());
     ~CSAdapterEqFct();
     
-    void init();
-    void update();
-    int fct_code();
+    void init() override;
+    int fct_code() override;
 };
 
 }// namespace ChimeraTK
