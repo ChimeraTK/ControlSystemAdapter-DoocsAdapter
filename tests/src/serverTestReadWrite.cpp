@@ -6,6 +6,7 @@
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
+#include "serverBasedTestTools.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestReadWrite");
 
@@ -30,12 +31,10 @@ void testReadWrite(){
   // halt the test application tread 
   referenceTestApplication.initialiseManualLoopControl();
   std::cout << "got the application main lock" << std::endl;
-  // run update once to make sure the server is up and running
-  std::cout << "running update once " << std::endl;
-  sleep(1);
-  std::cout << "ran update once, let's test " << std::endl;
 
   // just a few tests before we start
+  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/DATA_TYPE_CONSTANT"), -4);
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1 );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
@@ -45,18 +44,15 @@ void testReadWrite(){
   DoocsServerTestHelper::doocsSet<int>("//CHAR/TO_DEVICE_SCALAR", 44 );
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   
-  // running update now does not change anything, the application has not acted yet
-  sleep(1);
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
 
   // run the application loop. Still no changes until we run the doocs server update
   referenceTestApplication.runMainLoopOnce();
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
   
   // now finally after the next update we should see the new data in doocs
-  sleep(1);
+  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/FROM_DEVICE_SCALAR"), 42);
+  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//CHAR/FROM_DEVICE_SCALAR"), 44);
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 42 );
   BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 44 );
 

@@ -73,4 +73,30 @@ void checkDataType(std::string const & propertyAddress, int dataType){
   BOOST_CHECK( property->data_type() == dataType);
 }
 
+#define CHECK_WITH_TIMEOUT(...)\
+  { static const size_t nIterations=10000;\
+    size_t i=0;\
+    for ( ; i < nIterations; ++i){\
+      if (__VA_ARGS__){std::cout << "ok after "<<i<< std::endl; break;}\
+      usleep(100);\
+    }\
+    if (i == nIterations)\
+      BOOST_CHECK(__VA_ARGS__);\
+  }
+
+template<class T>
+void checkWithTimeout( std::function< T () > accessorFunction, T referenceValue, size_t nIterations = 10000, size_t microSecondsPerIteration = 100){
+  for (size_t i =0; i < nIterations; ++i){
+    if (accessorFunction() == referenceValue){
+      std::cout << "test OK after " << i << " iterations" << std::endl;
+      return;
+    }
+    usleep(microSecondsPerIteration);
+  }
+  
+  std::stringstream errorMessage;
+  errorMessage << "accessor function failed after " << nIterations << ", expected value is " << referenceValue << ", current value is " << accessorFunction();
+  BOOST_ERROR(errorMessage.str());
+}
+
 #endif // SERVER_BASED_TEST_TOOLS_H
