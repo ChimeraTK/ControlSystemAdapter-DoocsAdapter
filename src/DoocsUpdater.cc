@@ -20,4 +20,26 @@ namespace ChimeraTK{
     }
   }
 
+  void DoocsUpdater::updateLoop(){
+    while(true){
+      update();
+      // FIXME: This is brainstorming. Use testable sleep here
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+    }
+  }
+
+  void DoocsUpdater::run(){
+    _syncThread = boost::thread( boost::bind( &DoocsUpdater::updateLoop, this) );
+  }
+  
+  void DoocsUpdater::stop(){
+    _syncThread.interrupt();
+    _syncThread.join();    
+  }
+
+  DoocsUpdater::~DoocsUpdater(){
+    stop();
+  }
+ 
+  
 }//namespace ChimeraTK

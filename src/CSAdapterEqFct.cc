@@ -22,6 +22,11 @@ namespace ChimeraTK{
     registerProcessVariablesInDoocs();
   }
   
+  CSAdapterEqFct::~CSAdapterEqFct(){
+    //stop the updater thread before any of the process variables go out of scope
+    updater_->stop();
+  }
+
   void CSAdapterEqFct::init(){
     std::cout << "this is eqfct init of " << fct_name() << std::endl;
   }
@@ -33,9 +38,10 @@ namespace ChimeraTK{
 
     // dirty hack until this is moved to a thread: unlock this EqFct. The updater does the locking
     // and the locks are not re-entrant
-    unlock();
-    updater_->update();
-    lock();
+    //unlock();
+    //updater_->update();
+    //lock();
+    sleep(1);
   }
     
   int CSAdapterEqFct::fct_code(){

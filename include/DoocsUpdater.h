@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <map>
 #include <mtca4u/TransferElement.h>
+#include <boost/noncopyable.hpp>
 
 namespace ChimeraTK{
   /** A class to synchronise DeviceToControlSystem variable to Doocs.
@@ -12,13 +13,16 @@ namespace ChimeraTK{
    *  when the thread is started, and (FIXME can be stopped by the stop() function which
    *  returns after the thread has been joined). This happens latest in the destructor.
    */
-  class DoocsUpdater{
+  class DoocsUpdater: public boost::noncopyable{
   public:
-    ~DoocsUpdater(){};
+    ~DoocsUpdater();
     void update(); // Update all variables once. This is the intermediate solution
                    // before we have implemented the thread, and for testing
-    void run(){};
-    void stop(){};
+
+    void updateLoop(); // Endless loop with interruption point around the update function.
+                       // Intermediate solution until we have a working/testable version of readAny()
+    void run();
+    void stop();
 
     void addVariable( mtca4u::TransferElement & variable, std::function<void ()> updaterFunction);
   protected:

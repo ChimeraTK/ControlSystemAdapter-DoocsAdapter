@@ -21,9 +21,10 @@ using namespace ChimeraTK;
 class TestableCSAdapterEqFct: public CSAdapterEqFct{
 public:
   TestableCSAdapterEqFct(int fctCode,
-    boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
-    std::string fctName):
-    CSAdapterEqFct(fctCode, controlSystemPVManager, boost::make_shared<DoocsUpdater>(), fctName){
+                         boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
+                         boost::shared_ptr<DoocsUpdater> const & updater,
+                         std::string fctName):
+    CSAdapterEqFct(fctCode, controlSystemPVManager, updater, fctName){
   }
   std::vector< boost::shared_ptr<D_fct> > & getDoocsProperties(){
     return doocsProperties_;
@@ -50,7 +51,8 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   auto csManager = doocsAdapter.getControlSystemPVManager();
   VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );  
   // after that create the EqFct
-  TestableCSAdapterEqFct eqFct(42, csManager, "test");
+  auto updater = boost::make_shared<DoocsUpdater>();
+  TestableCSAdapterEqFct eqFct(42, csManager, updater, "test");
 
   // Test that the right number of properties is created.
   // Currently the vector is still empty.
@@ -86,12 +88,12 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   // and the other direction
   businessLogic.fromDeviceInt->accessData(0) = 12;
   businessLogic.fromDeviceInt->write();
-  eqFct.update();
+  updater->update();
   BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE.INT "]->value(), 12);
 
   businessLogic.fromDeviceInt->accessData(0) = 15;
   businessLogic.fromDeviceInt->write();
-  eqFct.update();
+  updater->update();
   BOOST_CHECK_EQUAL( doocsProperties["FROM_DEVICE.INT "]->value(), 15);
 }
 
@@ -110,9 +112,10 @@ BOOST_AUTO_TEST_CASE( testWithMapping ) {
 
   VariableMapper::getInstance().prepareOutput( "EqFctTest.xml", getAllVariableNames(csManager ) );
 
-// in the mapping two locations are created
-  TestableCSAdapterEqFct toDeviceEqFct(42, csManager, "test.TO_DEVICE");
-  TestableCSAdapterEqFct fromDeviceEqFct(42, csManager, "test.FROM_DEVICE");
+  // in the mapping two locations are created
+  auto updater = boost::make_shared<DoocsUpdater>();
+  TestableCSAdapterEqFct toDeviceEqFct(42, csManager, updater, "test.TO_DEVICE");
+  TestableCSAdapterEqFct fromDeviceEqFct(42, csManager, updater, "test.FROM_DEVICE");
 
   BOOST_REQUIRE( toDeviceEqFct.getDoocsProperties().size() == 1 );
   BOOST_REQUIRE( fromDeviceEqFct.getDoocsProperties().size() == 1 );

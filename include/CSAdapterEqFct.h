@@ -30,7 +30,8 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
 		   boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager,
                    boost::shared_ptr<DoocsUpdater> const & updater,
 		   std::string fctName = std::string());
-
+    ~CSAdapterEqFct();
+    
     void init();
     void update();
     int fct_code();

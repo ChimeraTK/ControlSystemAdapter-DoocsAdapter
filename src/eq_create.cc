@@ -48,4 +48,5 @@ EqFct* eq_create (int eq_code, void *) {
  * the config file. We start the application here. It will be launched in a separate thread. */
 void post_init_epilog() {
   ChimeraTK::ApplicationBase::getInstance().run();
+  doocsAdapter.updater->run();
 }
