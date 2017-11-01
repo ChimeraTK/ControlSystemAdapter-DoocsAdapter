@@ -35,17 +35,17 @@ void testReadWrite(){
   // just a few tests before we start
   checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/DATA_TYPE_CONSTANT"), -4);
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
 
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 42 );
   DoocsServerTestHelper::doocsSet<int>("//CHAR/TO_DEVICE_SCALAR", 44 );
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
 
   // run the application loop. Still no changes until we run the doocs server update
   referenceTestApplication.runMainLoopOnce();
@@ -53,19 +53,19 @@ void testReadWrite(){
   // now finally after the next update we should see the new data in doocs
   checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/FROM_DEVICE_SCALAR"), 42);
   checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//CHAR/FROM_DEVICE_SCALAR"), 44);
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 42 );
-  BOOST_CHECK( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 44 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 42 );
+  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 44 );
 
   // we have to get stuff as float in order to work with spectra
   auto intArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
   int testVal = 140;
   for (auto val : intArray){
-    BOOST_CHECK( std::fabs(val - testVal++) < 0.001 );
+    CHECK_WITH_TIMEOUT( std::fabs(val - testVal++) < 0.001 );
   }
 
   auto constArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY");
   for (int i =0; i < int(constArray.size()); ++i){
-    BOOST_CHECK( std::fabs(constArray[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
+    CHECK_WITH_TIMEOUT( std::fabs(constArray[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
   }
   
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
