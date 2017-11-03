@@ -30,7 +30,8 @@ namespace ChimeraTK {
     boost::shared_ptr<D_fct> doocsPV;
     // Histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names.
     // The DOOCS property name is the variable name without the location name and the separating slash between location and property name.
-    if(propertyDescription.name.length() > 64) {
+    // One has to subtract another 6 characters because Doocs automatically adds "._HIST", which also has to fit into the 64 characters
+    if(propertyDescription.name.length() > 64-6) {
       std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
       doocsPV.reset( new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(propertyDescription.name.c_str(), _eqFct, processArray, _updater) );
     }
