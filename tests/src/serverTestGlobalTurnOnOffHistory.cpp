@@ -7,6 +7,7 @@
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
 #include "serverBasedTestTools.h"
+#include "DoocsAdapter.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestGlobalTurnOnOffHistory");
 
@@ -21,9 +22,8 @@ using namespace ChimeraTK;
 
 /// Check that all expected variables are there.
 void testVariableExistence(){
-  // run update once to make sure the server is up and running
-  sleep(1);
-
+  usleep(100000);
+  
   // the stuff with default. We are lazy and put the integer types as we have to list D_double
   // and D_float separately anyway if we don't want to do meta-programming
   for (auto & location : {"SHORT", "USHORT", "CHAR", "UCHAR", "INT", "UINT"}){
@@ -66,6 +66,8 @@ public:
     : test_suite("GlobalTurnOnOffHistory server test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    // wait for doocs to start up before detaching the thread and continuing
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add( BOOST_TEST_CASE(&testVariableExistence) );
   }
@@ -77,6 +79,7 @@ protected:
 test_suite*
 init_unit_test_suite( int argc, char* argv[] )
 {
+  std::cout << static_cast<void *>(& ApplicationBase::getInstance()) << std::endl;
   framework::master_test_suite().p_name.value = "GlobalTurnOnOffHistory server test suite";
   return new GlobalTurnOnOffHistoryServerTestSuite(argc, argv);
 }

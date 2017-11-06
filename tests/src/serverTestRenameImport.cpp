@@ -7,6 +7,7 @@
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
 #include "serverBasedTestTools.h"
+#include "DoocsAdapter.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestRenameImport");
 
@@ -28,9 +29,6 @@ using namespace ChimeraTK;
 
 /// Check that all expected variables are there.
 void testVariableExistence(){
-  // run update once to make sure the server is up and running
-  sleep(1);
-
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY", true, false);
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_ARRAY" , true, false);
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_ARRAY", true, true );
@@ -105,6 +103,8 @@ public:
     : test_suite("RenameImport server test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    // wait for doocs to start up before detaching the thread and continuing
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add( BOOST_TEST_CASE(&testVariableExistence) );
   }

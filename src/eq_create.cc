@@ -49,4 +49,5 @@ EqFct* eq_create (int eq_code, void *) {
 void post_init_epilog() {
   ChimeraTK::ApplicationBase::getInstance().run();
   doocsAdapter.updater->run();
+  ChimeraTK::DoocsAdapter::isInitialised = true;
 }

@@ -7,6 +7,7 @@
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
 #include "serverBasedTestTools.h"
+#include "DoocsAdapter.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestGlobalTurnOnOffWriteable");
 
@@ -21,9 +22,6 @@ using namespace ChimeraTK;
 
 /// Check that all expected variables are there.
 void testVariableExistence(){
-  // run update once to make sure the server is up and running
-  sleep(1);
-
   // the stuff with default. We are lazy and put the integer types as we have to list D_double
   // and D_float separately anyway if we don't want to do meta-programming
   for (auto & location : {"SHORT", "USHORT", "CHAR", "UCHAR", "INT", "UINT"}){
@@ -68,6 +66,8 @@ public:
     : test_suite("GlobalTurnOnOffWriteable server test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    // wait for doocs to start up before detaching the thread and continuing
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add( BOOST_TEST_CASE(&testVariableExistence) );
   }

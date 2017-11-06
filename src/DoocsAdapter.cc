@@ -2,6 +2,8 @@
 
 namespace ChimeraTK{
 
+  std::atomic<bool> DoocsAdapter::isInitialised(false);
+
   DoocsAdapter::DoocsAdapter(){
     // Create the managers. We need both
     std::pair<boost::shared_ptr<ControlSystemPVManager>,
@@ -19,6 +21,16 @@ namespace ChimeraTK{
 
   boost::shared_ptr<ControlSystemPVManager> const & DoocsAdapter::getControlSystemPVManager() const{
     return _controlSystemPVManager;
+  }
+
+  void DoocsAdapter::waitUntilInitialised(){
+    int i = 0;
+    while(true){
+      if (isInitialised) {std::cout << "DoocsAdapter initialised afer " << i << std::endl; return;}
+      // just sleep a bit. Use the "cheap" usleep, we don't care about precision here
+      ++i;
+      usleep(100);
+    }
   }
 
 }//namespace ChimeraTK

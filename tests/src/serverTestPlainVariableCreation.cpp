@@ -6,6 +6,7 @@
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
+#include "DoocsAdapter.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestPlainVariableCreation");
 
@@ -27,11 +28,6 @@ using namespace ChimeraTK;
 
 /// Check that all expected variables are there.
 void testVariableExistence(){
-  // run update once to make sure the server is up and running
-  std::cout << "running update once " << std::endl;
-  sleep(1);
-  std::cout << "ran update once, let's test " << std::endl;
-
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
     for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
       // if this throws the property does not exist. we should always be able to read"
@@ -51,6 +47,8 @@ public:
     : test_suite("PlainVariableCreation test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    // wait for doocs to start up before detaching the thread and continuing
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add( BOOST_TEST_CASE( &testVariableExistence ) );
   }

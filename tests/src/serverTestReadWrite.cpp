@@ -7,6 +7,7 @@
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
 #include "serverBasedTestTools.h"
+#include "DoocsAdapter.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestReadWrite");
 
@@ -87,6 +88,8 @@ public:
     : test_suite("Read write test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    // wait for doocs to start up before detaching the thread and continuing
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add( BOOST_TEST_CASE( &testReadWrite ) );
   }

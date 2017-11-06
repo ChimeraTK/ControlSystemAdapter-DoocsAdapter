@@ -17,6 +17,13 @@ class DoocsAdapter{
 
   boost::shared_ptr<DoocsUpdater> updater;
 
+  // An atomic bool which is set true in post_init_epilog to indicate that doocs is ready.
+  // Only used in testing.
+  static std::atomic<bool> isInitialised;
+
+  // A convenience function to wait until the adapter is initialised.
+  static void waitUntilInitialised();
+  
  protected:
   boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
   boost::shared_ptr<DevicePVManager> _devicePVManager;

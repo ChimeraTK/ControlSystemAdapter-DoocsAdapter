@@ -7,6 +7,7 @@
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <thread>
 #include "serverBasedTestTools.h"
+#include "DoocsAdapter.h"
 
 ReferenceTestApplication referenceTestApplication("serverTestSpectrumArray");
 
@@ -127,6 +128,8 @@ public:
     : test_suite("Spectrum and array server test suite") ,
       doocsServerThread(eq_server, argc, argv)
   {
+    // wait for doocs to start up before detaching the thread and continuing
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add( BOOST_TEST_CASE( &testReadWrite ) );
     add( BOOST_TEST_CASE( &testPropertiesDontExist ) );
