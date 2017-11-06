@@ -26,25 +26,34 @@ template<> void checkHistory(D_longarray * /*property*/, bool){}
 template<> void checkHistory(D_floatarray * /*property*/, bool){}
 template<> void checkHistory(D_doublearray * /*property*/, bool){}
 
-template<class DOOCS_T>
-DOOCS_T * getDoocsProperty(std::string const & propertyAddress){
-  // copied from DoocsServerTestHelper::doocsGet
+EqFct * getLocationFromPropertyAddress(std::string const & propertyAddress){
   EqAdr ad;
   // obtain location pointer
   ad.adr(propertyAddress.c_str());
   EqFct *eqFct = eq_get(&ad);
   BOOST_REQUIRE_MESSAGE( eqFct, "Could not get location for property "+propertyAddress);
 
+  return eqFct;
+}
+
+/// Used internally.
+/// ATTENTION: DOES NOT LOCK THE LOCATION. DO THIS MANUALLY BEFORE GETTING THE PROPERTY!
+template<class DOOCS_T>
+DOOCS_T * getDoocsProperty(std::string const & propertyAddress){
+  auto eqFct = getLocationFromPropertyAddress(propertyAddress);
   auto propertyName = ChimeraTK::basenameFromAddress(propertyAddress);
-  return dynamic_cast<DOOCS_T *>(eqFct->find_property(propertyName));
-  
+  auto property = dynamic_cast<DOOCS_T *>(eqFct->find_property(propertyName));
+  BOOST_REQUIRE_MESSAGE(property, "Could not find property address "<< propertyAddress <<"), or property has unexpected type.");
+
+  return property;
 }
 
 template<class DOOCS_T>
 void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true){
+  auto location = getLocationFromPropertyAddress(propertyAddress);
+  location->lock();
 
   auto property = getDoocsProperty<DOOCS_T>(propertyAddress);
-  BOOST_REQUIRE_MESSAGE(property, "Could not find property address "<< propertyAddress <<"), or property has unexpected type.");
 
   checkHistory(property, expected_has_history);
 
@@ -56,21 +65,46 @@ void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_h
   }else{
     BOOST_CHECK( property->get_access() == ACCESS_RO );    
   }
+
+  location->unlock();
 }
+
+//load readSpectrumStart(std::string const & propertyAddress){
+// auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
+// BOOST_REQUIRE_MESSAGE(spectrum, "Could not find spectrum "<< propertyAddress <<", property does not exist or is not a spectrum.");
+//
+// EqFct *eqFct = eq_get(&ad);
+// ASSERT(eqFct != NULL, std::string("Could not get location for property ")+name);
+// // set spectrum
+// eqFct->lock();
+// p->set(&ad,&ed,&res);
+// p->unlock();
+//
+// 
+//
 
 void checkSpectrum(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true, float expected_start = 0.0, float expected_increment = 1.0){
   checkDoocsProperty<D_spectrum>(propertyAddress, expected_has_history, expected_is_writeable);
 
+  auto location = getLocationFromPropertyAddress(propertyAddress);
+  location->lock();
+
   auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
-  BOOST_REQUIRE_MESSAGE(spectrum, "Could not find property address "<< propertyAddress <<"), or property has unexpected type.");
 
   BOOST_CHECK( std::fabs(spectrum->spec_start() - expected_start) < 0.001 );
   BOOST_CHECK( std::fabs(spectrum->spec_inc() - expected_increment) < 0.001 );
+
+  location->unlock();
 }
 
 void checkDataType(std::string const & propertyAddress, int dataType){
+  auto location = getLocationFromPropertyAddress(propertyAddress);
+  location->lock();
+
   auto property = getDoocsProperty<D_fct>(propertyAddress);
   BOOST_CHECK( property->data_type() == dataType);
+
+  location->unlock();  
 }
 
 #define CHECK_WITH_TIMEOUT(...)\
