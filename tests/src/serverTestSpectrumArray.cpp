@@ -26,19 +26,29 @@ using namespace ChimeraTK;
 //			 int8_t, uint8_t,
 //			 float, double> simple_test_types;
 
+// the array must have testStartValue+i at index i.
+template<class T>
+bool testArrayContent(std::string const & propertyName, T testStartValue){
+  auto array = DoocsServerTestHelper::doocsGetArray<T>(propertyName);
+  bool isOK = true;
+  T currentTestValue=testStartValue;
+  for (auto val : array){
+    if ( std::fabs(val-currentTestValue++) > 0.001 ){
+      isOK=false;
+    }
+  }
+  return isOK;
+}
+
 /// Check that all expected variables are there.
 void testReadWrite(){
   // halt the test application tread 
   referenceTestApplication.initialiseManualLoopControl();
-  // run update once to make sure the server is up and running, and empty the queues from the initial
-  // values.
-  sleep(1);
 
   // prepare the x-axis for the float array (we are using the float and double scalar)
   DoocsServerTestHelper::doocsSet("//FLOAT/START",12.3);
   DoocsServerTestHelper::doocsSet("//FLOAT/INCREMENT", 1.6);
   referenceTestApplication.runMainLoopOnce();
-  sleep(1);
   
   checkSpectrum("//INT/TO_DEVICE_ARRAY");
   checkSpectrum("//DOUBLE/TO_DEVICE_ARRAY");
@@ -55,9 +65,9 @@ void testReadWrite(){
   DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
   DoocsServerTestHelper::doocsSetSpectrum("//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3} ); 
   
-  // running update now does not change anything, the application has not acted yet
-  sleep(1);
-
+  // check the the control system side still sees 0 in all arrays. The application has not
+  // reacted yet
+  
   auto notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
   for (auto val : notIntArray){
     BOOST_CHECK( std::fabs(val) < 0.001 );
@@ -67,31 +77,24 @@ void testReadWrite(){
     BOOST_CHECK( std::fabs(val) < 0.001 );
   }
   
-  // run the application loop. Still no changes until we run the doocs server update
+  // run the application loop.
   referenceTestApplication.runMainLoopOnce();
 
-  notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
-  for (auto val : notIntArray){
-    BOOST_CHECK( std::fabs(val) < 0.001 );
-  }
-  notFloatArray = DoocsServerTestHelper::doocsGetArray<float>("//DOUBLE/FROM_DEVICE_ARRAY");
-  for (auto val : notFloatArray){
-    BOOST_CHECK( std::fabs(val) < 0.001 );
-  }
+  CHECK_WITH_TIMEOUT( testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140) == true );
+  CHECK_WITH_TIMEOUT( testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3) == true );
   
-  // now finally after the next update we should see the new data in doocs
-  sleep(1);
-
-  notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
-  int testVal = 140;
-  for (auto val : notIntArray){
-    BOOST_CHECK( std::fabs(val - testVal++) < 0.001 );
-  }
-  notFloatArray = DoocsServerTestHelper::doocsGetArray<float>("//DOUBLE/FROM_DEVICE_ARRAY");
-  float floatTestVal = 240.3;
-  for (auto val : notFloatArray){
-    BOOST_CHECK( std::fabs(val - floatTestVal++) < 0.001 );
-  }
+//  notIntArray = DoocsServerTestHelper::doocsGetArray<double>("//INT/MY_RENAMED_INTARRAY")
+//    ;
+//
+//  int testVal = 140;
+//  for (auto val : notIntArray){
+//    BOOST_CHECK( std::fabs(val - testVal++) < 0.001 );
+//  }
+//  notFloatArray = DoocsServerTestHelper::doocsGetArray<float>("//DOUBLE/FROM_DEVICE_ARRAY");
+//  float floatTestVal = 240.3;
+//  for (auto val : notFloatArray){
+//    BOOST_CHECK( std::fabs(val - floatTestVal++) < 0.001 );
+//  }
 
 }
 

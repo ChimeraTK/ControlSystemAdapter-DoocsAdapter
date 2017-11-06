@@ -69,9 +69,34 @@ void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_h
   location->unlock();
 }
 
-//load readSpectrumStart(std::string const & propertyAddress){
-// auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
-// BOOST_REQUIRE_MESSAGE(spectrum, "Could not find spectrum "<< propertyAddress <<", property does not exist or is not a spectrum.");
+// this function does the locking so it can be used in a loop and frees the lock in between.
+float readSpectrumStart(std::string const & propertyAddress){
+  auto location = getLocationFromPropertyAddress(propertyAddress);
+  location->lock();
+  
+  auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
+
+  float start=spectrum->spec_start();
+  location->unlock();
+
+  return start;
+}
+
+// sorry for copying the code. It really sucks to wrap 10 lines of bloat around 1 line of content.
+float readSpectrumIncrement(std::string const & propertyAddress){
+  auto location = getLocationFromPropertyAddress(propertyAddress);
+  location->lock();
+  
+  auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
+
+  float increment=spectrum->spec_inc();
+  location->unlock();
+
+  return increment;
+}
+
+
+  // BOOST_REQUIRE_MESSAGE(spectrum, "Could not find spectrum "<< propertyAddress <<", property does not exist or is not a spectrum.");
 //
 // EqFct *eqFct = eq_get(&ad);
 // ASSERT(eqFct != NULL, std::string("Could not get location for property ")+name);
@@ -82,20 +107,6 @@ void checkDoocsProperty(std::string const & propertyAddress, bool expected_has_h
 //
 // 
 //
-
-void checkSpectrum(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true, float expected_start = 0.0, float expected_increment = 1.0){
-  checkDoocsProperty<D_spectrum>(propertyAddress, expected_has_history, expected_is_writeable);
-
-  auto location = getLocationFromPropertyAddress(propertyAddress);
-  location->lock();
-
-  auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
-
-  BOOST_CHECK( std::fabs(spectrum->spec_start() - expected_start) < 0.001 );
-  BOOST_CHECK( std::fabs(spectrum->spec_inc() - expected_increment) < 0.001 );
-
-  location->unlock();
-}
 
 void checkDataType(std::string const & propertyAddress, int dataType){
   auto location = getLocationFromPropertyAddress(propertyAddress);
@@ -131,6 +142,13 @@ void checkWithTimeout( std::function< T () > accessorFunction, T referenceValue,
   std::stringstream errorMessage;
   errorMessage << "accessor function failed after " << nIterations << ", expected value is " << referenceValue << ", current value is " << accessorFunction();
   BOOST_ERROR(errorMessage.str());
+}
+
+void checkSpectrum(std::string const & propertyAddress, bool expected_has_history =  true, bool expected_is_writeable =true, float expected_start = 0.0, float expected_increment = 1.0){
+  checkDoocsProperty<D_spectrum>(propertyAddress, expected_has_history, expected_is_writeable);
+
+  CHECK_WITH_TIMEOUT( std::fabs(readSpectrumStart(propertyAddress) - expected_start) < 0.001 );
+  CHECK_WITH_TIMEOUT( std::fabs(readSpectrumIncrement(propertyAddress) - expected_increment) < 0.001 );
 }
 
 #endif // SERVER_BASED_TEST_TOOLS_H
