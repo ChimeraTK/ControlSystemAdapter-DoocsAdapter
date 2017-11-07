@@ -4,6 +4,7 @@
 #include "VariableMapper.h"
 #include "getAllVariableNames.h"
 #include <sys/stat.h>
+#include <mtca4u/ExperimentalFeatures.h>
 
 char const *object_name;
 static char const * XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
@@ -13,6 +14,11 @@ static ChimeraTK::DoocsAdapter doocsAdapter;
 /* eq_init_prolog is called before the locations are created, i.e. before the first call to eq_create.
  * We initialise the application, i.e. all process variables are created in this function. */
 void eq_init_prolog() {
+    //we are using experimental features. This is to remind me that experimental support
+    //should be turned off when readAny is not experiemtal any more.
+#warning Experimental features are enabled for using readAny! Turn off if not required any more.
+    ChimeraTK::ExperimentalFeatures::enable();
+  
     // set the DOOCS server name to the application name
     object_name = ChimeraTK::ApplicationBase::getInstance().getName().c_str();
     // Create static instances for all applications cores. They must not have overlapping
