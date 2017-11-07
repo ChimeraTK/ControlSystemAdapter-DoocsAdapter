@@ -55,6 +55,10 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::updateParameters(){
+    if (this->get_eqfct()){
+      this->get_eqfct()->lock();
+    }
+
     float start, increment;
     if (_startAccessor){
       start=_startAccessor->accessData(0);
@@ -67,9 +71,6 @@ namespace ChimeraTK {
       increment=this->spec_inc();
     }
     
-    if (this->get_eqfct()){
-      this->get_eqfct()->lock();
-    }
     spectrum_parameter( this->spec_time(), start, increment, this->spec_status() );
     if (this->get_eqfct()){
       this->get_eqfct()->unlock();

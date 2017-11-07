@@ -29,14 +29,15 @@ using namespace ChimeraTK;
 
 // the array must have testStartValue+i at index i.
 template<class T>
-bool testArrayContent(std::string const & propertyName, T testStartValue){
+bool testArrayContent(std::string const & propertyName, T testStartValue, T delta){
   auto array = DoocsServerTestHelper::doocsGetArray<T>(propertyName);
   bool isOK = true;
   T currentTestValue=testStartValue;
   for (auto val : array){
-    if ( std::fabs(val-currentTestValue++) > 0.001 ){
+    if ( std::fabs(val-currentTestValue) > 0.001 ){
       isOK=false;
     }
+    currentTestValue+=delta;
   }
   return isOK;
 }
@@ -69,20 +70,14 @@ void testReadWrite(){
   // check the the control system side still sees 0 in all arrays. The application has not
   // reacted yet
   
-  auto notIntArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/MY_RENAMED_INTARRAY");
-  for (auto val : notIntArray){
-    BOOST_CHECK( std::fabs(val) < 0.001 );
-  }
-  auto notFloatArray = DoocsServerTestHelper::doocsGetArray<float>("//DOUBLE/FROM_DEVICE_ARRAY");
-  for (auto val : notFloatArray){
-    BOOST_CHECK( std::fabs(val) < 0.001 );
-  }
+  CHECK_WITH_TIMEOUT( testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true );
+  CHECK_WITH_TIMEOUT( testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true );
   
   // run the application loop.
   referenceTestApplication.runMainLoopOnce();
 
-  CHECK_WITH_TIMEOUT( testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140) == true );
-  CHECK_WITH_TIMEOUT( testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3) == true );
+  CHECK_WITH_TIMEOUT( testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140, 1) == true );
+  CHECK_WITH_TIMEOUT( testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3, 1) == true );
   
 //  notIntArray = DoocsServerTestHelper::doocsGetArray<double>("//INT/MY_RENAMED_INTARRAY")
 //    ;

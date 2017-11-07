@@ -16,11 +16,10 @@ namespace ChimeraTK{
   class DoocsUpdater: public boost::noncopyable{
   public:
     ~DoocsUpdater();
-    void update(); // Update all variables once. This is the intermediate solution
-                   // before we have implemented the thread, and for testing
+    void update(); // Update all variables once. This is a convenience function for testing.
 
     void updateLoop(); // Endless loop with interruption point around the update function.
-                       // Intermediate solution until we have a working/testable version of readAny()
+
     void run();
     void stop();
 
@@ -29,7 +28,7 @@ namespace ChimeraTK{
     std::list< std::reference_wrapper< mtca4u::TransferElement > > _elementsToRead;
     boost::thread _syncThread;// we have to use boost thread to use interruption points
     //FIXME: make this an unordered map
-    std::map< mtca4u::TransferElement *, std::vector< std::function<void ()> > > _toDoocsUpdateMap;
+    std::map< mtca4u::TransferElement::ID, std::vector< std::function<void ()> > > _toDoocsUpdateMap;
 
   };
 }

@@ -32,10 +32,8 @@ void testReadWrite(){
   // halt the test application tread 
   referenceTestApplication.initialiseManualLoopControl();
   std::cout << "got the application main lock" << std::endl;
-
+  
   // just a few tests before we start
-  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/DATA_TYPE_CONSTANT"), -4);
-  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
@@ -52,8 +50,6 @@ void testReadWrite(){
   referenceTestApplication.runMainLoopOnce();
   
   // now finally after the next update we should see the new data in doocs
-  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/FROM_DEVICE_SCALAR"), 42);
-  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//CHAR/FROM_DEVICE_SCALAR"), 44);
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 42 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 44 );
 

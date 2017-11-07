@@ -3,18 +3,22 @@
 namespace ChimeraTK{
 
   void DoocsUpdater::addVariable( mtca4u::TransferElement & variable, std::function<void ()> updaterFunction){
-    _elementsToRead.push_back( std::reference_wrapper< mtca4u::TransferElement > (variable) );
-    _toDoocsUpdateMap[&variable].push_back(updaterFunction);
+    // Don't add the transfer element twice into the list of elements to read.
+    // To check if there is such an element we use the map with the lookup table
+    // which has a search function, instead of manually looking at the elements in the list
+    // and compare the ID.
+    if ( _toDoocsUpdateMap.find(variable.getId()) == _toDoocsUpdateMap.end() ){
+      _elementsToRead.push_back( std::reference_wrapper< mtca4u::TransferElement > (variable) );
+    }
+    
+    _toDoocsUpdateMap[variable.getId()].push_back(updaterFunction);
   }
 
   void DoocsUpdater::update(){
-    for ( auto & mapElem : _toDoocsUpdateMap ){
-      ///@todo FIXME: This should be readNonBlocking(), or better readAny on the whole map
-      // Currently this is consistent behaviour in the location update, and needed
-      // for consistent testing.
-      if (mapElem.first->readLatest()){
-        for (auto & updaterFunc : mapElem.second){
-          updaterFunc();
+    for ( auto & transferElem : _elementsToRead ){
+      if (transferElem.get().readLatest()){
+        for (auto & updaterFunction : _toDoocsUpdateMap[transferElem.get().getId()]){
+          updaterFunction();
         }
       }
     }
@@ -22,9 +26,10 @@ namespace ChimeraTK{
 
   void DoocsUpdater::updateLoop(){
     while(true){
-      update();
-      // FIXME: This is brainstorming. Use testable sleep here
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+      auto updatedElement = mtca4u::TransferElement::readAny(_elementsToRead);
+      for (auto & updaterFunction : _toDoocsUpdateMap[updatedElement]){
+        updaterFunction();
+      }
     }
   }
 
