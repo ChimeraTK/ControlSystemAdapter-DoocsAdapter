@@ -57,7 +57,9 @@ void testReadWrite(){
   auto intArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
   int testVal = 140;
   for (auto val : intArray){
-    CHECK_WITH_TIMEOUT( std::fabs(val - testVal++) < 0.001 );
+    CHECK_WITH_TIMEOUT( std::fabs(val - testVal) < 0.001 );
+    // can't increment in check with timeout because it evaluated the equation multiple times, so it increments multiple times
+    ++testVal;
   }
 
   auto constArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY");
