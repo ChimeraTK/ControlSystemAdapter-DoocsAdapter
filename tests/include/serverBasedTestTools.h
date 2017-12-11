@@ -110,9 +110,11 @@ float readSpectrumIncrement(std::string const & propertyAddress){
 
 void checkDataType(std::string const & propertyAddress, int dataType){
   auto location = getLocationFromPropertyAddress(propertyAddress);
+  BOOST_REQUIRE_MESSAGE(location, "could not find location for "+ propertyAddress);
   location->lock();
 
   auto property = getDoocsProperty<D_fct>(propertyAddress);
+  BOOST_REQUIRE_MESSAGE(property, "could not find property for "+ propertyAddress);
   BOOST_CHECK( property->data_type() == dataType);
 
   location->unlock();  
