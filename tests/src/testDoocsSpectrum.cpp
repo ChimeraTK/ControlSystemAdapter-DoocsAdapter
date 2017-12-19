@@ -26,7 +26,7 @@ public:
   void sendToDevice(){
     DoocsSpectrum::sendToDevice();
   }
-	
+
 };
 
 // use boost meta-programming to use test case templates
@@ -48,22 +48,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   boost::shared_ptr< mtca4u::NDRegisterAccessor< T> > deviceVariable =
     devManager->createProcessArray<T>(
       controlSystemToDevice, "toDeviceVariable", arraySize);
-  boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
+  boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable =
     csManager->getProcessArray<T>("toDeviceVariable");
 
   DoocsUpdater updater;
 
   // Write to the doocs spectrum and send it.
-  // We use the 'testable' version which exposes sendToDevice, which otherwise is 
+  // We use the 'testable' version which exposes sendToDevice, which otherwise is
   // protected.
-  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), updater);
+  TestableDoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(controlSystemVariable), updater);
 
   // create unique signature for each template parameter
   // negative factor for signed values
   T sign = (std::numeric_limits<T>::is_signed ? -1 : 1 );
   // integer size offset for integer, fractional offset for floating type
   T offset = (std::numeric_limits<T>::is_integer ? sizeof(T) : 1./sizeof(T) );
-  
+
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, sign*static_cast<T>(i*i) + offset);
   }
@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
 
   // receive on the device side and check that the value has arrived
   deviceVariable->readNonBlocking();
-  
+
   std::vector<T> & deviceVector = deviceVariable->accessChannel(0);
   for (size_t i =0; i < arraySize; ++i){
     std::stringstream errorMessage;
-    errorMessage << "i = " <<i<< ", deviceVector[i] = " 
+    errorMessage << "i = " <<i<< ", deviceVector[i] = "
 		 <<  deviceVector[i]
 		 << " expected " << sign*static_cast<T>(i*i) + offset;
     BOOST_CHECK_MESSAGE( deviceVector[i] == sign*static_cast<T>(i*i) + offset,
@@ -94,13 +94,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(
       deviceToControlSystem, "fromDeviceVariable", arraySize);
-  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable = 
+  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable =
     csManager->getProcessArray<T>("fromDeviceVariable");
 
   DoocsUpdater updater;
 
   // initialise the doocs spectrum
-  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(*controlSystemVariable), updater, nullptr, nullptr);
+  DoocsSpectrum doocsSpectrum( NULL, "someName", getDecorator<float>(controlSystemVariable), updater, nullptr, nullptr);
   for (size_t i =0; i < arraySize; ++i){
     doocsSpectrum.fill_spectrum(i, 0);
   }
@@ -123,9 +123,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   }
 
   updater.update();
-  
+
   // The actual vector buffer has changed. We have to get the new reference.
-  csVector = controlSystemVariable->accessChannel(0);  
+  csVector = controlSystemVariable->accessChannel(0);
   for (size_t i =0; i < arraySize; ++i){
     BOOST_CHECK( csVector[i] == sign*static_cast<T>(i*i) + offset );
     BOOST_CHECK( doocsSpectrum.read_spectrum(i) == sign*static_cast<T>(i*i) + offset );

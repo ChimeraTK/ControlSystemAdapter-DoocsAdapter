@@ -13,7 +13,7 @@ namespace ChimeraTK {
 
   DoocsPVFactory::DoocsPVFactory(EqFct * const eqFct,
                                  DoocsUpdater & updater,
-                                 boost::shared_ptr<ControlSystemPVManager> const & csPVManager) 
+                                 boost::shared_ptr<ControlSystemPVManager> const & csPVManager)
     : _eqFct(eqFct), _updater(updater), _controlSystemPVManager(csPVManager) {
       assert(eqFct != nullptr);
   }
@@ -24,8 +24,8 @@ namespace ChimeraTK {
     auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
     // the DoocsProcessScalar needs the real ProcessScalar type, not just ProcessVariable
-    auto processArray =  getDecorator<DOOCS_PRIMITIVE_T>( *processVariable, decoratorType);
-    
+    auto processArray =  getDecorator<DOOCS_PRIMITIVE_T>(processVariable, decoratorType);
+
     assert(processArray->getNumberOfChannels() == 1);
     boost::shared_ptr<D_fct> doocsPV;
     // Histories seem to be supported by DOOCS only for property names shorter than 64 characters, so disable history for longer names.
@@ -49,7 +49,7 @@ namespace ChimeraTK {
     if (!processArray->isWriteable() || !propertyDescription.isWriteable){
       doocsPV->set_ro_access();
     }
-    
+
     return doocsPV;
   }
 
@@ -58,7 +58,7 @@ namespace ChimeraTK {
     AutoPropertyDescription const & propertyDescription, DecoratorType /*decoratorType*/){
 
     auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
-   
+
     // FIXME: Use a decorator, but this has to be tested and implemented for strings first
     // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
     boost::shared_ptr< mtca4u::NDRegisterAccessor<std::string> > processArray
@@ -67,7 +67,7 @@ namespace ChimeraTK {
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
                                   + processVariable->getValueType().name());
     }
-    
+
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1);    // array of strings is not supported
     boost::shared_ptr<D_fct> doocsPV( new DoocsProcessScalar<std::string, D_string>(_eqFct, propertyDescription.name.c_str(), processArray, _updater) );
@@ -76,7 +76,7 @@ namespace ChimeraTK {
     if (!processArray->isWriteable() || !propertyDescription.isWriteable){
       doocsPV->set_ro_access();
     }
-    
+
     return doocsPV;
   }
 
@@ -89,18 +89,18 @@ namespace ChimeraTK {
     // config file with the data from the accessors. The spectrum will keep the data updated.
     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > startAccessor;
     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > incrementAccessor;
-    
+
     if ( spectrumDescription.startSource != ""){
-      startAccessor = getDecorator<float>(* _controlSystemPVManager->getProcessVariable(spectrumDescription.startSource) );
+      startAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.startSource) );
       start = startAccessor->accessData(0);
     }
     if ( spectrumDescription.incrementSource != ""){
-      incrementAccessor = getDecorator<float>(* _controlSystemPVManager->getProcessVariable(spectrumDescription.incrementSource) );
+      incrementAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.incrementSource) );
       increment = incrementAccessor->accessData(0);
     }
-    
+
     //    assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name, getDecorator<float>(*processVariable), _updater, startAccessor, incrementAccessor) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name, getDecorator<float>(processVariable), _updater, startAccessor, incrementAccessor) );
 
     // set read only mode if configures in the xml file or for output variables
     if (!processVariable->isWriteable() || !spectrumDescription.isWriteable){
@@ -110,7 +110,7 @@ namespace ChimeraTK {
     // can use static cast, we know it's a D_spectrum, we just created it
     auto spectrum = boost::static_pointer_cast<D_spectrum>(doocsPV);
     spectrum->spectrum_parameter( spectrum->spec_time(), start, increment, spectrum->spec_status() );
-    
+
     return doocsPV;
   }
 
@@ -134,12 +134,12 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate( std::shared_ptr<PropertyDescription> const & propertyDescription ){
     // do auto creation
     auto autoPropertyDescription = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription);
-    
+
     auto pvName = autoPropertyDescription->source;
     auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
 
     std::type_info const & valueType = processVariable->getValueType();
-    /*  TODO: 
+    /*  TODO:
         - create functions "createDoocsArray" and "createDoocsSpectrum"
         - first use spectrum here for 1D, then switch to array (tests need to be adapted)
         - create spectrum, array and d_int/float/double upon request from 1d (scalar for D_array and 1D)
@@ -182,7 +182,7 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray( ArrayDescription const & arrayDescription){
     auto processVariable = _controlSystemPVManager->getProcessVariable(arrayDescription.source);
 
-    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessArray< DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, arrayDescription.name, getDecorator<DOOCS_PRIMITIVE_T>(*processVariable), _updater) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessArray< DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, arrayDescription.name, getDecorator<DOOCS_PRIMITIVE_T>(processVariable), _updater) );
 
     // set read only mode if configures in the xml file or for output variables
     if (!processVariable->isWriteable() || !arrayDescription.isWriteable){
@@ -191,7 +191,7 @@ namespace ChimeraTK {
 
     return doocsPV;
   }
-  
+
   boost::shared_ptr<D_fct>  DoocsPVFactory::createDoocsArray(  std::shared_ptr<ArrayDescription> const & arrayDescription ){
     if(arrayDescription->dataType == ArrayDescription::DataType::Auto){
       // leave the desision which array to produce to the auto creation algorithm. We need it there anyway
@@ -227,6 +227,6 @@ namespace ChimeraTK {
       throw std::invalid_argument("Sorry, your type is not supported yet.");
     }
   }
-  
+
 }// namespace
 
