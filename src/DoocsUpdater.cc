@@ -1,5 +1,7 @@
 #include "DoocsUpdater.h"
 
+#include <mtca4u/ReadAny.h>
+
 namespace ChimeraTK{
 
   void DoocsUpdater::addVariable( mtca4u::TransferElement & variable, std::function<void ()> updaterFunction){
@@ -10,7 +12,7 @@ namespace ChimeraTK{
     if ( _toDoocsUpdateMap.find(variable.getId()) == _toDoocsUpdateMap.end() ){
       _elementsToRead.push_back( std::reference_wrapper< mtca4u::TransferElement > (variable) );
     }
-    
+
     _toDoocsUpdateMap[variable.getId()].push_back(updaterFunction);
   }
 
@@ -26,7 +28,7 @@ namespace ChimeraTK{
 
   void DoocsUpdater::updateLoop(){
     while(true){
-      auto updatedElement = mtca4u::TransferElement::readAny(_elementsToRead);
+      auto updatedElement = ChimeraTK::readAny(_elementsToRead);
       for (auto & updaterFunction : _toDoocsUpdateMap[updatedElement]){
         updaterFunction();
       }
@@ -36,15 +38,15 @@ namespace ChimeraTK{
   void DoocsUpdater::run(){
     _syncThread = boost::thread( boost::bind( &DoocsUpdater::updateLoop, this) );
   }
-  
+
   void DoocsUpdater::stop(){
     _syncThread.interrupt();
-    _syncThread.join();    
+    _syncThread.join();
   }
 
   DoocsUpdater::~DoocsUpdater(){
     stop();
   }
- 
-  
+
+
 }//namespace ChimeraTK

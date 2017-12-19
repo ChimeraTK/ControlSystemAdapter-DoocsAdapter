@@ -9,7 +9,7 @@
 namespace ChimeraTK{
   /** A class to synchronise DeviceToControlSystem variable to Doocs.
    *  It contains a list of TransferElements and a thread which is monitoring them for updates.
-   *  The thread has to be started with the run() functions, which returns immediately 
+   *  The thread has to be started with the run() functions, which returns immediately
    *  when the thread is started, and (FIXME can be stopped by the stop() function which
    *  returns after the thread has been joined). This happens latest in the destructor.
    */
@@ -28,7 +28,7 @@ namespace ChimeraTK{
     std::list< std::reference_wrapper< mtca4u::TransferElement > > _elementsToRead;
     boost::thread _syncThread;// we have to use boost thread to use interruption points
     //FIXME: make this an unordered map
-    std::map< mtca4u::TransferElement::ID, std::vector< std::function<void ()> > > _toDoocsUpdateMap;
+    std::map< mtca4u::TransferElementID, std::vector< std::function<void ()> > > _toDoocsUpdateMap;
 
   };
 }
