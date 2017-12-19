@@ -26,7 +26,9 @@ namespace ChimeraTK{
   void DoocsAdapter::waitUntilInitialised(){
     int i = 0;
     while(true){
-      if (isInitialised) {std::cout << "DoocsAdapter initialised afer " << i << std::endl; return;}
+      if (isInitialised){
+        return;
+      }
       // just sleep a bit. Use the "cheap" usleep, we don't care about precision here
       ++i;
       usleep(100);

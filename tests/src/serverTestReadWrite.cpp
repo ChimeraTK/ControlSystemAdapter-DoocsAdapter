@@ -32,10 +32,8 @@ void testReadWrite(){
   // halt the test application tread 
   referenceTestApplication.initialiseManualLoopControl();
   std::cout << "got the application main lock" << std::endl;
-
+  
   // just a few tests before we start
-  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/DATA_TYPE_CONSTANT"), -4);
-  CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
@@ -50,23 +48,23 @@ void testReadWrite(){
 
   // run the application loop. Still no changes until we run the doocs server update
   referenceTestApplication.runMainLoopOnce();
-  
+
   // now finally after the next update we should see the new data in doocs
-  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//INT/FROM_DEVICE_SCALAR"), 42);
-  checkWithTimeout<int>( std::bind( &DoocsServerTestHelper::doocsGet<int>, "//CHAR/FROM_DEVICE_SCALAR"), 44);
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 42 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 44 );
 
   // we have to get stuff as float in order to work with spectra
   auto intArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
   int testVal = 140;
-  for (auto val : intArray){
-    CHECK_WITH_TIMEOUT( std::fabs(val - testVal++) < 0.001 );
+  for (size_t i=0; i < intArray.size(); ++i){
+    CHECK_WITH_TIMEOUT( std::fabs(DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY")[i] - testVal) < 0.001 );
+    // can't increment in check with timeout because it evaluated the equation multiple times, so it increments multiple times
+    ++testVal;
   }
 
   auto constArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY");
   for (int i =0; i < int(constArray.size()); ++i){
-    CHECK_WITH_TIMEOUT( std::fabs(constArray[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
+    CHECK_WITH_TIMEOUT( std::fabs(DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY")[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
   }
   
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){

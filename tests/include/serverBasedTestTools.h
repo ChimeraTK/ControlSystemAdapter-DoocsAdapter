@@ -110,9 +110,11 @@ float readSpectrumIncrement(std::string const & propertyAddress){
 
 void checkDataType(std::string const & propertyAddress, int dataType){
   auto location = getLocationFromPropertyAddress(propertyAddress);
+  BOOST_REQUIRE_MESSAGE(location, "could not find location for "+ propertyAddress);
   location->lock();
 
   auto property = getDoocsProperty<D_fct>(propertyAddress);
+  BOOST_REQUIRE_MESSAGE(property, "could not find property for "+ propertyAddress);
   BOOST_CHECK( property->data_type() == dataType);
 
   location->unlock();  
@@ -120,12 +122,12 @@ void checkDataType(std::string const & propertyAddress, int dataType){
 
 #define CHECK_WITH_TIMEOUT(...)\
   { static const size_t nIterations=10000;\
-    size_t i=0;\
-    for ( ; i < nIterations; ++i){\
-      if (__VA_ARGS__){std::cout << "ok after "<<i<< std::endl; break;}\
+    size_t local_index_i=0;\
+    for ( ; local_index_i < nIterations; ++local_index_i){\
+      if (__VA_ARGS__){std::cout << "ok after "<<local_index_i<< std::endl; break;}\
       usleep(100);\
     }\
-    if (i == nIterations)\
+    if (local_index_i == nIterations)\
       BOOST_CHECK(__VA_ARGS__);\
   }
 
