@@ -148,9 +148,9 @@ namespace ChimeraTK {
     // fixme: make this a boost::foreach in the data types provided by DeviceAccess.
     // This will detect uncovered new data types at compile time, not only at run time
     if (valueType == typeid(int8_t)) {
-      return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, int8_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+      return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
     }else if (valueType == typeid(uint8_t)) {
-      return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, int8_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+      return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
 
     } else if (valueType == typeid(int16_t)) {
       return typedCreateScalarOrArray<int16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
@@ -170,7 +170,7 @@ namespace ChimeraTK {
     } else if (valueType == typeid(double)) {
       return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Double);
     } else if (valueType == typeid(std::string)) {
-      // FIXME returning scalar also for arrays. This should result in an error
+      //@todo FIXME returning scalar also for arrays. This should result in an error
       return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::range_checking);
     } else {
       throw std::invalid_argument("unsupported value type");
@@ -182,7 +182,9 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray( ArrayDescription const & arrayDescription){
     auto processVariable = _controlSystemPVManager->getProcessVariable(arrayDescription.source);
 
-    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessArray< DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, arrayDescription.name, getDecorator<DOOCS_PRIMITIVE_T>(processVariable), _updater) );
+    ///@todo FIXME Add the decorator type as option  to the array description, and
+    /// only use C_style_conversion as default
+    boost::shared_ptr<D_fct> doocsPV( new DoocsProcessArray< DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, arrayDescription.name, getDecorator<DOOCS_PRIMITIVE_T>(processVariable, DecoratorType::C_style_conversion), _updater) );
 
     // set read only mode if configures in the xml file or for output variables
     if (!processVariable->isWriteable() || !arrayDescription.isWriteable){
@@ -192,13 +194,13 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
-  boost::shared_ptr<D_fct>  DoocsPVFactory::createDoocsArray(  std::shared_ptr<ArrayDescription> const & arrayDescription ){
+  boost::shared_ptr<D_fct>  DoocsPVFactory::createDoocsArray(  std::shared_ptr<ArrayDescription> const & arrayDescription){
     if(arrayDescription->dataType == ArrayDescription::DataType::Auto){
       // leave the desision which array to produce to the auto creation algorithm. We need it there anyway
       //FIXME: This does not produce arrays of length 1 because it will produce a scalar
       return autoCreate(arrayDescription);
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Byte){
-      return typedCreateDoocsArray<int8_t, D_bytearray>(*arrayDescription);
+      return typedCreateDoocsArray<uint8_t, D_bytearray>(*arrayDescription);
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Short){
       return typedCreateDoocsArray<int16_t, D_shortarray>(*arrayDescription);
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Int){

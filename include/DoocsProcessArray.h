@@ -83,17 +83,6 @@ namespace ChimeraTK {
     
   };
 
-  template<>
-  void DoocsProcessArray<D_bytearray, signed char>::updateDoocsBuffer(){
-    #warning Remove template specialisation for  DoocsProcessArray<D_bytearray, signed char>::updateDoocsBuffer()
-      auto & processVector = _processArray->accessChannel(0);
-      // fixme: what about history?
-      for (size_t i=0; i < processVector.size(); ++i){
-        this->set_value( processVector[i] , i);
-      }
-  }
-
-  
 } // namespace ChimeraTK
 
 #endif // __DOOCS_PROCESS_ARRAY_H__
