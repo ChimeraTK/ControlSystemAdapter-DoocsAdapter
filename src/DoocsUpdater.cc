@@ -28,10 +28,15 @@ namespace ChimeraTK{
 
   void DoocsUpdater::updateLoop(){
     while(true){
+      /*
       auto updatedElement = ChimeraTK::readAny(_elementsToRead);
       for (auto & updaterFunction : _toDoocsUpdateMap[updatedElement]){
         updaterFunction();
       }
+      */
+      /// @todo FIXME this is a temporary (?) work-around for the slow readAny()
+      update();
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
     }
   }
 
