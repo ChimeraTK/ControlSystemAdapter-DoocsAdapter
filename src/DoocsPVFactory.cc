@@ -170,8 +170,9 @@ namespace ChimeraTK {
     } else if (valueType == typeid(double)) {
       return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Double);
     } else if (valueType == typeid(std::string)) {
-      //@todo FIXME returning scalar also for arrays. This should result in an error
-      return createDoocsScalar<std::string, D_string>(*autoPropertyDescription, DecoratorType::range_checking);
+      return typedCreateScalarOrArray<std::string, D_string, std::string,
+                                      std::nullptr_t, std::nullptr_t>(*processVariable, *autoPropertyDescription,
+                                                                      DecoratorType::range_checking, ArrayDescription::DataType::Auto);
     } else {
       throw std::invalid_argument("unsupported value type");
     }
@@ -192,6 +193,12 @@ namespace ChimeraTK {
     }
 
     return doocsPV;
+  }
+
+  // template specialisation for cases with no matching DOOCS array type (e.g. string)
+  template<>
+  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray<std::nullptr_t,std::nullptr_t>(ArrayDescription const &){
+    throw std::invalid_argument("Type not supported as an array");
   }
 
   boost::shared_ptr<D_fct>  DoocsPVFactory::createDoocsArray(  std::shared_ptr<ArrayDescription> const & arrayDescription){
