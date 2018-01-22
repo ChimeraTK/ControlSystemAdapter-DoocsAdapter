@@ -91,11 +91,13 @@ namespace ChimeraTK {
     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > incrementAccessor;
 
     if ( spectrumDescription.startSource != ""){
-      startAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.startSource) );
+      startAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.startSource),
+                                          DecoratorType::C_style_conversion);
       start = startAccessor->accessData(0);
     }
     if ( spectrumDescription.incrementSource != ""){
-      incrementAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.incrementSource) );
+      incrementAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.incrementSource),
+                                              DecoratorType::C_style_conversion);
       increment = incrementAccessor->accessData(0);
     }
 
@@ -166,9 +168,9 @@ namespace ChimeraTK {
     } else if (valueType == typeid(uint64_t)) {
       return typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
     } else if (valueType == typeid(float)) {
-      return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Float);
+      return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Float);
     } else if (valueType == typeid(double)) {
-      return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Double);
+      return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Double);
     } else if (valueType == typeid(std::string)) {
       return typedCreateScalarOrArray<std::string, D_string, std::string,
                                       std::nullptr_t, std::nullptr_t>(*processVariable, *autoPropertyDescription,
