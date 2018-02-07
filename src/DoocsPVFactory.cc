@@ -102,7 +102,8 @@ namespace ChimeraTK {
     }
 
     //    assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name, getDecorator<float>(processVariable), _updater, startAccessor, incrementAccessor) );
+    boost::shared_ptr<D_fct> doocsPV( new DoocsSpectrum(_eqFct, spectrumDescription.name,
+              getDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor, incrementAccessor) );
 
     // set read only mode if configures in the xml file or for output variables
     if (!processVariable->isWriteable() || !spectrumDescription.isWriteable){
