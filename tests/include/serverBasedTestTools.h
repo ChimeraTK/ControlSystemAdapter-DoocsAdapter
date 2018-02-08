@@ -16,9 +16,9 @@ void checkHistory(DOOCS_T * property, bool expected_has_history){
 
 template<>
 void checkHistory(D_spectrum * /*property*/, bool){
-  #warning FIXME implement check on D_spectrum history
+  /// @todo FIXME implement check on D_spectrum history/ ring buffer
 }
-#warning FIXME implement check on array histories
+//there are no histories for arrays. Do nothing
 template<> void checkHistory(D_bytearray * /*property*/, bool){}
 template<> void checkHistory(D_shortarray * /*property*/, bool){}
 template<> void checkHistory(D_intarray * /*property*/, bool){}
