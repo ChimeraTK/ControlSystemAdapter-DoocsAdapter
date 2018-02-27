@@ -19,8 +19,11 @@ namespace ChimeraTK{
      controlSystemPVManager_(controlSystemPVManager),
       fctCode_(fctCode), updater_(updater){
 
-    std::cout << "CSAdapterEqFct::CSAdapterEqFct name is " << name() << std::endl;
-    registerProcessVariablesInDoocs(fctName);
+    // When testing the EqFct stand alone, the name is not set properly. Do this with the additional parameter of this constructor.
+    if (name().empty()){
+      name_.assign(fctName);
+    }
+    registerProcessVariablesInDoocs();
   }
 
   CSAdapterEqFct::~CSAdapterEqFct(){
@@ -36,11 +39,11 @@ namespace ChimeraTK{
     return fctCode_;
   }
 
-  void CSAdapterEqFct::registerProcessVariablesInDoocs(std::string const & fctName){
+  void CSAdapterEqFct::registerProcessVariablesInDoocs(){
     // We only need the factory inside this function
     DoocsPVFactory factory(this, *updater_, controlSystemPVManager_);
 
-    auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fctName);
+    auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(name());
     doocsProperties_.reserve( mappingForThisLocation.size() );
 
     for (auto & propertyDescrition : mappingForThisLocation){

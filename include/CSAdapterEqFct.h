@@ -16,7 +16,7 @@ class CSAdapterEqFct : public EqFct , boost::noncopyable {
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
     int fctCode_;
     std::vector< boost::shared_ptr<D_fct> > doocsProperties_;
-    void registerProcessVariablesInDoocs(std::string const & fctName);
+    void registerProcessVariablesInDoocs();
     std::vector < ChimeraTK::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
 
     static bool emptyLocationVariablesHandled;
