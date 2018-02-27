@@ -15,11 +15,12 @@ namespace ChimeraTK{
     // used when the name is coming from the config file. This interface is so ugly that
     // I changed it to std::string and need the ?: trick to get a NULL pointer in
     // if the string is empty
-    : EqFct ("NAME = CSAdapterEqFct", fctName.empty()?NULL:&fctName),
+    : EqFct ("NAME = CSAdapterEqFct"),
      controlSystemPVManager_(controlSystemPVManager),
       fctCode_(fctCode), updater_(updater){
 
-    registerProcessVariablesInDoocs();
+    std::cout << "CSAdapterEqFct::CSAdapterEqFct name is " << name() << std::endl;
+    registerProcessVariablesInDoocs(fctName);
   }
 
   CSAdapterEqFct::~CSAdapterEqFct(){
@@ -28,18 +29,18 @@ namespace ChimeraTK{
   }
 
   void CSAdapterEqFct::init(){
-    std::cout << "this is eqfct init of " << fct_name() << std::endl;
+    std::cout << "this is eqfct init of " << name() << std::endl;
   }
 
   int CSAdapterEqFct::fct_code(){
     return fctCode_;
   }
 
-  void CSAdapterEqFct::registerProcessVariablesInDoocs(){
+  void CSAdapterEqFct::registerProcessVariablesInDoocs(std::string const & fctName){
     // We only need the factory inside this function
     DoocsPVFactory factory(this, *updater_, controlSystemPVManager_);
 
-    auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fct_name());
+    auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(fctName);
     doocsProperties_.reserve( mappingForThisLocation.size() );
 
     for (auto & propertyDescrition : mappingForThisLocation){
