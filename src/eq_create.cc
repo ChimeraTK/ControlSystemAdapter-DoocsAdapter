@@ -29,7 +29,7 @@ void eq_init_prolog() {
     if (stat (xmlFileName.c_str(), &buffer) == 0){ 
       ChimeraTK::VariableMapper::getInstance().prepareOutput(xmlFileName, pvNames);
     }else{
-      std::cerr << "WARNIUNG: No XML file for the Doocs variable config found. Trying direct import." << std::endl;
+      std::cerr << "WARNING: No XML file for the Doocs variable config found. Trying direct import." << std::endl;
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
     // print the mapping for debug purposes
