@@ -13,10 +13,10 @@
 #include <eq_fct.h>
 
 namespace ChimeraTK {
-  
+
   template <typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   class DoocsProcessArray : public DOOCS_T, public boost::noncopyable {
-        
+
   public:
       DoocsProcessArray( EqFct *eqFct, std::string const & doocsPropertyName,
                          boost::shared_ptr<  mtca4u::NDRegisterAccessor<DOOCS_PRIMITIVE_T> > const &processArray,
@@ -36,7 +36,7 @@ namespace ChimeraTK {
       DOOCS_T::set(eqAdr, data1, data2, eqFct);
       sendToDevice();
     }
-    
+
     /**
      * Override the Doocs auto_init() method, which is called after initialising the value of
      *  the property from the config file.
@@ -59,28 +59,37 @@ namespace ChimeraTK {
       if (this->get_eqfct()){
         this->get_eqfct()->lock();
       }
-      this->fill_array(processVector.data(), processVector.size());
+
+      // We have to cast the pointer to the correct underlying DOOCS type. This cast never does anything, the only
+      // reason is to "convert" from int64_t to long long int (which are different types!)
+      typedef typename std::result_of<decltype(&DOOCS_T::value)(DOOCS_T, int)>::type THE_DOOCS_TYPE;
+      static_assert( std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value ||
+                     ( std::is_same<DOOCS_PRIMITIVE_T, int64_t>::value && std::is_same<THE_DOOCS_TYPE, long long int>::value ),
+                     "Bad type casting.");
+      auto dataPtr = reinterpret_cast<THE_DOOCS_TYPE*>(processVector.data());
+
+      this->fill_array(dataPtr, processVector.size());
       if (this->get_eqfct()){
         this->get_eqfct()->unlock();
       }
     }
-    
+
   protected:
     boost::shared_ptr< mtca4u::NDRegisterAccessor<DOOCS_PRIMITIVE_T> > _processArray;
 
-    // Internal function which copies the content from the DOOCS container into the 
+    // Internal function which copies the content from the DOOCS container into the
     // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.
     void sendToDevice() {
       // Brute force implementation with a loop. Works for all data types.
       // always get a fresh reference
-      auto & processVector = _processArray->accessChannel(0); 
+      auto & processVector = _processArray->accessChannel(0);
       size_t arraySize = processVector.size();
       for (size_t i=0; i < arraySize; ++i){
         processVector[i] = this->value(i);
       }
       _processArray->write();
     }
-    
+
   };
 
 } // namespace ChimeraTK

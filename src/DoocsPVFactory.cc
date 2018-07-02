@@ -165,9 +165,9 @@ namespace ChimeraTK {
       return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
     } else if (valueType == typeid(int64_t)) {
       // there is no scalar int64 representation in doocs, so we always create an array, also for length = 1
-      return typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
+      return typedCreateDoocsArray<int64_t, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
     } else if (valueType == typeid(uint64_t)) {
-      return typedCreateDoocsArray<long long int, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
+      return typedCreateDoocsArray<int64_t, D_longarray>(ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
     } else if (valueType == typeid(float)) {
       return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Float);
     } else if (valueType == typeid(double)) {
@@ -216,7 +216,7 @@ namespace ChimeraTK {
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Int){
       return typedCreateDoocsArray<int32_t, D_intarray>(*arrayDescription);
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Long){
-      return typedCreateDoocsArray<long long int, D_longarray>(*arrayDescription);
+      return typedCreateDoocsArray<int64_t, D_longarray>(*arrayDescription);
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Float){
       return typedCreateDoocsArray<float, D_floatarray>(*arrayDescription);
     }else if(arrayDescription->dataType == ArrayDescription::DataType::Double){
