@@ -2,7 +2,7 @@
 #define __DOOCS_PROCESS_SCALAR_H__
 
 #include <string>
-#include <mtca4u/NDRegisterAccessor.h>
+#include <ChimeraTK/ScalarRegisterAccessor.h>
 #include "DoocsUpdater.h"
 #include <boost/shared_ptr.hpp>
 #include <d_fct.h>
@@ -39,28 +39,28 @@ namespace ChimeraTK {
         this->get_eqfct()->unlock();
       }
     }
-    
-    
+
+
   DoocsProcessScalar( EqFct *eqFct, std::string doocsPropertyName,
                       boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const &processScalar,
                        DoocsUpdater & updater )
     : DOOCS_T(eqFct, doocsPropertyName.c_str()), _processScalar(processScalar)
     {
       if (processScalar->isReadable()){
-        updater.addVariable( *processScalar , std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
+        updater.addVariable( ChimeraTK::ScalarRegisterAccessor<T>(processScalar) , std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
       }
     }
-    
+
   DoocsProcessScalar( std::string doocsPropertyName, EqFct *eqFct,
                       boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const &processScalar,
                        DoocsUpdater & updater )
     : DOOCS_T(doocsPropertyName.c_str(), eqFct), _processScalar(processScalar)
     {
       if (processScalar->isReadable()){
-        updater.addVariable( *processScalar , std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
+        updater.addVariable( ChimeraTK::ScalarRegisterAccessor<T>(processScalar) , std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
       }
     }
-    
+
     /**
      * Override the Doocs set method which is triggered by the RPC calls.
      */
@@ -74,7 +74,7 @@ namespace ChimeraTK {
           _processScalar->write();
       }
     }
-    
+
     /**
      * Override the Doocs auto_init() method, which is called after initialising the value of
      * the property from the config file.
@@ -90,7 +90,7 @@ namespace ChimeraTK {
 
   protected:
     boost::shared_ptr<mtca4u::NDRegisterAccessor<T> > _processScalar;
-    
+
   };
 
 } // namespace ChimeraTK

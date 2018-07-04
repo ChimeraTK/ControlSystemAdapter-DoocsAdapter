@@ -23,9 +23,9 @@ namespace ChimeraTK{
     void run();
     void stop();
 
-    void addVariable( mtca4u::TransferElement & variable, std::function<void ()> updaterFunction);
+    void addVariable( const ChimeraTK::TransferElementAbstractor &variable, std::function<void ()> updaterFunction);
   protected:
-    std::list< std::reference_wrapper< mtca4u::TransferElement > > _elementsToRead;
+    std::list< ChimeraTK::TransferElementAbstractor > _elementsToRead;
     boost::thread _syncThread;// we have to use boost thread to use interruption points
     //FIXME: make this an unordered map
     std::map< mtca4u::TransferElementID, std::vector< std::function<void ()> > > _toDoocsUpdateMap;

@@ -4,13 +4,13 @@
 
 namespace ChimeraTK{
 
-  void DoocsUpdater::addVariable( mtca4u::TransferElement & variable, std::function<void ()> updaterFunction){
+  void DoocsUpdater::addVariable( const TransferElementAbstractor &variable, std::function<void ()> updaterFunction){
     // Don't add the transfer element twice into the list of elements to read.
     // To check if there is such an element we use the map with the lookup table
     // which has a search function, instead of manually looking at the elements in the list
     // and compare the ID.
     if ( _toDoocsUpdateMap.find(variable.getId()) == _toDoocsUpdateMap.end() ){
-      _elementsToRead.push_back( std::reference_wrapper< mtca4u::TransferElement > (variable) );
+      _elementsToRead.push_back(variable);
     }
 
     _toDoocsUpdateMap[variable.getId()].push_back(updaterFunction);
@@ -18,8 +18,8 @@ namespace ChimeraTK{
 
   void DoocsUpdater::update(){
     for ( auto & transferElem : _elementsToRead ){
-      if (transferElem.get().readLatest()){
-        for (auto & updaterFunction : _toDoocsUpdateMap[transferElem.get().getId()]){
+      if (transferElem.readLatest()){
+        for (auto & updaterFunction : _toDoocsUpdateMap[transferElem.getId()]){
           updaterFunction();
         }
       }
@@ -27,16 +27,12 @@ namespace ChimeraTK{
   }
 
   void DoocsUpdater::updateLoop(){
+    ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
     while(true){
-      /*
-      auto updatedElement = ChimeraTK::readAny(_elementsToRead);
+      auto updatedElement = group.waitAny();
       for (auto & updaterFunction : _toDoocsUpdateMap[updatedElement]){
         updaterFunction();
       }
-      */
-      /// @todo FIXME this is a temporary (?) work-around for the slow readAny()
-      update();
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
     }
   }
 

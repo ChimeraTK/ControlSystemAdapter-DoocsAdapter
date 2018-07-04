@@ -4,7 +4,7 @@
 #include <D_spectrum.h>
 #include <boost/noncopyable.hpp>
 
-#include <mtca4u/NDRegisterAccessor.h>
+#include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 
@@ -25,7 +25,8 @@ namespace ChimeraTK {
           _processArray( processArray )
       {
         if (processArray->isReadable()){
-          updater.addVariable( *processArray , std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this));
+          updater.addVariable( ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray),
+                               std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this));
         }
       }
 
