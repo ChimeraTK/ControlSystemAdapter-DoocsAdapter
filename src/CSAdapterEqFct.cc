@@ -32,7 +32,6 @@ namespace ChimeraTK{
   }
 
   void CSAdapterEqFct::init(){
-    std::cout << "this is eqfct init of " << name() << std::endl;
   }
 
   int CSAdapterEqFct::fct_code(){

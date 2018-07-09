@@ -24,17 +24,15 @@ void eq_init_prolog() {
     auto pvNames = ChimeraTK::getAllVariableNames( doocsAdapter.getControlSystemPVManager() );
 
     auto xmlFileName = ChimeraTK::ApplicationBase::getInstance().getName()+XML_CONFIG_SUFFIX;
-    
+
     struct stat buffer;
-    if (stat (xmlFileName.c_str(), &buffer) == 0){ 
+    if (stat (xmlFileName.c_str(), &buffer) == 0){
       ChimeraTK::VariableMapper::getInstance().prepareOutput(xmlFileName, pvNames);
     }else{
       std::cerr << "WARNING: No XML file for the Doocs variable config found. Trying direct import." << std::endl;
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
-    // print the mapping for debug purposes
-    ChimeraTK::VariableMapper::getInstance().print();
-    
+
     // activate the advanced archiver to have histories
     set_arch_mode(1);
 }
