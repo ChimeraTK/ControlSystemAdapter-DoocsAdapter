@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 00)
-set(${PROJECT_NAME}_MINOR_VERSION 07)
+set(${PROJECT_NAME}_MINOR_VERSION 08)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
 include(cmake/set_version_numbers.cmake)
 
@@ -19,7 +19,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 
 include(cmake/add_dependency.cmake)
 
-add_dependency(ChimeraTK-ControlSystemAdapter 00.11 REQUIRED)
+add_dependency(ChimeraTK-ControlSystemAdapter 00.14 REQUIRED)
 add_dependency(doocs-server-test-helper 01.00 REQUIRED)
 add_dependency(DOOCS 18.11.0 COMPONENTS server REQUIRED)
 
@@ -123,7 +123,7 @@ endif(DOXYGEN_FOUND)
 #Install the library and the executables
 install( TARGETS ${PROJECT_NAME}
          RUNTIME DESTINATION bin
-	     LIBRARY DESTINATION lib )
+             LIBRARY DESTINATION lib )
 
 #all include files go into include/PROJECT_NAME
 #The exclusion of ${PROJECT_NAME} prevents the recursive installation of the files just being installed.
