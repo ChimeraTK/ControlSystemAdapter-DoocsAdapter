@@ -33,6 +33,7 @@ namespace ChimeraTK{
       for (auto & updaterFunction : _toDoocsUpdateMap[updatedElement]){
         updaterFunction();
       }
+      boost::this_thread::interruption_point();
     }
   }
 
