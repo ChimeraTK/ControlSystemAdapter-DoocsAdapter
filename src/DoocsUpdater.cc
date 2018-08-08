@@ -27,6 +27,10 @@ namespace ChimeraTK{
   }
 
   void DoocsUpdater::updateLoop(){
+    if (_elementsToRead.empty()) {
+        return;
+    }
+
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
     while(true){
       auto updatedElement = group.readAny();
