@@ -28,6 +28,17 @@ namespace ChimeraTK {
           updater.addVariable( ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray),
                                std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this));
         }
+
+        // Check if the array length exceeds the maximum allowed length by DOOCS. DOOCS does not report this as an
+        // error and instead silently truncates the array length.
+        if(processArray->getNumberOfSamples() != static_cast<size_t>(this->length())) {
+          std::stringstream s;
+          s << "Error: The selected DOOCS data type for the variable '" << processArray->getName() << "' "
+            << "(mapped to the DOOCS name '" << doocsPropertyName << "') seems not to support the requested length of "
+            << processArray->getNumberOfSamples() << " since the DOOCS property has a length of " << this->length()
+            << ". Try selectin a different DOOCS type in the mappng XML file, e.g. a D_spectrum!";
+          throw ChimeraTK::logic_error(s.str());
+        }
       }
 
     /**
