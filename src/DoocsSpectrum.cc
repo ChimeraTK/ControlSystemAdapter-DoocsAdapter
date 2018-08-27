@@ -13,7 +13,7 @@ namespace ChimeraTK {
     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &startAccessor,
     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &incrementAccessor)
 
-    : D_spectrum( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
+    : D_spectrum( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, true),
       _processArray( processArray ), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor)
   {
     if (processArray->isReadable()){
@@ -33,7 +33,7 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::auto_init (void){
-    D_spectrum::auto_init();
+    D_spectrum::read();
     // send the current value to the device
     if (_processArray->isWriteable()){
       sendToDevice();
