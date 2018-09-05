@@ -42,7 +42,7 @@ namespace ChimeraTK {
 
 
   DoocsProcessScalar( EqFct *eqFct, std::string doocsPropertyName,
-                      boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const &processScalar,
+                      boost::shared_ptr< typename ChimeraTK::NDRegisterAccessor<T> > const &processScalar,
                        DoocsUpdater & updater )
     : DOOCS_T(eqFct, doocsPropertyName.c_str()), _processScalar(processScalar)
     {
@@ -52,7 +52,7 @@ namespace ChimeraTK {
     }
 
   DoocsProcessScalar( std::string doocsPropertyName, EqFct *eqFct,
-                      boost::shared_ptr< typename mtca4u::NDRegisterAccessor<T> > const &processScalar,
+                      boost::shared_ptr< typename ChimeraTK::NDRegisterAccessor<T> > const &processScalar,
                        DoocsUpdater & updater )
     : DOOCS_T(doocsPropertyName.c_str(), eqFct), _processScalar(processScalar)
     {
@@ -89,7 +89,7 @@ namespace ChimeraTK {
     }
 
   protected:
-    boost::shared_ptr<mtca4u::NDRegisterAccessor<T> > _processScalar;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T> > _processScalar;
 
   };
 

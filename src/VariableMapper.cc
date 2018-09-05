@@ -3,7 +3,7 @@
 #include <libxml++/libxml++.h>
 #include <regex>
 #include "splitStringAtFirstSlash.h"
-#include <mtca4u/RegisterPath.h>
+#include <ChimeraTK/RegisterPath.h>
 #include <iostream>
 #include <locale>
 #include <algorithm>
@@ -240,7 +240,7 @@ namespace ChimeraTK{
         auto nameSource = processVariable.substr( importSource.size() + 1); // add the slash to be removed
         // we use the register path because it removes duplicate separators and allows to use
         // . as separater to replace all / with .
-        mtca4u::RegisterPath propertyName;
+        ChimeraTK::RegisterPath propertyName;
         std::string locationName;
         if (importLocationName.empty()){
           // a global import, try to get the location name from the source

@@ -8,7 +8,7 @@
 #include <memory>
 #include <iostream>
 #include <boost/any.hpp>
-#include <mtca4u/RegisterPath.h>
+#include <ChimeraTK/RegisterPath.h>
 
 #include "PropertyDescription.h"
 

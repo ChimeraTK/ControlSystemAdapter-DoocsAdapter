@@ -1,12 +1,12 @@
 #ifndef __DOOCS_TRANSFER_ELEMENT_H__
 #define __DOOCS_TRANSFER_ELEMENT_H__
 
-#include <mtca4u/TransferElement.h>
+#include <ChimeraTK/TransferElement.h>
 
 namespace ChimeraTK {
 
   template<class UserType>
-  class DoocsTransferElement : public mtca4u::TransferElement {
+  class DoocsTransferElement : public ChimeraTK::TransferElement {
         
     public:
 
@@ -16,7 +16,7 @@ namespace ChimeraTK {
        *  which is needed by the D_spectrum constructor. This is not a big drawback because
        *  the properties are greated by a factory function anyway.
        */
-      DoocsTransferElement( boost::shared_ptr<  mtca4u::NDRegisterAccessor<UserType> > const &processArray)
+      DoocsTransferElement( boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<UserType> > const &processArray)
         : _processArray( processArray )
       {}
 
@@ -65,7 +65,7 @@ namespace ChimeraTK {
       
   protected:
 
-      boost::shared_ptr< mtca4u::NDRegisterAccessor<UserType> > _processArray;
+      boost::shared_ptr< ChimeraTK::NDRegisterAccessor<UserType> > _processArray;
   };
 
 } // namespace ChimeraTK

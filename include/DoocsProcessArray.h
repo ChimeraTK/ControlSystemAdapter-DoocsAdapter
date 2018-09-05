@@ -19,7 +19,7 @@ namespace ChimeraTK {
 
   public:
       DoocsProcessArray( EqFct *eqFct, std::string const & doocsPropertyName,
-                         boost::shared_ptr<  mtca4u::NDRegisterAccessor<DOOCS_PRIMITIVE_T> > const &processArray,
+                         boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T> > const &processArray,
                          DoocsUpdater & updater)
         : DOOCS_T( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
           _processArray( processArray )
@@ -87,7 +87,7 @@ namespace ChimeraTK {
     }
 
   protected:
-    boost::shared_ptr< mtca4u::NDRegisterAccessor<DOOCS_PRIMITIVE_T> > _processArray;
+    boost::shared_ptr< ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T> > _processArray;
 
     // Internal function which copies the content from the DOOCS container into the
     // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.

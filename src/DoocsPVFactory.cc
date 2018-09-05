@@ -61,8 +61,8 @@ namespace ChimeraTK {
 
     // FIXME: Use a decorator, but this has to be tested and implemented for strings first
     // the DoocsProcessArray needs the real ProcessScalar type, not just ProcessVariable
-    boost::shared_ptr< mtca4u::NDRegisterAccessor<std::string> > processArray
-      = boost::dynamic_pointer_cast< mtca4u::NDRegisterAccessor<std::string> >(processVariable);
+    boost::shared_ptr< ChimeraTK::NDRegisterAccessor<std::string> > processArray
+      = boost::dynamic_pointer_cast< ChimeraTK::NDRegisterAccessor<std::string> >(processVariable);
     if (!processArray){
       throw std::invalid_argument(std::string("DoocsPVFactory::createDoocsArray : processArray is of the wrong type ")
                                   + processVariable->getValueType().name());
@@ -87,8 +87,8 @@ namespace ChimeraTK {
 
     // in case dynamic changing of the axis is requested replace the static values from the
     // config file with the data from the accessors. The spectrum will keep the data updated.
-    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > startAccessor;
-    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > incrementAccessor;
+    boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > startAccessor;
+    boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > incrementAccessor;
 
     if ( spectrumDescription.startSource != ""){
       startAccessor = getDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.startSource),
@@ -124,7 +124,7 @@ namespace ChimeraTK {
     // We cannot use a decorator because scalar and array DOOCS_PRIMITIVE_T can be different,
     // and once a decorator is created you cannot get the other type any more.
 
-    auto & ndAccessor = dynamic_cast<mtca4u::NDRegisterAccessor<IMPL_T> &>(processVariable);
+    auto & ndAccessor = dynamic_cast<ChimeraTK::NDRegisterAccessor<IMPL_T> &>(processVariable);
     auto nSamples = ndAccessor.getNumberOfSamples();
 
     if (nSamples == 1){

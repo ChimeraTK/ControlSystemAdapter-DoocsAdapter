@@ -4,7 +4,7 @@
 #include <D_spectrum.h>
 #include <boost/noncopyable.hpp>
 
-#include <mtca4u/NDRegisterAccessor.h>
+#include <ChimeraTK/NDRegisterAccessor.h>
 #include "DoocsUpdater.h"
 #include "splitStringAtFirstSlash.h"
 
@@ -24,10 +24,10 @@ namespace ChimeraTK {
        *  the properties are greated by a factory function anyway.
        */
       DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
-                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray,
+                     boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > const &processArray,
                      DoocsUpdater & updater,
-                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &startAccessor,
-                     boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &incrementAccessor);
+                     boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > const &startAccessor,
+                     boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > const &incrementAccessor);
 
       /**
        * Overload the set function which is called by DOOCS to inject sending to the device.
@@ -47,9 +47,9 @@ namespace ChimeraTK {
       void updateParameters();
 
   protected:
-      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _processArray;
-      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _startAccessor;
-      boost::shared_ptr< mtca4u::NDRegisterAccessor<float> > _incrementAccessor;
+      boost::shared_ptr< ChimeraTK::NDRegisterAccessor<float> > _processArray;
+      boost::shared_ptr< ChimeraTK::NDRegisterAccessor<float> > _startAccessor;
+      boost::shared_ptr< ChimeraTK::NDRegisterAccessor<float> > _incrementAccessor;
 
       // Internal function which copies the content from the DOOCS container into the 
       // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.

@@ -20,7 +20,7 @@ using namespace ChimeraTK;
 class TestableDoocsSpectrum : public DoocsSpectrum{
 public:
   TestableDoocsSpectrum( EqFct * const eqFct, std::string const & doocsPropertyName,
-                         boost::shared_ptr< typename mtca4u::NDRegisterAccessor<float> > const & processArray, DoocsUpdater & updater)
+                         boost::shared_ptr< typename ChimeraTK::NDRegisterAccessor<float> > const & processArray, DoocsUpdater & updater)
     : DoocsSpectrum( eqFct, doocsPropertyName, processArray, updater, nullptr, nullptr){}
 
   void sendToDevice(){
@@ -45,10 +45,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 8;
-  boost::shared_ptr< mtca4u::NDRegisterAccessor< T> > deviceVariable =
+  boost::shared_ptr< ChimeraTK::NDRegisterAccessor< T> > deviceVariable =
     devManager->createProcessArray<T>(
       controlSystemToDevice, "toDeviceVariable", arraySize);
-  boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable =
+  boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > controlSystemVariable =
     csManager->getProcessArray<T>("toDeviceVariable");
 
   DoocsUpdater updater;
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 8;
-  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > deviceVariable =
+  typename boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(
       deviceToControlSystem, "fromDeviceVariable", arraySize);
-  typename boost::shared_ptr< mtca4u::NDRegisterAccessor<T> > controlSystemVariable =
+  typename boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > controlSystemVariable =
     csManager->getProcessArray<T>("fromDeviceVariable");
 
   DoocsUpdater updater;

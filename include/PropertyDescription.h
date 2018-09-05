@@ -6,7 +6,7 @@
 //#include <set>
 //#include <memory>
 //#include <iostream>
-//#include <mtca4u/RegisterPath.h>
+//#include <ChimeraTK/RegisterPath.h>
 
 ///@todo FIXME: Separate these out into individual files
 
@@ -48,8 +48,8 @@ namespace ChimeraTK{
     // FIXME: should sort by name to put it into a set?
     struct AutoPropertyDescription:
       public PropertyDescription, public PropertyAttributes{
-      mtca4u::RegisterPath source;
-     AutoPropertyDescription(mtca4u::RegisterPath const & source_="", std::string location_="", std::string name_="", bool hasHistory_ = true, bool isWriteable_=true)
+      ChimeraTK::RegisterPath source;
+     AutoPropertyDescription(ChimeraTK::RegisterPath const & source_="", std::string location_="", std::string name_="", bool hasHistory_ = true, bool isWriteable_=true)
       : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_){}
       virtual bool operator==(PropertyDescription const & other) const override{
         if (other.type() == typeid(AutoPropertyDescription)){
@@ -71,7 +71,7 @@ namespace ChimeraTK{
     struct ArrayDescription: public AutoPropertyDescription{
       enum class DataType{Byte, Short, Int, Long, Float, Double, Auto};
 
-      ArrayDescription(mtca4u::RegisterPath const & source_="", std::string location_="", std::string name_="", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_=true)
+      ArrayDescription(ChimeraTK::RegisterPath const & source_="", std::string location_="", std::string name_="", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_=true)
         : AutoPropertyDescription(source_, location_, name_, hasHistory_, isWriteable_),
         dataType(dataType_){
       }
@@ -98,13 +98,13 @@ namespace ChimeraTK{
     };
 
     struct SpectrumDescription: public PropertyDescription, public PropertyAttributes{
-      mtca4u::RegisterPath source;
-      mtca4u::RegisterPath startSource;
-      mtca4u::RegisterPath incrementSource;
+      ChimeraTK::RegisterPath source;
+      ChimeraTK::RegisterPath startSource;
+      ChimeraTK::RegisterPath incrementSource;
       float start;
       float increment;
 
-      SpectrumDescription(mtca4u::RegisterPath const & source_="",
+      SpectrumDescription(ChimeraTK::RegisterPath const & source_="",
                           std::string location_="", std::string name_="",
                           bool hasHistory_ = true, bool isWriteable_=true
                           )
@@ -126,9 +126,9 @@ namespace ChimeraTK{
 //      public PropertyDescription, public PropertyAttributes{
 //      float xStart;
 //      float xIncrement;
-//      mtca4u::RegisterPath mainSource;
-//      mtca4u::RegisterPath xStartSource;
-//      mtca4u::RegisterPath xIncrementSource;
+//      ChimeraTK::RegisterPath mainSource;
+//      ChimeraTK::RegisterPath xStartSource;
+//      ChimeraTK::RegisterPath xIncrementSource;
 //      SpectrumDescription(float start_=0.0, float increment_=1.0)
 //      : start(start_), increment(increment_){}
 //      bool operator==(SpectrumDescription const & other) const{

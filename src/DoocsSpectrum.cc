@@ -8,10 +8,10 @@
 namespace ChimeraTK {
 
   DoocsSpectrum::DoocsSpectrum( EqFct *eqFct, std::string const & doocsPropertyName,
-    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &processArray,
+    boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > const &processArray,
     DoocsUpdater & updater,
-    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &startAccessor,
-    boost::shared_ptr<  mtca4u::NDRegisterAccessor<float> > const &incrementAccessor)
+    boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > const &startAccessor,
+    boost::shared_ptr<  ChimeraTK::NDRegisterAccessor<float> > const &incrementAccessor)
 
     : D_spectrum( doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, true),
       _processArray( processArray ), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor)

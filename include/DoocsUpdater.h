@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 #include <map>
-#include <mtca4u/TransferElement.h>
+#include <ChimeraTK/TransferElement.h>
 #include <boost/noncopyable.hpp>
 
 namespace ChimeraTK{
@@ -28,7 +28,7 @@ namespace ChimeraTK{
     std::list< ChimeraTK::TransferElementAbstractor > _elementsToRead;
     boost::thread _syncThread;// we have to use boost thread to use interruption points
     //FIXME: make this an unordered map
-    std::map< mtca4u::TransferElementID, std::vector< std::function<void ()> > > _toDoocsUpdateMap;
+    std::map< ChimeraTK::TransferElementID, std::vector< std::function<void ()> > > _toDoocsUpdateMap;
 
   };
 }
