@@ -27,20 +27,20 @@ using boost::shared_ptr;
 // The list of types is an mpl type
 typedef boost::mpl::list<int64_t, uint64_t,
                          int32_t, uint32_t,
-			 int16_t, uint16_t,
-			 int8_t, uint8_t,
-			 float, double> simple_test_types;
+                         int16_t, uint16_t,
+                         int8_t, uint8_t,
+                         float, double> simple_test_types;
 
 EqFct myEqFct("MY_EQ_FCT");
 
 template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
 static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const & propertyDescription,
-				    DoocsPVFactory & factory, std::string const & expectedPropertyName){
-  
+                                    DoocsPVFactory & factory, std::string const & expectedPropertyName){
+
   // have the variable created and check that it is the right type
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create( propertyDescription );
   // get the raw pointer and dynamic cast it to the expected type
-  DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * doocsScalarType = 
+  DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * doocsScalarType =
     dynamic_cast< DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T> * > (doocsVariableAsDFct.get());
   // if the cast succeeds the factory works as expected we are done
   std::string errorMessage = std::string("testCreateProcessScalar failed for type ") + typeid(DOOCS_PRIMITIVE_T).name();
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_SUITE( PVManagerTestSuite )
 
 BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
   std::pair< shared_ptr<ControlSystemPVManager>,
-	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+             shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
   devManager->createProcessArray<double>(controlSystemToDevice,"/FP/double",1);
 
   DoocsUpdater updater;
-  
+
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   // We insert check points with integers so we know where the algorithm kicks out in case of an error.
@@ -111,12 +111,12 @@ BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
 //  DoocsPVFactory factory(&myEqFct);
 //
 //  // have the variable created and check that it is the right type
-//  ProcessVariable::SharedPtr processVariable = 
+//  ProcessVariable::SharedPtr processVariable =
 //    csManager->getProcessArray<T>("A/toDeviceArray");
 //  boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(processVariable);
 //
 //  // get the raw pointer and dynamic cast it to the expected type
-//  DoocsProcessArray<T> * doocsArray = 
+//  DoocsProcessArray<T> * doocsArray =
 //    dynamic_cast< DoocsProcessArray<T> * > (doocsVariableAsDFct.get());
 //
 //  // if the cast succeeds the factory works as expected we are done
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testAutoCreateScalars ) {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
   std::pair< shared_ptr<ControlSystemPVManager>,
-	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+             shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -137,19 +137,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateSpectrum, T, simple_test_types ){
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
-  
+
   DoocsUpdater updater;
-  
+
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   auto propertyDescriptions = { std::make_shared<SpectrumDescription>("A/fromDeviceArray1","A","fromDeviceArray1"), std::make_shared<SpectrumDescription>("A/fromDeviceArray2","A","fromDeviceArray2")};
-  
+
   // have the variable created and check that it is the right type
   for (auto const & description : propertyDescriptions){
     boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
     // get the raw pointer and dynamic cast it to the expected type
-    DoocsSpectrum * doocsSpectrum = 
+    DoocsSpectrum * doocsSpectrum =
       dynamic_cast< DoocsSpectrum * > (doocsVariableAsDFct.get());
 
     // if the cast succeeds the factory works as expected we are done
@@ -165,9 +165,9 @@ void testArrayIsCorrectType(DoocsPVFactory &factory, ArrayDescription::DataType 
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
   // get the raw pointer and dynamic cast it to the expected type
-  DOOCS_T * doocsArray = 
+  DOOCS_T * doocsArray =
     dynamic_cast< DOOCS_T * > (doocsVariableAsDFct.get());
-  
+
   // if the cast succeeds the factory works as expected we are done
   BOOST_REQUIRE(doocsArray);
   BOOST_CHECK( static_cast<size_t>(doocsArray->max_length()) == 10 );
@@ -175,7 +175,7 @@ void testArrayIsCorrectType(DoocsPVFactory &factory, ArrayDescription::DataType 
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
   std::pair< shared_ptr<ControlSystemPVManager>,
-	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+             shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
-  
+
   DoocsUpdater updater;
-  
+
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Byte, "fromDeviceArray1");
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
 
 BOOST_AUTO_TEST_CASE( testAutoCreateArray ){
   std::pair< shared_ptr<ControlSystemPVManager>,
-	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+             shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -223,9 +223,9 @@ BOOST_AUTO_TEST_CASE( testAutoCreateArray ){
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames( csManager );
-  
+
   DoocsUpdater updater;
-  
+
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
   testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Auto, "toDeviceCharArray");
@@ -242,17 +242,17 @@ BOOST_AUTO_TEST_CASE( testAutoCreateArray ){
 
 BOOST_AUTO_TEST_CASE( testInt64Scalar ){
   std::pair< shared_ptr<ControlSystemPVManager>,
-	     shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+             shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   devManager->createProcessArray<int64_t>(controlSystemToDevice,"I/toDeviceInt",1);
 
   DoocsUpdater updater;
-  
+
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
-  ProcessVariable::SharedPtr processScalar = 
+  ProcessVariable::SharedPtr processScalar =
     csManager->getProcessArray<int64_t>("I/toDeviceInt");
 
   auto description = std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt");

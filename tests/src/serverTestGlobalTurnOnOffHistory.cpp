@@ -23,7 +23,7 @@ using namespace ChimeraTK;
 /// Check that all expected variables are there.
 void testVariableExistence(){
   usleep(100000);
-  
+
   // the stuff with default. We are lazy and put the integer types as we have to list D_double
   // and D_float separately anyway if we don't want to do meta-programming
   for (auto & location : {"SHORT", "USHORT", "CHAR", "UCHAR", "INT", "UINT"}){
@@ -32,7 +32,7 @@ void testVariableExistence(){
     checkDoocsProperty<D_int>(std::string("//")+location+"/FROM_DEVICE_SCALAR", false, false);
     checkDoocsProperty<D_int>(std::string("//")+location+"/TO_DEVICE_SCALAR", false ,true);
   }
-  for (auto & nameWriteable : { std::make_pair("CONSTANT_ARRAY", false), {"FROM_DEVICE_ARRAY", false}, {"TO_DEVICE_ARRAY", true}}){ 
+  for (auto & nameWriteable : { std::make_pair("CONSTANT_ARRAY", false), {"FROM_DEVICE_ARRAY", false}, {"TO_DEVICE_ARRAY", true}}){
     checkDoocsProperty<D_intarray>(std::string("//INT/")+nameWriteable.first, false, nameWriteable.second);
     checkDoocsProperty<D_intarray>(std::string("//UINT/")+nameWriteable.first, false, nameWriteable.second);
     checkDoocsProperty<D_bytearray>(std::string("//CHAR/")+nameWriteable.first, false, nameWriteable.second);
@@ -40,7 +40,7 @@ void testVariableExistence(){
     checkDoocsProperty<D_shortarray>(std::string("//SHORT/")+nameWriteable.first, false, nameWriteable.second);
     checkDoocsProperty<D_shortarray>(std::string("//USHORT/")+nameWriteable.first, false, nameWriteable.second);
   }
-  
+
   std::cout << "testing DOUBLE" << std::endl;
   checkDoocsProperty<D_doublearray>("//DOUBLE/CONSTANT_ARRAY", true, false);
   checkDoocsProperty<D_doublearray>("//DOUBLE/FROM_DEVICE_ARRAY", true, false );

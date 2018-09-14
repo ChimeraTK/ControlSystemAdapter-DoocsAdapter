@@ -44,14 +44,14 @@ bool testArrayContent(std::string const & propertyName, T testStartValue, T delt
 
 /// Check that all expected variables are there.
 void testReadWrite(){
-  // halt the test application tread 
+  // halt the test application tread
   referenceTestApplication.initialiseManualLoopControl();
 
   // prepare the x-axis for the float array (we are using the float and double scalar)
   DoocsServerTestHelper::doocsSet("//FLOAT/START",12.3);
   DoocsServerTestHelper::doocsSet("//FLOAT/INCREMENT", 1.6);
   referenceTestApplication.runMainLoopOnce();
-  
+
   checkSpectrum("//INT/TO_DEVICE_ARRAY");
   checkSpectrum("//DOUBLE/TO_DEVICE_ARRAY");
   checkSpectrum("//UINT/TO_DEVICE_ARRAY");
@@ -63,22 +63,22 @@ void testReadWrite(){
 
   // check that the "short array" is of type long
   checkDataType("//SHORT/MY_RETYPED_SHORT_ARRAY", DATA_A_LONG);
-  
-  DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
-  DoocsServerTestHelper::doocsSetSpectrum("//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3} ); 
-  
+
+  DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} );
+  DoocsServerTestHelper::doocsSetSpectrum("//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3} );
+
   // check the the control system side still sees 0 in all arrays. The application has not
   // reacted yet
-  
+
   CHECK_WITH_TIMEOUT( testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true );
   CHECK_WITH_TIMEOUT( testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true );
-  
+
   // run the application loop.
   referenceTestApplication.runMainLoopOnce();
 
   CHECK_WITH_TIMEOUT( testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140, 1) == true );
   CHECK_WITH_TIMEOUT( testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3, 1) == true );
-  
+
 //  notIntArray = DoocsServerTestHelper::doocsGetArray<double>("//INT/MY_RENAMED_INTARRAY")
 //    ;
 //

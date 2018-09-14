@@ -19,14 +19,14 @@ using namespace ChimeraTK;
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type
 typedef boost::mpl::list<int32_t, uint32_t,
-			 int16_t, uint16_t,
-			 int8_t, uint8_t> integer_test_types;
+                         int16_t, uint16_t,
+                         int8_t, uint8_t> integer_test_types;
 
 BOOST_AUTO_TEST_SUITE( DoocsProcessScalarTestSuite )
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 
   boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(controlSystemToDevice,"toDeviceVariable", 1);
-  boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > controlSystemVariable = 
+  boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > controlSystemVariable =
     csManager->getProcessArray<T>("toDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0)=0;
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceIntegerTypeTest, T, integer_test_types ){
 // DoocsProcessScalar<double, D_double, double>
 BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
 
   boost::shared_ptr< ProcessArray<float> > deviceFloat =
     devManager->createProcessArray<float>(controlSystemToDevice,"toDeviceFloat",1);
-  boost::shared_ptr< ProcessArray<float> > controlSystemFloat = 
+  boost::shared_ptr< ProcessArray<float> > controlSystemFloat =
     csManager->getProcessArray<float>("toDeviceFloat");
   // set the variables to 0
   deviceFloat->accessData(0)=0;
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest){
 
 BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
 
   boost::shared_ptr< ProcessArray<double> > deviceDouble =
     devManager->createProcessArray<double>(controlSystemToDevice,"toDeviceDouble",1);
-  boost::shared_ptr< ProcessArray<double> > controlSystemDouble = 
+  boost::shared_ptr< ProcessArray<double> > controlSystemDouble =
     csManager->getProcessArray<double>("toDeviceDouble");
   // set the variables to 0
   deviceDouble->accessData(0)=0;
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest){
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
 
   typename boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > deviceVariable =
     devManager->createProcessArray<T>(deviceToControlSystem,"fromDeviceVariable",1);
-  typename boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > controlSystemVariable = 
+  typename boost::shared_ptr< ChimeraTK::NDRegisterAccessor<T> > controlSystemVariable =
     csManager->getProcessArray<T>("fromDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0)=0;
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceIntegerTypeTest, T, integer_test_types 
 
 BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
 
   ProcessArray<float>::SharedPtr deviceVariable =
     devManager->createProcessArray<float>(deviceToControlSystem,"fromDeviceVariable",1);
-  ProcessArray<float>::SharedPtr controlSystemVariable = 
+  ProcessArray<float>::SharedPtr controlSystemVariable =
     csManager->getProcessArray<float>("fromDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0)=0;
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceFloatTest ){
 
 BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( fromDeviceDoubleTest ){
 
   ProcessArray<double>::SharedPtr deviceVariable =
     devManager->createProcessArray<double>(deviceToControlSystem,"fromDeviceVariable",1);
-  ProcessArray<double>::SharedPtr controlSystemVariable = 
+  ProcessArray<double>::SharedPtr controlSystemVariable =
     csManager->getProcessArray<double>("fromDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0)=0;

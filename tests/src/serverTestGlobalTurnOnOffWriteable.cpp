@@ -30,7 +30,7 @@ void testVariableExistence(){
     checkDoocsProperty<D_int>(std::string("//")+location+"/FROM_DEVICE_SCALAR", true, false);
     checkDoocsProperty<D_int>(std::string("//")+location+"/TO_DEVICE_SCALAR", true, false);
   }
-  for (auto & name : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}){ 
+  for (auto & name : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}){
     checkDoocsProperty<D_intarray>(std::string("//INT/")+name, true, false);
     checkDoocsProperty<D_intarray>(std::string("//UINT/")+name, true, false);
     checkDoocsProperty<D_bytearray>(std::string("//CHAR/")+name, true, false);
@@ -40,7 +40,7 @@ void testVariableExistence(){
     checkDoocsProperty<D_shortarray>(std::string("//SHORT/")+name, true, false);
     checkDoocsProperty<D_shortarray>(std::string("//USHORT/")+name, true, false);
   }
-  
+
   std::cout << "testing DOUBLE" << std::endl;
   checkDoocsProperty<D_doublearray>("//DOUBLE/CONSTANT_ARRAY", true, false);
   checkDoocsProperty<D_doublearray>("//DOUBLE/FROM_DEVICE_ARRAY", true, false );

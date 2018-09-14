@@ -32,15 +32,15 @@ public:
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type
 typedef boost::mpl::list<int32_t, uint32_t,
-			 int16_t, uint16_t,
-			 int8_t, uint8_t,
-			 float, double> simple_test_types;
+                         int16_t, uint16_t,
+                         int8_t, uint8_t,
+                         float, double> simple_test_types;
 
 BOOST_AUTO_TEST_SUITE( DoocsSpectrumTestSuite )
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
@@ -76,17 +76,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( toDeviceTest, T, simple_test_types ){
   for (size_t i =0; i < arraySize; ++i){
     std::stringstream errorMessage;
     errorMessage << "i = " <<i<< ", deviceVector[i] = "
-		 <<  deviceVector[i]
-		 << " expected " << sign*static_cast<T>(i*i) + offset;
+                 <<  deviceVector[i]
+                 << " expected " << sign*static_cast<T>(i*i) + offset;
     BOOST_CHECK_MESSAGE( deviceVector[i] == sign*static_cast<T>(i*i) + offset,
-			 errorMessage.str() );
+                         errorMessage.str() );
   }
 
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( fromDeviceTest, T, simple_test_types ){
   std::pair<boost::shared_ptr<ControlSystemPVManager>,
-	    boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
+            boost::shared_ptr<DevicePVManager> > pvManagers = createPVManager();
   boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 

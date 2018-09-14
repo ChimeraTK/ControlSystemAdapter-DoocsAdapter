@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   BusinessLogic businessLogic( doocsAdapter.getDevicePVManager() );
   // we also have to initialise the mapping (direct 1:1 from the input without xml)
   auto csManager = doocsAdapter.getControlSystemPVManager();
-  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );  
+  VariableMapper::getInstance().directImport( getAllVariableNames(csManager ) );
   // after that create the EqFct
   auto updater = boost::make_shared<DoocsUpdater>();
   TestableCSAdapterEqFct eqFct(42, csManager, updater, "test");
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   // raw pointers. This would not be possible in a real application because
   // the vector with the properties is not exposed.
   std::map< std::string, D_int *> doocsProperties;
-  
+
   for (size_t i = 0; i < eqFct.getDoocsProperties().size(); ++i){
     D_int *doocsInt = dynamic_cast<D_int*>(eqFct.getDoocsProperties()[i].get());
     BOOST_REQUIRE(doocsInt);
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testCSAdapterEqFct ) {
   set_doocs_value(*(doocsProperties["TO_DEVICE.INT "]),14);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK_EQUAL( businessLogic.toDeviceInt->accessData(0), 14 );
-  
+
   // and the other direction
   businessLogic.fromDeviceInt->accessData(0) = 12;
   businessLogic.fromDeviceInt->write();
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testWithMapping ) {
 
   // extract the two properties and check the name
   std::map< std::string, D_int *> doocsProperties;
-  
+
   // both properties are called int, but are in different locations
   D_int *doocsInt = dynamic_cast<D_int*>(toDeviceEqFct.getDoocsProperties()[0].get());
   BOOST_REQUIRE( std::string(doocsInt->property_name()) == "INT ");

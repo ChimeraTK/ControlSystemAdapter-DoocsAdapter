@@ -49,13 +49,13 @@ std::set< std::string > generateInputVariables(){
   inputVariables.insert("/B/a/dr");
   inputVariables.insert("/B/c/de");
   inputVariables.insert("/B/c/gne");
-  inputVariables.insert("/C/a/da");  
-  inputVariables.insert("/C/b/ge");  
-  inputVariables.insert("/C/c/be");  
+  inputVariables.insert("/C/a/da");
+  inputVariables.insert("/C/b/ge");
+  inputVariables.insert("/C/c/be");
   inputVariables.insert("/C/c/de"); // there also is a c/de in B
-  inputVariables.insert("/DIRECT/DOUBLE");  
-  inputVariables.insert("/DIRECT/DOUBLE_ARRAY");  
-  inputVariables.insert("/DIRECT/INT");  
+  inputVariables.insert("/DIRECT/DOUBLE");
+  inputVariables.insert("/DIRECT/DOUBLE_ARRAY");
+  inputVariables.insert("/DIRECT/INT");
   inputVariables.insert("/DIRECT/INT_ARRAY");
 
   return inputVariables;

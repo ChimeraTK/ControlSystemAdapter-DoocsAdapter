@@ -29,10 +29,10 @@ using namespace ChimeraTK;
 
 /// Check that all expected variables are there.
 void testReadWrite(){
-  // halt the test application tread 
+  // halt the test application tread
   referenceTestApplication.initialiseManualLoopControl();
   std::cout << "got the application main lock" << std::endl;
-  
+
   // just a few tests before we start
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1 );
@@ -41,8 +41,8 @@ void testReadWrite(){
 
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 42 );
   DoocsServerTestHelper::doocsSet<int>("//CHAR/TO_DEVICE_SCALAR", 44 );
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} ); 
-  
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149} );
+
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0 );
   CHECK_WITH_TIMEOUT( DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0 );
 
@@ -66,7 +66,7 @@ void testReadWrite(){
   for (int i =0; i < int(constArray.size()); ++i){
     CHECK_WITH_TIMEOUT( std::fabs(DoocsServerTestHelper::doocsGetArray<float>("//INT/CONSTANT_ARRAY")[i] - (-4*i*i)) < 0.001 ); // float check to compensate binary roundings errors
   }
-  
+
   for (auto const location : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"} ){
     for (auto const property : { "CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "} ){
       // if this throws the property does not exist. we should always be able to read"
