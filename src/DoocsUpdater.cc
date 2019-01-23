@@ -47,6 +47,9 @@ namespace ChimeraTK{
 
   void DoocsUpdater::stop(){
     _syncThread.interrupt();
+    for (auto & var: _elementsToRead) {
+        var.getHighLevelImplElement()->interrupt();
+    }
     _syncThread.join();
   }
 
