@@ -21,22 +21,13 @@ namespace ChimeraTK {
     public:
 
     void  updateDoocsBuffer(){
+      // Note: we already own the location lock by specification of the DoocsUpdater
       auto data = _processScalar->accessData(0);
-
-      // This function is called from some thread, so we have to use the location lock here
-      // Process scalars can also be created with a NULL EqFct for testing, so we have to cath
-      // this here. Obviously we can ignore the lock if there is no EqFct to access the content.
-      if (this->get_eqfct()){
-        this->get_eqfct()->lock();
-      }
       // we must not call set_and_archive if there is no history (otherwise it will be activated), but we have to if it is there. -> Abstraction, please!
       if (this->get_histPointer()){
         this->set_and_archive(data);
       }else{
         this->set_value(data);
-      }
-      if (this->get_eqfct()){
-        this->get_eqfct()->unlock();
       }
     }
 
@@ -47,7 +38,7 @@ namespace ChimeraTK {
     : DOOCS_T(eqFct, doocsPropertyName.c_str()), _processScalar(processScalar)
     {
       if (processScalar->isReadable()){
-        updater.addVariable( ChimeraTK::ScalarRegisterAccessor<T>(processScalar) , std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
+        updater.addVariable( ChimeraTK::ScalarRegisterAccessor<T>(processScalar), eqFct, std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
       }
     }
 
@@ -57,7 +48,7 @@ namespace ChimeraTK {
     : DOOCS_T(doocsPropertyName.c_str(), eqFct), _processScalar(processScalar)
     {
       if (processScalar->isReadable()){
-        updater.addVariable( ChimeraTK::ScalarRegisterAccessor<T>(processScalar) , std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
+        updater.addVariable( ChimeraTK::ScalarRegisterAccessor<T>(processScalar), eqFct, std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this));
       }
     }
 

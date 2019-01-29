@@ -17,13 +17,13 @@ namespace ChimeraTK {
       _processArray( processArray ), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor)
   {
     if (processArray->isReadable()){
-      updater.addVariable( ChimeraTK::OneDRegisterAccessor<float>(processArray) , std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
+      updater.addVariable( ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct, std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
     }
     if (startAccessor && startAccessor->isReadable()){
-      updater.addVariable( ChimeraTK::ScalarRegisterAccessor<float>(startAccessor), std::bind(&DoocsSpectrum::updateParameters, this));
+      updater.addVariable( ChimeraTK::ScalarRegisterAccessor<float>(startAccessor), eqFct, std::bind(&DoocsSpectrum::updateParameters, this));
     }
     if (incrementAccessor && incrementAccessor->isReadable()){
-      updater.addVariable( ChimeraTK::ScalarRegisterAccessor<float>(incrementAccessor), std::bind(&DoocsSpectrum::updateParameters, this));
+      updater.addVariable( ChimeraTK::ScalarRegisterAccessor<float>(incrementAccessor), eqFct, std::bind(&DoocsSpectrum::updateParameters, this));
     }
   }
 
@@ -41,27 +41,18 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::updateDoocsBuffer(){
+    // Note: we already own the location lock by specification of the DoocsUpdater
+
     // FIXME: find the efficient memcopying implementation for float
     std::vector<float> & processVector = _processArray->accessChannel(0);
-
-    if (this->get_eqfct()){
-      this->get_eqfct()->lock();
-    }
 
     for(size_t i=0; i < processVector.size(); ++i) {
       fill_spectrum(i, processVector[i]);
     }
-
-    if (this->get_eqfct()){
-      this->get_eqfct()->unlock();
-    }
   }
 
   void DoocsSpectrum::updateParameters(){
-    if (this->get_eqfct()){
-      this->get_eqfct()->lock();
-    }
-
+    // Note: we already own the location lock by specification of the DoocsUpdater
     float start, increment;
     if (_startAccessor){
       start=_startAccessor->accessData(0);
@@ -75,9 +66,6 @@ namespace ChimeraTK {
     }
 
     spectrum_parameter( this->spec_time(), start, increment, this->spec_status() );
-    if (this->get_eqfct()){
-      this->get_eqfct()->unlock();
-    }
   }
 
   void DoocsSpectrum::sendToDevice() {

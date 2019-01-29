@@ -25,7 +25,7 @@ namespace ChimeraTK {
           _processArray( processArray )
       {
         if (processArray->isReadable()){
-          updater.addVariable( ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray),
+          updater.addVariable( ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray), eqFct,
                                std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this));
         }
 
@@ -62,15 +62,8 @@ namespace ChimeraTK {
     }
 
     void  updateDoocsBuffer(){
+      // Note: we already own the location lock by specification of the DoocsUpdater
       auto & processVector = _processArray->accessChannel(0);
-      // fixme: what about history?
-
-      // This function is called from some thread, so we have to use the location lock here
-      // Process scalars can also be created with a NULL EqFct for testing, so we have to cath
-      // this here. Obviously we can ignore the lock if there is no EqFct to access the content.
-      if (this->get_eqfct()){
-        this->get_eqfct()->lock();
-      }
 
       // We have to cast the pointer to the correct underlying DOOCS type. This cast never does anything, the only
       // reason is to "convert" from int64_t to long long int (which are different types!)
@@ -81,9 +74,6 @@ namespace ChimeraTK {
       auto dataPtr = reinterpret_cast<THE_DOOCS_TYPE*>(processVector.data());
 
       this->fill_array(dataPtr, processVector.size());
-      if (this->get_eqfct()){
-        this->get_eqfct()->unlock();
-      }
     }
 
   protected:
