@@ -9,33 +9,33 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
-namespace ChimeraTK{
+namespace ChimeraTK {
 
-class CSAdapterEqFct : public EqFct , boost::noncopyable {
- protected:
+  class CSAdapterEqFct : public EqFct, boost::noncopyable {
+   protected:
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
     int fctCode_;
-    std::vector< boost::shared_ptr<D_fct> > doocsProperties_;
+    std::vector<boost::shared_ptr<D_fct>> doocsProperties_;
     void registerProcessVariablesInDoocs();
-    std::vector < ChimeraTK::ProcessVariable::SharedPtr > getProcessVariablesInThisLocation();
+    std::vector<ChimeraTK::ProcessVariable::SharedPtr> getProcessVariablesInThisLocation();
 
     static bool emptyLocationVariablesHandled;
     boost::shared_ptr<DoocsUpdater> updater_;
-    
- public:
+
+   public:
     // The fctName (location name ) is usually coming from the config file and
     // should be left empty. Only for testing without actually running a DOOCS server
     // you need it.
     CSAdapterEqFct(int fctCode,
-		   boost::shared_ptr<ControlSystemPVManager> const & controlSystemPVManager,
-                   boost::shared_ptr<DoocsUpdater> const & updater,
-		   std::string fctName = std::string());
+        boost::shared_ptr<ControlSystemPVManager> const& controlSystemPVManager,
+        boost::shared_ptr<DoocsUpdater> const& updater,
+        std::string fctName = std::string());
     ~CSAdapterEqFct();
-    
+
     void init() override;
     int fct_code() override;
-};
+  };
 
-}// namespace ChimeraTK
+} // namespace ChimeraTK
 
-#endif// CS_ADAPTER_EQ_FCT_H
+#endif // CS_ADAPTER_EQ_FCT_H
