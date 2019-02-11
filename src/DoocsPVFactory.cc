@@ -51,9 +51,14 @@ namespace ChimeraTK {
       }
     } // if name too long
 
-    // set read only mode if configures in the xml file or for output variables
+    // set read only mode if configured in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
       doocsPV->set_ro_access();
+    }
+
+    // publish via ZeroMQ if configured in the xml file
+    if(propertyDescription.publishZMQ) {
+      boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->publishZeroMQ();
     }
 
     return doocsPV;
@@ -81,6 +86,11 @@ namespace ChimeraTK {
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
       doocsPV->set_ro_access();
+    }
+
+    // publish via ZeroMQ if configured in the xml file
+    if(propertyDescription.publishZMQ) {
+      doocsPV->set_mode(DMSG_EN);
     }
 
     return doocsPV;
@@ -121,6 +131,11 @@ namespace ChimeraTK {
     // can use static cast, we know it's a D_spectrum, we just created it
     auto spectrum = boost::static_pointer_cast<D_spectrum>(doocsPV);
     spectrum->spectrum_parameter(spectrum->spec_time(), start, increment, spectrum->spec_status());
+
+    // publish via ZeroMQ if configured in the xml file
+    if(spectrumDescription.publishZMQ) {
+      spectrum->set_mode(DMSG_EN);
+    }
 
     return doocsPV;
   }
@@ -225,6 +240,11 @@ namespace ChimeraTK {
     // set read only mode if configures in the xml file or for output variables
     if(!processVariable->isWriteable() || !arrayDescription.isWriteable) {
       doocsPV->set_ro_access();
+    }
+
+    // publish via ZeroMQ if configured in the xml file
+    if(arrayDescription.publishZMQ) {
+      doocsPV->set_mode(DMSG_EN);
     }
 
     return doocsPV;

@@ -114,12 +114,21 @@ namespace ChimeraTK {
     else {
       propertyDescription->hasHistory = getHasHistoryDefault(locationName);
     }
+
     auto isWriteableNodes = propertyXmlElement->get_children("is_writeable");
     if(!isWriteableNodes.empty()) {
       propertyDescription->isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
     }
     else {
       propertyDescription->isWriteable = getIsWriteableDefault(locationName);
+    }
+
+    auto publishZeroMQ = propertyXmlElement->get_children("publish_ZMQ");
+    if(!publishZeroMQ.empty()) {
+      propertyDescription->publishZMQ = evaluateBool(getContentString(publishZeroMQ.front()));
+    }
+    else {
+      propertyDescription->publishZMQ = false;
     }
   }
 

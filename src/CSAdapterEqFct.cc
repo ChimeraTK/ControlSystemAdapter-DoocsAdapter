@@ -30,6 +30,20 @@ namespace ChimeraTK {
 
   void CSAdapterEqFct::init() {}
 
+  void CSAdapterEqFct::post_init() {
+    for(auto& pair : doocsProperties_) {
+      auto attrs = std::dynamic_pointer_cast<PropertyAttributes>(pair.first);
+      assert(attrs != nullptr);
+      if(attrs->publishZMQ) {
+        auto res = pair.second->set_mode(DMSG_EN);
+        if(res != 0) {
+          throw ChimeraTK::logic_error(
+              "Could not enable ZeroMQ messaging for prop_someZMQInt. Code: " + std::to_string(res));
+        }
+      }
+    }
+  }
+
   int CSAdapterEqFct::fct_code() { return fctCode_; }
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs() {
@@ -37,15 +51,14 @@ namespace ChimeraTK {
     DoocsPVFactory factory(this, *updater_, controlSystemPVManager_);
 
     auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(name());
-    doocsProperties_.reserve(mappingForThisLocation.size());
 
-    for(auto& propertyDescrition : mappingForThisLocation) {
+    for(auto& propertyDescription : mappingForThisLocation) {
       try {
-        doocsProperties_.push_back(factory.create(propertyDescrition));
+        doocsProperties_[propertyDescription] = factory.create(propertyDescription);
       }
       catch(std::invalid_argument& e) {
-        std::cerr << "**** WARNING: Could not create property for variable '" << propertyDescrition->location << "/"
-                  << propertyDescrition->name << "': " << e.what() << ". Skipping this property." << std::endl;
+        std::cerr << "**** WARNING: Could not create property for variable '" << propertyDescription->location << "/"
+                  << propertyDescription->name << "': " << e.what() << ". Skipping this property." << std::endl;
       }
     }
   }

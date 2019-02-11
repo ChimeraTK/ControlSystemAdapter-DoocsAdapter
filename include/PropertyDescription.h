@@ -17,10 +17,11 @@ namespace ChimeraTK {
   struct PropertyAttributes {
     bool hasHistory;
     bool isWriteable;
-    PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true)
-    : hasHistory(hasHistory_), isWriteable(isWriteable_) {}
+    bool publishZMQ;
+    PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false)
+    : hasHistory(hasHistory_), isWriteable(isWriteable_), publishZMQ(publishZMQ_) {}
     bool operator==(PropertyAttributes const& other) const {
-      return (hasHistory == other.hasHistory && isWriteable == other.isWriteable);
+      return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ);
     }
   };
 

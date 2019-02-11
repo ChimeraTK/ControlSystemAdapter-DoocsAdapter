@@ -17,16 +17,20 @@
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
-// expose the properties vector for testing
+/// expose the properties vector for testing
+/// @todo FIXME: This should never be done in a test. FOR TESTING, USE THE PUBLIC API ONLY!
 class TestableCSAdapterEqFct : public CSAdapterEqFct {
  public:
-  TestableCSAdapterEqFct(int fctCode,
-      boost::shared_ptr<ControlSystemPVManager>
-          controlSystemPVManager,
-      boost::shared_ptr<DoocsUpdater> const& updater,
-      std::string fctName)
+  TestableCSAdapterEqFct(int fctCode, boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
+      boost::shared_ptr<DoocsUpdater> const& updater, std::string fctName)
   : CSAdapterEqFct(fctCode, controlSystemPVManager, updater, fctName) {}
-  std::vector<boost::shared_ptr<D_fct>>& getDoocsProperties() { return doocsProperties_; }
+  std::vector<boost::shared_ptr<D_fct>> getDoocsProperties() {
+    // ugly work around required after refactoring - this should not be required, but it happens if one tests against
+    // private API...
+    std::vector<boost::shared_ptr<D_fct>> v;
+    for(auto& p : doocsProperties_) v.push_back(p.second);
+    return v;
+  }
 };
 
 struct BusinessLogic {

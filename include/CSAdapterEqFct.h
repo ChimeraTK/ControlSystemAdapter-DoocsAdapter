@@ -1,13 +1,16 @@
 #ifndef CS_ADAPTER_EQ_FCT_H
 #define CS_ADAPTER_EQ_FCT_H
 
-#include <eq_fct.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
-#include "DoocsUpdater.h"
-
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
+
+#include <eq_fct.h>
+
+#include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+
+#include "DoocsUpdater.h"
+#include "PropertyDescription.h"
 
 namespace ChimeraTK {
 
@@ -15,7 +18,7 @@ namespace ChimeraTK {
    protected:
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
     int fctCode_;
-    std::vector<boost::shared_ptr<D_fct>> doocsProperties_;
+    std::map<std::shared_ptr<ChimeraTK::PropertyDescription>, boost::shared_ptr<D_fct>> doocsProperties_;
     void registerProcessVariablesInDoocs();
     std::vector<ChimeraTK::ProcessVariable::SharedPtr> getProcessVariablesInThisLocation();
 
@@ -33,6 +36,7 @@ namespace ChimeraTK {
     ~CSAdapterEqFct();
 
     void init() override;
+    void post_init() override;
     int fct_code() override;
   };
 

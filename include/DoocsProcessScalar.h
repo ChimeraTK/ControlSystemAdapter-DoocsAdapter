@@ -28,6 +28,11 @@ namespace ChimeraTK {
       else {
         this->set_value(data);
       }
+      if(publishZMQ) {
+        dmsg_info info;
+        memset(&info, 0, sizeof(info));
+        this->send(&info);
+      }
     }
 
     DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
@@ -67,7 +72,7 @@ namespace ChimeraTK {
      * Override the Doocs auto_init() method, which is called after initialising the value of
      * the property from the config file.
      */
-    void auto_init(void) {
+    void auto_init(void) override {
       DOOCS_T::auto_init();
       // send the current value to the device
       if(_processScalar->isWriteable()) {
@@ -76,8 +81,11 @@ namespace ChimeraTK {
       }
     }
 
+    void publishZeroMQ() { publishZMQ = true; }
+
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> _processScalar;
+    bool publishZMQ{false};
   };
 
 } // namespace ChimeraTK
