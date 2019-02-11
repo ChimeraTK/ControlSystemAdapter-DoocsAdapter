@@ -70,10 +70,18 @@ namespace ChimeraTK {
       auto dataPtr = reinterpret_cast<THE_DOOCS_TYPE*>(processVector.data());
 
       this->fill_array(dataPtr, processVector.size());
+      if(publishZMQ) {
+        dmsg_info info;
+        memset(&info, 0, sizeof(info));
+        this->send(&info);
+      }
     }
+
+    void publishZeroMQ() { publishZMQ = true; }
 
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> _processArray;
+    bool publishZMQ{false};
 
     // Internal function which copies the content from the DOOCS container into the
     // ChimeraTK ProcessArray and calls the send method. Factored out to allow unit testing.

@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
-  <!-- Test "renaming" a location, i.e. import something into an a location name that does not
-       exist as directory on the input. -->
+
   <location name="INT">
-    <!-- Test renaming of an array -->
     <property source="/INT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
       <publish_ZMQ>true</publish_ZMQ>
     </property>
-    <!-- Test importin in this case into a location with a name different from the import-->
+    <property source="/INT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
+      <publish_ZMQ>true</publish_ZMQ>
+    </property>
     <import>/INT</import>
   </location>
 
-  <!-- Test the global import. The location name is the name of the first directory of the input.
-       Input variables already mentioned explicitly or already imported will not be added. -->
-  <import>/</import>
+  <location name="FLOAT">
+    <D_spectrum source="/FLOAT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
+      <start>123.</start>
+      <increment>0.56</increment>
+      <publish_ZMQ>true</publish_ZMQ>
+    </D_spectrum>
+    <import>/FLOAT</import>
+  </location>
 
 </device_server>

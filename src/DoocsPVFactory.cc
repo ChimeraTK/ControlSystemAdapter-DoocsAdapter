@@ -90,7 +90,7 @@ namespace ChimeraTK {
 
     // publish via ZeroMQ if configured in the xml file
     if(propertyDescription.publishZMQ) {
-      doocsPV->set_mode(DMSG_EN);
+      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_string>>(doocsPV)->publishZeroMQ();
     }
 
     return doocsPV;
@@ -134,7 +134,7 @@ namespace ChimeraTK {
 
     // publish via ZeroMQ if configured in the xml file
     if(spectrumDescription.publishZMQ) {
-      spectrum->set_mode(DMSG_EN);
+      boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->publishZeroMQ();
     }
 
     return doocsPV;
@@ -244,9 +244,8 @@ namespace ChimeraTK {
 
     // publish via ZeroMQ if configured in the xml file
     if(arrayDescription.publishZMQ) {
-      doocsPV->set_mode(DMSG_EN);
+      boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->publishZeroMQ();
     }
-
     return doocsPV;
   }
 

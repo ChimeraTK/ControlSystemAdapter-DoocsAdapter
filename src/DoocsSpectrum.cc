@@ -50,6 +50,11 @@ namespace ChimeraTK {
     for(size_t i = 0; i < processVector.size(); ++i) {
       fill_spectrum(i, processVector[i]);
     }
+    if(publishZMQ) {
+      dmsg_info info;
+      memset(&info, 0, sizeof(info));
+      this->send(&info);
+    }
   }
 
   void DoocsSpectrum::updateParameters() {
