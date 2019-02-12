@@ -1,10 +1,11 @@
 #define BOOST_TEST_MODULE servertestZeroMQ
 #include <boost/test/included/unit_test.hpp>
 
+#include <thread>
+#include <random>
 #include <eq_client.h>
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <thread>
 
 #include "serverBasedTestTools.h"
 #include "DoocsAdapter.h"
