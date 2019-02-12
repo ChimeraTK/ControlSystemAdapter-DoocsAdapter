@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <macro_pulse_number_source>/INT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
 
-  <location name="INT">
-    <property source="/INT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
+  <location name="UINT">
+    <property source="/UINT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
       <publish_ZMQ>true</publish_ZMQ>
     </property>
-    <property source="/INT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
+    <property source="/UINT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
       <publish_ZMQ>true</publish_ZMQ>
     </property>
-    <import>/INT</import>
+    <import>/UINT</import>
   </location>
 
   <location name="FLOAT">
@@ -19,5 +20,7 @@
     </D_spectrum>
     <import>/FLOAT</import>
   </location>
+
+  <import>/</import>
 
 </device_server>

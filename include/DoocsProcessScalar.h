@@ -36,7 +36,7 @@ namespace ChimeraTK {
         auto time = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch);
         info.sec = time.count() / 1000000;
         info.usec = time.count() % 1000000;
-        info.ident = 0;
+        info.ident = _macroPulseNumberSource->accessData(0);
         this->send(&info);
       }
     }
@@ -89,8 +89,13 @@ namespace ChimeraTK {
 
     void publishZeroMQ() { publishZMQ = true; }
 
+    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> macroPulseNumberSource) {
+      _macroPulseNumberSource = macroPulseNumberSource;
+    }
+
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> _processScalar;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> _macroPulseNumberSource;
     bool publishZMQ{false};
   };
 

@@ -18,10 +18,14 @@ namespace ChimeraTK {
     bool hasHistory;
     bool isWriteable;
     bool publishZMQ;
-    PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false)
-    : hasHistory(hasHistory_), isWriteable(isWriteable_), publishZMQ(publishZMQ_) {}
+    std::string macroPulseNumberSource;
+    PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false,
+        std::string macroPulseNumberSource_ = "")
+    : hasHistory(hasHistory_), isWriteable(isWriteable_), publishZMQ(publishZMQ_),
+      macroPulseNumberSource(macroPulseNumberSource_) {}
     bool operator==(PropertyAttributes const& other) const {
-      return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ);
+      return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ &&
+          macroPulseNumberSource == other.macroPulseNumberSource);
     }
   };
 
@@ -135,8 +139,11 @@ namespace ChimeraTK {
   struct LocationInfo : public PropertyAttributes {
     bool useHasHistoryDefault;
     bool useIsWriteableDefault;
-    LocationInfo(bool useHasHistoryDefault_ = false, bool useIsWriteableDefault_ = false)
-    : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_) {}
+    bool useMacroPulseNumberSourceDefault;
+    LocationInfo(bool useHasHistoryDefault_ = false, bool useIsWriteableDefault_ = false,
+        bool useMacroPulseNumberSourceDefault_ = false)
+    : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_),
+      useMacroPulseNumberSourceDefault(useMacroPulseNumberSourceDefault_) {}
   };
 
 } // namespace ChimeraTK

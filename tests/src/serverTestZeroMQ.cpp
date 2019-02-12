@@ -39,7 +39,7 @@ struct DoocsLauncher {
     EqCall eq;
     EqAdr ea;
     EqData src, dst;
-    ea.adr("doocs://localhost:" + rpc_no + "/F/D/INT/FROM_DEVICE_SCALAR");
+    ea.adr("doocs://localhost:" + rpc_no + "/F/D/UINT/FROM_DEVICE_SCALAR");
     while(eq.get(&ea, &src, &dst)) usleep(100000);
     dmsg_start();
     referenceTestApplication.initialiseManualLoopControl();
@@ -58,9 +58,6 @@ static std::atomic<bool> dataReceived;
 static EqData received;
 static dmsg_info_t receivedInfo;
 static std::mutex mutex;
-static int expectedValue;
-static std::vector<int> expectedArrayValue;
-static std::vector<float> expectedFloatArrayValue;
 
 /**********************************************************************************************************************/
 
@@ -70,15 +67,15 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  {
-    std::lock_guard<std::mutex> lock(mutex);
-    expectedValue = 42;
-    DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", expectedValue);
-  }
+  uint32_t expectedValue = 42;
+  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+
+  int macroPulseNumber = 12345;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
   EqData dst;
   EqAdr ea;
-  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/INT/FROM_DEVICE_SCALAR");
+  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_SCALAR");
   dmsg_t tag;
   int err = dmsg_attach(&ea,
       &dst,
@@ -120,13 +117,16 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       std::lock_guard<std::mutex> lock(mutex);
       BOOST_CHECK_EQUAL(received.error(), 0);
       BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
-      auto time = appPVmanager->getProcessArray<int>("INT/FROM_DEVICE_SCALAR")->getVersionNumber().getTime();
+      auto time = appPVmanager->getProcessArray<uint32_t>("UINT/FROM_DEVICE_SCALAR")->getVersionNumber().getTime();
       auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
       auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
+      BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
       expectedValue = 100 + i;
-      DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", expectedValue);
+      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+      ++macroPulseNumber;
+      DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
   }
 
@@ -141,15 +141,15 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  {
-    std::lock_guard<std::mutex> lock(mutex);
-    expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-    DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", expectedArrayValue);
-  }
+  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+
+  int macroPulseNumber = 99999;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
   EqData dst;
   EqAdr ea;
-  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/INT/FROM_DEVICE_ARRAY");
+  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
   int err = dmsg_attach(&ea,
       &dst,
@@ -193,13 +193,16 @@ BOOST_AUTO_TEST_CASE(testArray) {
       BOOST_CHECK_EQUAL(received.error(), 0);
       BOOST_CHECK_EQUAL(received.length(), 10);
       for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
-      auto time = appPVmanager->getProcessArray<int>("INT/FROM_DEVICE_ARRAY")->getVersionNumber().getTime();
+      auto time = appPVmanager->getProcessArray<uint32_t>("UINT/FROM_DEVICE_ARRAY")->getVersionNumber().getTime();
       auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
       auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
+      BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
       expectedArrayValue[1] = 100 + i;
-      DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", expectedArrayValue);
+      DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+      --macroPulseNumber;
+      DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
   }
 
@@ -214,11 +217,11 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  {
-    std::lock_guard<std::mutex> lock(mutex);
-    expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-    DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-  }
+  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+
+  int macroPulseNumber = -100;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
   EqData dst;
   EqAdr ea;
@@ -272,8 +275,11 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
+      BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
       expectedFloatArrayValue[1] = 100 + i;
       DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+      macroPulseNumber *= -2;
+      DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
   }
 

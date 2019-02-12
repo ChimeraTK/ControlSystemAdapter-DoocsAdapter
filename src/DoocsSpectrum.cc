@@ -57,7 +57,7 @@ namespace ChimeraTK {
       auto time = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch);
       info.sec = time.count() / 1000000;
       info.usec = time.count() % 1000000;
-      info.ident = 0;
+      info.ident = _macroPulseNumberSource->accessData(0);
       this->send(&info);
     }
   }
