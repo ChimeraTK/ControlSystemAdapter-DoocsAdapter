@@ -55,6 +55,7 @@ std::string DoocsLauncher::rpc_no;
 /**********************************************************************************************************************/
 
 static std::atomic<bool> dataReceived;
+static EqData received;
 static std::mutex mutex;
 static int expectedValue;
 static std::vector<int> expectedArrayValue;
@@ -81,8 +82,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       nullptr,
       [](void*, EqData* data, dmsg_info_t*) {
         std::lock_guard<std::mutex> lock(mutex);
-        BOOST_CHECK_EQUAL(data->error(), 0);
-        BOOST_CHECK_EQUAL(data->get_int(), expectedValue);
+        received.copy_from(data);
         dataReceived = true;
       },
       &tag);
@@ -90,15 +90,20 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
   size_t counter = 0;
+  dataReceived = false;
   while(!dataReceived) {
     usleep(1000);
     referenceTestApplication.runMainLoopOnce();
     if(++counter > 10000) break;
   }
   BOOST_CHECK(dataReceived == true);
+  {
+    std::lock_guard<std::mutex> lock(mutex);
+    BOOST_CHECK_EQUAL(received.error(), 0);
+    BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
+  }
   usleep(100000); // this sleep is bad, but there seems not to be any better solution - we need to be sure there is no
                   // further pending update
-  dataReceived = false;
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
@@ -109,6 +114,8 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
       std::lock_guard<std::mutex> lock(mutex);
+      BOOST_CHECK_EQUAL(received.error(), 0);
+      BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
       expectedValue = 100 + i;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", expectedValue);
     }
@@ -138,9 +145,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
       nullptr,
       [](void*, EqData* data, dmsg_info_t*) {
         std::lock_guard<std::mutex> lock(mutex);
-        BOOST_CHECK_EQUAL(data->error(), 0);
-        BOOST_CHECK_EQUAL(data->length(), 10);
-        for(size_t i = 0; i < 10; ++i) BOOST_CHECK_EQUAL(data->get_int(i), expectedArrayValue[i]);
+        received.copy_from(data);
         dataReceived = true;
       },
       &tag);
@@ -148,15 +153,21 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
   size_t counter = 0;
+  dataReceived = false;
   while(!dataReceived) {
     usleep(1000);
     referenceTestApplication.runMainLoopOnce();
     if(++counter > 10000) break;
   }
   BOOST_CHECK(dataReceived == true);
+  {
+    std::lock_guard<std::mutex> lock(mutex);
+    BOOST_CHECK_EQUAL(received.error(), 0);
+    BOOST_CHECK_EQUAL(received.length(), 10);
+    for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
+  }
   usleep(100000); // this sleep is bad, but there seems not to be any better solution - we need to be sure there is no
                   // further pending update
-  dataReceived = false;
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
@@ -166,6 +177,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
     referenceTestApplication.runMainLoopOnce();
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
+      std::lock_guard<std::mutex> lock(mutex);
+      BOOST_CHECK_EQUAL(received.error(), 0);
+      BOOST_CHECK_EQUAL(received.length(), 10);
+      for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
       expectedArrayValue[1] = 100 + i;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", expectedArrayValue);
     }
@@ -195,11 +210,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       nullptr,
       [](void*, EqData* data, dmsg_info_t*) {
         std::lock_guard<std::mutex> lock(mutex);
-        BOOST_CHECK_EQUAL(data->error(), 0);
-        BOOST_CHECK_EQUAL(data->length(), 10);
-        BOOST_CHECK_CLOSE(data->get_spectrum()->s_start, 123., 0.001);
-        BOOST_CHECK_CLOSE(data->get_spectrum()->s_inc, 0.56, 0.001);
-        for(size_t i = 0; i < 10; ++i) BOOST_CHECK_CLOSE(data->get_float(i), expectedFloatArrayValue[i], 0.0001);
+        received.copy_from(data);
         dataReceived = true;
       },
       &tag);
@@ -207,15 +218,20 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
   size_t counter = 0;
+  dataReceived = false;
   while(!dataReceived) {
     usleep(1000);
     referenceTestApplication.runMainLoopOnce();
     if(++counter > 10000) break;
   }
   BOOST_CHECK(dataReceived == true);
+  BOOST_CHECK_EQUAL(received.error(), 0);
+  BOOST_CHECK_EQUAL(received.length(), 10);
+  BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
+  BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
+  for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedFloatArrayValue[k], 0.0001);
   usleep(100000); // this sleep is bad, but there seems not to be any better solution - we need to be sure there is no
                   // further pending update
-  dataReceived = false;
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
@@ -225,6 +241,12 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     referenceTestApplication.runMainLoopOnce();
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
+      std::lock_guard<std::mutex> lock(mutex);
+      BOOST_CHECK_EQUAL(received.error(), 0);
+      BOOST_CHECK_EQUAL(received.length(), 10);
+      BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
+      BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
+      for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedFloatArrayValue[k], 0.0001);
       expectedFloatArrayValue[1] = 100 + i;
       DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
     }
