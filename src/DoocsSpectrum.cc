@@ -53,6 +53,11 @@ namespace ChimeraTK {
     if(publishZMQ) {
       dmsg_info info;
       memset(&info, 0, sizeof(info));
+      auto sinceEpoch = _processArray->getVersionNumber().getTime().time_since_epoch();
+      auto time = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch);
+      info.sec = time.count() / 1000000;
+      info.usec = time.count() % 1000000;
+      info.ident = 0;
       this->send(&info);
     }
   }

@@ -56,6 +56,7 @@ std::string DoocsLauncher::rpc_no;
 
 static std::atomic<bool> dataReceived;
 static EqData received;
+static dmsg_info_t receivedInfo;
 static std::mutex mutex;
 static int expectedValue;
 static std::vector<int> expectedArrayValue;
@@ -66,6 +67,8 @@ static std::vector<float> expectedFloatArrayValue;
 BOOST_AUTO_TEST_CASE(testScalar) {
   std::cout << "testScalar" << std::endl;
   DoocsLauncher::launchIfNotYetLaunched();
+
+  auto appPVmanager = referenceTestApplication.getPVManager();
 
   {
     std::lock_guard<std::mutex> lock(mutex);
@@ -80,9 +83,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   int err = dmsg_attach(&ea,
       &dst,
       nullptr,
-      [](void*, EqData* data, dmsg_info_t*) {
+      [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
+        receivedInfo = *info;
         dataReceived = true;
       },
       &tag);
@@ -116,6 +120,11 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       std::lock_guard<std::mutex> lock(mutex);
       BOOST_CHECK_EQUAL(received.error(), 0);
       BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
+      auto time = appPVmanager->getProcessArray<int>("INT/FROM_DEVICE_SCALAR")->getVersionNumber().getTime();
+      auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
+      auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
+      BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
+      BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       expectedValue = 100 + i;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", expectedValue);
     }
@@ -130,6 +139,8 @@ BOOST_AUTO_TEST_CASE(testArray) {
   std::cout << "testArray" << std::endl;
   DoocsLauncher::launchIfNotYetLaunched();
 
+  auto appPVmanager = referenceTestApplication.getPVManager();
+
   {
     std::lock_guard<std::mutex> lock(mutex);
     expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
@@ -143,9 +154,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
   int err = dmsg_attach(&ea,
       &dst,
       nullptr,
-      [](void*, EqData* data, dmsg_info_t*) {
+      [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
+        receivedInfo = *info;
         dataReceived = true;
       },
       &tag);
@@ -181,6 +193,11 @@ BOOST_AUTO_TEST_CASE(testArray) {
       BOOST_CHECK_EQUAL(received.error(), 0);
       BOOST_CHECK_EQUAL(received.length(), 10);
       for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
+      auto time = appPVmanager->getProcessArray<int>("INT/FROM_DEVICE_ARRAY")->getVersionNumber().getTime();
+      auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
+      auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
+      BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
+      BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       expectedArrayValue[1] = 100 + i;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", expectedArrayValue);
     }
@@ -195,6 +212,8 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   std::cout << "testSpectrum" << std::endl;
   DoocsLauncher::launchIfNotYetLaunched();
 
+  auto appPVmanager = referenceTestApplication.getPVManager();
+
   {
     std::lock_guard<std::mutex> lock(mutex);
     expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
@@ -208,9 +227,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   int err = dmsg_attach(&ea,
       &dst,
       nullptr,
-      [](void*, EqData* data, dmsg_info_t*) {
+      [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
+        receivedInfo = *info;
         dataReceived = true;
       },
       &tag);
@@ -247,6 +267,11 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
       BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
       for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedFloatArrayValue[k], 0.0001);
+      auto time = appPVmanager->getProcessArray<float>("FLOAT/FROM_DEVICE_ARRAY")->getVersionNumber().getTime();
+      auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
+      auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
+      BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
+      BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       expectedFloatArrayValue[1] = 100 + i;
       DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
     }
