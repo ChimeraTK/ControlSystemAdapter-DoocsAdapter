@@ -68,11 +68,15 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  uint32_t expectedValue = 42;
-  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+  /// Note: The data is processed by the ReferenceTestApplication in the order of the types as listed in the HolderMap
+  /// of the ReferenceTestApplication. INT comes before UINT and FLOAT, so the macro pulse number is first written and
+  /// then our values.
 
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  uint32_t expectedValue = 42;
+  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
 
   EqData dst;
   EqAdr ea;
@@ -124,10 +128,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
-      expectedValue = 100 + i;
-      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
       ++macroPulseNumber;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+      expectedValue = 100 + i;
+      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
     }
   }
 
@@ -142,11 +146,11 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
-
   int macroPulseNumber = 99999;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
 
   EqData dst;
   EqAdr ea;
@@ -200,10 +204,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
-      expectedArrayValue[1] = 100 + i;
-      DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
       --macroPulseNumber;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+      expectedArrayValue[1] = 100 + i;
+      DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
     }
   }
 
@@ -218,11 +222,11 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-
   int macroPulseNumber = -100;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
 
   EqData dst;
   EqAdr ea;
@@ -277,10 +281,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
-      expectedFloatArrayValue[1] = 100 + i;
-      DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
       macroPulseNumber *= -2;
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+      expectedFloatArrayValue[1] = 100 + i;
+      DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
     }
   }
 

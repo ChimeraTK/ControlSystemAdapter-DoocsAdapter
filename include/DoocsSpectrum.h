@@ -45,7 +45,7 @@ namespace ChimeraTK {
 
     void publishZeroMQ() { publishZMQ = true; }
 
-    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> macroPulseNumberSource) {
+    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
       _macroPulseNumberSource = macroPulseNumberSource;
     }
 
@@ -53,7 +53,7 @@ namespace ChimeraTK {
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> _macroPulseNumberSource;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
     bool publishZMQ{false};
 
     // Internal function which copies the content from the DOOCS container into the
