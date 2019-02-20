@@ -42,7 +42,6 @@ ELSE(Boost_UNIT_TEST_FRAMEWORK_FOUND)
   message("Boost unit_test_framework, disabling testing")
 ENDIF(Boost_UNIT_TEST_FRAMEWORK_FOUND)
 
-
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/include ${CMAKE_SOURCE_DIR}/example)
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
 
@@ -86,6 +85,8 @@ if(TESTING_IS_ENABLED)
 
 endif(TESTING_IS_ENABLED)
 
+include(cmake/enable_doxygen_documentation.cmake)
+
 # C++ library
 add_library(${PROJECT_NAME} SHARED ${library_sources} )
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
@@ -101,23 +102,6 @@ set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${Chime
 set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
 target_link_libraries(referenceTestDoocsServer ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} ${PROJECT_NAME})
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
-
-#configure a header file which contains the version information for use in C++
-#configure_file(cmake/version.h.in "${PROJECT_BINARY_DIR}/version.h" @ONLY)
-
-# add a target to generate API documentation with Doxygen
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile.in.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.in @ONLY)
-  configure_file(${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-  add_custom_target( doc ALL
-                     ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                     COMMENT "Generating API documentation with Doxygen" VERBATIM )
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/doc DESTINATION .)
-else(DOXYGEN_FOUND)
-  message("Doxygen not found, documentation will not be build.")
-endif(DOXYGEN_FOUND)
 
 
 #Install the library and the executables
