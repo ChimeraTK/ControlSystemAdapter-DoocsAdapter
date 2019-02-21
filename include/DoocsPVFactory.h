@@ -32,7 +32,7 @@ public:
 
 protected:
   EqFct *_eqFct; //< The EqFct which is holding the factory. Needed in the
-                 //constructor of the doocs properties.
+                 // constructor of the doocs properties.
   DoocsUpdater &_updater;
   boost::shared_ptr<ControlSystemPVManager>
       _controlSystemPVManager; //< The pv manager, needed to get the instances
