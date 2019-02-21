@@ -3,4 +3,3 @@
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 ReferenceTestApplication referenceTestApplication;
-

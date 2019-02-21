@@ -12,13 +12,13 @@
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
-BOOST_AUTO_TEST_SUITE( DoocsAdapterRestSuite )
+BOOST_AUTO_TEST_SUITE(DoocsAdapterRestSuite)
 
-BOOST_AUTO_TEST_CASE( testDoocsAdapter ) {
+BOOST_AUTO_TEST_CASE(testDoocsAdapter) {
   DoocsAdapter doocsAdapter;
 
-  //not much to test. We can test that the shared pointers are not null,
-  //that's it.
+  // not much to test. We can test that the shared pointers are not null,
+  // that's it.
   BOOST_CHECK(doocsAdapter.getDevicePVManager());
   BOOST_CHECK(doocsAdapter.getControlSystemPVManager());
 }
