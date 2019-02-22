@@ -7,8 +7,8 @@
 using namespace ChimeraTK;
 
 BOOST_AUTO_TEST_CASE(testCreation) {
-  VariableMapper &vm = VariableMapper::getInstance();
-  VariableMapper &vm2 = VariableMapper::getInstance();
+  VariableMapper& vm = VariableMapper::getInstance();
+  VariableMapper& vm2 = VariableMapper::getInstance();
   BOOST_CHECK(&vm == &vm2);
 }
 
@@ -62,7 +62,7 @@ std::set<std::string> generateInputVariables() {
 }
 
 void testXmlParsing(std::string xmlFile) {
-  VariableMapper &vm = VariableMapper::getInstance();
+  VariableMapper& vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
   // vm.print();
   // only used for error handling. nothing tested here
@@ -73,7 +73,8 @@ BOOST_AUTO_TEST_CASE(testEvaluateBool) {
   try {
     VariableMapper::evaluateBool("fale");
     BOOST_ERROR("testEvaluateBool did not throw as expected"); // LCOV_EXCL_LINE
-  } catch (std::logic_error &e) {
+  }
+  catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for invalid "
                  "bool syntax:\n      "
               << e.what() << std::endl;
@@ -93,9 +94,9 @@ BOOST_AUTO_TEST_CASE(testWrongGlobalDirectory) {
   // location
   try {
     testXmlParsing("variableTreeXml/wrongGlobalDirectory.xml");
-    BOOST_ERROR(
-        "testWrongGlobalDirectory did not throw as expected."); // LCOV_EXCL_LINE
-  } catch (std::logic_error &e) {
+    BOOST_ERROR("testWrongGlobalDirectory did not throw as expected."); // LCOV_EXCL_LINE
+  }
+  catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
                  "directory in global import:\n      "
               << e.what() << std::endl;
@@ -105,9 +106,9 @@ BOOST_AUTO_TEST_CASE(testWrongGlobalDirectory) {
 BOOST_AUTO_TEST_CASE(testImportTooShort) {
   try {
     testXmlParsing("variableTreeXml/globalImportPartTooShort.xml");
-    BOOST_ERROR(
-        "testImportTooShort did not throw as expected."); // LCOV_EXCL_LINE
-  } catch (std::logic_error &e) {
+    BOOST_ERROR("testImportTooShort did not throw as expected."); // LCOV_EXCL_LINE
+  }
+  catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for too "
                  "short tree depth:\n      "
               << e.what() << std::endl;
@@ -117,9 +118,9 @@ BOOST_AUTO_TEST_CASE(testImportTooShort) {
 BOOST_AUTO_TEST_CASE(testUnknownMainNode) {
   try {
     testXmlParsing("variableTreeXml/unknownMainNode.xml");
-    BOOST_ERROR(
-        "testUnknownMainNode did not throw as expected"); // LCOV_EXCL_LINE
-  } catch (std::logic_error &e) {
+    BOOST_ERROR("testUnknownMainNode did not throw as expected"); // LCOV_EXCL_LINE
+  }
+  catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for unknown "
                  "main node:\n      "
               << e.what() << std::endl;
@@ -129,9 +130,9 @@ BOOST_AUTO_TEST_CASE(testUnknownMainNode) {
 BOOST_AUTO_TEST_CASE(testUnkownLocationNode) {
   try {
     testXmlParsing("variableTreeXml/unknownLocationNode.xml");
-    BOOST_ERROR(
-        "testUnknownLocationNode did not throw as expected"); // LCOV_EXCL_LINE
-  } catch (std::logic_error &e) {
+    BOOST_ERROR("testUnknownLocationNode did not throw as expected"); // LCOV_EXCL_LINE
+  }
+  catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for unknown "
                  "location node:\n      "
               << e.what() << std::endl;

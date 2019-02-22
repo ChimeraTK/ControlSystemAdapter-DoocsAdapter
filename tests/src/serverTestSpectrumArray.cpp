@@ -13,7 +13,7 @@ ReferenceTestApplication referenceTestApplication("serverTestSpectrumArray");
 
 // declare that we have some thing like a doocs server. is is linked from the
 // doocs lib, but there is no header.
-extern int eq_server(int, char **);
+extern int eq_server(int, char**);
 
 //#include <limits>
 //#include <sstream>
@@ -29,14 +29,13 @@ using namespace ChimeraTK;
 //			 float, double> simple_test_types;
 
 // the array must have testStartValue+i at index i.
-template <class T>
-bool testArrayContent(std::string const &propertyName, T testStartValue,
-                      T delta) {
+template<class T>
+bool testArrayContent(std::string const& propertyName, T testStartValue, T delta) {
   auto array = DoocsServerTestHelper::doocsGetArray<T>(propertyName);
   bool isOK = true;
   T currentTestValue = testStartValue;
-  for (auto val : array) {
-    if (std::fabs(val - currentTestValue) > 0.001) {
+  for(auto val : array) {
+    if(std::fabs(val - currentTestValue) > 0.001) {
       isOK = false;
     }
     currentTestValue += delta;
@@ -67,28 +66,21 @@ void testReadWrite() {
   // check that the "short array" is of type long
   checkDataType("//SHORT/MY_RETYPED_SHORT_ARRAY", DATA_A_LONG);
 
+  DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149});
   DoocsServerTestHelper::doocsSetSpectrum(
-      "//INT/TO_DEVICE_ARRAY",
-      {140, 141, 142, 143, 144, 145, 146, 147, 148, 149});
-  DoocsServerTestHelper::doocsSetSpectrum(
-      "//DOUBLE/TO_DEVICE_ARRAY",
-      {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3});
+      "//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3});
 
   // check the the control system side still sees 0 in all arrays. The
   // application has not reacted yet
 
-  CHECK_WITH_TIMEOUT(
-      testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true);
-  CHECK_WITH_TIMEOUT(
-      testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
+  CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true);
+  CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
 
   // run the application loop.
   referenceTestApplication.runMainLoopOnce();
 
-  CHECK_WITH_TIMEOUT(
-      testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140, 1) == true);
-  CHECK_WITH_TIMEOUT(
-      testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3, 1) == true);
 
   //  notIntArray =
   //  DoocsServerTestHelper::doocsGetArray<double>("//INT/MY_RENAMED_INTARRAY")
@@ -111,7 +103,7 @@ void testPropertyDoesNotExist(std::string addressString) {
   EqData ed, res;
   // obtain location pointer
   ad.adr(addressString.c_str());
-  EqFct *eqFct = eq_get(&ad);
+  EqFct* eqFct = eq_get(&ad);
   BOOST_REQUIRE_MESSAGE(eqFct != NULL, "Could not get location for property.");
   // obtain value
   eqFct->lock();
@@ -119,9 +111,8 @@ void testPropertyDoesNotExist(std::string addressString) {
   eqFct->unlock();
   // check for errors
   /// todo FIXME: check for the correct error code
-  BOOST_CHECK_MESSAGE(res.error() != 0, std::string("Could read from ") +
-                                            addressString +
-                                            ", but it should not be there");
+  BOOST_CHECK_MESSAGE(
+      res.error() != 0, std::string("Could read from ") + addressString + ", but it should not be there");
 }
 
 void testPropertiesDontExist() {
@@ -131,26 +122,22 @@ void testPropertiesDontExist() {
 
 // due to the doocs server thread you can only have one test suite
 class DoocsServerTestSuite : public test_suite {
-public:
-  DoocsServerTestSuite(int argc, char *argv[])
-      : test_suite("Spectrum and array server test suite"),
-        doocsServerThread(eq_server, argc, argv) {
+ public:
+  DoocsServerTestSuite(int argc, char* argv[])
+  : test_suite("Spectrum and array server test suite"), doocsServerThread(eq_server, argc, argv) {
     // wait for doocs to start up before detaching the thread and continuing
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
     doocsServerThread.detach();
     add(BOOST_TEST_CASE(&testReadWrite));
     add(BOOST_TEST_CASE(&testPropertiesDontExist));
   }
-  virtual ~DoocsServerTestSuite() {
-    referenceTestApplication.releaseManualLoopControl();
-  }
+  virtual ~DoocsServerTestSuite() { referenceTestApplication.releaseManualLoopControl(); }
 
-protected:
+ protected:
   std::thread doocsServerThread;
 };
 
-test_suite *init_unit_test_suite(int argc, char *argv[]) {
-  framework::master_test_suite().p_name.value =
-      "Spectrum and array server test suite";
+test_suite* init_unit_test_suite(int argc, char* argv[]) {
+  framework::master_test_suite().p_name.value = "Spectrum and array server test suite";
   return new DoocsServerTestSuite(argc, argv);
 }

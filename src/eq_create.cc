@@ -5,8 +5,8 @@
 #include "getAllVariableNames.h"
 #include <sys/stat.h>
 
-char const *object_name;
-static char const *XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
+char const* object_name;
+static char const* XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
 
 static ChimeraTK::DoocsAdapter doocsAdapter;
 
@@ -18,22 +18,19 @@ void eq_init_prolog() {
   object_name = ChimeraTK::ApplicationBase::getInstance().getName().c_str();
   // Create static instances for all applications cores. They must not have
   // overlapping process variable names ("location/protery" must be unique).
-  ChimeraTK::ApplicationBase::getInstance().setPVManager(
-      doocsAdapter.getDevicePVManager());
+  ChimeraTK::ApplicationBase::getInstance().setPVManager(doocsAdapter.getDevicePVManager());
   ChimeraTK::ApplicationBase::getInstance().initialise();
 
   // the variable manager can only be filled after we have the CS manager
-  auto pvNames =
-      ChimeraTK::getAllVariableNames(doocsAdapter.getControlSystemPVManager());
+  auto pvNames = ChimeraTK::getAllVariableNames(doocsAdapter.getControlSystemPVManager());
 
-  auto xmlFileName =
-      ChimeraTK::ApplicationBase::getInstance().getName() + XML_CONFIG_SUFFIX;
+  auto xmlFileName = ChimeraTK::ApplicationBase::getInstance().getName() + XML_CONFIG_SUFFIX;
 
   struct stat buffer;
-  if (stat(xmlFileName.c_str(), &buffer) == 0) {
-    ChimeraTK::VariableMapper::getInstance().prepareOutput(xmlFileName,
-                                                           pvNames);
-  } else {
+  if(stat(xmlFileName.c_str(), &buffer) == 0) {
+    ChimeraTK::VariableMapper::getInstance().prepareOutput(xmlFileName, pvNames);
+  }
+  else {
     std::cerr << "WARNING: No XML file for the Doocs variable config found. "
                  "Trying direct import."
               << std::endl;
@@ -46,9 +43,8 @@ void eq_init_prolog() {
 
 /* eq_create returns a ControlSystemAdapter-based location for any location type
  */
-EqFct *eq_create(int eq_code, void *) {
-  return new ChimeraTK::CSAdapterEqFct(
-      eq_code, doocsAdapter.getControlSystemPVManager(), doocsAdapter.updater);
+EqFct* eq_create(int eq_code, void*) {
+  return new ChimeraTK::CSAdapterEqFct(eq_code, doocsAdapter.getControlSystemPVManager(), doocsAdapter.updater);
 }
 
 /* post_init_epilog is called after all DOOCS properties are fully intialised,

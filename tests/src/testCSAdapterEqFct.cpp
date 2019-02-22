@@ -21,18 +21,15 @@ using namespace ChimeraTK;
 /// @todo FIXME: This should never be done in a test. FOR TESTING, USE THE
 /// PUBLIC API ONLY!
 class TestableCSAdapterEqFct : public CSAdapterEqFct {
-public:
-  TestableCSAdapterEqFct(
-      int fctCode,
-      boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
-      boost::shared_ptr<DoocsUpdater> const &updater, std::string fctName)
-      : CSAdapterEqFct(fctCode, controlSystemPVManager, updater, fctName) {}
+ public:
+  TestableCSAdapterEqFct(int fctCode, boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager,
+      boost::shared_ptr<DoocsUpdater> const& updater, std::string fctName)
+  : CSAdapterEqFct(fctCode, controlSystemPVManager, updater, fctName) {}
   std::vector<boost::shared_ptr<D_fct>> getDoocsProperties() {
     // ugly work around required after refactoring - this should not be
     // required, but it happens if one tests against private API...
     std::vector<boost::shared_ptr<D_fct>> v;
-    for (auto &p : doocsProperties_)
-      v.push_back(p.second);
+    for(auto& p : doocsProperties_) v.push_back(p.second);
     return v;
   }
 };
@@ -41,11 +38,9 @@ struct BusinessLogic {
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> toDeviceInt;
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> fromDeviceInt;
 
-  BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const &pvManager)
-      : toDeviceInt(pvManager->createProcessArray<int>(
-            controlSystemToDevice, "test/TO_DEVICE/INT", 1)),
-        fromDeviceInt(pvManager->createProcessArray<int>(
-            deviceToControlSystem, "test/FROM_DEVICE/INT", 1)) {}
+  BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const& pvManager)
+  : toDeviceInt(pvManager->createProcessArray<int>(controlSystemToDevice, "test/TO_DEVICE/INT", 1)),
+    fromDeviceInt(pvManager->createProcessArray<int>(deviceToControlSystem, "test/FROM_DEVICE/INT", 1)) {}
 };
 
 BOOST_AUTO_TEST_SUITE(CSAdapterEqFctTestSuite)
@@ -72,20 +67,17 @@ BOOST_AUTO_TEST_CASE(testCSAdapterEqFct) {
   // We do extraction by name and put them into a map. For convenience we use
   // raw pointers. This would not be possible in a real application because
   // the vector with the properties is not exposed.
-  std::map<std::string, D_int *> doocsProperties;
+  std::map<std::string, D_int*> doocsProperties;
 
-  for (size_t i = 0; i < eqFct.getDoocsProperties().size(); ++i) {
-    D_int *doocsInt =
-        dynamic_cast<D_int *>(eqFct.getDoocsProperties()[i].get());
+  for(size_t i = 0; i < eqFct.getDoocsProperties().size(); ++i) {
+    D_int* doocsInt = dynamic_cast<D_int*>(eqFct.getDoocsProperties()[i].get());
     BOOST_REQUIRE(doocsInt);
     doocsProperties[doocsInt->property_name()] = doocsInt;
   }
   // note: doocs property names always have a space (and a comment which can
   // be empty, but the space is always there)"
-  BOOST_REQUIRE(doocsProperties.find("TO_DEVICE.INT ") !=
-                doocsProperties.end());
-  BOOST_REQUIRE(doocsProperties.find("FROM_DEVICE.INT ") !=
-                doocsProperties.end());
+  BOOST_REQUIRE(doocsProperties.find("TO_DEVICE.INT ") != doocsProperties.end());
+  BOOST_REQUIRE(doocsProperties.find("FROM_DEVICE.INT ") != doocsProperties.end());
 
   // write once and check
   set_doocs_value(*(doocsProperties["TO_DEVICE.INT "]), 13);
@@ -121,28 +113,23 @@ BOOST_AUTO_TEST_CASE(testWithMapping) {
   // Initialse the mapping with an xml file.
   auto csManager = doocsAdapter.getControlSystemPVManager();
 
-  VariableMapper::getInstance().prepareOutput("EqFctTest.xml",
-                                              getAllVariableNames(csManager));
+  VariableMapper::getInstance().prepareOutput("EqFctTest.xml", getAllVariableNames(csManager));
 
   // in the mapping two locations are created
   auto updater = boost::make_shared<DoocsUpdater>();
-  TestableCSAdapterEqFct toDeviceEqFct(42, csManager, updater,
-                                       "test.TO_DEVICE");
-  TestableCSAdapterEqFct fromDeviceEqFct(42, csManager, updater,
-                                         "test.FROM_DEVICE");
+  TestableCSAdapterEqFct toDeviceEqFct(42, csManager, updater, "test.TO_DEVICE");
+  TestableCSAdapterEqFct fromDeviceEqFct(42, csManager, updater, "test.FROM_DEVICE");
 
   BOOST_REQUIRE(toDeviceEqFct.getDoocsProperties().size() == 1);
   BOOST_REQUIRE(fromDeviceEqFct.getDoocsProperties().size() == 1);
 
   // extract the two properties and check the name
-  std::map<std::string, D_int *> doocsProperties;
+  std::map<std::string, D_int*> doocsProperties;
 
   // both properties are called int, but are in different locations
-  D_int *doocsInt =
-      dynamic_cast<D_int *>(toDeviceEqFct.getDoocsProperties()[0].get());
+  D_int* doocsInt = dynamic_cast<D_int*>(toDeviceEqFct.getDoocsProperties()[0].get());
   BOOST_REQUIRE(std::string(doocsInt->property_name()) == "INT ");
-  doocsInt =
-      dynamic_cast<D_int *>(fromDeviceEqFct.getDoocsProperties()[0].get());
+  doocsInt = dynamic_cast<D_int*>(fromDeviceEqFct.getDoocsProperties()[0].get());
   BOOST_REQUIRE(std::string(doocsInt->property_name()) == "INT ");
 }
 
