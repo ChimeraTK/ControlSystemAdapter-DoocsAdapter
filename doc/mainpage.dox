@@ -1,66 +1,117 @@
-/** \mainpage
+/** \mainpage ChimeraTK-ControlSystemAdapter-DoocsAdapter
 
-The DOOCS_Adapter implements the ChimeraTK Control System Adapter for DOOCS.
+The ChimeraTK-ControlSystemAdapter-DoocsAdapter implements the %ChimeraTK Control System Adapter for DOOCS.
 
-\section Integration Integrating your business logic into DOOCS
+\section Integration Integrating your control system application into DOOCS
 
-You need:
-\li The core of your control application (business logic) written against the ChimeraTK Control
-System Adapter
-\li An instance of the DOOCSProcessVaiableFactory in your server class
-\li An instance of the business logic in your server class
-\li An update() or interrupt_userX() function which calls the business logic
+Prerequisites:
+\li The application has been writen with the ChimeraTK-ApplicationCore library,
+\li a working DOOCS environment (see: http://doocs.desy.de).
 
-\subsection Header The Server Header
-\li Include the headers of your business logic and the DOOCSProcessVaiableFactory
-\li You need a member variable which stores a variable factory as
-\c boost::shared_ptr<ChimeraTK::ProcessVaiableFactory>. Note that it has to be a
-shared pointer to the base class \c ChimeraTK::ProcessVaiableFactory, not to the
-DOOCS factory.
-\li Your business logic is allocated dynamically in the init() function. Hence
-you need a pointer to it as a member variable, not the instance itself. It is recommended to use smart
-pointers to avoid issues with the memory management.
+To integrate the application into DOOCS, it has to be linked against the ChimeraTK-ControlSystemAdapter-DoocsAdapter
+library. Simply use the `add_dependency()` cmake macro coming with the %ChimeraTK project template, then add
+`${ChimeraTK-ControlSystemAdapter-DoocsAdapter_LINK_FLAGS}` to the `CMAKE_LINK_FLAGS` and
+`${ChimeraTK-ControlSystemAdapter-DoocsAdapter_LIBRARIES}` to the libraries your executable links against. It is not
+necessary to change the include path.
 
-\subsection Implementation The Server Implementation
-\subsubsection Constructor Constructor
-\li Initialise the DOOCSProcessVariableFactory
-\li Populate the DOOCSProcessVariableFactory<br>
-The population has to be done in the constructor so the DOOCS properties are
-known to the server. The previous values of the properties are set after the
-contruction, but before init() is called, only for those properties declared
-in the constructor.
+In addition, several configuration files have to be provided to your executable at runtime.
 
-\subsubsection init init()
-\li Initialise the business logic with the process variable factory.<br>
-Until now all properties in the factory have been initialised by DOOCS with
-the values from the config file, so a set of fully initialised process
-variables is handed to the business logic, which can initialise the hardware
-in its constructor.
+\subsection DOOCS_config DOOCS configuration file
 
-\subsubsection update update()
-\li The business logic will have one update-like function, or two functions
-(write to hardware and read from hardware). Call these in update. The business
-logic should be written in a way that there is no logic in the DOOCS update()
-function, but as few function calls as possible (one or two).
+Firstly, all DOOCS servers require the usual DOOCS `servername.conf` file. A simple example for this file is this:
+\include tests/serverTestSpectrumArray.conf
 
-\section Example Example
-The example directory contains a fully functional example.
+Replace the RPC number with the number corresponding to your application. You should also change the uid/gid numbers
+and the name of the server location according to your needs. Finally, you need to have entries for all locations your
+server should provide. Since the location is a concept which is introduced by DOOCS, the application does not directly
+define them. Hence, you need to provide a second configuration file which defines how the variable household provided
+by your application should be mapped to the DOOCS structure.
 
-\subsection example_header Header
-Header of the <b>CO</b>ntrol <b>S</b>ystem <b>AD</b>apter <b>E</b>xample (COSADE) DOOCS server.
-\include eq_cosade.h
+All locations have the same `eq_fct_type` 10. As DOOCS will add the properties inside the locations automatically, you
+do not have to specify them here.
 
-\subsection example_cc The Server Impementation (.cc file)
-Implementation of the <b>CO</b>ntrol <b>S</b>ystem <b>AD</b>apter <b>E</b>xample (COSADE) DOOCS server.
-\include cosade_rpc_server.cc
+\subsection mapping_file DOOCS adapter mapping file
 
-\subsection example_business_logic Business Logic
-Example business logic. It is DOOCS-independent.
-\include IndependentControlCore.h
+The mapping of the application variable household on to the DOOCS structure is done with a XML file. The file has to be
+called `applicationName-DoocsVariableConfig.xml` (replace `applicationName` with the name of your application).
 
+An example for the mapping file is:
 
-\example eq_cosade.h Header of the <b>CO</b>ntrol <b>S</b>ystem <b>AD</b>apter <b>E</b>xample (COSADE) DOOCS server.
-\example IndependentControlCore.h Example business logic. It is DOOCS-independent.
+\include tests/serverTestSpectrumArray-DoocsVariableConfig.xml
 
+Each location is specified with a `location` tag. The `location` tag must have one single XML attribute:
+- `name`: Specifies the name of the location
+
+Properties can be specified in each location with the property tag, or in case of special properties like a `D_spectrum`
+with the respective tag. A list of special properties is found in the next section. Each `property` tag has the
+following attributes:
+- `source`: Mandatory, specify the name of the process variable
+- `name`: Optional, specify the property name. If omitted, the name is derived from the source name by replacing slashes
+          with dots.
+
+\subsection import Automatic mapping of many variables
+
+As a shortcut, the `import` tag can be used to map a large number of properties with a single command. The tag doesn't
+take any sub-tags but should contain a directory name of process variables, which is to be mapped recursively. If the
+`import` tag is specified inside a location tag, the specified process variable directory is mapped into this
+location. The `import` tag can also appear in the root tag, in which case the first hierarchy level will become the
+location name. Note that the import will only map variables which have not been mapped before by explicit mapping or
+other `import` tags. This is useful to map a big bulk of automatic mapping variables after picking the special cases,
+which needs to be mapped individually.
+
+The `import` tag can take optionally one attribute:
+- `directory`: Add a prefix to the property names, which is separated with a dot from the rest of the property name.
+
+An example with many different automatic mappings is here:
+\include tests/serverTestRenameImport-DoocsVariableConfig.xml
+
+\subsection special_config Special configuration
+
+There are a number of configuration parameters which can be set on different scopes to control the exact behaviour of
+the DOOCS properties. All of the following XML tags can appear either directly in the root tag, or in a location tag, or
+in a property tag (or any tag for a special property, see Secion \ref special_properties).
+
+- `has_history`: Can be set to false or true (default) If set to true, the properties will have a history, if the
+                 property type supports this.
+- `is_writeable`: If set to false, the property will be forced to be read-only, even if the process variable is
+                  writeable.
+- `macro_pulse_number_source`: Name of process variable which contains the macro pusle number which should be attached
+                               to the properties.
+
+\subsection zeromq ZeroMQ publication
+
+DOOCS properties can be published via ZeroMQ so that clients can be notified about updates in real time. To enable this
+one simply has to specifiy the `publish_ZMQ` tag as shown in the following example:
+
+\include tests/serverTestZeroMQ-DoocsVariableConfig.xml
+
+If the `macro_pulse_number_source` tag has been used, the macro pulse number will be added to the ZeroMQ header.
+
+\subsection special_properties Special DOOCS properties
+
+Instead of letting the DOOCS adapter automatically decide which DOOCS data type to use, it is possible to specify a
+particular type. This needs to be done whenever a special DOOCS property type should be used.
+
+\subsubsection D_spectrum D_spectrum
+The `D_spectrum` tag takes the following arguments through sub-tags:
+- `start`: The x-axis start as a fixed number
+- `increment`: The x-axis increment between two samples as a fixed number
+- `startSource`: Name of process variable which should be used as x-axis start
+- `incrementSource`: Name of process variable which should be used as x-axis increment
+
+For an example, see above in Section \ref mapping_file.
+
+\subsubsection D_array D_array
+The `D_array` tag takes the following arguments through XML attributes of the D_array tag:
+- `type`: Override the data type. Can be one of:
+  - auto (default)
+  - byte
+  - short
+  - int
+  - long
+  - float
+  - double
+
+For an example, see above in Section \ref mapping_file.
 
 */
