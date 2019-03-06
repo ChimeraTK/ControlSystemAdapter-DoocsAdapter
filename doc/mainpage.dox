@@ -98,6 +98,8 @@ The `D_spectrum` tag takes the following arguments through sub-tags:
 - `increment`: The x-axis increment between two samples as a fixed number
 - `startSource`: Name of process variable which should be used as x-axis start
 - `incrementSource`: Name of process variable which should be used as x-axis increment
+- `numberOfBuffers`: Create a buffered D_spectrum with a short-term history (so clients can read consistent data across
+                     multiple D_spectrum). Requires a configured macro_pulse_number_source.
 
 For an example, see above in Section \ref mapping_file.
 
