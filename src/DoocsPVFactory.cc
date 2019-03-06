@@ -204,6 +204,7 @@ namespace ChimeraTK {
             "' is used as a macro pulse number source, but it is not readable.");
       }
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
+      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     return doocsPV;
