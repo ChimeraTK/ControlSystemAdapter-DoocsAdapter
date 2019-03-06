@@ -75,19 +75,35 @@ namespace ChimeraTK {
     auto usec = time.count() % 1000000;
 
     // set macro pulse number, buffer number and time stamp
-    auto ibuf = _macroPulseNumberSource->accessData(0) % nBuffers;
-    macro_pulse(_macroPulseNumberSource->accessData(0), ibuf);
+    size_t ibuf = 0;
+    if(_macroPulseNumberSource != nullptr) {
+      ibuf = _macroPulseNumberSource->accessData(0) % nBuffers;
+      macro_pulse(_macroPulseNumberSource->accessData(0), ibuf);
+    }
     set_tmstmp(sec, usec, ibuf);
 
     // fill the spectrum
     std::vector<float>& processVector = _processArray->accessChannel(0);
-    fill_spectrum(processVector.data(), processVector.size(), ibuf);
+    if(nBuffers == 1) {
+      // We have to fill the spectrum differently if it is unbuffered, as the internal data structures seem to be
+      // completely different.
+      memcpy(spectrum()->d_spect_array.d_spect_array_val, processVector.data(), processVector.size() * sizeof(float));
+      spectrum()->d_spect_array.d_spect_array_len = processVector.size();
+    }
+    else {
+      fill_spectrum(processVector.data(), processVector.size(), ibuf);
+    }
     if(publishZMQ) {
       dmsg_info info;
       memset(&info, 0, sizeof(info));
       info.sec = sec;
       info.usec = usec;
-      info.ident = _macroPulseNumberSource->accessData(0);
+      if(_macroPulseNumberSource != nullptr) {
+        info.ident = _macroPulseNumberSource->accessData(0);
+      }
+      else {
+        info.ident = 0;
+      }
       this->send(&info);
     }
   }
