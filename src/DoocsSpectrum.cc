@@ -58,8 +58,16 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::auto_init(void) {
-    D_spectrum::read();
+    // check if the macro pulse number source has been set if the spectrum is buffered
+    if(nBuffers > 1) {
+      if(_macroPulseNumberSource == nullptr) {
+        throw ChimeraTK::logic_error(
+            "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but not macro pulse number source.");
+      }
+    }
+
     // send the current value to the device
+    D_spectrum::read();
     if(_processArray->isWriteable()) {
       sendToDevice();
     }
