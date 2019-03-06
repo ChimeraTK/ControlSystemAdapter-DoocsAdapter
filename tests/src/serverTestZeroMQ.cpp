@@ -33,12 +33,10 @@ struct DoocsLauncher {
     (void)rc;
 
     // start the server
-    std::thread(eq_server,
-        boost::unit_test::framework::master_test_suite().argc,
+    std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
         boost::unit_test::framework::master_test_suite().argv)
         .detach();
     // wait until server has started (both the update thread and the rpc thread)
-    DoocsServerTestHelper::runUpdate();
     EqCall eq;
     EqAdr ea;
     EqData src, dst;
