@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceTest, T, simple_test_types) {
   csVector = controlSystemVariable->accessChannel(0);
   for(size_t i = 0; i < arraySize; ++i) {
     BOOST_CHECK(csVector[i] == sign * static_cast<T>(i * i) + offset);
-    BOOST_CHECK(doocsSpectrum.read_spectrum(i) == sign * static_cast<T>(i * i) + offset);
+    BOOST_CHECK_EQUAL(doocsSpectrum.read_spectrum(i), sign * static_cast<T>(i * i) + offset);
   }
 }
 
