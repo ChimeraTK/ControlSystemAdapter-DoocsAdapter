@@ -147,8 +147,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::addDescription(std::shared_ptr<PropertyDescription> const& propertyDescription,
-      std::list<std::string> const& absoluteSources) {
+  void VariableMapper::addDescription(
+      std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSources) {
     _descriptions.push_back(propertyDescription);
     for(auto& source : absoluteSources) {
       _usedInputVariables.insert(source);
@@ -217,6 +217,12 @@ namespace ChimeraTK {
       auto incrementSource = getContentString(incrementSourceNodes.front());
       spectrumDescription->incrementSource = incrementSource;
       usedVariables.push_back(incrementSource);
+    }
+    auto numberOfBuffersNodes = spectrumXml->get_children("numberOfBuffers");
+    if(!numberOfBuffersNodes.empty()) {
+      auto numberOfBuffers = getContentString(numberOfBuffersNodes.front());
+      spectrumDescription->numberOfBuffers = std::stoi(numberOfBuffers);
+      usedVariables.push_back(numberOfBuffers);
     }
 
     addDescription(spectrumDescription, usedVariables);

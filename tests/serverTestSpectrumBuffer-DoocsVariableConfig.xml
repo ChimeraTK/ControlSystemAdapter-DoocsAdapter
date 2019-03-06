@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <!-- We use a type which is processed by the ReferenceTestApplication before the data properties used by the test.
+       Otherwise the macro pulse number gets attachted to the next value. The order is determined by the order of types
+       in the HolderMap, as this map is iterated. -->
+
+  <macro_pulse_number_source>/INT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
+
+  <location name="FLOAT">
+    <D_spectrum source="/FLOAT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
+      <start>123.</start>
+      <increment>0.56</increment>
+      <numberOfBuffers>32</numberOfBuffers>
+    </D_spectrum>
+    <import>/FLOAT</import>
+  </location>
+
+  <location name="INT">
+    <property source="/INT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR"/>
+  </location>
+
+</device_server>

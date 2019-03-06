@@ -21,8 +21,7 @@ namespace ChimeraTK {
   // DoubleDescription etc.
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar(
-      AutoPropertyDescription const& propertyDescription,
-      DecoratorType decoratorType) {
+      AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
     // the DoocsProcessScalar needs the real ProcessScalar type, not just
@@ -89,8 +88,7 @@ namespace ChimeraTK {
 
   template<>
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(
-      AutoPropertyDescription const& propertyDescription,
-      DecoratorType /*decoratorType*/) {
+      AutoPropertyDescription const& propertyDescription, DecoratorType /*decoratorType*/) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
     // FIXME: Use a decorator, but this has to be tested and implemented for
@@ -165,9 +163,17 @@ namespace ChimeraTK {
     }
 
     //    assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV(new DoocsSpectrum(_eqFct, spectrumDescription.name,
-        getDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor,
-        incrementAccessor));
+    boost::shared_ptr<D_fct> doocsPV;
+    if(spectrumDescription.numberOfBuffers == 1) {
+      doocsPV.reset(new DoocsSpectrum(_eqFct, spectrumDescription.name,
+          getDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor,
+          incrementAccessor));
+    }
+    else {
+      doocsPV.reset(new DoocsSpectrum(_eqFct, spectrumDescription.name,
+          getDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor,
+          incrementAccessor, spectrumDescription.numberOfBuffers));
+    }
 
     // set read only mode if configures in the xml file or for output variables
     if(!processVariable->isWriteable() || !spectrumDescription.isWriteable) {

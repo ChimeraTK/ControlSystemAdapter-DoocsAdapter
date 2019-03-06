@@ -21,17 +21,39 @@ namespace ChimeraTK {
      * TransferElement does not know about it's size, which is needed by the
      * D_spectrum constructor. This is not a big drawback because the properties
      * are greated by a factory function anyway.
+     *
+     * This version of the constructor shall be used for writeable spectra, as they
+     * do not require mulitple buffers but should be saved to and restored from a file
+     * for persistency.
      */
     DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor);
 
+    /** The constructor expects an NDRegisterAccessor of float, which usually will
+     * be a decorator to the implementation type. The decorator cannot be
+     * generated in the constructor because the ProcessVariable aka
+     * TransferElement does not know about it's size, which is needed by the
+     * D_spectrum constructor. This is not a big drawback because the properties
+     * are greated by a factory function anyway.
+     *
+     * This version of the constructor shall be used for read-only spectra, as they
+     * do not need to be persisted but might require multiple buffers for short-term
+     * history.
+     */
+    DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor, size_t numberOfBuffers);
+
     /**
      * Overload the set function which is called by DOOCS to inject sending to the
      * device.
      */
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
+
+    void get(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
 
     /**
      * Override the Doocs auto_init() method, which is called after initialising
@@ -57,6 +79,7 @@ namespace ChimeraTK {
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
     bool publishZMQ{false};
+    size_t nBuffers;
 
     // Internal function which copies the content from the DOOCS container into
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow

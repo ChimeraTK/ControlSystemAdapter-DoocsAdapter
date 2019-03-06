@@ -106,16 +106,17 @@ namespace ChimeraTK {
     ChimeraTK::RegisterPath incrementSource;
     float start;
     float increment;
+    size_t numberOfBuffers;
 
     SpectrumDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "", std::string name_ = "",
         bool hasHistory_ = true, bool isWriteable_ = true)
     : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_), start(0),
-      increment(1.0) {}
+      increment(1.0), numberOfBuffers(1) {}
 
     virtual const std::type_info& type() const { return typeid(SpectrumDescription); }
     virtual void print(std::ostream& os = std::cout) const {
       os << source << " -> " << location << " / " << name << " (startSource = " << startSource
-         << ", incrementSource = " << incrementSource << ")" << std::endl;
+         << ", incrementSource = " << incrementSource << ", numberOfBuffers = " << numberOfBuffers << ")" << std::endl;
     }
   };
 
@@ -141,8 +142,7 @@ namespace ChimeraTK {
     bool useHasHistoryDefault;
     bool useIsWriteableDefault;
     bool useMacroPulseNumberSourceDefault;
-    LocationInfo(bool useHasHistoryDefault_ = false,
-        bool useIsWriteableDefault_ = false,
+    LocationInfo(bool useHasHistoryDefault_ = false, bool useIsWriteableDefault_ = false,
         bool useMacroPulseNumberSourceDefault_ = false)
     : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_),
       useMacroPulseNumberSourceDefault(useMacroPulseNumberSourceDefault_) {}
