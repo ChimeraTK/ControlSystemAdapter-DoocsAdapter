@@ -31,9 +31,7 @@ void eq_init_prolog() {
     ChimeraTK::VariableMapper::getInstance().prepareOutput(xmlFileName, pvNames);
   }
   else {
-    std::cerr << "WARNING: No XML file for the Doocs variable config found. "
-                 "Trying direct import."
-              << std::endl;
+    std::cerr << "WARNING: No XML file for the Doocs variable config found. Trying direct import." << std::endl;
     ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
   }
 
@@ -51,6 +49,14 @@ EqFct* eq_create(int eq_code, void*) {
  * including any value intialisation from the config file. We start the
  * application here. It will be launched in a separate thread. */
 void post_init_epilog() {
+  // check for locations not yet created (due to missing entries in the .conf file) and create them now
+  for(auto& loc : ChimeraTK::VariableMapper::getInstance().getAllLocations()) {
+    if(find_device(loc) == nullptr) {
+      add_location(10, loc);
+    }
+  }
+
+  // start the application and the updated
   ChimeraTK::ApplicationBase::getInstance().run();
   doocsAdapter.updater->run();
   ChimeraTK::DoocsAdapter::isInitialised = true;

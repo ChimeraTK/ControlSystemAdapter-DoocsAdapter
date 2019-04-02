@@ -412,6 +412,16 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  std::unordered_set<std::string> VariableMapper::getAllLocations() const {
+    std::unordered_set<std::string> result;
+    for(auto const& variable : _descriptions) {
+      result.insert(variable->location);
+    }
+    return result;
+  }
+
+  /********************************************************************************************************************/
+
   void VariableMapper::directImport(std::set<std::string> inputVariables) {
     clear();
     _inputVariables = inputVariables;

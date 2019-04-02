@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include <string>
 
 #include "PropertyDescription.h"
@@ -26,6 +27,7 @@ namespace ChimeraTK {
 
     std::list<std::shared_ptr<PropertyDescription>> getPropertiesInLocation(std::string location) const;
     std::list<std::shared_ptr<PropertyDescription>> const& getAllProperties() const;
+    std::unordered_set<std::string> getAllLocations() const;
 
     VariableMapper(VariableMapper&) = delete;
     void operator=(VariableMapper const&) = delete;
@@ -81,8 +83,8 @@ namespace ChimeraTK {
     void processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,
         const xmlpp::Element* propertyXmlElement, std::string locationName);
 
-    void addDescription(std::shared_ptr<PropertyDescription> const& propertyDescription,
-        std::list<std::string> const& absoluteSoures);
+    void addDescription(
+        std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSoures);
   };
 
 } // namespace ChimeraTK
