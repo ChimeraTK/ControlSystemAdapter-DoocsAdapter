@@ -30,6 +30,9 @@ by your application should be mapped to the DOOCS structure.
 All locations have the same `eq_fct_type` 10. As DOOCS will add the properties inside the locations automatically, you
 do not have to specify them here.
 
+Missing locations will also be added automatically by the adapter, so it is perfectly fine to just have the server
+location in the config file.
+
 \subsection mapping_file DOOCS adapter mapping file
 
 The mapping of the application variable household on to the DOOCS structure is done with a XML file. The file has to be
