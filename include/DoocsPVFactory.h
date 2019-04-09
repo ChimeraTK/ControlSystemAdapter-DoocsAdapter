@@ -53,9 +53,8 @@ namespace ChimeraTK {
     template<class IMPL_T, class DOOCS_SCALAR_T, class DOOCS_PRIMARY_T, class DOOCS_ARRAY_T,
         class DOOCS_ARRAY_PRIMITIVE_T>
     boost::shared_ptr<D_fct> typedCreateScalarOrArray(ProcessVariable& processVariable,
-        AutoPropertyDescription const& propertyDescription,
-        DecoratorType decoratorType,
-        ArrayDescription::DataType arrayDataType);
+        AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType,
+        AutoPropertyDescription::DataType arrayDataType);
   };
 
   // specialisation for strings

@@ -216,7 +216,7 @@ namespace ChimeraTK {
       class DOOCS_ARRAY_PRIMITIVE_T>
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(ProcessVariable& processVariable,
       AutoPropertyDescription const& autoPropertyDescription, DecoratorType decoratorType,
-      ArrayDescription::DataType arrayDataType) {
+      AutoPropertyDescription::DataType arrayDataType) {
     // We have to convert to the original NDRegisterAccessor to determine the
     // number of samples. We cannot use a decorator because scalar and array
     // DOOCS_PRIMITIVE_T can be different, and once a decorator is created you
@@ -255,49 +255,50 @@ namespace ChimeraTK {
     // not only at run time
     if(valueType == typeid(int8_t)) {
       return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Byte);
     }
     else if(valueType == typeid(uint8_t)) {
       return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Byte);
     }
     else if(valueType == typeid(int16_t)) {
       return typedCreateScalarOrArray<int16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Short);
     }
     else if(valueType == typeid(uint16_t)) {
       return typedCreateScalarOrArray<uint16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Short);
     }
     else if(valueType == typeid(int32_t)) {
       return typedCreateScalarOrArray<int32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Int);
     }
     else if(valueType == typeid(uint32_t)) {
       return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Int);
     }
     else if(valueType == typeid(int64_t)) {
       // there is no scalar int64 representation in doocs, so we always create an
       // array, also for length = 1
       return typedCreateDoocsArray<int64_t, D_longarray>(
-          ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
+          ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
     }
     else if(valueType == typeid(uint64_t)) {
       return typedCreateDoocsArray<int64_t, D_longarray>(
-          ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
+          ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
     }
     else if(valueType == typeid(float)) {
       return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Float);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Float);
     }
     else if(valueType == typeid(double)) {
       return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Double);
+          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Double);
     }
     else if(valueType == typeid(std::string)) {
       return typedCreateScalarOrArray<std::string, D_string, std::string, std::nullptr_t, std::nullptr_t>(
-          *processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Auto);
+          *processVariable, *autoPropertyDescription, DecoratorType::range_checking,
+          AutoPropertyDescription::DataType::Auto);
     }
     else {
       throw std::invalid_argument("unsupported value type");
@@ -354,29 +355,29 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(std::shared_ptr<ArrayDescription> const& arrayDescription) {
-    if(arrayDescription->dataType == ArrayDescription::DataType::Auto) {
+    if(arrayDescription->dataType == AutoPropertyDescription::DataType::Auto) {
       // leave the desision which array to produce to the auto creation algorithm.
       // We need it there anyway
       // FIXME: This does not produce arrays of length 1 because it will produce a
       // scalar
       return autoCreate(arrayDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Byte) {
+    else if(arrayDescription->dataType == AutoPropertyDescription::DataType::Byte) {
       return typedCreateDoocsArray<uint8_t, D_bytearray>(*arrayDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Short) {
+    else if(arrayDescription->dataType == AutoPropertyDescription::DataType::Short) {
       return typedCreateDoocsArray<int16_t, D_shortarray>(*arrayDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Int) {
+    else if(arrayDescription->dataType == AutoPropertyDescription::DataType::Int) {
       return typedCreateDoocsArray<int32_t, D_intarray>(*arrayDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Long) {
+    else if(arrayDescription->dataType == AutoPropertyDescription::DataType::Long) {
       return typedCreateDoocsArray<int64_t, D_longarray>(*arrayDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Float) {
+    else if(arrayDescription->dataType == AutoPropertyDescription::DataType::Float) {
       return typedCreateDoocsArray<float, D_floatarray>(*arrayDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Double) {
+    else if(arrayDescription->dataType == AutoPropertyDescription::DataType::Double) {
       return typedCreateDoocsArray<double, D_doublearray>(*arrayDescription);
     }
     else {

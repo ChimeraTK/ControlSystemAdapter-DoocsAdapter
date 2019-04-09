@@ -238,17 +238,18 @@ namespace ChimeraTK {
     std::string name = determineName(arrayXml, source);
 
     const xmlpp::Attribute* typeAttribute = arrayXml->get_attribute("type");
-    std::map<std::string, ArrayDescription::DataType> dataTypeMap({{"auto", ArrayDescription::DataType::Auto},
-        {"byte", ArrayDescription::DataType::Byte}, {"short", ArrayDescription::DataType::Short},
-        {"int", ArrayDescription::DataType::Int}, {"long", ArrayDescription::DataType::Long},
-        {"float", ArrayDescription::DataType::Float}, {"double", ArrayDescription::DataType::Double}});
+    std::map<std::string, AutoPropertyDescription::DataType> dataTypeMap(
+        {{"auto", AutoPropertyDescription::DataType::Auto}, {"byte", AutoPropertyDescription::DataType::Byte},
+            {"short", AutoPropertyDescription::DataType::Short}, {"int", AutoPropertyDescription::DataType::Int},
+            {"long", AutoPropertyDescription::DataType::Long}, {"float", AutoPropertyDescription::DataType::Float},
+            {"double", AutoPropertyDescription::DataType::Double}});
 
-    ArrayDescription::DataType type;
+    AutoPropertyDescription::DataType type;
     if(typeAttribute) {
       type = dataTypeMap[typeAttribute->get_value()];
     }
     else {
-      type = ArrayDescription::DataType::Auto;
+      type = AutoPropertyDescription::DataType::Auto;
     }
 
     std::string absoluteSource = getAbsoluteSource(source, locationName);
