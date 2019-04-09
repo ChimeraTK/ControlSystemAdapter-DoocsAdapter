@@ -172,10 +172,26 @@ namespace ChimeraTK {
 
     std::string source = getAttributeValue(property, "source");
     std::string name = determineName(property, source);
+
+    const xmlpp::Attribute* typeAttribute = property->get_attribute("type");
+    std::map<std::string, AutoPropertyDescription::DataType> dataTypeMap(
+        {{"auto", AutoPropertyDescription::DataType::Auto}, {"byte", AutoPropertyDescription::DataType::Byte},
+            {"short", AutoPropertyDescription::DataType::Short}, {"int", AutoPropertyDescription::DataType::Int},
+            {"long", AutoPropertyDescription::DataType::Long}, {"float", AutoPropertyDescription::DataType::Float},
+            {"double", AutoPropertyDescription::DataType::Double}});
+
+    AutoPropertyDescription::DataType type;
+    if(typeAttribute) {
+      type = dataTypeMap[typeAttribute->get_value()];
+    }
+    else {
+      type = AutoPropertyDescription::DataType::Auto;
+    }
+
     std::string absoluteSource = getAbsoluteSource(source, locationName);
 
     // prepare the property description
-    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name);
+    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name, type);
 
     processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
 

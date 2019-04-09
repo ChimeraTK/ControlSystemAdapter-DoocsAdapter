@@ -52,7 +52,7 @@ namespace ChimeraTK {
     enum class DataType { Byte, Short, Int, Long, Float, Double, Auto };
     ChimeraTK::RegisterPath source;
     AutoPropertyDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
-        std::string name_ = "", bool hasHistory_ = true, bool isWriteable_ = true, DataType dataType_ = DataType::Auto)
+        std::string name_ = "", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
     : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_),
       dataType(dataType_) {}
     virtual bool operator==(PropertyDescription const& other) const override {
@@ -78,7 +78,7 @@ namespace ChimeraTK {
   struct ArrayDescription : public AutoPropertyDescription {
     ArrayDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "", std::string name_ = "",
         DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
-    : AutoPropertyDescription(source_, location_, name_, hasHistory_, isWriteable_, dataType_) {}
+    : AutoPropertyDescription(source_, location_, name_, dataType_, hasHistory_, isWriteable_) {}
 
     /// Convenience constructor from an auto property description, just add the
     /// type

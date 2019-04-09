@@ -250,58 +250,84 @@ namespace ChimeraTK {
        (scalar for D_array and 1D)
     */
 
-    // fixme: make this a boost::foreach in the data types provided by
-    // DeviceAccess. This will detect uncovered new data types at compile time,
-    // not only at run time
-    if(valueType == typeid(int8_t)) {
-      return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Byte);
-    }
-    else if(valueType == typeid(uint8_t)) {
-      return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Byte);
-    }
-    else if(valueType == typeid(int16_t)) {
-      return typedCreateScalarOrArray<int16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Short);
-    }
-    else if(valueType == typeid(uint16_t)) {
-      return typedCreateScalarOrArray<uint16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Short);
-    }
-    else if(valueType == typeid(int32_t)) {
-      return typedCreateScalarOrArray<int32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Int);
-    }
-    else if(valueType == typeid(uint32_t)) {
-      return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Int);
-    }
-    else if(valueType == typeid(int64_t)) {
-      // there is no scalar int64 representation in doocs, so we always create an
-      // array, also for length = 1
-      return typedCreateDoocsArray<int64_t, D_longarray>(
-          ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
-    }
-    else if(valueType == typeid(uint64_t)) {
-      return typedCreateDoocsArray<int64_t, D_longarray>(
-          ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
-    }
-    else if(valueType == typeid(float)) {
-      return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Float);
-    }
-    else if(valueType == typeid(double)) {
-      return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Double);
-    }
-    else if(valueType == typeid(std::string)) {
-      return typedCreateScalarOrArray<std::string, D_string, std::string, std::nullptr_t, std::nullptr_t>(
-          *processVariable, *autoPropertyDescription, DecoratorType::range_checking,
-          AutoPropertyDescription::DataType::Auto);
+    if(autoPropertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
+      // fixme: make this a boost::foreach in the data types provided by
+      // DeviceAccess. This will detect uncovered new data types at compile time,
+      // not only at run time
+      if(valueType == typeid(int8_t)) {
+        return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Byte);
+      }
+      else if(valueType == typeid(uint8_t)) {
+        return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Byte);
+      }
+      else if(valueType == typeid(int16_t)) {
+        return typedCreateScalarOrArray<int16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Short);
+      }
+      else if(valueType == typeid(uint16_t)) {
+        return typedCreateScalarOrArray<uint16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Short);
+      }
+      else if(valueType == typeid(int32_t)) {
+        return typedCreateScalarOrArray<int32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Int);
+      }
+      else if(valueType == typeid(uint32_t)) {
+        return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Int);
+      }
+      else if(valueType == typeid(int64_t)) {
+        // there is no scalar int64 representation in doocs, so we always create an
+        // array, also for length = 1
+        return typedCreateDoocsArray<int64_t, D_longarray>(
+            ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
+      }
+      else if(valueType == typeid(uint64_t)) {
+        return typedCreateDoocsArray<int64_t, D_longarray>(
+            ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
+      }
+      else if(valueType == typeid(float)) {
+        return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Float);
+      }
+      else if(valueType == typeid(double)) {
+        return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable,
+            *autoPropertyDescription, DecoratorType::C_style_conversion, AutoPropertyDescription::DataType::Double);
+      }
+      else if(valueType == typeid(std::string)) {
+        return typedCreateScalarOrArray<std::string, D_string, std::string, std::nullptr_t, std::nullptr_t>(
+            *processVariable, *autoPropertyDescription, DecoratorType::range_checking,
+            AutoPropertyDescription::DataType::Auto);
+      }
+      else {
+        throw std::invalid_argument("unsupported value type");
+      }
     }
     else {
-      throw std::invalid_argument("unsupported value type");
+      switch(autoPropertyDescription->dataType) {
+        case AutoPropertyDescription::DataType::Byte:
+          return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
+              *autoPropertyDescription, DecoratorType::C_style_conversion, autoPropertyDescription->dataType);
+        case AutoPropertyDescription::DataType::Short:
+          return typedCreateScalarOrArray<uint16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
+              *autoPropertyDescription, DecoratorType::C_style_conversion, autoPropertyDescription->dataType);
+        case AutoPropertyDescription::DataType::Int:
+          return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
+              *autoPropertyDescription, DecoratorType::C_style_conversion, autoPropertyDescription->dataType);
+        case AutoPropertyDescription::DataType::Long:
+          return typedCreateDoocsArray<int64_t, D_longarray>(
+              ArrayDescription(*autoPropertyDescription, AutoPropertyDescription::DataType::Long));
+        case AutoPropertyDescription::DataType::Float:
+          return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable,
+              *autoPropertyDescription, DecoratorType::C_style_conversion, autoPropertyDescription->dataType);
+        case AutoPropertyDescription::DataType::Double:
+          return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable,
+              *autoPropertyDescription, DecoratorType::C_style_conversion, autoPropertyDescription->dataType);
+        default:
+          throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
+      }
     }
   }
 
