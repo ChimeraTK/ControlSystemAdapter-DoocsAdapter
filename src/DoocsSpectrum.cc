@@ -11,8 +11,8 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor)
-  : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, true), _processArray(processArray),
-    _startAccessor(startAccessor), _incrementAccessor(incrementAccessor), nBuffers(1) {
+  : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
+    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor), nBuffers(1) {
     if(processArray->isReadable()) {
       updater.addVariable(ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct,
           std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
