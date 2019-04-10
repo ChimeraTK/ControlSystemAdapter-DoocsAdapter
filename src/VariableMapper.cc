@@ -41,7 +41,7 @@ namespace ChimeraTK {
       if(dynamic_cast<xmlpp::CommentNode const*>(node)) continue;
 
       if(node->get_name() == "property") {
-        processPropertyNode(node, locationName);
+        processNode<AutoPropertyDescription>(node, locationName);
       }
       else if(node->get_name() == "import") {
         processImportNode(node, locationName);
@@ -65,7 +65,7 @@ namespace ChimeraTK {
         processSpectrumNode(node, locationName);
       }
       else if(node->get_name() == "D_array") {
-        processArrayNode(node, locationName);
+        processNode<ArrayDescription>(node, locationName);
       }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
@@ -167,7 +167,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processPropertyNode(xmlpp::Node const* propertyNode, std::string locationName) {
+  template<class Description>
+  void VariableMapper::processNode(xmlpp::Node const* propertyNode, std::string locationName) {
     auto property = asXmlElement(propertyNode);
 
     std::string source = getAttributeValue(property, "source");
@@ -195,7 +196,7 @@ namespace ChimeraTK {
     std::string absoluteSource = getAbsoluteSource(source, locationName);
 
     // prepare the property description
-    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name, type);
+    auto autoPropertyDescription = std::make_shared<Description>(absoluteSource, locationName, name, type);
 
     processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
 
@@ -246,40 +247,6 @@ namespace ChimeraTK {
     }
 
     addDescription(spectrumDescription, usedVariables);
-  }
-
-  /********************************************************************************************************************/
-
-  void VariableMapper::processArrayNode(xmlpp::Node const* node, std::string locationName) {
-    auto arrayXml = asXmlElement(node);
-
-    // the "main source" of a spectum
-    std::string source = getAttributeValue(arrayXml, "source");
-    std::string name = determineName(arrayXml, source);
-
-    const xmlpp::Attribute* typeAttribute = arrayXml->get_attribute("type");
-    std::map<std::string, AutoPropertyDescription::DataType> dataTypeMap(
-        {{"auto", AutoPropertyDescription::DataType::Auto}, {"byte", AutoPropertyDescription::DataType::Byte},
-            {"short", AutoPropertyDescription::DataType::Short}, {"int", AutoPropertyDescription::DataType::Int},
-            {"long", AutoPropertyDescription::DataType::Long}, {"float", AutoPropertyDescription::DataType::Float},
-            {"double", AutoPropertyDescription::DataType::Double}});
-
-    AutoPropertyDescription::DataType type;
-    if(typeAttribute) {
-      type = dataTypeMap[typeAttribute->get_value()];
-    }
-    else {
-      type = AutoPropertyDescription::DataType::Auto;
-    }
-
-    std::string absoluteSource = getAbsoluteSource(source, locationName);
-
-    // prepare the property description
-    auto arrayDescription = std::make_shared<ArrayDescription>(absoluteSource, locationName, name, type);
-
-    processHistoryAndWritableAttributes(arrayDescription, arrayXml, locationName);
-
-    addDescription(arrayDescription, {absoluteSource});
   }
 
   /********************************************************************************************************************/
