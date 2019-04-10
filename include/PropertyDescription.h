@@ -84,30 +84,6 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  struct ArrayDescription : public AutoPropertyDescription {
-    ArrayDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "", std::string name_ = "",
-        DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
-    : AutoPropertyDescription(source_, location_, name_, dataType_, hasHistory_, isWriteable_) {}
-
-    /// Convenience constructor from an auto property description, just add the
-    /// type
-    ArrayDescription(AutoPropertyDescription const& autoDescription) : AutoPropertyDescription(autoDescription) {}
-
-    virtual bool operator==(PropertyDescription const& other) const override {
-      if(other.type() == typeid(ArrayDescription)) {
-        auto casted_other = static_cast<ArrayDescription const&>(other);
-        return static_cast<const AutoPropertyDescription*>(this)->operator==(casted_other);
-      }
-      else {
-        return false;
-      }
-    }
-
-    virtual const std::type_info& type() const { return typeid(ArrayDescription); }
-  };
-
-  /********************************************************************************************************************/
-
   struct SpectrumDescription : public PropertyDescription, public PropertyAttributes {
     ChimeraTK::RegisterPath source;
     ChimeraTK::RegisterPath startSource;

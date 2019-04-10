@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateSpectrum, T, simple_test_types) {
 template<class DOOCS_T>
 void testArrayIsCorrectType(
     DoocsPVFactory& factory, AutoPropertyDescription::DataType dataType, std::string name = "fromDeviceArray1") {
-  auto description = std::make_shared<ArrayDescription>("A/" + name, "A", name, dataType);
+  auto description = std::make_shared<AutoPropertyDescription>("A/" + name, "A", name, dataType);
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
   // get the raw pointer and dynamic cast it to the expected type

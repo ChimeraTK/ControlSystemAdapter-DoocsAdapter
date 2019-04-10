@@ -65,7 +65,7 @@ namespace ChimeraTK {
         processSpectrumNode(node, locationName);
       }
       else if(node->get_name() == "D_array") {
-        processNode<ArrayDescription>(node, locationName);
+        processNode<AutoPropertyDescription>(node, locationName);
       }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
@@ -167,7 +167,6 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  template<class Description>
   void VariableMapper::processNode(xmlpp::Node const* propertyNode, std::string locationName) {
     auto property = asXmlElement(propertyNode);
 
@@ -196,7 +195,7 @@ namespace ChimeraTK {
     std::string absoluteSource = getAbsoluteSource(source, locationName);
 
     // prepare the property description
-    auto autoPropertyDescription = std::make_shared<Description>(absoluteSource, locationName, name, type);
+    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name, type);
 
     processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
 
