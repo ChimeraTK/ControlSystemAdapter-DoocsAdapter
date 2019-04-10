@@ -70,6 +70,15 @@ namespace ChimeraTK {
       os << source << " -> " << location << " / " << name << std::endl;
     }
 
+    void deriveType(std::type_info const& info) {
+      if(info == typeid(uint8_t) || info == typeid(int8_t)) dataType = DataType::Byte;
+      if(info == typeid(uint16_t) || info == typeid(int16_t)) dataType = DataType::Short;
+      if(info == typeid(uint32_t) || info == typeid(int32_t)) dataType = DataType::Int;
+      if(info == typeid(uint64_t) || info == typeid(int64_t)) dataType = DataType::Long;
+      if(info == typeid(float)) dataType = DataType::Float;
+      if(info == typeid(double)) dataType = DataType::Double;
+    }
+
     DataType dataType;
   };
 
@@ -82,10 +91,7 @@ namespace ChimeraTK {
 
     /// Convenience constructor from an auto property description, just add the
     /// type
-    ArrayDescription(AutoPropertyDescription const& autoDescription, DataType dataType_)
-    : AutoPropertyDescription(autoDescription) {
-      dataType = dataType_;
-    }
+    ArrayDescription(AutoPropertyDescription const& autoDescription) : AutoPropertyDescription(autoDescription) {}
 
     virtual bool operator==(PropertyDescription const& other) const override {
       if(other.type() == typeid(ArrayDescription)) {

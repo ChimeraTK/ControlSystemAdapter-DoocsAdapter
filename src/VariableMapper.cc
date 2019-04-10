@@ -180,12 +180,16 @@ namespace ChimeraTK {
             {"long", AutoPropertyDescription::DataType::Long}, {"float", AutoPropertyDescription::DataType::Float},
             {"double", AutoPropertyDescription::DataType::Double}});
 
-    AutoPropertyDescription::DataType type;
+    auto type = AutoPropertyDescription::DataType::Auto;
+
     if(typeAttribute) {
-      type = dataTypeMap[typeAttribute->get_value()];
-    }
-    else {
-      type = AutoPropertyDescription::DataType::Auto;
+      try {
+        type = dataTypeMap.at(typeAttribute->get_value());
+      }
+      catch(std::out_of_range&) {
+        throw ChimeraTK::logic_error("Unknown type attribute in line " + std::to_string(property->get_line()) + ": " +
+            typeAttribute->get_value());
+      }
     }
 
     std::string absoluteSource = getAbsoluteSource(source, locationName);
