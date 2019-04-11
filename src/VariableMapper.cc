@@ -41,7 +41,7 @@ namespace ChimeraTK {
       if(dynamic_cast<xmlpp::CommentNode const*>(node)) continue;
 
       if(node->get_name() == "property") {
-        processNode<AutoPropertyDescription>(node, locationName);
+        processNode(node, locationName);
       }
       else if(node->get_name() == "import") {
         processImportNode(node, locationName);
@@ -65,7 +65,7 @@ namespace ChimeraTK {
         processSpectrumNode(node, locationName);
       }
       else if(node->get_name() == "D_array") {
-        processNode<AutoPropertyDescription>(node, locationName);
+        processNode(node, locationName);
       }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
