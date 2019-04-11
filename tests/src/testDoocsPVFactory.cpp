@@ -162,10 +162,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateSpectrum, T, simple_test_types) {
 }
 
 template<class DOOCS_T>
-void testArrayIsCorrectType(DoocsPVFactory& factory,
-    ArrayDescription::DataType dataType,
-    std::string name = "fromDeviceArray1") {
-  auto description = std::make_shared<ArrayDescription>("A/" + name, "A", name, dataType);
+void testArrayIsCorrectType(
+    DoocsPVFactory& factory, AutoPropertyDescription::DataType dataType, std::string name = "fromDeviceArray1") {
+  auto description = std::make_shared<AutoPropertyDescription>("A/" + name, "A", name, dataType);
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
   // get the raw pointer and dynamic cast it to the expected type
@@ -198,12 +197,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateArray, T, simple_test_types) {
 
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
-  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Byte, "fromDeviceArray1");
-  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Short, "fromDeviceArray2");
-  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Int, "fromDeviceArray3");
-  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Long, "fromDeviceArray4");
-  testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Float, "fromDeviceArray5");
-  testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Double, "fromDeviceArray6");
+  testArrayIsCorrectType<D_bytearray>(factory, AutoPropertyDescription::DataType::Byte, "fromDeviceArray1");
+  testArrayIsCorrectType<D_shortarray>(factory, AutoPropertyDescription::DataType::Short, "fromDeviceArray2");
+  testArrayIsCorrectType<D_intarray>(factory, AutoPropertyDescription::DataType::Int, "fromDeviceArray3");
+  testArrayIsCorrectType<D_longarray>(factory, AutoPropertyDescription::DataType::Long, "fromDeviceArray4");
+  testArrayIsCorrectType<D_floatarray>(factory, AutoPropertyDescription::DataType::Float, "fromDeviceArray5");
+  testArrayIsCorrectType<D_doublearray>(factory, AutoPropertyDescription::DataType::Double, "fromDeviceArray6");
 }
 
 BOOST_AUTO_TEST_CASE(testAutoCreateArray) {
@@ -230,16 +229,16 @@ BOOST_AUTO_TEST_CASE(testAutoCreateArray) {
 
   DoocsPVFactory factory(&myEqFct, updater, csManager);
 
-  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Auto, "toDeviceCharArray");
-  testArrayIsCorrectType<D_bytearray>(factory, ArrayDescription::DataType::Auto, "toDeviceUCharArray");
-  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Auto, "toDeviceShortArray");
-  testArrayIsCorrectType<D_shortarray>(factory, ArrayDescription::DataType::Auto, "toDeviceUShortArray");
-  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Auto, "toDeviceIntArray");
-  testArrayIsCorrectType<D_intarray>(factory, ArrayDescription::DataType::Auto, "toDeviceUIntArray");
-  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Auto, "toDeviceLongArray");
-  testArrayIsCorrectType<D_longarray>(factory, ArrayDescription::DataType::Auto, "toDeviceULongArray");
-  testArrayIsCorrectType<D_floatarray>(factory, ArrayDescription::DataType::Auto, "toDeviceFloatArray");
-  testArrayIsCorrectType<D_doublearray>(factory, ArrayDescription::DataType::Auto, "toDeviceDoubleArray");
+  testArrayIsCorrectType<D_bytearray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceCharArray");
+  testArrayIsCorrectType<D_bytearray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceUCharArray");
+  testArrayIsCorrectType<D_shortarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceShortArray");
+  testArrayIsCorrectType<D_shortarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceUShortArray");
+  testArrayIsCorrectType<D_intarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceIntArray");
+  testArrayIsCorrectType<D_intarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceUIntArray");
+  testArrayIsCorrectType<D_longarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceLongArray");
+  testArrayIsCorrectType<D_longarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceULongArray");
+  testArrayIsCorrectType<D_floatarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceFloatArray");
+  testArrayIsCorrectType<D_doublearray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceDoubleArray");
 }
 
 BOOST_AUTO_TEST_CASE(testInt64Scalar) {

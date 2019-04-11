@@ -49,15 +49,17 @@ namespace ChimeraTK {
   // Combines property attributes and the base description
   // FIXME: should sort by name to put it into a set?
   struct AutoPropertyDescription : public PropertyDescription, public PropertyAttributes {
+    enum class DataType { Byte, Short, Int, Long, Float, Double, Auto };
     ChimeraTK::RegisterPath source;
     AutoPropertyDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
-        std::string name_ = "", bool hasHistory_ = true, bool isWriteable_ = true)
-    : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_) {}
+        std::string name_ = "", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
+    : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_),
+      dataType(dataType_) {}
     virtual bool operator==(PropertyDescription const& other) const override {
       if(other.type() == typeid(AutoPropertyDescription)) {
         auto casted_other = static_cast<AutoPropertyDescription const&>(other);
-        return source == casted_other.source && location == other.location && name == other.name &&
-            static_cast<const PropertyAttributes*>(this)->operator==(casted_other);
+        return dataType == casted_other.dataType && source == casted_other.source && location == other.location &&
+            name == other.name && static_cast<const PropertyAttributes*>(this)->operator==(casted_other);
       }
       else {
         return false;
@@ -67,34 +69,16 @@ namespace ChimeraTK {
     virtual void print(std::ostream& os = std::cout) const {
       os << source << " -> " << location << " / " << name << std::endl;
     }
-  };
 
-  /********************************************************************************************************************/
-
-  struct ArrayDescription : public AutoPropertyDescription {
-    enum class DataType { Byte, Short, Int, Long, Float, Double, Auto };
-
-    ArrayDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "", std::string name_ = "",
-        DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
-    : AutoPropertyDescription(source_, location_, name_, hasHistory_, isWriteable_), dataType(dataType_) {}
-
-    /// Convenience constructor from an auto property description, just add the
-    /// type
-    ArrayDescription(AutoPropertyDescription const& autoDescription, DataType dataType_)
-    : AutoPropertyDescription(autoDescription), dataType(dataType_) {}
-
-    virtual bool operator==(PropertyDescription const& other) const override {
-      if(other.type() == typeid(ArrayDescription)) {
-        auto casted_other = static_cast<ArrayDescription const&>(other);
-        return dataType == casted_other.dataType &&
-            static_cast<const AutoPropertyDescription*>(this)->operator==(casted_other);
-      }
-      else {
-        return false;
-      }
+    void deriveType(std::type_info const& info) {
+      if(info == typeid(uint8_t) || info == typeid(int8_t)) dataType = DataType::Byte;
+      if(info == typeid(uint16_t) || info == typeid(int16_t)) dataType = DataType::Short;
+      if(info == typeid(uint32_t) || info == typeid(int32_t)) dataType = DataType::Int;
+      if(info == typeid(uint64_t) || info == typeid(int64_t)) dataType = DataType::Long;
+      if(info == typeid(float)) dataType = DataType::Float;
+      if(info == typeid(double)) dataType = DataType::Double;
     }
 
-    virtual const std::type_info& type() const { return typeid(ArrayDescription); }
     DataType dataType;
   };
 

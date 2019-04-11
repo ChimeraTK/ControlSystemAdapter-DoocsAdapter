@@ -210,28 +210,79 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
-  // fixme: some of the variables needed here are redundant and can be sovled with
-  // mpl and/or fusion maps
-  template<class IMPL_T, class DOOCS_SCALAR_T, class DOOCS_PRIMITIVE_T, class DOOCS_ARRAY_T,
-      class DOOCS_ARRAY_PRIMITIVE_T>
-  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(ProcessVariable& processVariable,
-      AutoPropertyDescription const& autoPropertyDescription, DecoratorType decoratorType,
-      ArrayDescription::DataType arrayDataType) {
-    // We have to convert to the original NDRegisterAccessor to determine the
-    // number of samples. We cannot use a decorator because scalar and array
-    // DOOCS_PRIMITIVE_T can be different, and once a decorator is created you
-    // cannot get the other type any more.
+  static std::map<std::type_index, std::function<unsigned int(ProcessVariable&)>> castingMap{
+      {typeid(uint8_t),
+          [](auto& pv) { return dynamic_cast<ChimeraTK::NDRegisterAccessor<uint8_t>&>(pv).getNumberOfSamples(); }},
+      {typeid(int8_t),
+          [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<int8_t>&>(pv).getNumberOfSamples();
+} // namespace ChimeraTK
+}
+,
+    {typeid(uint16_t),
+        [](auto& pv) { return dynamic_cast<ChimeraTK::NDRegisterAccessor<uint16_t>&>(pv).getNumberOfSamples(); }},
+    {typeid(int16_t),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<int16_t>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(uint32_t),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<uint32_t>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(int32_t),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<int32_t>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(uint64_t),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<uint64_t>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(int64_t),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<int64_t>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(float),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<float>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(double),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<double>&>(pv).getNumberOfSamples();
+}
+}
+,
+    {typeid(std::string),
+        [](auto& pv) -> auto {return dynamic_cast<ChimeraTK::NDRegisterAccessor<std::string>&>(pv).getNumberOfSamples();
+}
+}
+,
+}
+;
 
-    auto& ndAccessor = dynamic_cast<ChimeraTK::NDRegisterAccessor<IMPL_T>&>(processVariable);
-    auto nSamples = ndAccessor.getNumberOfSamples();
+// fixme: some of the variables needed here are redundant and can be sovled with
+// mpl and/or fusion maps
+template<class DOOCS_SCALAR_T, class DOOCS_PRIMITIVE_T, class DOOCS_ARRAY_T, class DOOCS_ARRAY_PRIMITIVE_T>
+boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(std::type_index valueType,
+    ProcessVariable& processVariable, AutoPropertyDescription const& autoPropertyDescription,
+    DecoratorType decoratorType) {
+  // We have to convert to the original NDRegisterAccessor to determine the
+  // number of samples. We cannot use a decorator because scalar and array
+  // DOOCS_PRIMITIVE_T can be different, and once a decorator is created you
+  // cannot get the other type any more.
 
-    if(nSamples == 1) {
-      return createDoocsScalar<DOOCS_PRIMITIVE_T, DOOCS_SCALAR_T>(autoPropertyDescription, decoratorType);
-    }
-    else {
-      return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(
-          ArrayDescription(autoPropertyDescription, arrayDataType));
-    }
+  auto nSamples = castingMap[valueType](processVariable);
+
+  if(nSamples == 1) {
+    return createDoocsScalar<DOOCS_PRIMITIVE_T, DOOCS_SCALAR_T>(autoPropertyDescription, decoratorType);
+  }
+  else {
+    return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(
+        AutoPropertyDescription(autoPropertyDescription));
+  }
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDescription> const& propertyDescription) {
@@ -250,82 +301,62 @@ namespace ChimeraTK {
        (scalar for D_array and 1D)
     */
 
-    // fixme: make this a boost::foreach in the data types provided by
-    // DeviceAccess. This will detect uncovered new data types at compile time,
-    // not only at run time
-    if(valueType == typeid(int8_t)) {
-      return typedCreateScalarOrArray<int8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+    if(autoPropertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
+      autoPropertyDescription->deriveType(valueType);
     }
-    else if(valueType == typeid(uint8_t)) {
-      return typedCreateScalarOrArray<uint8_t, D_int, int32_t, D_bytearray, uint8_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Byte);
+
+    switch(autoPropertyDescription->dataType) {
+      case AutoPropertyDescription::DataType::Byte:
+        return typedCreateScalarOrArray<D_int, int32_t, D_bytearray, uint8_t>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Short:
+        return typedCreateScalarOrArray<D_int, int32_t, D_shortarray, int16_t>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Int:
+        return typedCreateScalarOrArray<D_int, int32_t, D_intarray, int32_t>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Long:
+        return typedCreateDoocsArray<int64_t, D_longarray>(AutoPropertyDescription(*autoPropertyDescription));
+      case AutoPropertyDescription::DataType::Float:
+        return typedCreateScalarOrArray<D_float, float, D_floatarray, float>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Double:
+        return typedCreateScalarOrArray<D_double, double, D_doublearray, double>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Auto:
+        if(valueType == typeid(std::string)) {
+          return typedCreateScalarOrArray<D_string, std::string, std::nullptr_t, std::nullptr_t>(
+              valueType, *processVariable, *autoPropertyDescription, DecoratorType::range_checking);
+        }
+        throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
     }
-    else if(valueType == typeid(int16_t)) {
-      return typedCreateScalarOrArray<int16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
-    }
-    else if(valueType == typeid(uint16_t)) {
-      return typedCreateScalarOrArray<uint16_t, D_int, int32_t, D_shortarray, int16_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Short);
-    }
-    else if(valueType == typeid(int32_t)) {
-      return typedCreateScalarOrArray<int32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
-    }
-    else if(valueType == typeid(uint32_t)) {
-      return typedCreateScalarOrArray<uint32_t, D_int, int32_t, D_intarray, int32_t>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Int);
-    }
-    else if(valueType == typeid(int64_t)) {
-      // there is no scalar int64 representation in doocs, so we always create an
-      // array, also for length = 1
-      return typedCreateDoocsArray<int64_t, D_longarray>(
-          ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
-    }
-    else if(valueType == typeid(uint64_t)) {
-      return typedCreateDoocsArray<int64_t, D_longarray>(
-          ArrayDescription(*autoPropertyDescription, ArrayDescription::DataType::Long));
-    }
-    else if(valueType == typeid(float)) {
-      return typedCreateScalarOrArray<float, D_float, float, D_floatarray, float>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Float);
-    }
-    else if(valueType == typeid(double)) {
-      return typedCreateScalarOrArray<double, D_double, double, D_doublearray, double>(*processVariable,
-          *autoPropertyDescription, DecoratorType::C_style_conversion, ArrayDescription::DataType::Double);
-    }
-    else if(valueType == typeid(std::string)) {
-      return typedCreateScalarOrArray<std::string, D_string, std::string, std::nullptr_t, std::nullptr_t>(
-          *processVariable, *autoPropertyDescription, DecoratorType::range_checking, ArrayDescription::DataType::Auto);
-    }
-    else {
-      throw std::invalid_argument("unsupported value type");
-    }
+
+    // Make compiler happy
+    throw std::logic_error("Should not be reached");
   }
 
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
-  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(ArrayDescription const& arrayDescription) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(arrayDescription.source);
+  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription) {
+    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
     ///@todo FIXME Add the decorator type as option  to the array description, and
     /// only use C_style_conversion as default
-    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, arrayDescription.name,
+    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name,
         getDecorator<DOOCS_PRIMITIVE_T>(processVariable, DecoratorType::C_style_conversion), _updater));
 
     // set read only mode if configures in the xml file or for output variables
-    if(!processVariable->isWriteable() || !arrayDescription.isWriteable) {
+    if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
       doocsPV->set_ro_access();
     }
 
     // publish via ZeroMQ if configured in the xml file
-    if(arrayDescription.publishZMQ) {
+    if(propertyDescription.publishZMQ) {
       boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->publishZeroMQ();
     }
 
     // set macro pulse number source, if configured
-    if(arrayDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(arrayDescription.macroPulseNumberSource);
+    if(propertyDescription.macroPulseNumberSource.size() > 0) {
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -349,35 +380,36 @@ namespace ChimeraTK {
   // string)
   template<>
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray<std::nullptr_t, std::nullptr_t>(
-      ArrayDescription const&) {
+      AutoPropertyDescription const&) {
     throw std::invalid_argument("Type not supported as an array");
   }
 
-  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(std::shared_ptr<ArrayDescription> const& arrayDescription) {
-    if(arrayDescription->dataType == ArrayDescription::DataType::Auto) {
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(
+      std::shared_ptr<AutoPropertyDescription> const& propertyDescription) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
       // leave the desision which array to produce to the auto creation algorithm.
       // We need it there anyway
       // FIXME: This does not produce arrays of length 1 because it will produce a
       // scalar
-      return autoCreate(arrayDescription);
+      return autoCreate(propertyDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Byte) {
-      return typedCreateDoocsArray<uint8_t, D_bytearray>(*arrayDescription);
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Byte) {
+      return typedCreateDoocsArray<uint8_t, D_bytearray>(*propertyDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Short) {
-      return typedCreateDoocsArray<int16_t, D_shortarray>(*arrayDescription);
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Short) {
+      return typedCreateDoocsArray<int16_t, D_shortarray>(*propertyDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Int) {
-      return typedCreateDoocsArray<int32_t, D_intarray>(*arrayDescription);
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Int) {
+      return typedCreateDoocsArray<int32_t, D_intarray>(*propertyDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Long) {
-      return typedCreateDoocsArray<int64_t, D_longarray>(*arrayDescription);
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Long) {
+      return typedCreateDoocsArray<int64_t, D_longarray>(*propertyDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Float) {
-      return typedCreateDoocsArray<float, D_floatarray>(*arrayDescription);
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Float) {
+      return typedCreateDoocsArray<float, D_floatarray>(*propertyDescription);
     }
-    else if(arrayDescription->dataType == ArrayDescription::DataType::Double) {
-      return typedCreateDoocsArray<double, D_doublearray>(*arrayDescription);
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Double) {
+      return typedCreateDoocsArray<double, D_doublearray>(*propertyDescription);
     }
     else {
       throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
@@ -392,8 +424,8 @@ namespace ChimeraTK {
     else if(requestedType == typeid(SpectrumDescription)) {
       return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
     }
-    else if(requestedType == typeid(ArrayDescription)) {
-      return createDoocsArray(std::static_pointer_cast<ArrayDescription>(propertyDescription));
+    else if(requestedType == typeid(AutoPropertyDescription)) {
+      return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
     }
     else {
       throw std::invalid_argument("Sorry, your type is not supported yet.");

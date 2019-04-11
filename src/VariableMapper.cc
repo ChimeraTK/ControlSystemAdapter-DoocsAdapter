@@ -41,7 +41,7 @@ namespace ChimeraTK {
       if(dynamic_cast<xmlpp::CommentNode const*>(node)) continue;
 
       if(node->get_name() == "property") {
-        processPropertyNode(node, locationName);
+        processNode<AutoPropertyDescription>(node, locationName);
       }
       else if(node->get_name() == "import") {
         processImportNode(node, locationName);
@@ -65,7 +65,7 @@ namespace ChimeraTK {
         processSpectrumNode(node, locationName);
       }
       else if(node->get_name() == "D_array") {
-        processArrayNode(node, locationName);
+        processNode<AutoPropertyDescription>(node, locationName);
       }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
@@ -167,15 +167,35 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processPropertyNode(xmlpp::Node const* propertyNode, std::string locationName) {
+  void VariableMapper::processNode(xmlpp::Node const* propertyNode, std::string locationName) {
     auto property = asXmlElement(propertyNode);
 
     std::string source = getAttributeValue(property, "source");
     std::string name = determineName(property, source);
+
+    const xmlpp::Attribute* typeAttribute = property->get_attribute("type");
+    std::map<std::string, AutoPropertyDescription::DataType> dataTypeMap(
+        {{"auto", AutoPropertyDescription::DataType::Auto}, {"byte", AutoPropertyDescription::DataType::Byte},
+            {"short", AutoPropertyDescription::DataType::Short}, {"int", AutoPropertyDescription::DataType::Int},
+            {"long", AutoPropertyDescription::DataType::Long}, {"float", AutoPropertyDescription::DataType::Float},
+            {"double", AutoPropertyDescription::DataType::Double}});
+
+    auto type = AutoPropertyDescription::DataType::Auto;
+
+    if(typeAttribute) {
+      try {
+        type = dataTypeMap.at(typeAttribute->get_value());
+      }
+      catch(std::out_of_range&) {
+        throw ChimeraTK::logic_error("Unknown type attribute in line " + std::to_string(property->get_line()) + ": " +
+            typeAttribute->get_value());
+      }
+    }
+
     std::string absoluteSource = getAbsoluteSource(source, locationName);
 
     // prepare the property description
-    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name);
+    auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name, type);
 
     processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
 
@@ -226,39 +246,6 @@ namespace ChimeraTK {
     }
 
     addDescription(spectrumDescription, usedVariables);
-  }
-
-  /********************************************************************************************************************/
-
-  void VariableMapper::processArrayNode(xmlpp::Node const* node, std::string locationName) {
-    auto arrayXml = asXmlElement(node);
-
-    // the "main source" of a spectum
-    std::string source = getAttributeValue(arrayXml, "source");
-    std::string name = determineName(arrayXml, source);
-
-    const xmlpp::Attribute* typeAttribute = arrayXml->get_attribute("type");
-    std::map<std::string, ArrayDescription::DataType> dataTypeMap({{"auto", ArrayDescription::DataType::Auto},
-        {"byte", ArrayDescription::DataType::Byte}, {"short", ArrayDescription::DataType::Short},
-        {"int", ArrayDescription::DataType::Int}, {"long", ArrayDescription::DataType::Long},
-        {"float", ArrayDescription::DataType::Float}, {"double", ArrayDescription::DataType::Double}});
-
-    ArrayDescription::DataType type;
-    if(typeAttribute) {
-      type = dataTypeMap[typeAttribute->get_value()];
-    }
-    else {
-      type = ArrayDescription::DataType::Auto;
-    }
-
-    std::string absoluteSource = getAbsoluteSource(source, locationName);
-
-    // prepare the property description
-    auto arrayDescription = std::make_shared<ArrayDescription>(absoluteSource, locationName, name, type);
-
-    processHistoryAndWritableAttributes(arrayDescription, arrayXml, locationName);
-
-    addDescription(arrayDescription, {absoluteSource});
   }
 
   /********************************************************************************************************************/

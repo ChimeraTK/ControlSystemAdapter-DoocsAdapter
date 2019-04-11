@@ -51,9 +51,14 @@ template<class DOOCS_T>
 DOOCS_T* getDoocsProperty(std::string const& propertyAddress) {
   auto eqFct = getLocationFromPropertyAddress(propertyAddress);
   auto propertyName = ChimeraTK::basenameFromAddress(propertyAddress);
-  auto property = dynamic_cast<DOOCS_T*>(eqFct->find_property(propertyName));
-  BOOST_REQUIRE_MESSAGE(
-      property, "Could not find property address " << propertyAddress << "), or property has unexpected type.");
+  auto rawProperty = eqFct->find_property(propertyName);
+
+  BOOST_REQUIRE_MESSAGE(rawProperty, "Could not find property address" << propertyAddress);
+  auto property = dynamic_cast<DOOCS_T*>(rawProperty);
+
+  BOOST_REQUIRE_MESSAGE(property,
+      "Property " << propertyAddress << " has unexpected type: " << rawProperty->data_type_string() << ":"
+                  << rawProperty->data_type());
 
   return property;
 }
