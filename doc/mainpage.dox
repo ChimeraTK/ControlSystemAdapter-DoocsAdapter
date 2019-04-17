@@ -90,10 +90,27 @@ one simply has to specifiy the `publish_ZMQ` tag as shown in the following examp
 
 If the `macro_pulse_number_source` tag has been used, the macro pulse number will be added to the ZeroMQ header.
 
+\subsection type_override Overriding auto-detected types
+
+If the automatically derived data type of the DOOCS property is not fitting, it is possible to override it using the
+`type` attribute on the `property` and \ref D_array tags. `type` can be one of
+
+- auto (default)
+- byte
+- short
+- int
+- long
+- float
+- double
+
+For an example, see above in Section \ref mapping_file.
+
 \subsection special_properties Special DOOCS properties
 
 Instead of letting the DOOCS adapter automatically decide which DOOCS data type to use, it is possible to specify a
 particular type. This needs to be done whenever a special DOOCS property type should be used.
+
+
 
 \subsubsection D_spectrum D_spectrum
 The `D_spectrum` tag takes the following arguments through sub-tags:
