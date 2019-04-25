@@ -265,6 +265,9 @@ namespace ChimeraTK {
     auto xyDescription = std::make_shared<XyDescription>(xAbsoluteSource, yAbsoluteSource, locationName, name, false);
     processHistoryAndWritableAttributes(xyDescription, xyXml, locationName);
 
+    auto descriptionNode = xyXml->get_first_child("description");
+    xyDescription->description = getContentString(descriptionNode);
+
     addDescription(xyDescription, {xAbsoluteSource, yAbsoluteSource});
   }
 
