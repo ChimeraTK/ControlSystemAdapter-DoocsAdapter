@@ -67,6 +67,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_array") {
         processNode(node, locationName);
       }
+      else if(node->get_name() == "D_xy") {
+        processXyNode(node, locationName);
+      }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": Unknown node '" + node->get_name() + "'");
@@ -246,6 +249,23 @@ namespace ChimeraTK {
     }
 
     addDescription(spectrumDescription, usedVariables);
+  }
+
+  /********************************************************************************************************************/
+
+  void VariableMapper::processXyNode(xmlpp::Node const* node, std::string& locationName) {
+    auto xyXml = asXmlElement(node);
+
+    auto xSource = getAttributeValue(xyXml, "x_source");
+    auto ySource = getAttributeValue(xyXml, "y_source");
+    auto name = determineName(xyXml, xSource + "_" + ySource);
+    auto xAbsoluteSource = getAbsoluteSource(xSource, locationName);
+    auto yAbsoluteSource = getAbsoluteSource(ySource, locationName);
+
+    auto xyDescription = std::make_shared<XyDescription>(xAbsoluteSource, yAbsoluteSource, locationName, name, false);
+    processHistoryAndWritableAttributes(xyDescription, xyXml, locationName);
+
+    addDescription(xyDescription, {xAbsoluteSource, yAbsoluteSource});
   }
 
   /********************************************************************************************************************/

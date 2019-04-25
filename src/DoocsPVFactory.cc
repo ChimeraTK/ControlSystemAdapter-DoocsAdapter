@@ -3,6 +3,7 @@
 #include "DoocsProcessArray.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsSpectrum.h"
+#include "DoocsXY.h"
 #include <d_fct.h>
 
 #include "DoocsPVFactory.h"
@@ -206,6 +207,20 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
       _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
+
+    return doocsPV;
+  }
+
+  boost::shared_ptr<D_fct> DoocsPVFactory::createXy(XyDescription const& xyDescription) {
+    auto xProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.xSource);
+    auto yProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.ySource);
+
+    boost::shared_ptr<D_fct> doocsPV;
+    doocsPV.reset(new DoocsXy(_eqFct, xyDescription.name,
+        getDecorator<float>(xProcessVariable, DecoratorType::C_style_conversion),
+        getDecorator<float>(yProcessVariable, DecoratorType::C_style_conversion), _updater));
+
+    doocsPV->set_ro_access();
 
     return doocsPV;
   }
@@ -423,6 +438,9 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(std::type_inde
     }
     else if(requestedType == typeid(SpectrumDescription)) {
       return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
+    }
+    else if(requestedType == typeid(XyDescription)) {
+      return createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
     }
     else if(requestedType == typeid(AutoPropertyDescription)) {
       return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));

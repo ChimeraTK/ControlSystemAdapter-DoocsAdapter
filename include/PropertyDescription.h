@@ -117,6 +117,23 @@ namespace ChimeraTK {
   //        return start==other.start && increment==other.increment;
   //      }
   //    };
+  /********************************************************************************************************************/
+
+  struct XyDescription : public PropertyDescription, public PropertyAttributes {
+    ChimeraTK::RegisterPath xSource;
+    ChimeraTK::RegisterPath ySource;
+
+    XyDescription(ChimeraTK::RegisterPath const& xSource_ = "", ChimeraTK::RegisterPath const& ySource_ = "",
+        std::string const& location_ = "", std::string const& name_ = "", bool hasHistory_ = true)
+    : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, false), xSource(xSource_),
+      ySource(ySource_) {}
+
+    const std::type_info& type() const override { return typeid(XyDescription); }
+
+    void print(std::ostream& os = std::cout) const override {
+      os << "x: " << xSource << " y: " << ySource << " -> " << location << " / " << name << std::endl;
+    }
+  };
 
   /********************************************************************************************************************/
 
