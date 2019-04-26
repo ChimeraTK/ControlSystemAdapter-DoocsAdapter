@@ -220,8 +220,21 @@ namespace ChimeraTK {
         getDecorator<float>(xProcessVariable, DecoratorType::C_style_conversion),
         getDecorator<float>(yProcessVariable, DecoratorType::C_style_conversion), _updater));
 
-    if(not xyDescription.description.empty())
-      boost::dynamic_pointer_cast<DoocsXy>(doocsPV)->description(xyDescription.description);
+    auto xy = boost::dynamic_pointer_cast<DoocsXy>(doocsPV);
+
+    if(not xyDescription.description.empty()) xy->description(xyDescription.description);
+
+    auto const xIt = xyDescription.axis.find("x");
+    if(xIt != xyDescription.axis.cend()) {
+      auto const& axis = xIt->second;
+      xy->xegu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+    }
+
+    auto const yIt = xyDescription.axis.find("y");
+    if(yIt != xyDescription.axis.cend()) {
+      auto const& axis = yIt->second;
+      xy->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+    }
 
     doocsPV->set_ro_access();
 

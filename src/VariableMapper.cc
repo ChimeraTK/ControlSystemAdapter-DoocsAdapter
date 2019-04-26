@@ -268,6 +268,36 @@ namespace ChimeraTK {
     auto descriptionNode = xyXml->get_first_child("description");
     xyDescription->description = getContentString(descriptionNode);
 
+    auto unitNodes = xyXml->get_children("unit");
+    for(const auto unit : unitNodes) {
+      auto unitElement = asXmlElement(unit);
+      auto axis = getAttributeValue(unitElement, "axis");
+      if(axis != "x" && axis != "y")
+        throw std::invalid_argument("Unsupported axis in D_xy, must be \"x\" or \"y\": " + axis);
+
+      std::string label;
+      if(not unit->get_children().empty()) label = getContentString(unit);
+
+      xyDescription->axis[axis].label = label;
+      try {
+        xyDescription->axis[axis].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        xyDescription->axis[axis].start = std::stof(getAttributeValue(unitElement, "start"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        xyDescription->axis[axis].stop = std::stof(getAttributeValue(unitElement, "stop"));
+      }
+      catch(std::invalid_argument&) {
+      }
+    }
+
     addDescription(xyDescription, {xAbsoluteSource, yAbsoluteSource});
   }
 

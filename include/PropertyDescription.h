@@ -120,9 +120,17 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   struct XyDescription : public PropertyDescription, public PropertyAttributes {
+    struct Axis {
+      std::string label;
+      int logarithmic;
+      float start;
+      float stop;
+    };
+
     ChimeraTK::RegisterPath xSource;
     ChimeraTK::RegisterPath ySource;
     std::string description;
+    std::map<std::string, Axis> axis;
 
     XyDescription(ChimeraTK::RegisterPath const& xSource_ = "", ChimeraTK::RegisterPath const& ySource_ = "",
         std::string const& location_ = "", std::string const& name_ = "", bool hasHistory_ = true)
