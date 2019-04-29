@@ -266,7 +266,7 @@ namespace ChimeraTK {
     processHistoryAndWritableAttributes(xyDescription, xyXml, locationName);
 
     auto descriptionNode = xyXml->get_first_child("description");
-    xyDescription->description = getContentString(descriptionNode);
+    if(descriptionNode != nullptr) xyDescription->description = getContentString(descriptionNode);
 
     auto unitNodes = xyXml->get_children("unit");
     for(const auto unit : unitNodes) {
