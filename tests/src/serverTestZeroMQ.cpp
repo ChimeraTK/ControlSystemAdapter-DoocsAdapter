@@ -93,6 +93,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       &tag);
   BOOST_CHECK(!err);
 
+  // Wait for the notification of the first write to happen.
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
   // in a loop until we receive the data.
   size_t counter = 0;
@@ -108,9 +109,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     BOOST_CHECK_EQUAL(received.error(), 0);
     BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
   }
-  usleep(100000); // this sleep is bad, but there seems not to be any better
-                  // solution - we need to be sure there is no further pending
-                  // update
+
+  // Trigger another update, the last one was eaten by the wait for startup above
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  DoocsServerTestHelper::doocsSet<int>("//UINT/TO_DEVICE_SCALAR", expectedValue);
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
@@ -183,9 +185,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
     BOOST_CHECK_EQUAL(received.length(), 10);
     for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
   }
-  usleep(100000); // this sleep is bad, but there seems not to be any better
-                  // solution - we need to be sure there is no further pending
-                  // update
+
+  // Trigger another update, the last one was eaten by the wait for startup above
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  DoocsServerTestHelper::doocsSet<int>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
@@ -258,9 +261,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
   BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
   for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedFloatArrayValue[k], 0.0001);
-  usleep(100000); // this sleep is bad, but there seems not to be any better
-                  // solution - we need to be sure there is no further pending
-                  // update
+
+  // Trigger another update, the last one was eaten by the wait for startup above
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
