@@ -67,6 +67,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_array") {
         processNode(node, locationName);
       }
+      else if(node->get_name() == "D_xy") {
+        processXyNode(node, locationName);
+      }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": Unknown node '" + node->get_name() + "'");
@@ -246,6 +249,56 @@ namespace ChimeraTK {
     }
 
     addDescription(spectrumDescription, usedVariables);
+  }
+
+  /********************************************************************************************************************/
+
+  void VariableMapper::processXyNode(xmlpp::Node const* node, std::string& locationName) {
+    auto xyXml = asXmlElement(node);
+
+    auto xSource = getAttributeValue(xyXml, "x_source");
+    auto ySource = getAttributeValue(xyXml, "y_source");
+    auto name = determineName(xyXml, xSource + "_" + ySource);
+    auto xAbsoluteSource = getAbsoluteSource(xSource, locationName);
+    auto yAbsoluteSource = getAbsoluteSource(ySource, locationName);
+
+    auto xyDescription = std::make_shared<XyDescription>(xAbsoluteSource, yAbsoluteSource, locationName, name, false);
+    processHistoryAndWritableAttributes(xyDescription, xyXml, locationName);
+
+    auto descriptionNode = xyXml->get_first_child("description");
+    if(descriptionNode != nullptr) xyDescription->description = getContentString(descriptionNode);
+
+    auto unitNodes = xyXml->get_children("unit");
+    for(const auto unit : unitNodes) {
+      auto unitElement = asXmlElement(unit);
+      auto axis = getAttributeValue(unitElement, "axis");
+      if(axis != "x" && axis != "y")
+        throw std::invalid_argument("Unsupported axis in D_xy, must be \"x\" or \"y\": " + axis);
+
+      std::string label;
+      if(not unit->get_children().empty()) label = getContentString(unit);
+
+      xyDescription->axis[axis].label = label;
+      try {
+        xyDescription->axis[axis].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        xyDescription->axis[axis].start = std::stof(getAttributeValue(unitElement, "start"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        xyDescription->axis[axis].stop = std::stof(getAttributeValue(unitElement, "stop"));
+      }
+      catch(std::invalid_argument&) {
+      }
+    }
+
+    addDescription(xyDescription, {xAbsoluteSource, yAbsoluteSource});
   }
 
   /********************************************************************************************************************/
