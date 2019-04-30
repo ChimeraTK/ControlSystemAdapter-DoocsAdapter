@@ -136,4 +136,15 @@ The `D_array` tag takes the following arguments through XML attributes of the D_
 
 For an example, see above in Section \ref mapping_file.
 
+\subsection D_xy D_xy
+The `D_xy` tag takes the following arguments through properties:
+- `x_source` : Name of process variable which should be used for x-axis values
+- `y_source` : Name of process variable which should be used for y-axis values
+- `name` : Name of the mapped property
+The `D_xy` tag takes the following arguments through sub-tags:
+- `description` : A description for the XY plot
+- `unit` : A description of the respective axis. The axis is chosen with the `axis` property which can either be `x` or `y`
+
+\include tests/serverTestXy-DoocsVariableConfig.xml
+
 */
