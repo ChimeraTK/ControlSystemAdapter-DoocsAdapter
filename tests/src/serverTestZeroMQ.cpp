@@ -73,11 +73,6 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   /// INT comes before UINT and FLOAT, so the macro pulse number is first
   /// written and then our values.
 
-  int macroPulseNumber = 12345;
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-
-  uint32_t expectedValue = 42;
-  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
 
   EqData dst;
   EqAdr ea;
@@ -92,6 +87,15 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       },
       &tag);
   BOOST_CHECK(!err);
+
+  // Add additional delay for the ZMQ system to come up
+  usleep(2000000);
+
+  int macroPulseNumber = 12345;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  uint32_t expectedValue = 42;
+  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
 
   // Wait for the notification of the first write to happen.
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
@@ -149,12 +153,6 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  int macroPulseNumber = 99999;
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-
-  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
-
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_ARRAY");
@@ -168,6 +166,15 @@ BOOST_AUTO_TEST_CASE(testArray) {
       },
       &tag);
   BOOST_CHECK(!err);
+
+  // Add additional delay for the ZMQ system to come up
+  usleep(2000000);
+
+  int macroPulseNumber = 99999;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
   // in a loop until we receive the data.
@@ -226,12 +233,6 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
-  int macroPulseNumber = -100;
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-
-  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
@@ -245,6 +246,15 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       },
       &tag);
   BOOST_CHECK(!err);
+
+  // Add additional delay for the ZMQ system to come up
+  usleep(2000000);
+
+  int macroPulseNumber = -100;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
   // in a loop until we receive the data.
