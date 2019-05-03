@@ -48,8 +48,12 @@ class serverTestRetypePropertiesTestSuite : public test_suite {
     doocsServerThread = std::thread(eq_server, argc, argv);
     // wait for doocs to start up before detaching the thread and continuing
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    doocsServerThread.detach();
     add(BOOST_TEST_CASE(&testVariableExistence));
+  }
+
+  ~serverTestRetypePropertiesTestSuite() {
+    eq_exit();
+    doocsServerThread.join();
   }
 
  protected:

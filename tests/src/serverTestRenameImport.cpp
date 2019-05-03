@@ -105,8 +105,12 @@ class RenameImportServerTestSuite : public test_suite {
   : test_suite("RenameImport server test suite"), doocsServerThread(eq_server, argc, argv) {
     // wait for doocs to start up before detaching the thread and continuing
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    doocsServerThread.detach();
     add(BOOST_TEST_CASE(&testVariableExistence));
+  }
+
+  ~RenameImportServerTestSuite() {
+    eq_exit();
+    doocsServerThread.join();
   }
 
  protected:

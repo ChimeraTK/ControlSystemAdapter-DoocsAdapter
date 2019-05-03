@@ -33,9 +33,8 @@ struct DoocsLauncher {
     (void)rc;
 
     // start the server
-    std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv)
-        .detach();
+    doocsServerThread = std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
+        boost::unit_test::framework::master_test_suite().argv);
     // wait until server has started (both the update thread and the rpc thread)
     EqCall eq;
     EqAdr ea;
@@ -45,10 +44,13 @@ struct DoocsLauncher {
     dmsg_start();
     referenceTestApplication.initialiseManualLoopControl();
   }
-  ~DoocsLauncher() { referenceTestApplication.releaseManualLoopControl(); }
+  ~DoocsLauncher() {
+    referenceTestApplication.releaseManualLoopControl();
+    eq_exit();
+    doocsServerThread.join();
+  }
 
-  static void launchIfNotYetLaunched() { static DoocsLauncher launcher; }
-
+  std::thread doocsServerThread;
   static std::string rpc_no;
 };
 std::string DoocsLauncher::rpc_no;
@@ -60,11 +62,12 @@ static EqData received;
 static dmsg_info_t receivedInfo;
 static std::mutex mutex;
 
+BOOST_GLOBAL_FIXTURE(DoocsLauncher);
+
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testScalar) {
   std::cout << "testScalar" << std::endl;
-  DoocsLauncher::launchIfNotYetLaunched();
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
@@ -149,7 +152,6 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
 BOOST_AUTO_TEST_CASE(testArray) {
   std::cout << "testArray" << std::endl;
-  DoocsLauncher::launchIfNotYetLaunched();
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 
@@ -229,7 +231,6 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
 BOOST_AUTO_TEST_CASE(testSpectrum) {
   std::cout << "testSpectrum" << std::endl;
-  DoocsLauncher::launchIfNotYetLaunched();
 
   auto appPVmanager = referenceTestApplication.getPVManager();
 

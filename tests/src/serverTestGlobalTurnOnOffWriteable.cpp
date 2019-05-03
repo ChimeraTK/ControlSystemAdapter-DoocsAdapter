@@ -65,10 +65,14 @@ class GlobalTurnOnOffWriteableServerTestSuite : public test_suite {
  public:
   GlobalTurnOnOffWriteableServerTestSuite(int argc, char* argv[])
   : test_suite("GlobalTurnOnOffWriteable server test suite"), doocsServerThread(eq_server, argc, argv) {
-    // wait for doocs to start up before detaching the thread and continuing
+    // wait for doocs to start up before continuing
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    doocsServerThread.detach();
     add(BOOST_TEST_CASE(&testVariableExistence));
+  }
+
+  ~GlobalTurnOnOffWriteableServerTestSuite() {
+    eq_exit();
+    doocsServerThread.join();
   }
 
  protected:

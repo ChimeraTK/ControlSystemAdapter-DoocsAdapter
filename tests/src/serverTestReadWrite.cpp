@@ -95,10 +95,13 @@ class DoocsServerTestSuite : public test_suite {
   : test_suite("Read write test suite"), doocsServerThread(eq_server, argc, argv) {
     // wait for doocs to start up before detaching the thread and continuing
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    doocsServerThread.detach();
     add(BOOST_TEST_CASE(&testReadWrite));
   }
-  virtual ~DoocsServerTestSuite() { referenceTestApplication.releaseManualLoopControl(); }
+  virtual ~DoocsServerTestSuite() {
+    referenceTestApplication.releaseManualLoopControl();
+    eq_exit();
+    doocsServerThread.join();
+  }
 
  protected:
   std::thread doocsServerThread;

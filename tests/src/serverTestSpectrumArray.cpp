@@ -127,11 +127,15 @@ class DoocsServerTestSuite : public test_suite {
   : test_suite("Spectrum and array server test suite"), doocsServerThread(eq_server, argc, argv) {
     // wait for doocs to start up before detaching the thread and continuing
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    doocsServerThread.detach();
     add(BOOST_TEST_CASE(&testReadWrite));
     add(BOOST_TEST_CASE(&testPropertiesDontExist));
   }
-  virtual ~DoocsServerTestSuite() { referenceTestApplication.releaseManualLoopControl(); }
+
+  ~DoocsServerTestSuite() override {
+    referenceTestApplication.releaseManualLoopControl();
+    eq_exit();
+    doocsServerThread.join();
+  }
 
  protected:
   std::thread doocsServerThread;

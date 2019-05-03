@@ -36,9 +36,8 @@ struct DoocsLauncher {
     (void)rc;
 
     // start the server
-    std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv)
-        .detach();
+    doocsServerThread = std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
+        boost::unit_test::framework::master_test_suite().argv);
     // wait until server has started (both the update thread and the rpc thread)
     EqCall eq;
     EqAdr ea;
@@ -47,18 +46,22 @@ struct DoocsLauncher {
     while(eq.get(&ea, &src, &dst)) usleep(100000);
     referenceTestApplication.initialiseManualLoopControl();
   }
-  ~DoocsLauncher() { referenceTestApplication.releaseManualLoopControl(); }
+  ~DoocsLauncher() {
+    referenceTestApplication.releaseManualLoopControl();
+    eq_exit();
+    doocsServerThread.join();
+  }
 
-  static void launchIfNotYetLaunched() { static DoocsLauncher launcher; }
-
+  std::thread doocsServerThread;
   static std::string rpc_no;
 };
 std::string DoocsLauncher::rpc_no;
 
+BOOST_GLOBAL_FIXTURE(DoocsLauncher);
+
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testXyMetadata) {
-  DoocsLauncher::launchIfNotYetLaunched();
   std::cout << "testXyMetadata" << std::endl;
 
   auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
@@ -78,7 +81,6 @@ BOOST_AUTO_TEST_CASE(testXyMetadata) {
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testXyUpdates) {
-  DoocsLauncher::launchIfNotYetLaunched();
   std::cout << "testXy" << std::endl;
 
   auto check = []() -> double {
