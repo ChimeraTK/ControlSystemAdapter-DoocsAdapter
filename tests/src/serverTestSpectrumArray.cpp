@@ -1,36 +1,32 @@
+#define BOOST_TEST_MODULE serverTestSpectrumArray
 #include <boost/test/included/unit_test.hpp>
-
-//#include <boost/test/test_case_template.hpp>
-//#include <boost/mpl/list.hpp>
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <thread>
-
-ReferenceTestApplication referenceTestApplication("serverTestSpectrumArray");
-
-// declare that we have some thing like a doocs server. is is linked from the
-// doocs lib, but there is no header.
-extern int eq_server(int, char**);
-
-//#include <limits>
-//#include <sstream>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
 using namespace boost::unit_test_framework;
+using namespace boost::unit_test;
 using namespace ChimeraTK;
 
-// use boost meta-programming to use test case templates
-// The list of types is an mpl type
-// typedef boost::mpl::list<int32_t, uint32_t,
-//			 int16_t, uint16_t,
-//			 int8_t, uint8_t,
-//			 float, double> simple_test_types;
+struct GlobalFixture {
+  GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }
+
+  ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
+
+  static ReferenceTestApplication referenceTestApplication;
+  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf", framework::master_test_suite().argc,
+      framework::master_test_suite().argv};
+};
+ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
+
+BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 // the array must have testStartValue+i at index i.
 template<class T>
-bool testArrayContent(std::string const& propertyName, T testStartValue, T delta) {
+static bool testArrayContent(std::string const& propertyName, T testStartValue, T delta) {
   auto array = DoocsServerTestHelper::doocsGetArray<T>(propertyName);
   bool isOK = true;
   T currentTestValue = testStartValue;
@@ -44,15 +40,15 @@ bool testArrayContent(std::string const& propertyName, T testStartValue, T delta
 }
 
 /// Check that all expected variables are there.
-void testReadWrite() {
+BOOST_AUTO_TEST_CASE(testReadWrite) {
   // halt the test application tread
-  referenceTestApplication.initialiseManualLoopControl();
+  GlobalFixture::referenceTestApplication.initialiseManualLoopControl();
 
   // prepare the x-axis for the float array (we are using the float and double
   // scalar)
   DoocsServerTestHelper::doocsSet("//FLOAT/START", 12.3);
   DoocsServerTestHelper::doocsSet("//FLOAT/INCREMENT", 1.6);
-  referenceTestApplication.runMainLoopOnce();
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
   checkSpectrum("//INT/TO_DEVICE_ARRAY");
   checkSpectrum("//DOUBLE/TO_DEVICE_ARRAY");
@@ -77,7 +73,7 @@ void testReadWrite() {
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
 
   // run the application loop.
-  referenceTestApplication.runMainLoopOnce();
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140, 1) == true);
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3, 1) == true);
@@ -98,7 +94,7 @@ void testReadWrite() {
   //  }
 }
 
-void testPropertyDoesNotExist(std::string addressString) {
+static void testPropertyDoesNotExist(std::string addressString) {
   EqAdr ad;
   EqData ed, res;
   // obtain location pointer
@@ -115,42 +111,7 @@ void testPropertyDoesNotExist(std::string addressString) {
       res.error() != 0, std::string("Could read from ") + addressString + ", but it should not be there");
 }
 
-void testPropertiesDontExist() {
+BOOST_AUTO_TEST_CASE(testPropertiesDontExist) {
   testPropertyDoesNotExist("//FLOAT/FROM_DEVICE_SCALAR");
   testPropertyDoesNotExist("//DOUBLE/FROM_DEVICE_SCALAR");
-}
-
-// due to the doocs server thread you can only have one test suite
-class DoocsServerTestSuite : public test_suite {
- public:
-  DoocsServerTestSuite(int argc, char* argv[])
-  : test_suite("Spectrum and array server test suite"), doocsServerThread(eq_server, argc, argv) {
-    // wait for doocs to start up before detaching the thread and continuing
-    ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    add(BOOST_TEST_CASE(&testReadWrite));
-    add(BOOST_TEST_CASE(&testPropertiesDontExist));
-  }
-  /**
- * @brief For compatibility with older DOOCS versions declare our own eq_exit
- *
- * Can be removed once a new doocs server version is released.
- */
-  void eq_exit() {
-    auto nativeHandle = doocsServerThread.native_handle();
-    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
-  }
-
-  ~DoocsServerTestSuite() override {
-    referenceTestApplication.releaseManualLoopControl();
-    eq_exit();
-    doocsServerThread.join();
-  }
-
- protected:
-  std::thread doocsServerThread;
-};
-
-test_suite* init_unit_test_suite(int argc, char* argv[]) {
-  framework::master_test_suite().p_name.value = "Spectrum and array server test suite";
-  return new DoocsServerTestSuite(argc, argv);
 }

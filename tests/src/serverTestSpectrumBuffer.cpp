@@ -1,71 +1,40 @@
 #define BOOST_TEST_MODULE serverTestSpectrumBuffer
 #include <boost/test/included/unit_test.hpp>
 
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <eq_client.h>
-#include <random>
-#include <thread>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
 using namespace boost::unit_test_framework;
+using namespace boost::unit_test;
 using namespace ChimeraTK;
 
-static ReferenceTestApplication referenceTestApplication("serverTestSpectrumBuffer");
-
-/**********************************************************************************************************************/
-
-extern int eq_server(int, char**);
-
-struct DoocsLauncher {
-  DoocsLauncher() {
-    // choose random RPC number
-    std::random_device rd;
-    std::uniform_int_distribution<int> dist(620000000, 999999999);
-    rpc_no = std::to_string(dist(rd));
-    // update config file with the RPC number
-    std::string command = "sed -i serverTestSpectrumBuffer.conf -e "
-                          "'s/^SVR.RPC_NUMBER:.*$/SVR.RPC_NUMBER: " +
-        rpc_no + "/'";
-    auto rc = std::system(command.c_str());
-    (void)rc;
-
-    // start the server
-    doocsServerThread = std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv);
+struct GlobalFixture {
+  GlobalFixture() {
+    rpcNo = server.rpcNo();
     // wait until server has started (both the update thread and the rpc thread)
     EqCall eq;
     EqAdr ea;
     EqData src, dst;
-    ea.adr("doocs://localhost:" + rpc_no + "/F/D/INT/TO_DEVICE_SCALAR");
+    ea.adr("doocs://localhost:" + server.rpcNo() + "/F/D/INT/TO_DEVICE_SCALAR");
+    std::cout << "doocs://localhost:" + server.rpcNo() + "/F/D/INT/TO_DEVICE_SCALAR" << std::endl;
     while(eq.get(&ea, &src, &dst)) usleep(100000);
     referenceTestApplication.initialiseManualLoopControl();
   }
-  /**
- * @brief For compatibility with older DOOCS versions declare our own eq_exit
- *
- * Can be removed once a new doocs server version is released.
- */
-  void eq_exit() {
-    auto nativeHandle = doocsServerThread.native_handle();
-    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
-  }
 
-  ~DoocsLauncher() {
-    referenceTestApplication.releaseManualLoopControl();
-    eq_exit();
-    doocsServerThread.join();
-  }
+  ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
 
-  std::thread doocsServerThread;
-
-  static std::string rpc_no;
+  static ReferenceTestApplication referenceTestApplication;
+  static std::string rpcNo;
+  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf", framework::master_test_suite().argc,
+      framework::master_test_suite().argv};
 };
-std::string DoocsLauncher::rpc_no;
+ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
+std::string GlobalFixture::rpcNo;
 
-BOOST_GLOBAL_FIXTURE(DoocsLauncher);
+BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 /**********************************************************************************************************************/
 
@@ -73,9 +42,9 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   std::cout << "testSpectrum" << std::endl;
 
   EqAdr ea;
-  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
+  ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
 
-  auto appPVmanager = referenceTestApplication.getPVManager();
+  auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
   int firstMacroPulseNumber = 648583; // just some random number to start with
 
@@ -87,7 +56,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", firstMacroPulseNumber + i);
     expectedFloatArrayValue[1] = i;
     DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
   }
 
   // read out the 10 updates from the buffers
@@ -116,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", firstMacroPulseNumber + i + 10);
     expectedFloatArrayValue[1] = i + 10000;
     DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
   }
 
   // read out the 32 updates from the buffers

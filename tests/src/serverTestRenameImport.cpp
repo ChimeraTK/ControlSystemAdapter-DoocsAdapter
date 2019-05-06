@@ -1,35 +1,20 @@
+#define BOOST_TEST_MODULE serverTestRenameImport
 #include <boost/test/included/unit_test.hpp>
-
-//#include <boost/test/test_case_template.hpp>
-//#include <boost/mpl/list.hpp>
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <thread>
-
-ReferenceTestApplication referenceTestApplication("serverTestRenameImport");
-
-// declare that we have some thing like a doocs server. is is linked from the
-// doocs lib, but there is no header.
-extern int eq_server(int, char**);
-
-//#include <limits>
-//#include <sstream>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
 using namespace boost::unit_test_framework;
+using namespace boost::unit_test;
 using namespace ChimeraTK;
 
-// use boost meta-programming to use test case templates
-// The list of types is an mpl type
-// typedef boost::mpl::list<int32_t, uint32_t,
-//			 int16_t, uint16_t,
-//			 int8_t, uint8_t,
-//			 float, double> simple_test_types;
+DOOCS_ADAPTER_DEFAULT_FIXTURE
 
 /// Check that all expected variables are there.
-void testVariableExistence() {
+BOOST_AUTO_TEST_CASE(testVariableExistence) {
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY", true, false);
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/FROM_DEVICE_ARRAY", true, false);
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/TO_DEVICE_ARRAY", true, true);
@@ -96,37 +81,4 @@ void testVariableExistence() {
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1);
   checkDoocsProperty<D_int>("//CHAR/FROM_DEVICE_SCALAR", true, false);
   checkDoocsProperty<D_int>("//CHAR/TO_DEVICE_SCALAR");
-}
-
-// due to the doocs server thread you can only have one test suite
-class RenameImportServerTestSuite : public test_suite {
- public:
-  RenameImportServerTestSuite(int argc, char* argv[])
-  : test_suite("RenameImport server test suite"), doocsServerThread(eq_server, argc, argv) {
-    // wait for doocs to start up before detaching the thread and continuing
-    ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    add(BOOST_TEST_CASE(&testVariableExistence));
-  }
-  /**
- * @brief For compatibility with older DOOCS versions declare our own eq_exit
- *
- * Can be removed once a new doocs server version is released.
- */
-  void eq_exit() {
-    auto nativeHandle = doocsServerThread.native_handle();
-    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
-  }
-
-  ~RenameImportServerTestSuite() {
-    eq_exit();
-    doocsServerThread.join();
-  }
-
- protected:
-  std::thread doocsServerThread;
-};
-
-test_suite* init_unit_test_suite(int argc, char* argv[]) {
-  framework::master_test_suite().p_name.value = "RenameImport server test suite";
-  return new RenameImportServerTestSuite(argc, argv);
 }
