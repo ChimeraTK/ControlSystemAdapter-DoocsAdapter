@@ -70,6 +70,15 @@ class GlobalTurnOnOffHistoryServerTestSuite : public test_suite {
     ChimeraTK::DoocsAdapter::waitUntilInitialised();
     add(BOOST_TEST_CASE(&testVariableExistence));
   }
+  /**
+ * @brief For compatibility with older DOOCS versions declare our own eq_exit
+ *
+ * Can be removed once a new doocs server version is released.
+ */
+  void eq_exit() {
+    auto nativeHandle = doocsServerThread.native_handle();
+    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
+  }
 
   ~GlobalTurnOnOffHistoryServerTestSuite() {
     eq_exit();
