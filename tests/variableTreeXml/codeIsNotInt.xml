@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  
+  <location name="SUB" code="notAInt">
+    <import>/C/d</import>
+  </location>
+
+  
+</device_server>

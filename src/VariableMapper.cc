@@ -35,7 +35,9 @@ namespace ChimeraTK {
       throw std::invalid_argument("Error parsing xml file in location node.");
     }
     std::string locationName = getAttributeValue(location, "name");
-
+    
+    processCode(location, locationName);
+    
     for(auto const& node : location->get_children()) {
       if(nodeIsWhitespace(node)) continue;
       if(dynamic_cast<xmlpp::CommentNode const*>(node)) continue;
@@ -381,6 +383,39 @@ namespace ChimeraTK {
         autoPropertyDescription->macroPulseNumberSource = getMacroPusleNumberSourceDefault(locationName);
 
         addDescription(autoPropertyDescription, {processVariable});
+      }
+    }
+  }
+  
+  /********************************************************************************************************************/
+  
+  void VariableMapper::processCode(xmlpp::Element const* location, std::string locationName) {
+    // If the the code is set in the location tag of the mapping xml file,
+    // this function adds the location and fct_code to a map _inputLocationAandCode.
+    // It throws an exeption if the code is not an integer. The code must be greater than 1,
+    // because 1 is reserved for the server. And the code must be consistent.
+    auto locationCodeAttribute = location->get_attribute("code");
+    if (locationCodeAttribute) {
+      int locationCode = 0;
+      try {
+        locationCode = std::stoi(locationCodeAttribute->get_value());
+      } catch(std::invalid_argument&) { 
+        throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
+            ": Unknown code '" + locationCodeAttribute->get_value() + "'");
+      }
+      if ( locationCode < 2 ) {
+        throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
+            ": code '" + locationCodeAttribute->get_value() + "' must be > 1, in doocs 1 is reserved for server");
+      }
+
+      auto result = _inputLocationAandCode.insert( std::pair<std::string,int>(locationName,locationCode) );
+      if (result.second == false) {//test if pair is already in map
+        if (result.first->second != locationCode) {//and test if code is the same like before
+          // maybe an exection is too much and a warning is enough?
+          throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
+            ": code '" + std::to_string(locationCode) + "' must be consistent with location code before '" + std::to_string(result.first->second) + "'");
+        }
+        
       }
     }
   }
