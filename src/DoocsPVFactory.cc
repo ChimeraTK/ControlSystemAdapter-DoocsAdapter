@@ -88,7 +88,7 @@ namespace ChimeraTK {
   }
 
   template<>
-  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_text>(
       AutoPropertyDescription const& propertyDescription, DecoratorType /*decoratorType*/) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
@@ -105,8 +105,8 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1); // array of strings is not supported
-    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessScalar<std::string, D_string>(
-        _eqFct, propertyDescription.name.c_str(), processArray, _updater));
+    boost::shared_ptr<D_fct> doocsPV(
+        new DoocsProcessScalar<std::string, D_text>(_eqFct, propertyDescription.name.c_str(), processArray, _updater));
 
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
@@ -115,7 +115,7 @@ namespace ChimeraTK {
 
     // publish via ZeroMQ if configured in the xml file
     if(propertyDescription.publishZMQ) {
-      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_string>>(doocsPV)->publishZeroMQ();
+      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_text>>(doocsPV)->publishZeroMQ();
     }
 
     // set macro pulse number source, if configured
@@ -132,7 +132,7 @@ namespace ChimeraTK {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_string>>(doocsPV)->setMacroPulseNumberSource(
+      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_text>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
       _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
@@ -356,7 +356,7 @@ boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDesc
           valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
     case AutoPropertyDescription::DataType::Auto:
       if(valueType == typeid(std::string)) {
-        return typedCreateScalarOrArray<D_string, std::string, std::nullptr_t, std::nullptr_t>(
+        return typedCreateScalarOrArray<D_text, std::string, std::nullptr_t, std::nullptr_t>(
             valueType, *processVariable, *autoPropertyDescription, DecoratorType::range_checking);
       }
       throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
