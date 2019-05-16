@@ -314,17 +314,17 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(std::type_inde
     return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(
         AutoPropertyDescription(autoPropertyDescription));
   }
-  }
+}
 
-  boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDescription> const& propertyDescription) {
-    // do auto creation
-    auto autoPropertyDescription = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription);
+boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDescription> const& propertyDescription) {
+  // do auto creation
+  auto autoPropertyDescription = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription);
 
-    auto pvName = autoPropertyDescription->source;
-    auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
+  auto pvName = autoPropertyDescription->source;
+  auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
 
-    std::type_info const& valueType = processVariable->getValueType();
-    /*  TODO:
+  std::type_info const& valueType = processVariable->getValueType();
+  /*  TODO:
         - create functions "createDoocsArray" and "createDoocsSpectrum"
         - first use spectrum here for 1D, then switch to array (tests need to be
        adapted)
@@ -332,138 +332,138 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(std::type_inde
        (scalar for D_array and 1D)
     */
 
-    if(autoPropertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
-      autoPropertyDescription->deriveType(valueType);
-    }
-
-    switch(autoPropertyDescription->dataType) {
-      case AutoPropertyDescription::DataType::Byte:
-        return typedCreateScalarOrArray<D_int, int32_t, D_bytearray, uint8_t>(
-            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
-      case AutoPropertyDescription::DataType::Short:
-        return typedCreateScalarOrArray<D_int, int32_t, D_shortarray, int16_t>(
-            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
-      case AutoPropertyDescription::DataType::Int:
-        return typedCreateScalarOrArray<D_int, int32_t, D_intarray, int32_t>(
-            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
-      case AutoPropertyDescription::DataType::Long:
-        return typedCreateDoocsArray<int64_t, D_longarray>(AutoPropertyDescription(*autoPropertyDescription));
-      case AutoPropertyDescription::DataType::Float:
-        return typedCreateScalarOrArray<D_float, float, D_floatarray, float>(
-            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
-      case AutoPropertyDescription::DataType::Double:
-        return typedCreateScalarOrArray<D_double, double, D_doublearray, double>(
-            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
-      case AutoPropertyDescription::DataType::Auto:
-        if(valueType == typeid(std::string)) {
-          return typedCreateScalarOrArray<D_string, std::string, std::nullptr_t, std::nullptr_t>(
-              valueType, *processVariable, *autoPropertyDescription, DecoratorType::range_checking);
-        }
-        throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
-    }
-
-    // Make compiler happy
-    throw std::logic_error("Should not be reached");
+  if(autoPropertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
+    autoPropertyDescription->deriveType(valueType);
   }
 
-  template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
-  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
-
-    ///@todo FIXME Add the decorator type as option  to the array description, and
-    /// only use C_style_conversion as default
-    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name,
-        getDecorator<DOOCS_PRIMITIVE_T>(processVariable, DecoratorType::C_style_conversion), _updater));
-
-    // set read only mode if configures in the xml file or for output variables
-    if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
-      doocsPV->set_ro_access();
-    }
-
-    // publish via ZeroMQ if configured in the xml file
-    if(propertyDescription.publishZMQ) {
-      boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->publishZeroMQ();
-    }
-
-    // set macro pulse number source, if configured
-    if(propertyDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
-      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
-      if(mpnDecorated->getNumberOfSamples() != 1) {
-        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
-            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
+  switch(autoPropertyDescription->dataType) {
+    case AutoPropertyDescription::DataType::Byte:
+      return typedCreateScalarOrArray<D_int, int32_t, D_bytearray, uint8_t>(
+          valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+    case AutoPropertyDescription::DataType::Short:
+      return typedCreateScalarOrArray<D_int, int32_t, D_shortarray, int16_t>(
+          valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+    case AutoPropertyDescription::DataType::Int:
+      return typedCreateScalarOrArray<D_int, int32_t, D_intarray, int32_t>(
+          valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+    case AutoPropertyDescription::DataType::Long:
+      return typedCreateDoocsArray<int64_t, D_longarray>(AutoPropertyDescription(*autoPropertyDescription));
+    case AutoPropertyDescription::DataType::Float:
+      return typedCreateScalarOrArray<D_float, float, D_floatarray, float>(
+          valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+    case AutoPropertyDescription::DataType::Double:
+      return typedCreateScalarOrArray<D_double, double, D_doublearray, double>(
+          valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+    case AutoPropertyDescription::DataType::Auto:
+      if(valueType == typeid(std::string)) {
+        return typedCreateScalarOrArray<D_string, std::string, std::nullptr_t, std::nullptr_t>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::range_checking);
       }
-      if(!mpnDecorated->isReadable()) {
-        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it is not readable.");
-      }
-      boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
-          mpnDecorated);
-      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
-    }
-
-    return doocsPV;
-  }
-
-  // template specialisation for cases with no matching DOOCS array type (e.g.
-  // string)
-  template<>
-  boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray<std::nullptr_t, std::nullptr_t>(
-      AutoPropertyDescription const&) {
-    throw std::invalid_argument("Type not supported as an array");
-  }
-
-  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(
-      std::shared_ptr<AutoPropertyDescription> const& propertyDescription) {
-    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
-      // leave the desision which array to produce to the auto creation algorithm.
-      // We need it there anyway
-      // FIXME: This does not produce arrays of length 1 because it will produce a
-      // scalar
-      return autoCreate(propertyDescription);
-    }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Byte) {
-      return typedCreateDoocsArray<uint8_t, D_bytearray>(*propertyDescription);
-    }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Short) {
-      return typedCreateDoocsArray<int16_t, D_shortarray>(*propertyDescription);
-    }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Int) {
-      return typedCreateDoocsArray<int32_t, D_intarray>(*propertyDescription);
-    }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Long) {
-      return typedCreateDoocsArray<int64_t, D_longarray>(*propertyDescription);
-    }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Float) {
-      return typedCreateDoocsArray<float, D_floatarray>(*propertyDescription);
-    }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Double) {
-      return typedCreateDoocsArray<double, D_doublearray>(*propertyDescription);
-    }
-    else {
       throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
-    }
   }
 
-  boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
-    auto& requestedType = propertyDescription->type();
-    if(requestedType == typeid(AutoPropertyDescription)) {
-      return autoCreate(propertyDescription);
-    }
-    else if(requestedType == typeid(SpectrumDescription)) {
-      return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
-    }
-    else if(requestedType == typeid(XyDescription)) {
-      return createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
-    }
-    else if(requestedType == typeid(AutoPropertyDescription)) {
-      return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
-    }
-    else {
-      throw std::invalid_argument("Sorry, your type is not supported yet.");
-    }
+  // Make compiler happy
+  throw std::logic_error("Should not be reached");
+}
+
+template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
+boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription) {
+  auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
+
+  ///@todo FIXME Add the decorator type as option  to the array description, and
+  /// only use C_style_conversion as default
+  boost::shared_ptr<D_fct> doocsPV(new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name,
+      getDecorator<DOOCS_PRIMITIVE_T>(processVariable, DecoratorType::C_style_conversion), _updater));
+
+  // set read only mode if configures in the xml file or for output variables
+  if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
+    doocsPV->set_ro_access();
   }
+
+  // publish via ZeroMQ if configured in the xml file
+  if(propertyDescription.publishZMQ) {
+    boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->publishZeroMQ();
+  }
+
+  // set macro pulse number source, if configured
+  if(propertyDescription.macroPulseNumberSource.size() > 0) {
+    auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+    auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+    if(mpnDecorated->getNumberOfSamples() != 1) {
+      throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+          "' is used as a macro pulse number source, but it has an array "
+          "length of " +
+          std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
+    }
+    if(!mpnDecorated->isReadable()) {
+      throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+          "' is used as a macro pulse number source, but it is not readable.");
+    }
+    boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
+        mpnDecorated);
+    _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
+  }
+
+  return doocsPV;
+}
+
+// template specialisation for cases with no matching DOOCS array type (e.g.
+// string)
+template<>
+boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray<std::nullptr_t, std::nullptr_t>(
+    AutoPropertyDescription const&) {
+  throw std::invalid_argument("Type not supported as an array");
+}
+
+boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(
+    std::shared_ptr<AutoPropertyDescription> const& propertyDescription) {
+  if(propertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
+    // leave the desision which array to produce to the auto creation algorithm.
+    // We need it there anyway
+    // FIXME: This does not produce arrays of length 1 because it will produce a
+    // scalar
+    return autoCreate(propertyDescription);
+  }
+  else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Byte) {
+    return typedCreateDoocsArray<uint8_t, D_bytearray>(*propertyDescription);
+  }
+  else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Short) {
+    return typedCreateDoocsArray<int16_t, D_shortarray>(*propertyDescription);
+  }
+  else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Int) {
+    return typedCreateDoocsArray<int32_t, D_intarray>(*propertyDescription);
+  }
+  else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Long) {
+    return typedCreateDoocsArray<int64_t, D_longarray>(*propertyDescription);
+  }
+  else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Float) {
+    return typedCreateDoocsArray<float, D_floatarray>(*propertyDescription);
+  }
+  else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Double) {
+    return typedCreateDoocsArray<double, D_doublearray>(*propertyDescription);
+  }
+  else {
+    throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
+  }
+}
+
+boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
+  auto& requestedType = propertyDescription->type();
+  if(requestedType == typeid(AutoPropertyDescription)) {
+    return autoCreate(propertyDescription);
+  }
+  else if(requestedType == typeid(SpectrumDescription)) {
+    return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
+  }
+  else if(requestedType == typeid(XyDescription)) {
+    return createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
+  }
+  else if(requestedType == typeid(AutoPropertyDescription)) {
+    return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
+  }
+  else {
+    throw std::invalid_argument("Sorry, your type is not supported yet.");
+  }
+}
 
 } // namespace ChimeraTK
