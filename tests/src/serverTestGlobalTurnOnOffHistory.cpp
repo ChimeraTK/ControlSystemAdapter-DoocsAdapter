@@ -1,28 +1,20 @@
+#define BOOST_TEST_MODULE serverTestGlobalTurnOnOffHistory
 #include <boost/test/included/unit_test.hpp>
-
-//#include <boost/test/test_case_template.hpp>
-//#include <boost/mpl/list.hpp>
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <thread>
-
-ReferenceTestApplication referenceTestApplication("serverTestGlobalTurnOnOffHistory");
-
-// declare that we have some thing like a doocs server. is is linked from the
-// doocs lib, but there is no header.
-extern int eq_server(int, char**);
-
-//#include <limits>
-//#include <sstream>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
 using namespace boost::unit_test_framework;
+using namespace boost::unit_test;
 using namespace ChimeraTK;
 
+DOOCS_ADAPTER_DEFAULT_FIXTURE
+
 /// Check that all expected variables are there.
-void testVariableExistence() {
+BOOST_AUTO_TEST_CASE(testVariableExistence) {
   usleep(100000);
 
   // the stuff with default. We are lazy and put the integer types as we have to
@@ -59,38 +51,4 @@ void testVariableExistence() {
   checkDoocsProperty<D_float>("//FLOAT/DATA_TYPE_CONSTANT", false, false);
   checkDoocsProperty<D_float>("//FLOAT/FROM_DEVICE_SCALAR", false, false);
   checkDoocsProperty<D_float>("//FLOAT/TO_DEVICE_SCALAR", true, true);
-}
-
-// due to the doocs server thread you can only have one test suite
-class GlobalTurnOnOffHistoryServerTestSuite : public test_suite {
- public:
-  GlobalTurnOnOffHistoryServerTestSuite(int argc, char* argv[])
-  : test_suite("GlobalTurnOnOffHistory server test suite"), doocsServerThread(eq_server, argc, argv) {
-    // wait for doocs to start up before detaching the thread and continuing
-    ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    add(BOOST_TEST_CASE(&testVariableExistence));
-  }
-  /**
- * @brief For compatibility with older DOOCS versions declare our own eq_exit
- *
- * Can be removed once a new doocs server version is released.
- */
-  void eq_exit() {
-    auto nativeHandle = doocsServerThread.native_handle();
-    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
-  }
-
-  ~GlobalTurnOnOffHistoryServerTestSuite() {
-    eq_exit();
-    doocsServerThread.join();
-  }
-
- protected:
-  std::thread doocsServerThread;
-};
-
-test_suite* init_unit_test_suite(int argc, char* argv[]) {
-  std::cout << static_cast<void*>(&ApplicationBase::getInstance()) << std::endl;
-  framework::master_test_suite().p_name.value = "GlobalTurnOnOffHistory server test suite";
-  return new GlobalTurnOnOffHistoryServerTestSuite(argc, argv);
 }

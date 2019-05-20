@@ -1,3 +1,5 @@
+#define BOOST_TEST_MODULE serverTestAutoCreateLocations
+
 #include <boost/test/included/unit_test.hpp>
 
 //#include <boost/test/test_case_template.hpp>
@@ -8,29 +10,29 @@
 #include "DoocsAdapter.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <thread>
 
-ReferenceTestApplication referenceTestApplication("serverTestAutoCreateLocations");
-
-// declare that we have some thing like a doocs server. is is linked from the
-// doocs lib, but there is no header.
-extern int eq_server(int, char**);
-
-//#include <limits>
-//#include <sstream>
-
+using namespace boost::unit_test;
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
-// use boost meta-programming to use test case templates
-// The list of types is an mpl type
-// typedef boost::mpl::list<int32_t, uint32_t,
-//			 int16_t, uint16_t,
-//			 int8_t, uint8_t,
-//			 float, double> simple_test_types;
+struct GlobalFixture {
+  GlobalFixture() {
+    boost::filesystem::copy_file(framework::master_test_suite().p_name.value + ".template.conf",
+        framework::master_test_suite().p_name.value + ".conf", boost::filesystem::copy_option::overwrite_if_exists);
+    server.start(framework::master_test_suite().argc, framework::master_test_suite().argv);
+    ChimeraTK::DoocsAdapter::waitUntilInitialised();
+  }
+
+  ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};
+  ThreadedDoocsServer server{{}, 0, nullptr, false};
+};
+
+BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 /// Check that all expected variables are there.
-void testVariableExistence() {
+BOOST_AUTO_TEST_CASE(testVariableExistence) {
   for(auto const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
     for(auto const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "}) {
       // if this throws the property does not exist. we should always be able to
@@ -45,44 +47,4 @@ void testVariableExistence() {
           DoocsServerTestHelper::doocsGet<int>((std::string("//") + location + "/" + property).c_str()));
     }
   }
-}
-
-// due to the doocs server thread you can only have one test suite
-class serverTestAutoCreateLocationsTestSuite : public test_suite {
- public:
-  serverTestAutoCreateLocationsTestSuite(int argc, char* argv[])
-  : test_suite("serverTestAutoCreateLocations test suite") {
-    // copy template .conf file, since the test will alter the .conf file so subsequent runs of the test would no longer
-    // be effective
-    boost::filesystem::copy_file("serverTestAutoCreateLocations.template.conf", "serverTestAutoCreateLocations.conf",
-        boost::filesystem::copy_option::overwrite_if_exists);
-    // create DOOCS thread
-    doocsServerThread = std::thread(eq_server, argc, argv);
-    // wait for doocs to start up before detaching the thread and continuing
-    ChimeraTK::DoocsAdapter::waitUntilInitialised();
-    add(BOOST_TEST_CASE(&testVariableExistence));
-  }
-
-  /**
- * @brief For compatibility with older DOOCS versions declare our own eq_exit
- *
- * Can be removed once a new doocs server version is released.
- */
-  void eq_exit() {
-    auto nativeHandle = doocsServerThread.native_handle();
-    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
-  }
-
-  ~serverTestAutoCreateLocationsTestSuite() {
-    eq_exit();
-    doocsServerThread.join();
-  }
-
- protected:
-  std::thread doocsServerThread;
-};
-
-test_suite* init_unit_test_suite(int argc, char* argv[]) {
-  framework::master_test_suite().p_name.value = "serverTestAutoCreateLocations server test suite";
-  return new serverTestAutoCreateLocationsTestSuite(argc, argv);
 }

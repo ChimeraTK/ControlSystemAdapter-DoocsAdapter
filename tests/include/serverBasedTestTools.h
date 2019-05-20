@@ -9,6 +9,17 @@
 static const int ACCESS_RO = 0; // read only
 static const int ACCESS_RW = 1; // read/write
 
+#define DOOCS_ADAPTER_DEFAULT_FIXTURE                                                                                  \
+  struct GlobalFixture {                                                                                               \
+    GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
+                                                                                                                       \
+    ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};                    \
+    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
+        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
+  };                                                                                                                   \
+                                                                                                                       \
+  BOOST_GLOBAL_FIXTURE(GlobalFixture);
+
 template<class DOOCS_T>
 void checkHistory(DOOCS_T* property, bool expected_has_history) {
   bool has_history = property->get_histPointer();
