@@ -155,7 +155,7 @@ The `D_xy` tag takes the following arguments through sub-tags:
 \subsection specifie_code Specifie `eq_fct_code` in the mapping file
 
 It is possible to specify the `eq_fct_code` which must match `eq_fct_type` in the configuration file with `code` in 
-the <location> tag of the mapping file.
+the \<location\> tag of the mapping file.
 
 If `eq_fct_type` is set in the configuration file, `code` must have the same number in the mapping file. If the location
 in the configuration file is missing, you can set your own new `code` in the mapping file. But if no code is set,
