@@ -37,8 +37,8 @@ namespace ChimeraTK {
       if(attrs->publishZMQ) {
         auto res = pair.second->set_mode(DMSG_EN);
         if(res != 0) {
-          throw ChimeraTK::logic_error(
-              "Could not enable ZeroMQ messaging for prop_someZMQInt. Code: " + std::to_string(res));
+          throw ChimeraTK::logic_error("Could not enable ZeroMQ messaging for variable '" + pair.first->location + "/" +
+              pair.first->name + "'. Code: " + std::to_string(res));
         }
       }
     }
