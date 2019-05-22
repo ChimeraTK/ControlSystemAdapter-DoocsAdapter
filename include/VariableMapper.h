@@ -29,7 +29,7 @@ namespace ChimeraTK {
     std::list<std::shared_ptr<PropertyDescription>> getPropertiesInLocation(std::string location) const;
     std::list<std::shared_ptr<PropertyDescription>> const& getAllProperties() const;
     std::unordered_set<std::string> getAllLocations() const;
-    std::map<std::string, int> getLocationAndCode() const { return _inputLocationAandCode; }
+    std::map<std::string, int> getLocationAndCode() const { return _inputLocationAndCode; }
 
     VariableMapper(VariableMapper&) = delete;
     void operator=(VariableMapper const&) = delete;
@@ -54,7 +54,7 @@ namespace ChimeraTK {
    protected:
     VariableMapper() = default;
 
-    std::map<std::string, int> _inputLocationAandCode; // map of location and fct_code,
+    std::map<std::string, int> _inputLocationAndCode; // map of location and fct_code,
                                                        // from location tag of the mapping xml file
     std::set<std::string> _inputVariables;
     std::set<std::string> _usedInputVariables; // For tracing which variables are

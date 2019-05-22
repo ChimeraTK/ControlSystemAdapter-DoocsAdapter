@@ -391,7 +391,7 @@ namespace ChimeraTK {
 
   void VariableMapper::processCode(xmlpp::Element const* location, std::string locationName) {
     // If the the code is set in the location tag of the mapping xml file,
-    // this function adds the location and fct_code to a map _inputLocationAandCode.
+    // this function adds the location and fct_code to a map _inputLocationAndCode.
     // It throws an exeption if the code is not an integer. The code must be greater than 1,
     // because 1 is reserved for the server. And the code must be consistent.
     auto locationCodeAttribute = location->get_attribute("code");
@@ -409,7 +409,7 @@ namespace ChimeraTK {
             locationCodeAttribute->get_value() + "' must be > 1, in doocs 1 is reserved for server");
       }
 
-      auto result = _inputLocationAandCode.insert(std::pair<std::string, int>(locationName, locationCode));
+      auto result = _inputLocationAndCode.insert(std::pair<std::string, int>(locationName, locationCode));
       if(result.second == false) {                 //test if pair is already in map
         if(result.first->second != locationCode) { //and test if code is the same like before
           // maybe an exection is too much and a warning is enough?
