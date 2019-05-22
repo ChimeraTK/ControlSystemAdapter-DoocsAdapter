@@ -29,7 +29,7 @@ namespace ChimeraTK {
     std::list<std::shared_ptr<PropertyDescription>> getPropertiesInLocation(std::string location) const;
     std::list<std::shared_ptr<PropertyDescription>> const& getAllProperties() const;
     std::unordered_set<std::string> getAllLocations() const;
-    std::map<std::string,int> getLocationAndCode() const {return _inputLocationAandCode;}
+    std::map<std::string, int> getLocationAndCode() const { return _inputLocationAandCode; }
 
     VariableMapper(VariableMapper&) = delete;
     void operator=(VariableMapper const&) = delete;
@@ -54,8 +54,8 @@ namespace ChimeraTK {
    protected:
     VariableMapper() = default;
 
-    std::map<std::string,int> _inputLocationAandCode; // map of location and fct_code,
-                                                      // from location tag of the mapping xml file
+    std::map<std::string, int> _inputLocationAandCode; // map of location and fct_code,
+                                                       // from location tag of the mapping xml file
     std::set<std::string> _inputVariables;
     std::set<std::string> _usedInputVariables; // For tracing which variables are
                                                // not to be imported.
@@ -66,7 +66,7 @@ namespace ChimeraTK {
     void processXyNode(xmlpp::Node const* node, std::string& locationName);
     void processImportNode(xmlpp::Node const* importNode, std::string importLocationName = std::string());
     void processCode(xmlpp::Element const* location, std::string locationName);
-    
+
     void import(std::string importSource, std::string importLocationName, std::string directory = "");
     bool getHasHistoryDefault(std::string const& locationName);
     bool getIsWriteableDefault(std::string const& locationName);

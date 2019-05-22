@@ -20,25 +20,24 @@ using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
 void testCodeIsSetCorrectly() {
-
   EqFct* eq = find_device("CREATED");
-  BOOST_CHECK_EQUAL( eq->fct_code(), 10 );
-  
+  BOOST_CHECK_EQUAL(eq->fct_code(), 10);
+
   eq = find_device("NEW");
-  BOOST_CHECK_EQUAL( eq->fct_code(), 12 );
-  
+  BOOST_CHECK_EQUAL(eq->fct_code(), 12);
+
   eq = find_device("DOUBLE");
-  BOOST_CHECK_EQUAL( eq->fct_code(), 10 );
-  
+  BOOST_CHECK_EQUAL(eq->fct_code(), 10);
+
   eq = find_device("FLOAT");
-  BOOST_CHECK_EQUAL( eq->fct_code(), 11 );
-    
+  BOOST_CHECK_EQUAL(eq->fct_code(), 11);
 }
 
 // due to the doocs server thread you can only have one test suite
 class serverTestVariableMapperWithLocationAndCodeTestSuite : public test_suite {
  public:
-  serverTestVariableMapperWithLocationAndCodeTestSuite(int argc, char* argv[]) : test_suite("serverTestVariableMapperWithLocationAndCode test suite") {
+  serverTestVariableMapperWithLocationAndCodeTestSuite(int argc, char* argv[])
+  : test_suite("serverTestVariableMapperWithLocationAndCode test suite") {
     // create DOOCS thread
     doocsServerThread = std::thread(eq_server, argc, argv);
     // wait for doocs to start up before detaching the thread and continuing

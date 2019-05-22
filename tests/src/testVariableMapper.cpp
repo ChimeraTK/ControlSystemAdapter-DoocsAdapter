@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(testUnkownLocationNode) {
 BOOST_AUTO_TEST_CASE(testCodeIsNotInt) {
   try {
     testXmlParsing("variableTreeXml/codeIsNotInt.xml");
-    BOOST_ERROR("testCodeIsNotInt did not throw as expected."); 
+    BOOST_ERROR("testCodeIsNotInt did not throw as expected.");
   }
   catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testCodeIsTooSmall) {
   // code can also be empty code="" for an exception
   try {
     testXmlParsing("variableTreeXml/codeIsTooSmall.xml");
-    BOOST_ERROR("testCodeIsTooSmall did not throw as expected."); 
+    BOOST_ERROR("testCodeIsTooSmall did not throw as expected.");
   }
   catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testCodeIsInconsisten) {
   // code can also be empty code="" for an exception
   try {
     testXmlParsing("variableTreeXml/codeIsInconsistent.xml");
-    BOOST_ERROR("testCodeIsInconsisten did not throw as expected."); 
+    BOOST_ERROR("testCodeIsInconsisten did not throw as expected.");
   }
   catch(std::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
