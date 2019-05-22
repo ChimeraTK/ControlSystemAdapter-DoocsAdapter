@@ -50,9 +50,24 @@ EqFct* eq_create(int eq_code, void*) {
  * application here. It will be launched in a separate thread. */
 void post_init_epilog() {
   // check for locations not yet created (due to missing entries in the .conf file) and create them now
+  std::map<std::string, int> locMap = ChimeraTK::VariableMapper::getInstance().getLocationAndCode();
   for(auto& loc : ChimeraTK::VariableMapper::getInstance().getAllLocations()) {
-    if(find_device(loc) == nullptr) {
-      add_location(10, loc);
+    int codeToSet = 0;
+    // if no code is set in xml file, 10 is default
+    if(locMap.find(loc) != locMap.end()) {
+      codeToSet = locMap.find(loc)->second;
+    }
+    else {
+      codeToSet = 10; // defaultCode
+    }
+
+    auto eq = find_device(loc);
+    if(eq == nullptr) {
+      add_location(codeToSet, loc);
+    }
+    else if(eq->fct_code() != codeToSet) {
+      throw ChimeraTK::logic_error("Location '" + loc + "' has already a fct_code '" + std::to_string(eq->fct_code()) +
+          "' from config file, that does not match with '" + std::to_string(codeToSet) + "' from xml file");
     }
   }
 

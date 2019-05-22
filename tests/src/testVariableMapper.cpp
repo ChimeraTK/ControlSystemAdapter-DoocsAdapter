@@ -138,3 +138,41 @@ BOOST_AUTO_TEST_CASE(testUnkownLocationNode) {
               << e.what() << std::endl;
   }
 }
+
+BOOST_AUTO_TEST_CASE(testCodeIsNotInt) {
+  try {
+    testXmlParsing("variableTreeXml/codeIsNotInt.xml");
+    BOOST_ERROR("testCodeIsNotInt did not throw as expected.");
+  }
+  catch(std::logic_error& e) {
+    std::cout << " -- For manually checking the exception message for "
+                 "code is not an integer:\n      "
+              << e.what() << std::endl;
+  }
+}
+
+BOOST_AUTO_TEST_CASE(testCodeIsTooSmall) {
+  // code can also be empty code="" for an exception
+  try {
+    testXmlParsing("variableTreeXml/codeIsTooSmall.xml");
+    BOOST_ERROR("testCodeIsTooSmall did not throw as expected.");
+  }
+  catch(std::logic_error& e) {
+    std::cout << " -- For manually checking the exception message for "
+                 "code must be > 1:\n      "
+              << e.what() << std::endl;
+  }
+}
+
+BOOST_AUTO_TEST_CASE(testCodeIsInconsisten) {
+  // code can also be empty code="" for an exception
+  try {
+    testXmlParsing("variableTreeXml/codeIsInconsistent.xml");
+    BOOST_ERROR("testCodeIsInconsisten did not throw as expected.");
+  }
+  catch(std::logic_error& e) {
+    std::cout << " -- For manually checking the exception message for "
+                 "code can not be different:\n      "
+              << e.what() << std::endl;
+  }
+}
