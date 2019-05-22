@@ -347,7 +347,8 @@ boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDesc
       return typedCreateScalarOrArray<D_int, int32_t, D_intarray, int32_t>(
           valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
     case AutoPropertyDescription::DataType::Long:
-      return typedCreateDoocsArray<int64_t, D_longarray>(AutoPropertyDescription(*autoPropertyDescription));
+      return typedCreateScalarOrArray<D_long, int64_t, D_longarray, int64_t>(
+          valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
     case AutoPropertyDescription::DataType::Float:
       return typedCreateScalarOrArray<D_float, float, D_floatarray, float>(
           valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);

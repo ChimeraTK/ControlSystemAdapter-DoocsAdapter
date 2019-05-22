@@ -53,6 +53,8 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
+  devManager->createProcessArray<int64_t>(controlSystemToDevice, "/I/int64", 1);
+  devManager->createProcessArray<uint64_t>(controlSystemToDevice, "/U/uint64", 1);
   devManager->createProcessArray<int32_t>(controlSystemToDevice, "/I/int32", 1);
   devManager->createProcessArray<uint32_t>(controlSystemToDevice, "/U/uint32", 1);
   devManager->createProcessArray<int16_t>(controlSystemToDevice, "/I/int16", 1);
@@ -68,6 +70,13 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
 
   // We insert check points with integers so we know where the algorithm kicks
   // out in case of an error. These checkpoints are always true.
+  testCreateProcessScalar<int64_t, D_long>(std::make_shared<AutoPropertyDescription>("I/int64", "I", "int64"), factory,
+      "int64 "); // DOOCS property names always have a space (and
+                 // potentially some description)"
+  BOOST_CHECK(-64);
+  testCreateProcessScalar<int64_t, D_long>(
+      std::make_shared<AutoPropertyDescription>("U/uint64", "I", "uint64"), factory, "uint64 ");
+  BOOST_CHECK(64);
   testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int32", "I", "int32"), factory,
       "int32 "); // DOOCS property names always have a space (and
                  // potentially some description)"
@@ -98,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
   testCreateProcessScalar<double, D_double>(std::make_shared<AutoPropertyDescription>("FP/double", "FP", "double"),
       factory, "double "); // DOOCS property names always have a space (and
                            // potentially some description)"
-  BOOST_CHECK(32);
+  BOOST_CHECK(0.25);
 }
 
 // BOOST_AUTO_TEST_CASE_TEMPLATE( testCreateArray, T, simple_test_types ){
@@ -239,26 +248,6 @@ BOOST_AUTO_TEST_CASE(testAutoCreateArray) {
   testArrayIsCorrectType<D_longarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceULongArray");
   testArrayIsCorrectType<D_floatarray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceFloatArray");
   testArrayIsCorrectType<D_doublearray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceDoubleArray");
-}
-
-BOOST_AUTO_TEST_CASE(testInt64Scalar) {
-  std::pair<shared_ptr<ControlSystemPVManager>, shared_ptr<DevicePVManager>> pvManagers = createPVManager();
-  shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
-  shared_ptr<DevicePVManager> devManager = pvManagers.second;
-
-  devManager->createProcessArray<int64_t>(controlSystemToDevice, "I/toDeviceInt", 1);
-
-  DoocsUpdater updater;
-
-  DoocsPVFactory factory(&myEqFct, updater, csManager);
-
-  ProcessVariable::SharedPtr processScalar = csManager->getProcessArray<int64_t>("I/toDeviceInt");
-
-  auto description = std::make_shared<AutoPropertyDescription>("I/toDeviceInt", "I", "toDeviceInt");
-  auto variable64 = factory.create(description);
-  // 64 bit integer scalars become D_longarrays because there is no 64 bit
-  // scalar representation in Doocs
-  BOOST_CHECK(boost::dynamic_pointer_cast<D_longarray>(variable64));
 }
 
 // After you finished all test you have to end the test suite.
