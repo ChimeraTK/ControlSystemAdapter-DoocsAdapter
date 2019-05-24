@@ -18,7 +18,7 @@ static const int ACCESS_RW = 1; // read/write
         framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
   };                                                                                                                   \
                                                                                                                        \
-  BOOST_GLOBAL_FIXTURE(GlobalFixture);
+  BOOST_GLOBAL_FIXTURE(GlobalFixture) // No semicolon at the end. It is coming from the calling code.
 
 template<class DOOCS_T>
 void checkHistory(DOOCS_T* property, bool expected_has_history) {
