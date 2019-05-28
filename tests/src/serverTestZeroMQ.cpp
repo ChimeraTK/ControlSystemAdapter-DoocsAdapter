@@ -105,6 +105,14 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   // Add additional delay for the ZMQ system to come up
   usleep(2000000);
 
+  // We need data consistency between macro pulse number and the data
+  // Everything from now on will get the same version number, until we manually set a new one.
+  //ChimeraTK::VersionNumber unusedVersion;
+  //std::cout << "unusedVersion " << std::string(unusedVersion) << std::endl;
+  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  //std::cout << "version number now is " << std::string(referenceTestApplication.versionNumber.value_or(unusedVersion)) << std::endl;
+
+
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
@@ -117,9 +125,11 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   size_t counter = 0;
   dataReceived = false;
   while(!dataReceived) {
-    usleep(1000);
+    // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and running
+    DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
     referenceTestApplication.runMainLoopOnce();
-    if(++counter > 10000) break;
+    usleep(10000);
+    if(++counter > 1000) break;
   }
   BOOST_CHECK(dataReceived == true);
   {
@@ -129,8 +139,9 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   }
 
   // Trigger another update, the last one was eaten by the wait for startup above
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-  DoocsServerTestHelper::doocsSet<int>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
 
   // From now on, each update should be received.
   for(size_t i = 0; i < 10; ++i) {
@@ -150,6 +161,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
       ++macroPulseNumber;
+      referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
       DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
       expectedValue = 100 + i;
       DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
