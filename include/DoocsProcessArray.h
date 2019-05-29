@@ -7,6 +7,8 @@
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
+#include <ChimeraTK/ScalarRegisterAccessor.h> // needed for the macro pulse number
+#include <ChimeraTK/DataConsistencyGroup.h>
 
 #include "DoocsUpdater.h"
 #include "splitStringAtFirstSlash.h"
@@ -20,11 +22,12 @@ namespace ChimeraTK {
    public:
     DoocsProcessArray(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> const& processArray, DoocsUpdater& updater)
-    : DOOCS_T(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct), _processArray(processArray) {
+    : DOOCS_T(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct), _processArray(processArray), _doocsUpdater(updater), _eqFct(eqFct){
       if(processArray->isReadable()) {
         updater.addVariable(ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray),
             eqFct,
-            std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this));
+            std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this, processArray->getId()));
+            _consistencyGroup.add(processArray);
       }
 
       // Check if the array length exceeds the maximum allowed length by DOOCS.
@@ -62,7 +65,15 @@ namespace ChimeraTK {
       }
     }
 
-    void updateDoocsBuffer() {
+    void updateDoocsBuffer(TransferElementID transferElementId) {
+      // FIXME: A first  implementation is checking the data consistency here. Later this should be
+      // before calling this function because calling this function through a function pointer is
+      // comparatively expensive.
+      // Only check the consistency group if there is a macro pulse number associated.
+      if (_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)){
+          return;
+      }
+
       // Note: we already own the location lock by specification of the
       // DoocsUpdater
       auto& processVector = _processArray->accessChannel(0);
@@ -92,12 +103,20 @@ namespace ChimeraTK {
     void publishZeroMQ() { publishZMQ = true; }
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-      _macroPulseNumberSource = macroPulseNumberSource;
+        if(_processArray->isReadable()) {
+          _macroPulseNumberSource = macroPulseNumberSource;
+          _consistencyGroup.add(macroPulseNumberSource);
+          _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
+              std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
+        }
     }
 
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
+    DataConsistencyGroup _consistencyGroup;
+    DoocsUpdater & _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
+    EqFct * _eqFct; // We need it when adding the macro pulse number
     bool publishZMQ{false};
 
     // Internal function which copies the content from the DOOCS container into

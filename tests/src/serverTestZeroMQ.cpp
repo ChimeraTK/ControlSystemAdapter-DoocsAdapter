@@ -128,6 +128,9 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and running
     DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
     referenceTestApplication.runMainLoopOnce();
+    // FIXME: This timeout is essential so everything has been received and the next
+    // dataReceived really is false. It is a potential source of timing problems /
+    // reace conditions in this test.
     usleep(10000);
     if(++counter > 1000) break;
   }
@@ -206,6 +209,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
   // Add additional delay for the ZMQ system to come up
   usleep(2000000);
 
+  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   int macroPulseNumber = 99999;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
@@ -217,9 +221,13 @@ BOOST_AUTO_TEST_CASE(testArray) {
   size_t counter = 0;
   dataReceived = false;
   while(!dataReceived) {
-    usleep(1000);
+    DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
     referenceTestApplication.runMainLoopOnce();
-    if(++counter > 10000) break;
+    // FIXME: This timeout is essential so everything has been received and the next
+    // dataReceived really is false. It is a potential source of timing problems /
+    // reace conditions in this test.
+    usleep(10000);
+    if(++counter > 1000) break;
   }
   BOOST_CHECK(dataReceived == true);
   {
@@ -229,15 +237,30 @@ BOOST_AUTO_TEST_CASE(testArray) {
     for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
   }
 
-  // Trigger another update, the last one was eaten by the wait for startup above
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-  DoocsServerTestHelper::doocsSet<int>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
-
-  // From now on, each update should be received.
+  // From now on, each consistent update should be received.
+  // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
+  std::array<bool,10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
-    dataReceived = false;
+    referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+    --macroPulseNumber;
+    expectedArrayValue[1] = 100 + i;
+    if (sendMacroPulseFirst[i]) {
+      DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+    }else{// send the value first
+       DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+    }
+
+    // nothing must be received, no consistent set yet
+    dataReceived = false;    referenceTestApplication.runMainLoopOnce();
     usleep(10000);
     BOOST_CHECK(dataReceived == false);
+
+    // now send the variable which has not been send yet
+    if (sendMacroPulseFirst[i]) {
+       DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+    }else{
+      DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+    }
     referenceTestApplication.runMainLoopOnce();
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
@@ -251,10 +274,6 @@ BOOST_AUTO_TEST_CASE(testArray) {
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
-      --macroPulseNumber;
-      DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-      expectedArrayValue[1] = 100 + i;
-      DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
     }
   }
 
