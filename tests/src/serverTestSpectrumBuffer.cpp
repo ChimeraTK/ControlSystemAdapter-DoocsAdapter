@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", firstMacroPulseNumber + i);
     expectedFloatArrayValue[1] = i;
     DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+    GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
   }
 
@@ -85,6 +86,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", firstMacroPulseNumber + i + 10);
     expectedFloatArrayValue[1] = i + 10000;
     DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+    GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
   }
 
