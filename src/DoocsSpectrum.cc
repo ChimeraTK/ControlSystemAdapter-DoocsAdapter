@@ -12,10 +12,11 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor)
   : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
-    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor), nBuffers(1) {
+    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor), _doocsUpdater(updater), _eqFct(eqFct), nBuffers(1) {
     if(processArray->isReadable()) {
       updater.addVariable(ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct,
-          std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
+          std::bind(&DoocsSpectrum::updateDoocsBuffer, this, processArray->getId()));
+      _consistencyGroup.add(processArray);
     }
     if(startAccessor && startAccessor->isReadable()) {
       updater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(startAccessor), eqFct,
@@ -32,11 +33,12 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor, size_t numberOfBuffers)
   : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, numberOfBuffers, DATA_A_FLOAT),
-    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor),
+    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor), _doocsUpdater(updater), _eqFct(eqFct),
     nBuffers(numberOfBuffers) {
     if(processArray->isReadable()) {
       updater.addVariable(ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct,
-          std::bind(&DoocsSpectrum::updateDoocsBuffer, this));
+          std::bind(&DoocsSpectrum::updateDoocsBuffer, this, processArray->getId()));
+      _consistencyGroup.add(processArray);
     }
     if(startAccessor && startAccessor->isReadable()) {
       updater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(startAccessor), eqFct,
@@ -51,10 +53,6 @@ namespace ChimeraTK {
   void DoocsSpectrum::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
     sendToDevice();
-  }
-
-  void DoocsSpectrum::get(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
-    D_spectrum::get(eqAdr, data1, data2, eqFct);
   }
 
   void DoocsSpectrum::auto_init(void) {
@@ -73,8 +71,19 @@ namespace ChimeraTK {
     }
   }
 
-  void DoocsSpectrum::updateDoocsBuffer() {
+  void DoocsSpectrum::updateDoocsBuffer(TransferElementID transferElementId) {
     // Note: we already own the location lock by specification of the DoocsUpdater
+
+    // FIXME: A first  implementation is checking the data consistency here. Later this should be
+    // before calling this function because calling this function through a function pointer is
+    // comparatively expensive.
+    // Only check the consistency group if there is a macro pulse number associated.
+    // There are only the processArray and the macro pulse number in the consistency
+    // group. The limits are coming asynchronously and not for every macro pulse,
+    // so we just take test latest we have.
+    if (_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)){
+      return;
+    }
 
     // determine time stamp
     auto sinceEpoch = _processArray->getVersionNumber().getTime().time_since_epoch();
@@ -133,6 +142,15 @@ namespace ChimeraTK {
     }
 
     spectrum_parameter(this->spec_time(), start, increment, this->spec_status());
+  }
+
+  void DoocsSpectrum::setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
+      if(_processArray->isReadable()) {
+        _macroPulseNumberSource = macroPulseNumberSource;
+        _consistencyGroup.add(macroPulseNumberSource);
+        _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
+            std::bind(&DoocsSpectrum::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
+      }
   }
 
   void DoocsSpectrum::sendToDevice() {

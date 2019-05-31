@@ -7,6 +7,8 @@
 #include "DoocsUpdater.h"
 #include "splitStringAtFirstSlash.h"
 #include <ChimeraTK/NDRegisterAccessor.h>
+#include <ChimeraTK/ScalarRegisterAccessor.h> // needed for the macro pulse number
+#include <ChimeraTK/DataConsistencyGroup.h>
 
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
@@ -53,8 +55,6 @@ namespace ChimeraTK {
      */
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
 
-    void get(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
-
     /**
      * Override the Doocs auto_init() method, which is called after initialising
      * the value of the property from the config file.
@@ -62,22 +62,23 @@ namespace ChimeraTK {
     void auto_init(void) override;
 
     // call this function after a tranfer element has requested it.
-    void updateDoocsBuffer();
+    void updateDoocsBuffer(TransferElementID transferElementId);
 
     // callback function after the start or increment variables have changed
     void updateParameters();
 
     void publishZeroMQ() { publishZMQ = true; }
 
-    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-      _macroPulseNumberSource = macroPulseNumberSource;
-    }
+    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
 
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
+    DataConsistencyGroup _consistencyGroup;
+    DoocsUpdater & _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
+    EqFct * _eqFct; // We need it when adding the macro pulse number
     bool publishZMQ{false};
     size_t nBuffers;
 
