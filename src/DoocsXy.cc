@@ -23,6 +23,14 @@ namespace ChimeraTK {
 
   void DoocsXy::updateValues(TransferElementID& elementId) {
     if(_consistencyGroup.update(elementId)) {
+      if(_xValues->dataValidity() != ChimeraTK::DataValidity::ok ||
+          _yValues->dataValidity() != ChimeraTK::DataValidity::ok) {
+        this->d_error(stale_data);
+      }
+      else {
+        this->d_error(no_error);
+      }
+
       for(int i = 0; i < max_length(); i++) {
         fill_xy(i, _xValues->accessData(i), _yValues->accessData(i));
       }

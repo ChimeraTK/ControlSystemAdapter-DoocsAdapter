@@ -40,6 +40,14 @@ namespace ChimeraTK {
       // Note: we already own the location lock by specification of the
       // DoocsUpdater
       auto data = _processScalar->accessData(0);
+
+      if(_processScalar->dataValidity() != ChimeraTK::DataValidity::ok) {
+        this->d_error(stale_data);
+      }
+      else {
+        this->d_error(no_error);
+      }
+
       // we must not call set_and_archive if there is no history (otherwise it
       // will be activated), but we have to if it is there. -> Abstraction,
       // please!

@@ -99,6 +99,13 @@ namespace ChimeraTK {
     }
     set_tmstmp(sec, usec, ibuf);
 
+    if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
+      this->d_error(stale_data);
+    }
+    else {
+      this->d_error(no_error);
+    }
+
     // fill the spectrum
     std::vector<float>& processVector = _processArray->accessChannel(0);
     if(nBuffers == 1) {

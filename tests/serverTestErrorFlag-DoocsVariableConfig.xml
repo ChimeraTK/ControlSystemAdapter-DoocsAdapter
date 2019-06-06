@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+    <location name="SPECTRUM">
+        <D_spectrum name="TEST" source="/FLOAT/FROM_DEVICE_ARRAY" />
+    </location>
+    <location name="XY">
+        <D_xy name="TEST" x_source="/DOUBLE/FROM_DEVICE_ARRAY"
+            y_source="/DOUBLE/FROM_DEVICE_ARRAY" />
+    </location>
+
+    <import>/</import>
+</device_server>

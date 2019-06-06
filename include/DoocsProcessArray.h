@@ -87,6 +87,13 @@ namespace ChimeraTK {
           "Bad type casting.");
       auto dataPtr = reinterpret_cast<THE_DOOCS_TYPE*>(processVector.data());
 
+      if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
+        this->d_error(stale_data);
+      }
+      else {
+        this->d_error(no_error);
+      }
+
       this->fill_array(dataPtr, processVector.size());
       if(publishZMQ) {
         dmsg_info info;

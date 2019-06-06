@@ -20,6 +20,23 @@ static const int ACCESS_RW = 1; // read/write
                                                                                                                        \
   BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
+#define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION                                                               \
+  struct GlobalFixture {                                                                                               \
+    GlobalFixture() {                                                                                                  \
+      ChimeraTK::DoocsAdapter::waitUntilInitialised();                                                                 \
+      GlobalFixture::referenceTestApplication.initialiseManualLoopControl();                                           \
+    }                                                                                                                  \
+                                                                                                                       \
+    ~GlobalFixture() { GlobalFixture::referenceTestApplication.releaseManualLoopControl(); }                           \
+                                                                                                                       \
+    static ReferenceTestApplication referenceTestApplication;                                                          \
+    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
+        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
+  };                                                                                                                   \
+                                                                                                                       \
+  ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
+  BOOST_GLOBAL_FIXTURE(GlobalFixture);
+
 template<class DOOCS_T>
 void checkHistory(DOOCS_T* property, bool expected_has_history) {
   bool has_history = property->get_histPointer();

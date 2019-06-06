@@ -45,6 +45,10 @@ namespace ChimeraTK {
       return _processArray->replaceTransferElement(newElement);
     }
 
+    void setDataValidity(DataValidity validity = DataValidity::ok) override { _processArray->setDataValdity(validity); }
+
+    DataValidity dataValidity() { return _processArray->dataValidity(); }
+
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>> _processArray;
   };
