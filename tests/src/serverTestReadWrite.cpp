@@ -11,25 +11,10 @@ using namespace boost::unit_test_framework;
 using namespace boost::unit_test;
 using namespace ChimeraTK;
 
-struct GlobalFixture {
-  GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }
-
-  ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
-
-  static ReferenceTestApplication referenceTestApplication;
-  ThreadedDoocsServer server{framework::master_test_suite().p_name.value, framework::master_test_suite().argc,
-      framework::master_test_suite().argv};
-};
-
-ReferenceTestApplication GlobalFixture::referenceTestApplication{framework::master_test_suite().p_name.value};
-
-BOOST_GLOBAL_FIXTURE(GlobalFixture);
+DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testReadWrite) {
-  // halt the test application tread
-  GlobalFixture::referenceTestApplication.initialiseManualLoopControl();
-  std::cout << "got the application main lock" << std::endl;
 
   // just a few tests before we start
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4);
