@@ -154,7 +154,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceIntegerTypeTest, T, integer_test_types) 
 
   // initialise the doocs scalar
   DoocsProcessScalar<T, D_int> doocsScalar(NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
-  BOOST_CHECK(set_doocs_value(doocsScalar, 0) == 0);
 
   deviceVariable->accessData(0) = 42;
   deviceVariable->write();
@@ -185,18 +184,17 @@ BOOST_AUTO_TEST_CASE(fromDeviceFloatTest) {
       devManager->createProcessArray<float>(deviceToControlSystem, "fromDeviceVariable", 1);
   ProcessArray<float>::SharedPtr controlSystemVariable = csManager->getProcessArray<float>("fromDeviceVariable");
   // set the variables to 0
-  deviceVariable->accessData(0) = 0;
-  controlSystemVariable->accessData(0) = 0;
+  deviceVariable->accessData(0) = 0.0;
+  controlSystemVariable->accessData(0) = 0.0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<float, D_float> doocsScalar(NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
-  BOOST_CHECK(set_doocs_value(doocsScalar, 0) == 0);
+  DoocsProcessScalar<float, D_float> doocsScalar(nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
 
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();
 
-  BOOST_CHECK(controlSystemVariable->accessData(0) == 0);
-  BOOST_CHECK(doocsScalar.value() == 0);
+  BOOST_CHECK(controlSystemVariable->accessData(0) == 0.0);
+  BOOST_CHECK_CLOSE(doocsScalar.value(), 0.0, 1e-6);
 
   updater.update();
   BOOST_CHECK(controlSystemVariable->accessData(0) == 12.125);
@@ -219,8 +217,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceDoubleTest) {
   controlSystemVariable->accessData(0) = 0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<double, D_double> doocsScalar(NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
-  BOOST_CHECK(set_doocs_value(doocsScalar, 0) == 0);
+  DoocsProcessScalar<double, D_double> doocsScalar(nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
 
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();
