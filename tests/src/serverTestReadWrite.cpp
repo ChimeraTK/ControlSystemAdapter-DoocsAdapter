@@ -21,13 +21,16 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1);
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0);
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<std::string>("//STRING/DATA_TYPE_CONSTANT") == "42.000000");
 
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 42);
   DoocsServerTestHelper::doocsSet<int>("//CHAR/TO_DEVICE_SCALAR", 44);
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_ARRAY", {140, 141, 142, 143, 144, 145, 146, 147, 148, 149});
+  DoocsServerTestHelper::doocsSet<std::string>("//STRING/TO_DEVICE_SCALAR", "fortytwo");
 
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0);
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<std::string>("//STRING/FROM_DEVICE_SCALAR") == "");
 
   // run the application loop. Still no changes until we run the doocs server
   // update
@@ -36,6 +39,7 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
   // now finally after the next update we should see the new data in doocs
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 42);
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 44);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<std::string>("//STRING/FROM_DEVICE_SCALAR") == "fortytwo");
 
   // we have to get stuff as float in order to work with spectra
   auto intArray = DoocsServerTestHelper::doocsGetArray<float>("//INT/FROM_DEVICE_ARRAY");
