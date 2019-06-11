@@ -51,11 +51,14 @@ namespace ChimeraTK {
     /// which can be casted to a string-node
     static std::string getContentString(xmlpp::Node const* node);
 
+    /// Functiont o convert a string into a DataConsistencyGroup::MatchingMode enum value
+    static DataConsistencyGroup::MatchingMode evaluateDataMatching(std::string txt);
+
    protected:
     VariableMapper() = default;
 
     std::map<std::string, int> _inputLocationAndCode; // map of location and fct_code,
-                                                       // from location tag of the mapping xml file
+                                                      // from location tag of the mapping xml file
     std::set<std::string> _inputVariables;
     std::set<std::string> _usedInputVariables; // For tracing which variables are
                                                // not to be imported.
@@ -71,6 +74,7 @@ namespace ChimeraTK {
     bool getHasHistoryDefault(std::string const& locationName);
     bool getIsWriteableDefault(std::string const& locationName);
     std::string getMacroPusleNumberSourceDefault(std::string const& locationName);
+    DataConsistencyGroup::MatchingMode getDataMatchingDefault(std::string const& locationName);
 
     std::map<std::string, LocationInfo> _locationDefaults;
     PropertyAttributes _globalDefaults;

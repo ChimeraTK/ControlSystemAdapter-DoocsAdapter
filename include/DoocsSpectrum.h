@@ -71,14 +71,13 @@ namespace ChimeraTK {
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
 
-   protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
     DataConsistencyGroup _consistencyGroup;
-    DoocsUpdater & _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
-    EqFct * _eqFct; // We need it when adding the macro pulse number
+    DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
+    EqFct* _eqFct;               // We need it when adding the macro pulse number
     bool publishZMQ{false};
     size_t nBuffers;
 

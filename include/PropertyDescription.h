@@ -7,6 +7,7 @@
 //#include <memory>
 //#include <iostream>
 #include <ChimeraTK/RegisterPath.h>
+#include <ChimeraTK/DataConsistencyGroup.h>
 
 ///@todo FIXME: Separate these out into individual files
 
@@ -19,13 +20,15 @@ namespace ChimeraTK {
     bool isWriteable;
     bool publishZMQ;
     std::string macroPulseNumberSource;
+    DataConsistencyGroup::MatchingMode dataMatching;
     PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false,
-        std::string macroPulseNumberSource_ = "")
+        std::string macroPulseNumberSource_ = "",
+        DataConsistencyGroup::MatchingMode dataMatching_ = DataConsistencyGroup::MatchingMode::exact)
     : hasHistory(hasHistory_), isWriteable(isWriteable_), publishZMQ(publishZMQ_),
-      macroPulseNumberSource(macroPulseNumberSource_) {}
+      macroPulseNumberSource(macroPulseNumberSource_), dataMatching(dataMatching_) {}
     bool operator==(PropertyAttributes const& other) const {
       return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ &&
-          macroPulseNumberSource == other.macroPulseNumberSource);
+          macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching);
     }
   };
 
@@ -152,10 +155,12 @@ namespace ChimeraTK {
     bool useHasHistoryDefault;
     bool useIsWriteableDefault;
     bool useMacroPulseNumberSourceDefault;
+    bool useDataMatchingDefault;
     LocationInfo(bool useHasHistoryDefault_ = false, bool useIsWriteableDefault_ = false,
-        bool useMacroPulseNumberSourceDefault_ = false)
+        bool useMacroPulseNumberSourceDefault_ = false, bool useDataMatchingDefault_ = false)
     : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_),
-      useMacroPulseNumberSourceDefault(useMacroPulseNumberSourceDefault_) {}
+      useMacroPulseNumberSourceDefault(useMacroPulseNumberSourceDefault_),
+      useDataMatchingDefault(useDataMatchingDefault_) {}
   };
 
 } // namespace ChimeraTK

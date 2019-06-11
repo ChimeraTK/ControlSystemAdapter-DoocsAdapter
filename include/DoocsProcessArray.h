@@ -110,20 +110,20 @@ namespace ChimeraTK {
     void publishZeroMQ() { publishZMQ = true; }
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-        if(_processArray->isReadable()) {
-          _macroPulseNumberSource = macroPulseNumberSource;
-          _consistencyGroup.add(macroPulseNumberSource);
-          _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
-              std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
-        }
+      if(_processArray->isReadable()) {
+        _macroPulseNumberSource = macroPulseNumberSource;
+        _consistencyGroup.add(macroPulseNumberSource);
+        _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
+            std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this,
+                macroPulseNumberSource->getId()));
+      }
     }
 
-   protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
     DataConsistencyGroup _consistencyGroup;
-    DoocsUpdater & _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
-    EqFct * _eqFct; // We need it when adding the macro pulse number
+    DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
+    EqFct* _eqFct;               // We need it when adding the macro pulse number
     bool publishZMQ{false};
 
     // Internal function which copies the content from the DOOCS container into

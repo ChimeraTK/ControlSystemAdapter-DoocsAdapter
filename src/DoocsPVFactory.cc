@@ -85,6 +85,10 @@ namespace ChimeraTK {
       _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
+    // set data matching mode
+    boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)
+        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+
     return doocsPV;
   }
 
@@ -137,6 +141,10 @@ namespace ChimeraTK {
           mpnDecorated);
       _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
+
+    // set data matching mode
+    boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)
+        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
 
     return doocsPV;
   }
@@ -208,6 +216,10 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
       _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
+
+    // set data matching mode
+    boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->_consistencyGroup.setMatchingMode(
+        spectrumDescription.dataMatching);
 
     return doocsPV;
   }
@@ -404,6 +416,10 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescr
         mpnDecorated);
     _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
   }
+
+  // set data matching mode
+  boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)
+      ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
 
   return doocsPV;
 }
