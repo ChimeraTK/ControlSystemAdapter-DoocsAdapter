@@ -36,22 +36,26 @@ namespace ChimeraTK {
       return;
     }
 
+    // Worst-case: We need to lock all locations, so pre-allocate this here
+    std::unordered_set<EqFct*> locationsToLock;
+    locationsToLock.reserve(_toDoocsEqFctMap.size());
+
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
     while(true) {
       // Wait until any variable got an update
       auto notification = group.waitAny();
       auto updatedElement = notification.getId();
       // Gather all involved locations in a unique set
-      std::unordered_set<EqFct*> locationsToLock;
-      for(auto& location : _toDoocsEqFctMap[updatedElement]) locationsToLock.insert(location);
-      // Lock all involved locations
-      for(auto& location : locationsToLock) location->lock();
+      for(auto& location : _toDoocsEqFctMap[updatedElement]) {
+        if(locationsToLock.insert(location).second) location->lock();
+      }
       // Complete the read transfer of the process variable
       notification.accept();
       // Call all updater functions
       for(auto& updaterFunction : _toDoocsUpdateMap[updatedElement]) updaterFunction();
       // Unlock all involved locations
       for(auto& location : locationsToLock) location->unlock();
+      locationsToLock.clear();
       // Allow shutting down this thread...
       boost::this_thread::interruption_point();
     }
