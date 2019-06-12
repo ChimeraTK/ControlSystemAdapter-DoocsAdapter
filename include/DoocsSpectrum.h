@@ -71,6 +71,8 @@ namespace ChimeraTK {
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
 
+    void write(fstream& fptr) override;
+
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
@@ -85,6 +87,9 @@ namespace ChimeraTK {
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow
     // unit testing.
     void sendToDevice();
+
+    // Flag whether the value has been modified since the content has been saved to disk the last time (see write()).
+    bool modified{false};
   };
 
 } // namespace ChimeraTK

@@ -57,6 +57,7 @@ namespace ChimeraTK {
 
   void DoocsSpectrum::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
+    modified = true;
     sendToDevice();
   }
 
@@ -71,9 +72,22 @@ namespace ChimeraTK {
 
     // send the current value to the device
     D_spectrum::read();
+    modified = false;
     if(_processArray->isWriteable()) {
       sendToDevice();
     }
+  }
+
+  void DoocsSpectrum::write(fstream& fptr) {
+    // DOOCS is normally keeping the location lock until everything is written for that location: all D_spectrum and all
+    // other properties. This can take too long (like seconds), which leads to noticable freezes of the UI. As a
+    // work-around we release the lock here, wait some time and acquire the lock again. Since this happens in a separate
+    // thread (svr_writer), this slow-down should not be of any harm.
+    efp_->unlock();
+    usleep(1000);
+    efp_->lock();
+    if(!modified) return;
+    D_spectrum::write(fptr);
   }
 
   void DoocsSpectrum::updateDoocsBuffer(TransferElementID transferElementId) {
