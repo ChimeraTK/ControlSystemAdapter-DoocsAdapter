@@ -6,6 +6,7 @@
 
 #include "DoocsProcessScalar.h"
 #include "DoocsUpdater.h"
+#include "D_textUnifier.h"
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <d_fct.h>
@@ -154,7 +155,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceIntegerTypeTest, T, integer_test_types) 
 
   // initialise the doocs scalar
   DoocsProcessScalar<T, D_int> doocsScalar(NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
-  BOOST_CHECK(set_doocs_value(doocsScalar, 0) == 0);
 
   deviceVariable->accessData(0) = 42;
   deviceVariable->write();
@@ -173,6 +173,74 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceIntegerTypeTest, T, integer_test_types) 
   BOOST_CHECK(doocsScalar.value() == static_cast<int>(static_cast<T>(-13)));
 }
 
+BOOST_AUTO_TEST_CASE(toDeviceStringTest) {
+  std::pair<boost::shared_ptr<ControlSystemPVManager>, boost::shared_ptr<DevicePVManager>> pvManagers =
+      createPVManager();
+  boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+  boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+  DoocsUpdater updater;
+
+  boost::shared_ptr<ProcessArray<std::string>> deviceFloat =
+      devManager->createProcessArray<std::string>(controlSystemToDevice, "toDeviceString", 1);
+  boost::shared_ptr<ProcessArray<std::string>> controlSystemFloat =
+      csManager->getProcessArray<std::string>("toDeviceString");
+  // set the variables to 0
+  deviceFloat->accessData(0) = "null";
+  controlSystemFloat->accessData(0) = "null";
+
+  // just write to the doocs scalar, it is automatically sending
+  DoocsProcessScalar<std::string, D_textUnifier> doocsScalar(nullptr, "TO_DEVICE_STRING", controlSystemFloat, updater);
+
+  BOOST_CHECK(set_doocs_value(doocsScalar, "twelvepointonetwofive") == 0);
+  BOOST_CHECK(controlSystemFloat->accessData(0) == "twelvepointonetwofive");
+
+  // receive on the device side and check that the value has arrived
+  deviceFloat->readNonBlocking();
+  BOOST_CHECK(deviceFloat->accessData(0) == "twelvepointonetwofive");
+
+  // check that the value() overloading is working by calling the function of
+  // the base class (note: cast to a reference, otherwise inheritance/ virtual
+  // functions calls do not work)
+  BOOST_CHECK(set_doocs_value(static_cast<D_textUnifier&>(doocsScalar), "minusthirteen") == 0);
+  BOOST_CHECK(controlSystemFloat->accessData(0) == "minusthirteen");
+
+  // receive on the device side and check that the value has arrived
+  deviceFloat->readNonBlocking();
+  BOOST_CHECK(deviceFloat->accessData(0) == "minusthirteen");
+}
+
+BOOST_AUTO_TEST_CASE(fromDeviceStringTest) {
+  std::pair<boost::shared_ptr<ControlSystemPVManager>, boost::shared_ptr<DevicePVManager>> pvManagers =
+      createPVManager();
+  boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+  boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+  DoocsUpdater updater;
+
+  ProcessArray<std::string>::SharedPtr deviceVariable =
+      devManager->createProcessArray<std::string>(deviceToControlSystem, "fromDeviceVariable", 1);
+  ProcessArray<std::string>::SharedPtr controlSystemVariable =
+      csManager->getProcessArray<std::string>("fromDeviceVariable");
+  // set the variables to 0
+  deviceVariable->accessData(0) = "null";
+  controlSystemVariable->accessData(0) = "null";
+
+  // initialise the doocs scalar
+  DoocsProcessScalar<std::string, D_textUnifier> doocsScalar(
+      nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
+
+  deviceVariable->accessData(0) = "twelvepointonetwofive";
+  deviceVariable->write();
+
+  BOOST_CHECK_EQUAL(controlSystemVariable->accessData(0), "null");
+  BOOST_CHECK_EQUAL(doocsScalar.value(), "");
+
+  updater.update();
+  BOOST_CHECK_EQUAL(controlSystemVariable->accessData(0), "twelvepointonetwofive");
+  BOOST_CHECK_EQUAL(doocsScalar.value(), "twelvepointonetwofive");
+}
+
 BOOST_AUTO_TEST_CASE(fromDeviceFloatTest) {
   std::pair<boost::shared_ptr<ControlSystemPVManager>, boost::shared_ptr<DevicePVManager>> pvManagers =
       createPVManager();
@@ -185,18 +253,17 @@ BOOST_AUTO_TEST_CASE(fromDeviceFloatTest) {
       devManager->createProcessArray<float>(deviceToControlSystem, "fromDeviceVariable", 1);
   ProcessArray<float>::SharedPtr controlSystemVariable = csManager->getProcessArray<float>("fromDeviceVariable");
   // set the variables to 0
-  deviceVariable->accessData(0) = 0;
-  controlSystemVariable->accessData(0) = 0;
+  deviceVariable->accessData(0) = 0.0;
+  controlSystemVariable->accessData(0) = 0.0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<float, D_float> doocsScalar(NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
-  BOOST_CHECK(set_doocs_value(doocsScalar, 0) == 0);
+  DoocsProcessScalar<float, D_float> doocsScalar(nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
 
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();
 
-  BOOST_CHECK(controlSystemVariable->accessData(0) == 0);
-  BOOST_CHECK(doocsScalar.value() == 0);
+  BOOST_CHECK(controlSystemVariable->accessData(0) == 0.0);
+  BOOST_CHECK_CLOSE(doocsScalar.value(), 0.0, 1e-6);
 
   updater.update();
   BOOST_CHECK(controlSystemVariable->accessData(0) == 12.125);
@@ -219,8 +286,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceDoubleTest) {
   controlSystemVariable->accessData(0) = 0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<double, D_double> doocsScalar(NULL, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
-  BOOST_CHECK(set_doocs_value(doocsScalar, 0) == 0);
+  DoocsProcessScalar<double, D_double> doocsScalar(nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
 
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();

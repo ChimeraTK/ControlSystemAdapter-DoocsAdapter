@@ -103,6 +103,9 @@ namespace ChimeraTK {
         _processScalar->accessData(0) = this->value();
         _processScalar->write();
       }
+      else {
+        throw ChimeraTK::logic_error("Trying to write to a non-writable variable");
+      }
     }
 
     /**
