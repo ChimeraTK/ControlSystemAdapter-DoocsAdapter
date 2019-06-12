@@ -12,7 +12,8 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor)
   : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
-    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor), _doocsUpdater(updater), _eqFct(eqFct), nBuffers(1) {
+    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor),
+    _doocsUpdater(updater), _eqFct(eqFct), nBuffers(1) {
     if(processArray->isReadable()) {
       updater.addVariable(ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct,
           std::bind(&DoocsSpectrum::updateDoocsBuffer, this, processArray->getId()));
@@ -85,7 +86,7 @@ namespace ChimeraTK {
     // There are only the processArray and the macro pulse number in the consistency
     // group. The limits are coming asynchronously and not for every macro pulse,
     // so we just take test latest we have.
-    if (_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)){
+    if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
       return;
     }
 
@@ -155,13 +156,14 @@ namespace ChimeraTK {
     spectrum_parameter(this->spec_time(), start, increment, this->spec_status());
   }
 
-  void DoocsSpectrum::setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-      if(_processArray->isReadable()) {
-        _macroPulseNumberSource = macroPulseNumberSource;
-        _consistencyGroup.add(macroPulseNumberSource);
-        _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
-            std::bind(&DoocsSpectrum::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
-      }
+  void DoocsSpectrum::setMacroPulseNumberSource(
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
+    if(_processArray->isReadable()) {
+      _macroPulseNumberSource = macroPulseNumberSource;
+      _consistencyGroup.add(macroPulseNumberSource);
+      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
+          std::bind(&DoocsSpectrum::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
+    }
   }
 
   void DoocsSpectrum::sendToDevice() {
