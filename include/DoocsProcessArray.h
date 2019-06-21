@@ -22,12 +22,12 @@ namespace ChimeraTK {
    public:
     DoocsProcessArray(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> const& processArray, DoocsUpdater& updater)
-    : DOOCS_T(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct), _processArray(processArray), _doocsUpdater(updater), _eqFct(eqFct){
+    : DOOCS_T(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct), _processArray(processArray),
+      _doocsUpdater(updater), _eqFct(eqFct) {
       if(processArray->isReadable()) {
-        updater.addVariable(ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray),
-            eqFct,
+        updater.addVariable(ChimeraTK::OneDRegisterAccessor<DOOCS_PRIMITIVE_T>(processArray), eqFct,
             std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this, processArray->getId()));
-            _consistencyGroup.add(processArray);
+        _consistencyGroup.add(processArray);
       }
 
       // Check if the array length exceeds the maximum allowed length by DOOCS.
@@ -70,8 +70,8 @@ namespace ChimeraTK {
       // before calling this function because calling this function through a function pointer is
       // comparatively expensive.
       // Only check the consistency group if there is a macro pulse number associated.
-      if (_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)){
-          return;
+      if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
+        return;
       }
 
       // Note: we already own the location lock by specification of the
