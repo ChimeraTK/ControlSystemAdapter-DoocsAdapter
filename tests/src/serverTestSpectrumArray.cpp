@@ -30,11 +30,17 @@ static bool testArrayContent(std::string const& propertyName, T testStartValue, 
   auto array = DoocsServerTestHelper::doocsGetArray<T>(propertyName);
   bool isOK = true;
   T currentTestValue = testStartValue;
+  size_t index = 0;
   for(auto val : array) {
     if(std::fabs(val - currentTestValue) > 0.001) {
+      if(isOK) {
+        std::cout << "Array " << propertyName << " does not contain expected values. First mismatching data at index "
+                  << index << ": " << val << " != " << currentTestValue << std::endl;
+      }
       isOK = false;
     }
     currentTestValue += delta;
+    ++index;
   }
   return isOK;
 }
