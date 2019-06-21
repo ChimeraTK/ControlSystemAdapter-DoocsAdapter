@@ -66,6 +66,10 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->publishZeroMQ();
     }
 
+    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
+    boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)
+        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
@@ -83,10 +87,6 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
     }
-
-    // set data matching mode
-    boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)
-        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
 
     return doocsPV;
   }
@@ -122,6 +122,10 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->publishZeroMQ();
     }
 
+    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
+    boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)
+        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
@@ -139,10 +143,6 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
     }
-
-    // set data matching mode
-    boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)
-        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
 
     return doocsPV;
   }
@@ -197,6 +197,10 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->publishZeroMQ();
     }
 
+    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
+    boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->_consistencyGroup.setMatchingMode(
+        spectrumDescription.dataMatching);
+
     // set macro pulse number source, if configured
     if(spectrumDescription.macroPulseNumberSource.size() > 0) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(spectrumDescription.macroPulseNumberSource);
@@ -213,10 +217,6 @@ namespace ChimeraTK {
       }
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
     }
-
-    // set data matching mode
-    boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->_consistencyGroup.setMatchingMode(
-        spectrumDescription.dataMatching);
 
     return doocsPV;
   }
@@ -395,6 +395,10 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescr
     boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->publishZeroMQ();
   }
 
+  // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
+  boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)
+      ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+
   // set macro pulse number source, if configured
   if(propertyDescription.macroPulseNumberSource.size() > 0) {
     auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
@@ -412,10 +416,6 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescr
     boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
         mpnDecorated);
   }
-
-  // set data matching mode
-  boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)
-      ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
 
   return doocsPV;
 }
