@@ -114,10 +114,10 @@ namespace ChimeraTK {
         _macroPulseNumberSource = macroPulseNumberSource;
         if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
           _consistencyGroup.add(macroPulseNumberSource);
+          _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
+              std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this,
+                  macroPulseNumberSource->getId()));
         }
-        _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
-            std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this,
-                macroPulseNumberSource->getId()));
       }
     }
 
