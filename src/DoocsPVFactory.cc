@@ -82,9 +82,7 @@ namespace ChimeraTK {
       }
       boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
-      if(propertyDescription.dataMatching != DataConsistencyGroup::MatchingMode::none) {
-        _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
-      }
+      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     // set data matching mode
@@ -112,8 +110,8 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1); // array of strings is not supported
-    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessScalar<std::string, D_textUnifier>(
-        _eqFct, propertyDescription.name.c_str(), processArray, _updater));
+    boost::shared_ptr<D_fct> doocsPV(
+        new DoocsProcessScalar<std::string, D_textUnifier>(_eqFct, propertyDescription.name.c_str(), processArray, _updater));
 
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
@@ -141,9 +139,7 @@ namespace ChimeraTK {
       }
       boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
-      if(propertyDescription.dataMatching != DataConsistencyGroup::MatchingMode::none) {
-        _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
-      }
+      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     // set data matching mode
@@ -218,9 +214,7 @@ namespace ChimeraTK {
             "' is used as a macro pulse number source, but it is not readable.");
       }
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
-      if(spectrumDescription.dataMatching != DataConsistencyGroup::MatchingMode::none) {
-        _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
-      }
+      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     // set data matching mode
@@ -420,9 +414,7 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescr
     }
     boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
         mpnDecorated);
-    if(propertyDescription.dataMatching != DataConsistencyGroup::MatchingMode::none) {
-      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
-    }
+    _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
   }
 
   // set data matching mode
