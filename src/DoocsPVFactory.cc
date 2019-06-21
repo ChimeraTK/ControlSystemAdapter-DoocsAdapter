@@ -82,7 +82,6 @@ namespace ChimeraTK {
       }
       boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
-      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     // set data matching mode
@@ -139,7 +138,6 @@ namespace ChimeraTK {
       }
       boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->setMacroPulseNumberSource(
           mpnDecorated);
-      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     // set data matching mode
@@ -214,7 +212,6 @@ namespace ChimeraTK {
             "' is used as a macro pulse number source, but it is not readable.");
       }
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
-      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
     }
 
     // set data matching mode
@@ -414,7 +411,6 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescr
     }
     boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
         mpnDecorated);
-    _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(mpnDecorated), _eqFct, [] {});
   }
 
   // set data matching mode
