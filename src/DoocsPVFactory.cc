@@ -109,8 +109,8 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1); // array of strings is not supported
-    boost::shared_ptr<D_fct> doocsPV(
-        new DoocsProcessScalar<std::string, D_textUnifier>(_eqFct, propertyDescription.name.c_str(), processArray, _updater));
+    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessScalar<std::string, D_textUnifier>(
+        _eqFct, propertyDescription.name.c_str(), processArray, _updater));
 
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
