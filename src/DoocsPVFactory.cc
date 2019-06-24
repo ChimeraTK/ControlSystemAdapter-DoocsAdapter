@@ -28,7 +28,13 @@ namespace ChimeraTK {
 
     // the DoocsProcessScalar needs the real ProcessScalar type, not just
     // ProcessVariable
-    auto processArray = getDecorator<DOOCS_PRIMITIVE_T>(processVariable, decoratorType);
+    boost::shared_ptr<NDRegisterAccessor<DOOCS_PRIMITIVE_T>> processArray;
+    if(typeid(DOOCS_PRIMITIVE_T) == processVariable->getValueType()) {
+      processArray = boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>(processVariable);
+    }
+    else {
+      processArray = getDecorator<DOOCS_PRIMITIVE_T>(processVariable, decoratorType);
+    }
 
     assert(processArray->getNumberOfChannels() == 1);
     boost::shared_ptr<D_fct> doocsPV;
@@ -380,10 +386,20 @@ template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
 boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription) {
   auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
+  // the DoocsProcessScalar needs the real ProcessScalar type, not just
+  // ProcessVariable
+  boost::shared_ptr<NDRegisterAccessor<DOOCS_PRIMITIVE_T>> processArray;
+  if(typeid(DOOCS_PRIMITIVE_T) == processVariable->getValueType()) {
+    processArray = boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>(processVariable);
+  }
+  else {
+    processArray = getDecorator<DOOCS_PRIMITIVE_T>(processVariable, DecoratorType::C_style_conversion);
+  }
+
   ///@todo FIXME Add the decorator type as option  to the array description, and
   /// only use C_style_conversion as default
-  boost::shared_ptr<D_fct> doocsPV(new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name,
-      getDecorator<DOOCS_PRIMITIVE_T>(processVariable, DecoratorType::C_style_conversion), _updater));
+  boost::shared_ptr<D_fct> doocsPV(
+      new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name, processArray, _updater));
 
   // set read only mode if configures in the xml file or for output variables
   if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
