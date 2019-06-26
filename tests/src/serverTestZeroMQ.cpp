@@ -87,7 +87,6 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   /// INT comes before UINT and FLOAT, so the macro pulse number is first
   /// written and then our values.
 
-
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_SCALAR");
@@ -111,7 +110,6 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   //std::cout << "unusedVersion " << std::string(unusedVersion) << std::endl;
   referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   //std::cout << "version number now is " << std::string(referenceTestApplication.versionNumber.value_or(unusedVersion)) << std::endl;
-
 
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
@@ -143,15 +141,16 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
-  std::array<bool,10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
+  std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
     referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     ++macroPulseNumber;
     expectedValue = 100 + i;
-    if (sendMacroPulseFirst[i]) {
+    if(sendMacroPulseFirst[i]) {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-    }else{// send the value first
-       DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+    }
+    else { // send the value first
+      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
     }
 
     // nothing must be received, no consistent set yet
@@ -161,9 +160,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     BOOST_CHECK(dataReceived == false);
 
     // now send the variable which has not been send yet
-    if (sendMacroPulseFirst[i]) {
-       DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
-    }else{
+    if(sendMacroPulseFirst[i]) {
+      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+    }
+    else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
     referenceTestApplication.runMainLoopOnce();
@@ -239,15 +239,16 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
-  std::array<bool,10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
+  std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
     referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     --macroPulseNumber;
     expectedArrayValue[1] = 100 + i;
-    if (sendMacroPulseFirst[i]) {
+    if(sendMacroPulseFirst[i]) {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-    }else{// send the value first
-       DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+    }
+    else { // send the value first
+      DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
     }
 
     // nothing must be received, no consistent set yet
@@ -257,9 +258,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
     BOOST_CHECK(dataReceived == false);
 
     // now send the variable which has not been send yet
-    if (sendMacroPulseFirst[i]) {
-       DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
-    }else{
+    if(sendMacroPulseFirst[i]) {
+      DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+    }
+    else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
     referenceTestApplication.runMainLoopOnce();
@@ -334,15 +336,16 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
-  std::array<bool,10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
+  std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
     referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     macroPulseNumber *= -2;
     expectedFloatArrayValue[1] = 100 + i;
-    if (sendMacroPulseFirst[i]) {
+    if(sendMacroPulseFirst[i]) {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-    }else{// send the value first
-       DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+    }
+    else { // send the value first
+      DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
     }
 
     // nothing must be received, no consistent set yet
@@ -352,9 +355,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     BOOST_CHECK(dataReceived == false);
 
     // now send the variable which has not been send yet
-    if (sendMacroPulseFirst[i]) {
-       DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-    }else{
+    if(sendMacroPulseFirst[i]) {
+      DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+    }
+    else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
     referenceTestApplication.runMainLoopOnce();
