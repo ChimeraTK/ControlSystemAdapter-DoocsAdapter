@@ -95,13 +95,24 @@ namespace ChimeraTK {
       }
 
       this->fill_array(dataPtr, processVector.size());
+
+      // Convert time stamp from version number in Unix time (seconds and microseconds).
+      // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
+      // and hence is not the duration since the epoch! We have to convert to time_t and then find out the microseconds.
+      auto timestamp = _processArray->getVersionNumber().getTime();
+      auto seconds = std::chrono::system_clock::to_time_t(timestamp);
+      auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
+          timestamp - std::chrono::system_clock::from_time_t(seconds))
+                              .count();
+      this->set_tmstmp(seconds, microseconds);
+      if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
+
+      // send data via ZeroMQ if enabled
       if(publishZMQ) {
         dmsg_info info;
         memset(&info, 0, sizeof(info));
-        auto sinceEpoch = _processArray->getVersionNumber().getTime().time_since_epoch();
-        auto time = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch);
-        info.sec = time.count() / 1000000;
-        info.usec = time.count() % 1000000;
+        info.sec = seconds;
+        info.usec = microseconds;
         info.ident = _macroPulseNumberSource->accessData(0);
         this->send(&info);
       }

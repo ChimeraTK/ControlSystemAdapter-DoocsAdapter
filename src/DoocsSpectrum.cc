@@ -104,11 +104,14 @@ namespace ChimeraTK {
       return;
     }
 
-    // determine time stamp
-    auto sinceEpoch = _processArray->getVersionNumber().getTime().time_since_epoch();
-    auto time = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch);
-    auto sec = time.count() / 1000000;
-    auto usec = time.count() % 1000000;
+    // Convert time stamp from version number in Unix time (seconds and microseconds).
+    // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
+    // and hence is not the duration since the epoch! We have to convert to time_t and then find out the microseconds.
+    auto timestamp = _processArray->getVersionNumber().getTime();
+    auto seconds = std::chrono::system_clock::to_time_t(timestamp);
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
+        timestamp - std::chrono::system_clock::from_time_t(seconds))
+                            .count();
 
     // set macro pulse number, buffer number and time stamp
     size_t ibuf = 0;
@@ -116,7 +119,7 @@ namespace ChimeraTK {
       ibuf = _macroPulseNumberSource->accessData(0) % nBuffers;
       macro_pulse(_macroPulseNumberSource->accessData(0), ibuf);
     }
-    set_tmstmp(sec, usec, ibuf);
+    set_tmstmp(seconds, microseconds, ibuf);
 
     if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
       this->d_error(stale_data);
@@ -139,8 +142,8 @@ namespace ChimeraTK {
     if(publishZMQ) {
       dmsg_info info;
       memset(&info, 0, sizeof(info));
-      info.sec = sec;
-      info.usec = usec;
+      info.sec = seconds;
+      info.usec = microseconds;
       if(_macroPulseNumberSource != nullptr) {
         info.ident = _macroPulseNumberSource->accessData(0);
       }
