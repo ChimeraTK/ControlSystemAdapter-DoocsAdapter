@@ -116,7 +116,7 @@ install( DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT
 
 # generate cmake config so other projects can find this library
 set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${ChimeraTK-ControlSystemAdapter_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_LIBRARIES "${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES}")
+set(${PROJECT_NAME}_LIBRARIES "${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES}")
 set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-ControlSystemAdapter_LIBRARY_DIRS} ${DOOCS_LIBRARY_DIRS}")
 set(${PROJECT_NAME}_CXX_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS}")
 set(${PROJECT_NAME}_LINKER_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
