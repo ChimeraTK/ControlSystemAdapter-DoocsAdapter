@@ -26,16 +26,8 @@ namespace ChimeraTK {
       // Only check the consistency group if there is a macro pulse number associated.
       if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
         // data is not consistent (yet). Don't update the Doocs buffer.
-        //        std::cout << "no consistency in transferElement " << (transferElementId== _macroPulseNumberSource->getId()?"MacroPulse":"Scalar")<<  ", Name " << _processScalar->getName() <<", macropulse version " << std::string(_macroPulseNumberSource->getVersionNumber())
-        //                  << ", scalar version " <<  std::string(_processScalar->getVersionNumber()) << std::endl;
         return;
       }
-      //      if (_macroPulseNumberSource ){
-      //        std::cout << "consistency found in transferElement " << (transferElementId== _macroPulseNumberSource->getId()?"MacroPulse":"Scalar")<< ", Name " << _processScalar->getName()
-      //                  << ", version " << std::string(_processScalar->getVersionNumber()) << std::endl;
-      //      }else{
-      //          std::cout << "no macropulse number set for " << _processScalar->getName() << std::endl;
-      //      }
 
       // Note: we already own the location lock by specification of the
       // DoocsUpdater
