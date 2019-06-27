@@ -101,8 +101,18 @@ namespace ChimeraTK {
     // group. The limits are coming asynchronously and not for every macro pulse,
     // so we just take test latest we have.
     if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
+      // data is not consistent (yet). Don't update the Doocs buffer.
+      // check if this will now throw away data and generate a warning
+      if(transferElementId == _processArray->getId()) {
+        if(!_doocsSuccessfullyUpdated) {
+          std::cout << "WARNING: Data loss in spectrum property " << _eqFct->name() << "/" << this->basename()
+                    << " due to failed data matching between value and macro pulse number." << std::endl;
+        }
+      }
+      _doocsSuccessfullyUpdated = false;
       return;
     }
+    _doocsSuccessfullyUpdated = true;
 
     // Convert time stamp from version number in Unix time (seconds and microseconds).
     // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds

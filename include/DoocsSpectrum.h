@@ -90,6 +90,8 @@ namespace ChimeraTK {
 
     // Flag whether the value has been modified since the content has been saved to disk the last time (see write()).
     bool modified{false};
+
+    bool _doocsSuccessfullyUpdated{true}; // to detect data losses
   };
 
 } // namespace ChimeraTK

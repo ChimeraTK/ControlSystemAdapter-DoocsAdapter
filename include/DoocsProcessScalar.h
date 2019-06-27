@@ -26,8 +26,17 @@ namespace ChimeraTK {
       // Only check the consistency group if there is a macro pulse number associated.
       if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
         // data is not consistent (yet). Don't update the Doocs buffer.
+        // check if this will now throw away data and generate a warning
+        if(transferElementId == _processScalar->getId()) {
+          if(!_doocsSuccessfullyUpdated) {
+            std::cout << "WARNING: Data loss in scalar property " << _eqFct->name() << "/" << this->basename()
+                      << " due to failed data matching between value and macro pulse number." << std::endl;
+          }
+        }
+        _doocsSuccessfullyUpdated = false;
         return;
       }
+      _doocsSuccessfullyUpdated = true;
 
       // Note: we already own the location lock by specification of the
       // DoocsUpdater
@@ -143,6 +152,7 @@ namespace ChimeraTK {
     DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
     EqFct* _eqFct;               // We need it when adding the macro pulse number
     bool _publishZMQ{false};
+    bool _doocsSuccessfullyUpdated{true}; // to detect data losses
   };
 
 } // namespace ChimeraTK
