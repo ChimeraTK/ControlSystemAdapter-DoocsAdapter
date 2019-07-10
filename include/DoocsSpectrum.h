@@ -10,6 +10,8 @@
 #include <ChimeraTK/ScalarRegisterAccessor.h> // needed for the macro pulse number
 #include <ChimeraTK/DataConsistencyGroup.h>
 
+#include <iostream>
+
 // Just declare the EqFct class. We only need the pointer in this header.
 class EqFct;
 
@@ -71,7 +73,7 @@ namespace ChimeraTK {
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
 
-    void write(fstream& fptr) override;
+    void write(std::fstream& fptr) override;
 
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;

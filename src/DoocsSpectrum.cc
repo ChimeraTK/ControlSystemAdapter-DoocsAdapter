@@ -5,6 +5,8 @@
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 
+#include <iostream>
+
 namespace ChimeraTK {
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
@@ -78,7 +80,7 @@ namespace ChimeraTK {
     }
   }
 
-  void DoocsSpectrum::write(fstream& fptr) {
+  void DoocsSpectrum::write(std::fstream& fptr) {
     // DOOCS is normally keeping the location lock until everything is written for that location: all D_spectrum and all
     // other properties. This can take too long (like seconds), which leads to noticable freezes of the UI. As a
     // work-around we release the lock here, wait some time and acquire the lock again. Since this happens in a separate
