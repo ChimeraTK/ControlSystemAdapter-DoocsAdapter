@@ -585,8 +585,8 @@ namespace ChimeraTK {
         return nodeAsText->get_content();
       }
     }
-    throw std::invalid_argument(
-        std::string("Error parsing xml file: node ") + node->get_name() + " does not have text nodes as children.");
+    // No TextNode found: empty string
+    return "";
   }
 
   /********************************************************************************************************************/
