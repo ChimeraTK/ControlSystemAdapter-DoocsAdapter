@@ -49,16 +49,6 @@ namespace ChimeraTK {
         this->d_error(no_error);
       }
 
-      // we must not call set_and_archive if there is no history (otherwise it
-      // will be activated), but we have to if it is there. -> Abstraction,
-      // please!
-      if(this->get_histPointer()) {
-        this->set_and_archive(data);
-      }
-      else {
-        this->set_value(data);
-      }
-
       // Convert time stamp from version number in Unix time (seconds and microseconds).
       // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
       // and hence is not the duration since the epoch! We have to convert to time_t and then find out the microseconds.
@@ -67,6 +57,21 @@ namespace ChimeraTK {
       auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
           timestamp - std::chrono::system_clock::from_time_t(seconds))
                               .count();
+
+      // we must not call set_and_archive if there is no history (otherwise it
+      // will be activated), but we have to if it is there. -> Abstraction,
+      // please!
+      if(this->get_histPointer()) {
+        /*FIXME: The archiver also has a status code. Set it correctly.*/
+        // The timestamp we give with set_and_archive is for the archiver only.
+        this->set_and_archive(data, sts_ok /*default*/, seconds, microseconds);
+      }
+      else {
+        this->set_value(data);
+      }
+
+      // We must set the timestamp again so it is correctly attached to the variable. set_and_archive does not to it.
+      // This must happen after set_and_archive, otherwise the global time stamp is taken.
       this->set_tmstmp(seconds, microseconds);
       if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
 
