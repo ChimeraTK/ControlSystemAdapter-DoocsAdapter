@@ -69,35 +69,35 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
   // We insert check points with integers so we know where the algorithm kicks
   // out in case of an error. These checkpoints are always true.
   testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int32", "I", "int32"), factory,
-      "int32 "); // DOOCS property names always have a space (and
-                 // potentially some description)"
+      "int32"); 
+                
   BOOST_CHECK(-32);
   testCreateProcessScalar<int32_t, D_int>(
-      std::make_shared<AutoPropertyDescription>("U/uint32", "I", "uint32"), factory, "uint32 ");
+      std::make_shared<AutoPropertyDescription>("U/uint32", "I", "uint32"), factory, "uint32");
   BOOST_CHECK(32);
   testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int16", "I", "int16"), factory,
-      "int16 "); // DOOCS property names always have a space (and
-                 // potentially some description)"
+      "int16"); 
+                 
   BOOST_CHECK(-16);
   testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("U/uint16", "I", "uint16"), factory,
-      "uint16 "); // DOOCS property names always have a space (and
-                  // potentially some description)"
+      "uint16"); 
+                  
   BOOST_CHECK(16);
   testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int8", "I", "int8"), factory,
-      "int8 "); // DOOCS property names always have a space (and potentially
-                // some description)"
+      "int8"); 
+               
   BOOST_CHECK(-8);
   testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("U/uint8", "I", "uint8"), factory,
-      "uint8 "); // DOOCS property names always have a space (and
-                 // potentially some description)"
+      "uint8"); 
+                
   BOOST_CHECK(8);
   testCreateProcessScalar<float, D_float>(std::make_shared<AutoPropertyDescription>("FP/float", "FP", "float"), factory,
-      "float "); // DOOCS property names always have a space (and
-                 // potentially some description)"
+      "float"); 
+                
   BOOST_CHECK(0.5);
   testCreateProcessScalar<double, D_double>(std::make_shared<AutoPropertyDescription>("FP/double", "FP", "double"),
-      factory, "double "); // DOOCS property names always have a space (and
-                           // potentially some description)"
+      factory, "double"); 
+                          
   BOOST_CHECK(32);
 }
 

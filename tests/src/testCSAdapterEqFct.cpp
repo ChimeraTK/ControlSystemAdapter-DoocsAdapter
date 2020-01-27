@@ -76,15 +76,15 @@ BOOST_AUTO_TEST_CASE(testCSAdapterEqFct) {
   }
   // note: doocs property names always have a space (and a comment which can
   // be empty, but the space is always there)"
-  BOOST_REQUIRE(doocsProperties.find("TO_DEVICE.INT ") != doocsProperties.end());
-  BOOST_REQUIRE(doocsProperties.find("FROM_DEVICE.INT ") != doocsProperties.end());
+  BOOST_REQUIRE(doocsProperties.find("TO_DEVICE.INT") != doocsProperties.end());
+  BOOST_REQUIRE(doocsProperties.find("FROM_DEVICE.INT") != doocsProperties.end());
 
   // write once and check
-  set_doocs_value(*(doocsProperties["TO_DEVICE.INT "]), 13);
+  set_doocs_value(*(doocsProperties["TO_DEVICE.INT"]), 13);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK_EQUAL(businessLogic.toDeviceInt->accessData(0), 13);
   // change and observe the change in the device
-  set_doocs_value(*(doocsProperties["TO_DEVICE.INT "]), 14);
+  set_doocs_value(*(doocsProperties["TO_DEVICE.INT"]), 14);
   businessLogic.toDeviceInt->readNonBlocking();
   BOOST_CHECK_EQUAL(businessLogic.toDeviceInt->accessData(0), 14);
 
@@ -92,12 +92,12 @@ BOOST_AUTO_TEST_CASE(testCSAdapterEqFct) {
   businessLogic.fromDeviceInt->accessData(0) = 12;
   businessLogic.fromDeviceInt->write();
   updater->update();
-  BOOST_CHECK_EQUAL(doocsProperties["FROM_DEVICE.INT "]->value(), 12);
+  BOOST_CHECK_EQUAL(doocsProperties["FROM_DEVICE.INT"]->value(), 12);
 
   businessLogic.fromDeviceInt->accessData(0) = 15;
   businessLogic.fromDeviceInt->write();
   updater->update();
-  BOOST_CHECK_EQUAL(doocsProperties["FROM_DEVICE.INT "]->value(), 15);
+  BOOST_CHECK_EQUAL(doocsProperties["FROM_DEVICE.INT"]->value(), 15);
 }
 
 BOOST_AUTO_TEST_CASE(testWithMapping) {
@@ -128,9 +128,9 @@ BOOST_AUTO_TEST_CASE(testWithMapping) {
 
   // both properties are called int, but are in different locations
   D_int* doocsInt = dynamic_cast<D_int*>(toDeviceEqFct.getDoocsProperties()[0].get());
-  BOOST_REQUIRE(std::string(doocsInt->property_name()) == "INT ");
+  BOOST_REQUIRE(std::string(doocsInt->property_name()) == "INT");
   doocsInt = dynamic_cast<D_int*>(fromDeviceEqFct.getDoocsProperties()[0].get());
-  BOOST_REQUIRE(std::string(doocsInt->property_name()) == "INT ");
+  BOOST_REQUIRE(std::string(doocsInt->property_name()) == "INT");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
