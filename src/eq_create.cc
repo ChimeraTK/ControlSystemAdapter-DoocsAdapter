@@ -70,6 +70,16 @@ void post_init_epilog() {
     }
   }
 
+  // check for variables not yet initialised - we must guarantee that all to-application variables are written exactly
+  // once at server start.
+  for(auto& pv : doocsAdapter.getControlSystemPVManager()->getAllProcessVariables()) {
+    if(!pv->isWriteable()) continue;
+    if(pv->getVersionNumber() == ChimeraTK::VersionNumber(nullptr)) {
+      // The variable has not yet been written. Do it now, even if we just send a 0.
+      pv->write();
+    }
+  }
+
   // start the application and the updated
   ChimeraTK::ApplicationBase::getInstance().run();
   doocsAdapter.updater->run();
