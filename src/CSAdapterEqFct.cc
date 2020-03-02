@@ -60,6 +60,10 @@ namespace ChimeraTK {
         std::cerr << "**** WARNING: Could not create property for variable '" << propertyDescription->location << "/"
                   << propertyDescription->name << "': " << e.what() << ". Skipping this property." << std::endl;
       }
+      catch(doocs::Error& e) {
+        std::cerr << "**** WARNING: Could not create property for variable '" << propertyDescription->location << "/"
+                  << propertyDescription->name << "': " << e.what() << ". Skipping this property." << std::endl;
+      }
     }
   }
 
