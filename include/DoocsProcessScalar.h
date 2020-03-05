@@ -52,11 +52,15 @@ namespace ChimeraTK {
       // Convert time stamp from version number in Unix time (seconds and microseconds).
       // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
       // and hence is not the duration since the epoch! We have to convert to time_t and then find out the microseconds.
-      auto timestamp = _processScalar->getVersionNumber().getTime();
-      auto seconds = std::chrono::system_clock::to_time_t(timestamp);
-      auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
-          timestamp - std::chrono::system_clock::from_time_t(seconds))
-                              .count();
+      doocs::Timestamp timestamp(_processScalar->getVersionNumber().getTime());
+      auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
+      auto seconds = sinceEpoch.seconds;
+      auto microseconds = sinceEpoch.microseconds;
+
+      // update global time stamp of DOOCS, but only if our time stamp is newer
+      if(get_global_timestamp() < timestamp) {
+        set_global_timestamp(timestamp);
+      }
 
       // we must not call set_and_archive if there is no history (otherwise it
       // will be activated), but we have to if it is there. -> Abstraction,
@@ -64,7 +68,7 @@ namespace ChimeraTK {
       if(this->get_histPointer()) {
         /*FIXME: The archiver also has a status code. Set it correctly.*/
         // The timestamp we give with set_and_archive is for the archiver only.
-        this->set_and_archive(data, sts_ok /*default*/, seconds, microseconds);
+        this->set_and_archive(data, sts_ok /*default*/, seconds, microseconds / 1000);
       }
       else {
         this->set_value(data);
