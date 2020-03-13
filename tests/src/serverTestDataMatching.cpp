@@ -70,7 +70,7 @@ std::string DoocsLauncher::rpc_no;
 
 static std::atomic<bool> dataReceived;
 static EqData received;
-static dmsg_info_t receivedInfo;
+//static dmsg_info_t receivedInfo;
 static std::mutex mutex;
 
 BOOST_GLOBAL_FIXTURE(DoocsLauncher)
@@ -114,19 +114,25 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
 
-  int expectedValue = 42;
-  DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/CHAR.TO_DEVICE_SCALAR", expectedValue);
+  float expectedValue = 42.42f;
+  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
   referenceTestApplication.runMainLoopOnce();
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//UNMAPPED/CHAR.FROM_DEVICE_SCALAR") == expectedValue);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedValue < 1e-6);
 
-  //referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   ++macroPulseNumber;
   DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
 
-  expectedValue = 2;
-  DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/CHAR.TO_DEVICE_SCALAR", expectedValue);
+  expectedValue = 2.42f;
+  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
   referenceTestApplication.runMainLoopOnce();
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//UNMAPPED/CHAR.FROM_DEVICE_SCALAR") == expectedValue);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedValue < 1e-6);
+
+  // Another iteration, without increasing the macro pulse number
+  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  expectedValue = 12.42f;
+  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
+  referenceTestApplication.runMainLoopOnce();
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedValue < 1e-6);
 
   // Wait for the notification of the first write to happen.
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
