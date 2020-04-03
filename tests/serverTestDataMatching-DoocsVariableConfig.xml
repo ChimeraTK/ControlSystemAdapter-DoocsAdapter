@@ -4,6 +4,7 @@
        Otherwise the macro pulse number gets attachted to the next value. The order is determined by the order of types
        in the HolderMap, as this map is iterated. -->
   <macro_pulse_number_source>/INT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
+  <data_matching>none</data_matching>
 
   <location name="UINT">
     <property source="/UINT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
@@ -15,7 +16,6 @@
 
 
   <location name="UNMAPPED">
-    <data_matching>exact</data_matching>
     <import>/</import>
   </location>
 
