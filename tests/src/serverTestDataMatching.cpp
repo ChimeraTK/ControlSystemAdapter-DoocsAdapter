@@ -87,121 +87,74 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   /// INT comes before UINT and FLOAT, so the macro pulse number is first
   /// written and then our values.
 
-//  EqData dst;
-//  EqAdr ea;
-//  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_SCALAR");
-//  dmsg_t tag;
-//  int err = dmsg_attach(&ea, &dst, nullptr,
-//      [](void*, EqData* data, dmsg_info_t* info) {
-//        std::lock_guard<std::mutex> lock(mutex);
-//        received.copy_from(data);
-//        receivedInfo = *info;
-//        dataReceived = true;
-//      },
-//      &tag);
-//  BOOST_CHECK(!err);
-
-//  // Add additional delay for the ZMQ system to come up
-//  usleep(2000000);
 
   // We need data consistency between macro pulse number and the data
-  // Everything from now on will get the same version number, until we manually set a new one.
-  //ChimeraTK::VersionNumber unusedVersion;
-  //std::cout << "unusedVersion " << std::string(unusedVersion) << std::endl;
+  // Everything from now on will get the same version number, until we manually
+  // set a new one.
   referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  //std::cout << "version number now is " << std::string(referenceTestApplication.versionNumber.value_or(unusedVersion)) << std::endl;
 
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
 
-  float expectedValue = 42.42f;
-  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
+  unsigned int expectedUnsignedInt = 42U;
+  float expectedFloat = 42.42f;
+  DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR",
+                                                expectedUnsignedInt);
+  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR",
+                                         expectedFloat);
   referenceTestApplication.runMainLoopOnce();
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedValue < 1e-6);
 
-  ++macroPulseNumber;
-  DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<unsigned int>(
+                         "//UINT/FROM_DEVICE_SCALAR") -
+                         expectedUnsignedInt <
+                     1e-6);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>(
+                         "//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") -
+                         expectedFloat <
+                     1e-6);
 
-  expectedValue = 2.42f;
-  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
-  referenceTestApplication.runMainLoopOnce();
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedValue < 1e-6);
-
-  // Another iteration, without increasing the macro pulse number
+  // Send MPN and values with different version numbers
   referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  expectedValue = 12.42f;
-  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
   referenceTestApplication.runMainLoopOnce();
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedValue < 1e-6);
 
-  // Wait for the notification of the first write to happen.
-  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
-  // in a loop until we receive the data.
-//  size_t counter = 0;
-//  dataReceived = false;
-//  while(!dataReceived) {
-//    // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and running
-//    DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
-//    referenceTestApplication.runMainLoopOnce();
-//    // FIXME: This timeout is essential so everything has been received and the next
-//    // dataReceived really is false. It is a potential source of timing problems /
-//    // race conditions in this test.
-//    usleep(10000);
-//    if(++counter > 1000) break;
-//  }
-//  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedValue);
-//  referenceTestApplication.runMainLoopOnce();
-//  BOOST_CHECK(dataReceived == true);
-//  {
-//    std::lock_guard<std::mutex> lock(mutex);
-//    BOOST_CHECK_EQUAL(received.error(), 0);
-//    BOOST_CHECK_CLOSE(received.get_float(), expectedValue, 1e-6);
-//  }
+  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  auto lastExpectedUnsignedInt = expectedUnsignedInt;
+  expectedUnsignedInt = 2U;
+  expectedFloat = 2.42f;
+  DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR",
+                                                expectedUnsignedInt);
+  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR",
+                                         expectedFloat);
 
-//  // From now on, each consistent update should be received.
-//  // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
-//  std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
-//  for(size_t i = 0; i < 10; ++i) {
-//    referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-//    ++macroPulseNumber;
-//    expectedValue = 100 + i;
-//    if(sendMacroPulseFirst[i]) {
-//      DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-//    }
-//    else { // send the value first
-//      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
-//    }
+  referenceTestApplication.runMainLoopOnce();
 
-//    // nothing must be received, no consistent set yet
-//    dataReceived = false;
-//    referenceTestApplication.runMainLoopOnce();
-//    usleep(10000);
-//    BOOST_CHECK(dataReceived == false);
+  // Unsigned int value must not be updated because it has data matching exact
+  // FIXME How to test there actually happens no update?
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<unsigned int>(
+                         "//UINT/FROM_DEVICE_SCALAR") -
+                         lastExpectedUnsignedInt <
+                     1e-6);
 
-//    // now send the variable which has not been send yet
-//    if(sendMacroPulseFirst[i]) {
-//      DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
-//    }
-//    else {
-//      DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-//    }
-//    referenceTestApplication.runMainLoopOnce();
+  // Float value has to get the update even with version number mismatch
+  // because data matching is none
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>(
+                         "//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") -
+                         expectedFloat <
+                     1e-6);
 
-//    CHECK_WITH_TIMEOUT(dataReceived == true);
-//    {
-//      std::lock_guard<std::mutex> lock(mutex);
-//      BOOST_CHECK_EQUAL(received.error(), 0);
-//      BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
-//      auto time = appPVmanager->getProcessArray<uint32_t>("UINT/FROM_DEVICE_SCALAR")->getVersionNumber().getTime();
-//      auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
-//      auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
-//      BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
-//      BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
-//      BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
-//    }
-//  }
-
-//  dmsg_detach(&ea, tag);
+  // Another iteration, now back to consistent version number
+  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  ++macroPulseNumber;
+  DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR",
+                                       macroPulseNumber);
+  expectedFloat = 12.42f;
+  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR",
+                                         expectedFloat);
+  referenceTestApplication.runMainLoopOnce();
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<float>(
+                         "//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") -
+                         expectedFloat <
+                     1e-6);
 }
 
 /**********************************************************************************************************************/
