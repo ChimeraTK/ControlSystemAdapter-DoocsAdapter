@@ -394,6 +394,8 @@ namespace ChimeraTK {
         autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
         autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
         autoPropertyDescription->macroPulseNumberSource = getMacroPusleNumberSourceDefault(locationName);
+        autoPropertyDescription->dataMatching =
+            getDataMatchingDefault(locationName);
 
         addDescription(autoPropertyDescription, {processVariable});
       }
