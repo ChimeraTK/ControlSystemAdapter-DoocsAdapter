@@ -66,9 +66,13 @@ namespace ChimeraTK {
       // will be activated), but we have to if it is there. -> Abstraction,
       // please!
       if(this->get_histPointer()) {
+        // Set eventId
+        doocs::EventId eventId;
+        if(_macroPulseNumberSource) eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
+
         /*FIXME: The archiver also has a status code. Set it correctly.*/
         // The timestamp we give with set_and_archive is for the archiver only.
-        this->set_and_archive(data, sts_ok /*default*/, seconds, microseconds / 1000);
+        this->set_and_archive(data, ArchiveStatus::sts_ok, timestamp, eventId);
       }
       else {
         this->set_value(data);

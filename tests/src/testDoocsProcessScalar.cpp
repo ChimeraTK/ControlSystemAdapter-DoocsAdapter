@@ -81,24 +81,24 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest) {
   controlSystemFloat->accessData(0) = 0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<float, D_float> doocsScalar(NULL, "TO_DEVICE_FLOAT", controlSystemFloat, updater);
+  DoocsProcessScalar<float, D_float> doocsScalar(nullptr, "TO_DEVICE_FLOAT", controlSystemFloat, updater);
 
   BOOST_CHECK(set_doocs_value(doocsScalar, 12.125) == 0);
-  BOOST_CHECK(controlSystemFloat->accessData(0) == 12.125);
+  BOOST_CHECK_CLOSE(controlSystemFloat->accessData(0), 12.125, 0.00001);
 
   // receive on the device side and check that the value has arrived
   deviceFloat->readNonBlocking();
-  BOOST_CHECK(deviceFloat->accessData(0) == 12.125);
+  BOOST_CHECK_CLOSE(deviceFloat->accessData(0), 12.125, 0.00001);
 
   // check that the value() overloading is working by calling the function of
   // the base class (note: cast to a reference, otherwise inheritance/ virtual
   // functions calls do not work)
   BOOST_CHECK(set_doocs_value(static_cast<D_float&>(doocsScalar), -13.) == 0);
-  BOOST_CHECK(controlSystemFloat->accessData(0) == -13.);
+  BOOST_CHECK_CLOSE(controlSystemFloat->accessData(0), -13., 0.00001);
 
   // receive on the device side and check that the value has arrived
   deviceFloat->readNonBlocking();
-  BOOST_CHECK(deviceFloat->accessData(0) == -13.);
+  BOOST_CHECK_CLOSE(deviceFloat->accessData(0), -13., 0.00001);
 }
 
 BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
   controlSystemDouble->accessData(0) = 0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<double, D_double> doocsScalar(NULL, "TO_DEVICE_DOUBLE", controlSystemDouble, updater);
+  DoocsProcessScalar<double, D_double> doocsScalar(nullptr, "TO_DEVICE_DOUBLE", controlSystemDouble, updater);
 
   BOOST_CHECK(set_doocs_value(doocsScalar, 12.125) == 0);
   BOOST_CHECK(controlSystemDouble->accessData(0) == 12.125);
@@ -130,11 +130,11 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
   // the base class (note: cast to a reference, otherwise inheritance/ virtual
   // functions calls do not work)
   BOOST_CHECK(set_doocs_value(static_cast<D_double&>(doocsScalar), -13.) == 0);
-  BOOST_CHECK(controlSystemDouble->accessData(0) == -13.);
+  BOOST_CHECK_CLOSE(controlSystemDouble->accessData(0), -13., 0.00001);
 
   // receive on the device side and check that the value has arrived
   deviceDouble->readNonBlocking();
-  BOOST_CHECK(deviceDouble->accessData(0) == -13.);
+  BOOST_CHECK_CLOSE(deviceDouble->accessData(0), -13., 0.00001);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceIntegerTypeTest, T, integer_test_types) {
@@ -262,12 +262,12 @@ BOOST_AUTO_TEST_CASE(fromDeviceFloatTest) {
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();
 
-  BOOST_CHECK(controlSystemVariable->accessData(0) == 0.0);
+  BOOST_CHECK_CLOSE(controlSystemVariable->accessData(0), 0.0, 0.00001);
   BOOST_CHECK_CLOSE(doocsScalar.value(), 0.0, 1e-6);
 
   updater.update();
-  BOOST_CHECK(controlSystemVariable->accessData(0) == 12.125);
-  BOOST_CHECK(doocsScalar.value() == 12.125);
+  BOOST_CHECK_CLOSE(controlSystemVariable->accessData(0), 12.125, 0.00001);
+  BOOST_CHECK_CLOSE(doocsScalar.value(), 12.125, 0.00001);
 }
 
 BOOST_AUTO_TEST_CASE(fromDeviceDoubleTest) {
@@ -291,12 +291,12 @@ BOOST_AUTO_TEST_CASE(fromDeviceDoubleTest) {
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();
 
-  BOOST_CHECK(controlSystemVariable->accessData(0) == 0);
-  BOOST_CHECK(doocsScalar.value() == 0);
+  BOOST_CHECK_CLOSE(controlSystemVariable->accessData(0), 0, 0.00001);
+  BOOST_CHECK_CLOSE(doocsScalar.value(), 0, 0.00001);
 
   updater.update();
-  BOOST_CHECK(controlSystemVariable->accessData(0) == 12.125);
-  BOOST_CHECK(doocsScalar.value() == 12.125);
+  BOOST_CHECK_CLOSE(controlSystemVariable->accessData(0), 12.125, 0.00001);
+  BOOST_CHECK_CLOSE(doocsScalar.value(), 12.125, 0.00001);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
