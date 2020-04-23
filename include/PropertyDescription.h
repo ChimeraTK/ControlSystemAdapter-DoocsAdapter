@@ -107,19 +107,6 @@ namespace ChimeraTK {
     }
   };
 
-  //    struct SpectrumDescription:
-  //      public PropertyDescription, public PropertyAttributes{
-  //      float xStart;
-  //      float xIncrement;
-  //      ChimeraTK::RegisterPath mainSource;
-  //      ChimeraTK::RegisterPath xStartSource;
-  //      ChimeraTK::RegisterPath xIncrementSource;
-  //      SpectrumDescription(float start_=0.0, float increment_=1.0)
-  //      : start(start_), increment(increment_){}
-  //      bool operator==(SpectrumDescription const & other) const{
-  //        return start==other.start && increment==other.increment;
-  //      }
-  //    };
   /********************************************************************************************************************/
 
   struct XyDescription : public PropertyDescription, public PropertyAttributes {
@@ -144,6 +131,26 @@ namespace ChimeraTK {
 
     void print(std::ostream& os = std::cout) const override {
       os << "x: " << xSource << " y: " << ySource << " -> " << location << " / " << name << std::endl;
+    }
+  };
+
+  /********************************************************************************************************************/
+
+  struct IfffDescription : public PropertyDescription, public PropertyAttributes {
+    ChimeraTK::RegisterPath i1Source;
+    ChimeraTK::RegisterPath f1Source, f2Source, f3Source;
+
+    IfffDescription(ChimeraTK::RegisterPath const& i1Source_ = "", ChimeraTK::RegisterPath const& f1Source_ = "",
+        ChimeraTK::RegisterPath const& f2Source_ = "", ChimeraTK::RegisterPath const& f3Source_ = "",
+        std::string const& location_ = "", std::string const& name_ = "")
+    : PropertyDescription(location_, name_), i1Source(i1Source_), f1Source(f1Source_), f2Source(f2Source_),
+      f3Source(f3Source_) {}
+
+    const std::type_info& type() const override { return typeid(IfffDescription); }
+
+    void print(std::ostream& os = std::cout) const override {
+      os << "i1: " << i1Source << ", f1: " << f1Source << ", f2: " << f2Source << ", f3: " << f3Source << " -> "
+         << location << " / " << name << std::endl;
     }
   };
 

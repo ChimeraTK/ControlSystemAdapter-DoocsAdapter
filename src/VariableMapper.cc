@@ -77,6 +77,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_xy") {
         processXyNode(node, locationName);
       }
+      else if(node->get_name() == "D_ifff") {
+        processIfffNode(node, locationName);
+      }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": Unknown node '" + node->get_name() + "'");
@@ -315,6 +318,28 @@ namespace ChimeraTK {
 
     addDescription(xyDescription, {xAbsoluteSource, yAbsoluteSource});
   }
+  /********************************************************************************************************************/
+
+  void VariableMapper::processIfffNode(xmlpp::Node const* node, std::string& locationName) {
+    auto ifffXml = asXmlElement(node);
+
+    auto i1Source = getAttributeValue(ifffXml, "i1_source");
+    auto f1Source = getAttributeValue(ifffXml, "f1_source");
+    auto f2Source = getAttributeValue(ifffXml, "f2_source");
+    auto f3Source = getAttributeValue(ifffXml, "f3_source");
+    auto name = getAttributeValue(ifffXml, "name");
+    std::list<std::string> absoluteSources;
+    absoluteSources.push_back(getAbsoluteSource(i1Source, locationName));
+    absoluteSources.push_back(getAbsoluteSource(f1Source, locationName));
+    absoluteSources.push_back(getAbsoluteSource(f2Source, locationName));
+    absoluteSources.push_back(getAbsoluteSource(f3Source, locationName));
+
+    auto ifffDescription =
+        std::make_shared<IfffDescription>(i1Source, f1Source, f2Source, f3Source, locationName, name);
+    processHistoryAndWritableAttributes(ifffDescription, ifffXml, locationName);
+
+    addDescription(ifffDescription, absoluteSources);
+  }
 
   /********************************************************************************************************************/
 
@@ -394,8 +419,7 @@ namespace ChimeraTK {
         autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
         autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
         autoPropertyDescription->macroPulseNumberSource = getMacroPusleNumberSourceDefault(locationName);
-        autoPropertyDescription->dataMatching =
-            getDataMatchingDefault(locationName);
+        autoPropertyDescription->dataMatching = getDataMatchingDefault(locationName);
 
         addDescription(autoPropertyDescription, {processVariable});
       }
