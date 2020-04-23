@@ -71,10 +71,8 @@ std::string DoocsLauncher::rpc_no;
 BOOST_GLOBAL_FIXTURE(DoocsLauncher);
 
 /**********************************************************************************************************************/
-
 BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   std::cout << "testIfffUpdate" << std::endl;
-
 
   auto extractValue = []() -> IFFF {
     auto d_ifff = getDoocsProperty<D_ifff>(PROPERTY_NAME);
@@ -82,7 +80,9 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
     IFFF value; // a copy of the value. We don't want to hold the location lock longer than needed
 
     location->lock();
-    value = *(d_ifff->value()); // value returs a pointer which we only must dereference while holding the lock. So we make a copy
+    value = *(
+        d_ifff
+            ->value()); // value returs a pointer which we only must dereference while holding the lock. So we make a copy
     location->unlock();
     return value;
   };

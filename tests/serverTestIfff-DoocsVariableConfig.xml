@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+
+  <location name="CUSTOM">
+      <D_ifff name="IFFF"
+          i1_source="/INT/FROM_DEVICE_SCALAR"
+          f1_source="/FLOAT/FROM_DEVICE_SCALAR"
+          f2_source="/DOUBLE/FROM_DEVICE_SCALAR"
+          f3_source="/SHORT/FROM_DEVICE_SCALAR">
+      </D_ifff>
+  </location>
+
+  <import>/</import>
+
+</device_server>
