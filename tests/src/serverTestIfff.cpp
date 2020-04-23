@@ -87,9 +87,13 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
     return value;
   };
 
+  sleep(2); //outch
   auto value = extractValue();
   // FIXME put correct vales what to expect
-  BOOST_CHECK_CLOSE(value.f1_data, 123., 0.0001);
+  BOOST_CHECK_EQUAL(value.i1_data, 0.);
+  BOOST_CHECK_CLOSE(value.f1_data, 0., 0.0001);
+  BOOST_CHECK_CLOSE(value.f2_data, 0., 0.0001);
+  BOOST_CHECK_CLOSE(value.f3_data, 0., 0.0001);
 }
 
 /**********************************************************************************************************************/

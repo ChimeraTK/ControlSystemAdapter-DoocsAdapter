@@ -38,12 +38,13 @@ namespace ChimeraTK {
     // create the DOOCS property. Note: DOOCS_T is only used for scalar
     // properties, not for arrays!
     template<class T, class DOOCS_T>
-    typename boost::shared_ptr<D_fct> createDoocsScalar(AutoPropertyDescription const& propertyDescription,
-        DecoratorType decoratorType);
+    typename boost::shared_ptr<D_fct> createDoocsScalar(
+        AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
     /// @todo FIXME: use SpectrumDescription here
     boost::shared_ptr<D_fct> createDoocsSpectrum(SpectrumDescription const& spectrumDescription);
 
     boost::shared_ptr<D_fct> createXy(XyDescription const& xyDescription);
+    boost::shared_ptr<D_fct> createIfff(IfffDescription const& ifffDescription);
 
     boost::shared_ptr<D_fct> createDoocsArray(std::shared_ptr<AutoPropertyDescription> const& spectrumDescription);
 
@@ -60,8 +61,7 @@ namespace ChimeraTK {
   // specialisation for strings
   template<>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(
-      AutoPropertyDescription const& propertyDescription,
-      DecoratorType decoratorType);
+      AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
 
 } // namespace ChimeraTK
 

@@ -4,6 +4,7 @@
 #include "DoocsProcessScalar.h"
 #include "DoocsSpectrum.h"
 #include "DoocsXY.h"
+#include "DoocsIfff.h"
 #include "D_textUnifier.h"
 #include <d_fct.h>
 
@@ -257,6 +258,22 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  boost::shared_ptr<D_fct> DoocsPVFactory::createIfff(IfffDescription const& ifffDescription) {
+    auto i1ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.i1Source);
+    auto f1ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f1Source);
+    auto f2ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f2Source);
+    auto f3ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f3Source);
+
+    boost::shared_ptr<D_fct> doocsPV;
+    doocsPV.reset(new DoocsIfff(_eqFct, ifffDescription.name,
+        getDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
+        getDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
+        getDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
+        getDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
+
+    return doocsPV;
+  }
+
   static std::map<std::type_index, std::function<unsigned int(ProcessVariable&)>> castingMap{
       {typeid(uint8_t),
           [](auto& pv) { return dynamic_cast<ChimeraTK::NDRegisterAccessor<uint8_t>&>(pv).getNumberOfSamples(); }},
@@ -486,6 +503,9 @@ boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescript
   }
   else if(requestedType == typeid(XyDescription)) {
     return createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
+  }
+  else if(requestedType == typeid(IfffDescription)) {
+    return createIfff(*std::static_pointer_cast<IfffDescription>(propertyDescription));
   }
   else if(requestedType == typeid(AutoPropertyDescription)) {
     return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
