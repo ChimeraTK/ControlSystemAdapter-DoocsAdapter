@@ -12,7 +12,7 @@ namespace ChimeraTK {
   : D_ifff(eqFct, doocsPropertyName), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value) {
     auto registerSource = [&](const ChimeraTK::TransferElementAbstractor& var) {
       if(var.isReadable()) {
-        updater.addVariable(var, eqFct, std::bind(&DoocsIfff::updateValues, this, var.getId()));
+        updater.addVariable(var, eqFct, std::bind(&DoocsIfff::updateAppToDoocs, this, var.getId()));
         _consistencyGroup.add(var);
       }
     };
@@ -20,9 +20,15 @@ namespace ChimeraTK {
     registerSource(OneDRegisterAccessor<float>(_f1Value));
     registerSource(OneDRegisterAccessor<float>(_f2Value));
     registerSource(OneDRegisterAccessor<float>(_f3Value));
+
+    // FIXME: get this from a constructor parameter isReadOnly so this can be turned off
+    isWriteable = true;
+    if(!_i1Value->isWriteable() || !_f1Value->isWriteable() || !_f2Value->isWriteable() || !_f3Value->isWriteable()) {
+      isWriteable = false;
+    }
   }
 
-  void DoocsIfff::updateValues(TransferElementID& elementId) {
+  void DoocsIfff::updateAppToDoocs(TransferElementID& elementId) {
     if(_consistencyGroup.update(elementId)) {
       if(_i1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
           _f1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
@@ -58,4 +64,33 @@ namespace ChimeraTK {
       }
     }
   }
+
+  void DoocsIfff::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
+    D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
+    sendToApplication();
+  }
+
+  void DoocsIfff::auto_init(void) {
+    D_ifff::auto_init(); // inherited functionality fill the local doocs buffer
+    if(isWriteable) {
+      sendToApplication();
+    }
+  }
+
+  void DoocsIfff::sendToApplication() {
+    IFFF* ifff = value();
+
+    _i1Value->accessData(0) = ifff->i1_data;
+    _f1Value->accessData(0) = ifff->f1_data;
+    _f2Value->accessData(0) = ifff->f2_data;
+    _f3Value->accessData(0) = ifff->f3_data;
+
+    // write all with the same version number
+    VersionNumber v = {};
+    _i1Value->write(v);
+    _f1Value->write(v);
+    _f2Value->write(v);
+    _f3Value->write(v);
+  }
+
 } // namespace ChimeraTK

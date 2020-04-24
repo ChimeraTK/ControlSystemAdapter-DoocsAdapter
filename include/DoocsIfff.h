@@ -27,13 +27,19 @@ namespace ChimeraTK {
         boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
         boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater);
 
+    void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
+    void auto_init(void) override;
+
    protected:
-    void updateValues(TransferElementID& elementId);
+    void updateAppToDoocs(TransferElementID& elementId);
+    void sendToApplication();
 
     DataConsistencyGroup _consistencyGroup;
     boost::shared_ptr<NDRegisterAccessor<int>> _i1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f2Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f3Value;
+
+    bool isWriteable;
   };
 } // namespace ChimeraTK
