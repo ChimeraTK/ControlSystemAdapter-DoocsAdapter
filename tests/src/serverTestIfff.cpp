@@ -87,13 +87,53 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
     return value;
   };
 
-  sleep(2); //outch
-  auto value = extractValue();
-  // FIXME put correct vales what to expect
-  BOOST_CHECK_EQUAL(value.i1_data, 0.);
-  BOOST_CHECK_CLOSE(value.f1_data, 0., 0.0001);
-  BOOST_CHECK_CLOSE(value.f2_data, 0., 0.0001);
-  BOOST_CHECK_CLOSE(value.f3_data, 0., 0.0001);
+  auto writeIfff = [&](IFFF ifff) {
+    // we have to use the names if the correct variables
+    referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+    DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", ifff.i1_data);
+    DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_SCALAR", ifff.f1_data);
+    DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_SCALAR", static_cast<double>(ifff.f2_data));
+    DoocsServerTestHelper::doocsSet<int>("//SHORT/TO_DEVICE_SCALAR", static_cast<int>(ifff.f3_data));
+    referenceTestApplication.runMainLoopOnce();
+  };
+
+  // we used SHORT/FROM_DEVICE_SCALAR for the f3_value, so only values that fit in int16_t can be used for it, no franctional numbers
+  IFFF referenceIfff;
+  referenceIfff.i1_data = 123;
+  referenceIfff.f1_data = 0.123f;
+  referenceIfff.f2_data = 12.3f;
+  referenceIfff.f3_data = -123;
+
+  writeIfff(referenceIfff);
+
+  IFFF resultIfff;
+  checkWithTimeout<int>(
+      [&]() -> int {
+        resultIfff = extractValue();
+        return resultIfff.i1_data;
+      },
+      referenceIfff.i1_data);
+  BOOST_CHECK_CLOSE(resultIfff.f1_data, referenceIfff.f1_data, 0.0001);
+  BOOST_CHECK_CLOSE(resultIfff.f2_data, referenceIfff.f2_data, 0.0001);
+  BOOST_CHECK_CLOSE(resultIfff.f3_data, referenceIfff.f3_data, 0.0001);
+
+  // change the values
+  referenceIfff.i1_data = 234;
+  referenceIfff.f1_data = 0.234f;
+  referenceIfff.f2_data = 2.34f;
+  referenceIfff.f3_data = -234;
+
+  writeIfff(referenceIfff);
+
+  checkWithTimeout<int>(
+      [&]() -> int {
+        resultIfff = extractValue();
+        return resultIfff.i1_data;
+      },
+      referenceIfff.i1_data);
+  BOOST_CHECK_CLOSE(resultIfff.f1_data, referenceIfff.f1_data, 0.0001);
+  BOOST_CHECK_CLOSE(resultIfff.f2_data, referenceIfff.f2_data, 0.0001);
+  BOOST_CHECK_CLOSE(resultIfff.f3_data, referenceIfff.f3_data, 0.0001);
 }
 
 /**********************************************************************************************************************/
