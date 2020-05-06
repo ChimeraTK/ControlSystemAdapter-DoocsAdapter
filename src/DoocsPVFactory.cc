@@ -271,6 +271,26 @@ namespace ChimeraTK {
         getDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
         getDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
 
+    // set specified data_matching mode
+    boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->_consistencyGroup.setMatchingMode(ifffDescription.dataMatching);
+
+    // set macro pulse number source, if configured
+    if(ifffDescription.macroPulseNumberSource.size() > 0) {
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(ifffDescription.macroPulseNumberSource);
+      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+            "' is used as a macro pulse number source, but it has an array "
+            "length of " +
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
+      }
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+            "' is used as a macro pulse number source, but it is not readable.");
+      }
+      boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
+    }
+
     return doocsPV;
   }
 

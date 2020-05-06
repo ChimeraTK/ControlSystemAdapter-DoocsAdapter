@@ -29,17 +29,23 @@ namespace ChimeraTK {
 
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
     void auto_init(void) override;
-
+    
+    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
+    DataConsistencyGroup _consistencyGroup;
+    
    protected:
     void updateAppToDoocs(TransferElementID& elementId);
     void sendToApplication();
+    void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
 
-    DataConsistencyGroup _consistencyGroup;
     boost::shared_ptr<NDRegisterAccessor<int>> _i1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f2Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f3Value;
+    DoocsUpdater& _updater;
+    EqFct* _eqFct;
 
     bool isWriteable;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
   };
 } // namespace ChimeraTK
