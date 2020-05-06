@@ -31,6 +31,7 @@ namespace ChimeraTK {
     void auto_init(void) override;
     
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
+    void publishZeroMQ() { _publishZMQ = true; }
     DataConsistencyGroup _consistencyGroup;
     
    protected:
@@ -45,6 +46,7 @@ namespace ChimeraTK {
     boost::shared_ptr<NDRegisterAccessor<float>> _f3Value;
     DoocsUpdater& _updater;
     EqFct* _eqFct;
+    bool _publishZMQ{false};
 
     bool isWriteable;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;

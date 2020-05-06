@@ -60,9 +60,7 @@ namespace ChimeraTK {
     ifff.f3_data = _f3Value->accessData(0);
 
     doocs::Timestamp timestamp(_i1Value->getVersionNumber().getTime());
-    auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
-    auto seconds = sinceEpoch.seconds;
-    auto microseconds = sinceEpoch.microseconds;
+
     // update global time stamp of DOOCS, but only if our time stamp is newer
     if(get_global_timestamp() < timestamp) {
       set_global_timestamp(timestamp);
@@ -82,8 +80,26 @@ namespace ChimeraTK {
       this->set_value(&ifff);
     }
 
+    auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
+    auto seconds = sinceEpoch.seconds;
+    auto microseconds = sinceEpoch.microseconds;
+
     this->set_tmstmp(seconds, microseconds);
     if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
+
+    if(_publishZMQ) {
+      dmsg_info info;
+      memset(&info, 0, sizeof(info));
+      info.sec = seconds;
+      info.usec = microseconds;
+      if(_macroPulseNumberSource != nullptr) {
+        info.ident = _macroPulseNumberSource->accessData(0);
+      }
+      else {
+        info.ident = 0;
+      }
+      this->send(&info);
+    }
   }
 
   void DoocsIfff::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
