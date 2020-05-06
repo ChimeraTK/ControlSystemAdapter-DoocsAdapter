@@ -37,6 +37,7 @@ namespace ChimeraTK {
     void updateAppToDoocs(TransferElementID& elementId);
     void sendToApplication();
     void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
+    void registerIfffSources();
 
     boost::shared_ptr<NDRegisterAccessor<int>> _i1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f1Value;

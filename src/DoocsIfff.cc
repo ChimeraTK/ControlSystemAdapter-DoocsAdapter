@@ -12,26 +12,30 @@ namespace ChimeraTK {
       boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
   : D_ifff(eqFct, doocsPropertyName), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value),
-    _updater(updater), _eqFct(eqFct) {
-    auto registerSource = [&](const ChimeraTK::TransferElementAbstractor& var) {
-      if(var.isReadable()) {
-        updater.addVariable(var, eqFct, std::bind(&DoocsIfff::updateAppToDoocs, this, var.getId()));
-        _consistencyGroup.add(var);
-      }
-    };
+    _updater(updater), _eqFct(eqFct), isWriteable(_i1Value->isWriteable() && _f1Value->isWriteable() &&
+                                          _f2Value->isWriteable() && _f3Value->isWriteable()) {
+    registerIfffSources();
+  }
 
+  // Constructor without history
+  DoocsIfff::DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct,
+      boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
+      boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
+      boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
+      boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
+  : D_ifff(doocsPropertyName, eqFct), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value),
+    _updater(updater), _eqFct(eqFct), isWriteable(_i1Value->isWriteable() && _f1Value->isWriteable() &&
+                                          _f2Value->isWriteable() && _f3Value->isWriteable()) {
+    registerIfffSources();
+  }
+
+  void DoocsIfff::registerIfffSources() {
     // FIXME: What if not all 4 are readable? is it still valid to add
     // all to a consistency group then?
-    registerSource(OneDRegisterAccessor<int>(_i1Value));
-    registerSource(OneDRegisterAccessor<float>(_f1Value));
-    registerSource(OneDRegisterAccessor<float>(_f2Value));
-    registerSource(OneDRegisterAccessor<float>(_f3Value));
-
-    // FIXME: get this from a constructor parameter isReadOnly so this can be turned off
-    isWriteable = true;
-    if(!_i1Value->isWriteable() || !_f1Value->isWriteable() || !_f2Value->isWriteable() || !_f3Value->isWriteable()) {
-      isWriteable = false;
-    }
+    registerVariable(OneDRegisterAccessor<int>(_i1Value));
+    registerVariable(OneDRegisterAccessor<float>(_f1Value));
+    registerVariable(OneDRegisterAccessor<float>(_f2Value));
+    registerVariable(OneDRegisterAccessor<float>(_f3Value));
   }
 
   void DoocsIfff::updateAppToDoocs(TransferElementID& elementId) {
