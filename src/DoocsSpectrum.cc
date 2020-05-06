@@ -80,7 +80,7 @@ namespace ChimeraTK {
     }
   }
 
-  void DoocsSpectrum::write(std::fstream& fptr) {
+  void DoocsSpectrum::write(std::ostream& s) {
     // DOOCS is normally keeping the location lock until everything is written for that location: all D_spectrum and all
     // other properties. This can take too long (like seconds), which leads to noticable freezes of the UI. As a
     // work-around we release the lock here, wait some time and acquire the lock again. Since this happens in a separate
@@ -89,7 +89,7 @@ namespace ChimeraTK {
     usleep(1000);
     efp_->lock();
     if(!modified) return;
-    D_spectrum::write(fptr);
+    D_spectrum::write(s);
   }
 
   void DoocsSpectrum::updateDoocsBuffer(TransferElementID transferElementId) {

@@ -73,7 +73,7 @@ namespace ChimeraTK {
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
 
-    void write(std::fstream& fptr) override;
+    void write(std::ostream& s) override;
 
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
