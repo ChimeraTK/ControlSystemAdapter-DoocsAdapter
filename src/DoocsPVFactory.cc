@@ -291,6 +291,9 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
     }
 
+    if(ifffDescription.publishZMQ) {
+      boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->publishZeroMQ();
+    }
     return doocsPV;
   }
 
