@@ -5,6 +5,7 @@
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 #include <doocs/EventId.h>
+#include <functional>
 
 namespace ChimeraTK {
   DoocsIfff::DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
@@ -17,6 +18,9 @@ namespace ChimeraTK {
                                           _f2Value->isWriteable() && _f3Value->isWriteable()) {
     checkSourceConsistency();
     registerIfffSources();
+    if(_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly()) {
+      this->set_ro_access();
+    }
   }
 
   // Constructor without history
@@ -30,18 +34,19 @@ namespace ChimeraTK {
                                           _f2Value->isWriteable() && _f3Value->isWriteable()) {
     checkSourceConsistency();
     registerIfffSources();
-  }
-  void DoocsIfff::checkSourceConsistency() {
-    bool areAllSourcesReadable =
-        (_i1Value->isReadable() && _f1Value->isReadable() && _f2Value->isReadable() && _f3Value->isReadable());
-    if(not areAllSourcesReadable) {
-      ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: not all IFFF sources are readable");
+    if(_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly()) {
+      this->set_ro_access();
     }
+  }
 
+  void DoocsIfff::checkSourceConsistency() {
     bool areAllSourcesWritable =
         (_i1Value->isWriteable() && _f1Value->isWriteable() && _f2Value->isWriteable() && _f3Value->isWriteable());
-    if(not areAllSourcesWritable) {
-      ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: not all IFFF sources are writable");
+    bool areAllSourcesReadOnly =
+        (_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly());
+
+    if(!areAllSourcesWritable && !areAllSourcesReadOnly) {
+      ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: some IFFF sources are not writable");
     }
   }
 
