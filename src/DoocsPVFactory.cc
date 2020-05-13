@@ -294,6 +294,10 @@ namespace ChimeraTK {
     if(ifffDescription.publishZMQ) {
       boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->publishZeroMQ();
     }
+
+    if(not ifffDescription.isWriteable){
+      doocsPV->set_ro_access();
+    }
     return doocsPV;
   }
 
