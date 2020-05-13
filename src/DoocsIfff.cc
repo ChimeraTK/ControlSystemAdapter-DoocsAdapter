@@ -1,6 +1,7 @@
 #include "DoocsIfff.h"
 #include "DoocsUpdater.h"
 
+#include <ChimeraTK/Exception.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 #include <doocs/EventId.h>
@@ -14,6 +15,7 @@ namespace ChimeraTK {
   : D_ifff(eqFct, doocsPropertyName), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value),
     _updater(updater), _eqFct(eqFct), isWriteable(_i1Value->isWriteable() && _f1Value->isWriteable() &&
                                           _f2Value->isWriteable() && _f3Value->isWriteable()) {
+    checkSourceConsistency();
     registerIfffSources();
   }
 
@@ -26,12 +28,24 @@ namespace ChimeraTK {
   : D_ifff(doocsPropertyName, eqFct), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value),
     _updater(updater), _eqFct(eqFct), isWriteable(_i1Value->isWriteable() && _f1Value->isWriteable() &&
                                           _f2Value->isWriteable() && _f3Value->isWriteable()) {
+    checkSourceConsistency();
     registerIfffSources();
+  }
+  void DoocsIfff::checkSourceConsistency() {
+    bool areAllSourcesReadable =
+        (_i1Value->isReadable() && _f1Value->isReadable() && _f2Value->isReadable() && _f3Value->isReadable());
+    if(not areAllSourcesReadable) {
+      ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: not all IFFF sources are readable");
+    }
+
+    bool areAllSourcesWritable =
+        (_i1Value->isWriteable() && _f1Value->isWriteable() && _f2Value->isWriteable() && _f3Value->isWriteable());
+    if(not areAllSourcesWritable) {
+      ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: not all IFFF sources are writable");
+    }
   }
 
   void DoocsIfff::registerIfffSources() {
-    // FIXME: What if not all 4 are readable? is it still valid to add
-    // all to a consistency group then?
     registerVariable(OneDRegisterAccessor<int>(_i1Value));
     registerVariable(OneDRegisterAccessor<float>(_f1Value));
     registerVariable(OneDRegisterAccessor<float>(_f2Value));
