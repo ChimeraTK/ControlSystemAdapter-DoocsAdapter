@@ -58,6 +58,13 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
     GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
+
+    // NOTE: There is a buffer overflow problem here; The loop sets
+    // valued too fast for the doocsadapter to consume. The sleep is a
+    // workaround to provide the doocs adapter time to digest set
+    // values. A proper fix is for the referenceTestApplication to do
+    // the rate limiting internally.
+    sleep(1);
   }
 
   // read out the 10 updates from the buffers
@@ -88,6 +95,12 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
     GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
+    // NOTE: There is a buffer overflow problem here; The loop sets
+    // valued too fast for the doocsadapter to consume. The sleep is a
+    // workaround to provide the doocs adapter time to digest set
+    // values. A proper fix is for the referenceTestApplication to do
+    // the rate limiting internally.
+    sleep(1);
   }
 
   // read out the 32 updates from the buffers
