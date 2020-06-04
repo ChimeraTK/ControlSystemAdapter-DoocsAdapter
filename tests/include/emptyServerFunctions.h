@@ -13,7 +13,6 @@
 
 // LCOV_EXCL_START
 
-const char* object_name = "empty";
 EqFct* eq_create(int /*eq_code*/, void*) {
   return NULL;
 }
