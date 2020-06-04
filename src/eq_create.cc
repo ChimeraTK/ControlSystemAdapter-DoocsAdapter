@@ -10,12 +10,18 @@ static char const* XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
 
 static ChimeraTK::DoocsAdapter doocsAdapter;
 
+extern int eq_server(int, char**);
+
+int main(int argc, char* argv[]) {
+  object_name = ChimeraTK::ApplicationBase::getInstance().getName().c_str();
+  return eq_server(argc, argv);
+}
+
 /* eq_init_prolog is called before the locations are created, i.e. before the
  * first call to eq_create. We initialise the application, i.e. all process
  * variables are created in this function. */
 void eq_init_prolog() {
   // set the DOOCS server name to the application name
-  object_name = ChimeraTK::ApplicationBase::getInstance().getName().c_str();
   // Create static instances for all applications cores. They must not have
   // overlapping process variable names ("location/protery" must be unique).
   ChimeraTK::ApplicationBase::getInstance().setPVManager(doocsAdapter.getDevicePVManager());
