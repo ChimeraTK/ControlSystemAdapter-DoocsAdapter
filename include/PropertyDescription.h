@@ -40,6 +40,7 @@ namespace ChimeraTK {
     std::string location;
     std::string name;
     PropertyDescription(std::string location_ = "", std::string name_ = "") : location(location_), name(name_) {}
+    virtual ~PropertyDescription() {}
     virtual bool operator==(PropertyDescription const& other) const {
       return location == other.location && name == other.name;
     }
@@ -68,8 +69,8 @@ namespace ChimeraTK {
         return false;
       }
     }
-    virtual const std::type_info& type() const override { return typeid(AutoPropertyDescription); }
-    virtual void print(std::ostream& os = std::cout) const {
+    const std::type_info& type() const override { return typeid(AutoPropertyDescription); }
+    void print(std::ostream& os = std::cout) const override {
       os << source << " -> " << location << " / " << name << std::endl;
     }
 
@@ -100,8 +101,8 @@ namespace ChimeraTK {
     : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_), start(0),
       increment(1.0), numberOfBuffers(1) {}
 
-    virtual const std::type_info& type() const { return typeid(SpectrumDescription); }
-    virtual void print(std::ostream& os = std::cout) const {
+    const std::type_info& type() const override { return typeid(SpectrumDescription); }
+    void print(std::ostream& os = std::cout) const override {
       os << source << " -> " << location << " / " << name << " (startSource = " << startSource
          << ", incrementSource = " << incrementSource << ", numberOfBuffers = " << numberOfBuffers << ")" << std::endl;
     }
