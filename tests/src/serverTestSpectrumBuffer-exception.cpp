@@ -1,8 +1,10 @@
-#define BOOST_TEST_MODULE serverTestSpectrumBuffer
+#define BOOST_TEST_MODULE serverTestSpectrumBuffer - exception
 #include <boost/test/included/unit_test.hpp>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+extern const char* object_name;
+
 #include <eq_client.h>
 #include <random>
 #include <thread>
@@ -35,6 +37,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // staring the server should cause the exception
   try {
+    object_name = "serverTestSpectrumBuffer-exception";
     eq_server(
         boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
     BOOST_ERROR("Exception expected");

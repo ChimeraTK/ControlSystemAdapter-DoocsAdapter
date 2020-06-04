@@ -14,28 +14,36 @@ static const int ACCESS_RW = 1; // read/write
     GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
                                                                                                                        \
     ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};                    \
-    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
-        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
+    ThreadedDoocsServer server{framework::master_test_suite().p_name.value,                                            \
+        framework::master_test_suite().p_name.value + ".conf", framework::master_test_suite().argc,                    \
+        framework::master_test_suite().argv};                                                                          \
   };                                                                                                                   \
                                                                                                                        \
   BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
-#define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION                                                               \
+#define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(codeBlockStartUp)                                   \
   struct GlobalFixture {                                                                                               \
     GlobalFixture() {                                                                                                  \
+      rpcNo = server.rpcNo();                                                                                          \
       ChimeraTK::DoocsAdapter::waitUntilInitialised();                                                                 \
       GlobalFixture::referenceTestApplication.initialiseManualLoopControl();                                           \
+      codeBlockStartUp                                                                                                 \
     }                                                                                                                  \
                                                                                                                        \
     ~GlobalFixture() { GlobalFixture::referenceTestApplication.releaseManualLoopControl(); }                           \
                                                                                                                        \
     static ReferenceTestApplication referenceTestApplication;                                                          \
-    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
-        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
+    static std::string rpcNo;                                                                                          \
+    ThreadedDoocsServer server{framework::master_test_suite().p_name.value,                                            \
+        framework::master_test_suite().p_name.value + ".conf", framework::master_test_suite().argc,                    \
+        framework::master_test_suite().argv};                                                                          \
   };                                                                                                                   \
                                                                                                                        \
   ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
+  std::string GlobalFixture::rpcNo;                                                                                    \
   BOOST_GLOBAL_FIXTURE(GlobalFixture);
+
+#define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE({})
 
 template<class DOOCS_T>
 void checkHistory(DOOCS_T* property, bool expected_has_history) {

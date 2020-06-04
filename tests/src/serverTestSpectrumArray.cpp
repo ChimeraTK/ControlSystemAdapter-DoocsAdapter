@@ -5,6 +5,8 @@
 #include "serverBasedTestTools.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
 using namespace boost::unit_test_framework;
@@ -17,8 +19,8 @@ struct GlobalFixture {
   ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
 
   static ReferenceTestApplication referenceTestApplication;
-  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf", framework::master_test_suite().argc,
-      framework::master_test_suite().argv};
+  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE), BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf",
+      framework::master_test_suite().argc, framework::master_test_suite().argv};
 };
 ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
 

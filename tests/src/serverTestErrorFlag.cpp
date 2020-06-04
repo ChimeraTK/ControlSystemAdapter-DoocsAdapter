@@ -3,6 +3,8 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 

@@ -5,36 +5,15 @@
 #include "serverBasedTestTools.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
 using namespace boost::unit_test_framework;
 using namespace boost::unit_test;
 using namespace ChimeraTK;
 
-struct GlobalFixture {
-  GlobalFixture() {
-    rpcNo = server.rpcNo();
-    // wait until server has started (both the update thread and the rpc thread)
-    EqCall eq;
-    EqAdr ea;
-    EqData src, dst;
-    ea.adr("doocs://localhost:" + server.rpcNo() + "/F/D/INT/TO_DEVICE_SCALAR");
-    std::cout << "doocs://localhost:" + server.rpcNo() + "/F/D/INT/TO_DEVICE_SCALAR" << std::endl;
-    while(eq.get(&ea, &src, &dst)) usleep(100000);
-    referenceTestApplication.initialiseManualLoopControl();
-  }
-
-  ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
-
-  static ReferenceTestApplication referenceTestApplication;
-  static std::string rpcNo;
-  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf", framework::master_test_suite().argc,
-      framework::master_test_suite().argv};
-};
-ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
-std::string GlobalFixture::rpcNo;
-
-BOOST_GLOBAL_FIXTURE(GlobalFixture);
+DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 /**********************************************************************************************************************/
 

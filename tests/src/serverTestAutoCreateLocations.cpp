@@ -10,6 +10,8 @@
 #include "DoocsAdapter.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <thread>
 
@@ -26,7 +28,7 @@ struct GlobalFixture {
   }
 
   ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};
-  ThreadedDoocsServer server{{}, 0, nullptr, false};
+  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE), {}, 0, nullptr, false};
 };
 
 BOOST_GLOBAL_FIXTURE(GlobalFixture);

@@ -1,8 +1,11 @@
-#define BOOST_TEST_MODULE servertestZeroMQ
+#define BOOST_TEST_MODULE serverTestZeroMQ
 #include <boost/test/included/unit_test.hpp>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+extern const char* object_name;
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+
 #include <eq_client.h>
 #include <random>
 #include <thread>
@@ -13,74 +16,19 @@
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
-static ReferenceTestApplication referenceTestApplication("serverTestZeroMQ");
-
-/**********************************************************************************************************************/
-
-extern int eq_server(int, char**);
-
-struct DoocsLauncher {
-  DoocsLauncher() {
-    // choose random RPC number
-    std::random_device rd;
-    std::uniform_int_distribution<int> dist(620000000, 999999999);
-    rpc_no = std::to_string(dist(rd));
-    // update config file with the RPC number
-    std::string command = "sed -i serverTestZeroMQ.conf -e "
-                          "'s/^SVR.RPC_NUMBER:.*$/SVR.RPC_NUMBER: " +
-        rpc_no + "/'";
-    auto rc = std::system(command.c_str());
-    (void)rc;
-
-    // start the server
-    doocsServerThread = std::thread(eq_server, boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv);
-    // wait until server has started (both the update thread and the rpc thread)
-    EqCall eq;
-    EqAdr ea;
-    EqData src, dst;
-    ea.adr("doocs://localhost:" + rpc_no + "/F/D/UINT/FROM_DEVICE_SCALAR");
-    while(eq.get(&ea, &src, &dst)) usleep(100000);
-    dmsg_start();
-    referenceTestApplication.initialiseManualLoopControl();
-  }
-
-  /**
- * @brief For compatibility with older DOOCS versions declare our own eq_exit
- *
- * Can be removed once a new doocs server version is released.
- */
-  void eq_exit() {
-    auto nativeHandle = doocsServerThread.native_handle();
-    if(nativeHandle != 0) pthread_kill(nativeHandle, SIGTERM);
-  }
-
-  ~DoocsLauncher() {
-    referenceTestApplication.releaseManualLoopControl();
-    eq_exit();
-    doocsServerThread.join();
-  }
-
-  std::thread doocsServerThread;
-  static std::string rpc_no;
-};
-std::string DoocsLauncher::rpc_no;
-
-/**********************************************************************************************************************/
+DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(dmsg_start();)
 
 static std::atomic<bool> dataReceived;
 static EqData received;
 static dmsg_info_t receivedInfo;
 static std::mutex mutex;
 
-BOOST_GLOBAL_FIXTURE(DoocsLauncher);
-
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testScalar) {
   std::cout << "testScalar" << std::endl;
 
-  auto appPVmanager = referenceTestApplication.getPVManager();
+  auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
   /// Note: The data is processed by the ReferenceTestApplication in the order
   /// of the types as listed in the HolderMap of the ReferenceTestApplication.
@@ -89,7 +37,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
   EqData dst;
   EqAdr ea;
-  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_SCALAR");
+  ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_SCALAR");
   dmsg_t tag;
   int err = dmsg_attach(&ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
@@ -108,7 +56,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   // Everything from now on will get the same version number, until we manually set a new one.
   //ChimeraTK::VersionNumber unusedVersion;
   //std::cout << "unusedVersion " << std::string(unusedVersion) << std::endl;
-  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   //std::cout << "version number now is " << std::string(referenceTestApplication.versionNumber.value_or(unusedVersion)) << std::endl;
 
   int macroPulseNumber = 12345;
@@ -125,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   while(!dataReceived) {
     // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and running
     DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     // FIXME: This timeout is essential so everything has been received and the next
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
@@ -143,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
-    referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+    GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     ++macroPulseNumber;
     expectedValue = 100 + i;
     if(sendMacroPulseFirst[i]) {
@@ -155,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
     // nothing must be received, no consistent set yet
     dataReceived = false;
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     usleep(10000);
     BOOST_CHECK(dataReceived == false);
 
@@ -166,7 +114,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
@@ -190,11 +138,11 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 BOOST_AUTO_TEST_CASE(testArray) {
   std::cout << "testArray" << std::endl;
 
-  auto appPVmanager = referenceTestApplication.getPVManager();
+  auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
   EqData dst;
   EqAdr ea;
-  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/UINT/FROM_DEVICE_ARRAY");
+  ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
   int err = dmsg_attach(&ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
@@ -209,7 +157,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
   // Add additional delay for the ZMQ system to come up
   usleep(2000000);
 
-  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   int macroPulseNumber = 99999;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
@@ -222,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
   dataReceived = false;
   while(!dataReceived) {
     DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     // FIXME: This timeout is essential so everything has been received and the next
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
@@ -241,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
-    referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+    GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     --macroPulseNumber;
     expectedArrayValue[1] = 100 + i;
     if(sendMacroPulseFirst[i]) {
@@ -253,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
     // nothing must be received, no consistent set yet
     dataReceived = false;
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     usleep(10000);
     BOOST_CHECK(dataReceived == false);
 
@@ -264,7 +212,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
     else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
       std::lock_guard<std::mutex> lock(mutex);
@@ -288,11 +236,11 @@ BOOST_AUTO_TEST_CASE(testArray) {
 BOOST_AUTO_TEST_CASE(testSpectrum) {
   std::cout << "testSpectrum" << std::endl;
 
-  auto appPVmanager = referenceTestApplication.getPVManager();
+  auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
   EqData dst;
   EqAdr ea;
-  ea.adr("doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
+  ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
   int err = dmsg_attach(&ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
@@ -307,7 +255,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   // Add additional delay for the ZMQ system to come up
   usleep(2000000);
 
-  referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   int macroPulseNumber = -100;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
@@ -320,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   dataReceived = false;
   while(!dataReceived) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     // FIXME: This timeout is essential so everything has been received and the next
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
@@ -338,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
   for(size_t i = 0; i < 10; ++i) {
-    referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+    GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     macroPulseNumber *= -2;
     expectedFloatArrayValue[1] = 100 + i;
     if(sendMacroPulseFirst[i]) {
@@ -350,7 +298,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
     // nothing must be received, no consistent set yet
     dataReceived = false;
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     usleep(10000);
     BOOST_CHECK(dataReceived == false);
 
@@ -361,7 +309,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
-    referenceTestApplication.runMainLoopOnce();
+    GlobalFixture::referenceTestApplication.runMainLoopOnce();
     CHECK_WITH_TIMEOUT(dataReceived == true);
     {
       std::lock_guard<std::mutex> lock(mutex);
