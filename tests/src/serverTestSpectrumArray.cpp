@@ -19,8 +19,8 @@ struct GlobalFixture {
   ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
 
   static ReferenceTestApplication referenceTestApplication;
-  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE), BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf",
-      framework::master_test_suite().argc, framework::master_test_suite().argv};
+  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf", framework::master_test_suite().argc,
+      framework::master_test_suite().argv};
 };
 ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
 

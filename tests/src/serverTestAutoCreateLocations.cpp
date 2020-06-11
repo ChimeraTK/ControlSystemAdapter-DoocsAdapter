@@ -19,6 +19,12 @@ using namespace boost::unit_test;
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
+struct InternalTestServer : public ThreadedDoocsServer {
+  InternalTestServer(const std::string& serverName) : ThreadedDoocsServer({}, 0, nullptr, false) {
+    _serverName = serverName;
+  }
+};
+
 struct GlobalFixture {
   GlobalFixture() {
     boost::filesystem::copy_file(framework::master_test_suite().p_name.value + ".template.conf",
@@ -28,7 +34,7 @@ struct GlobalFixture {
   }
 
   ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};
-  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE), {}, 0, nullptr, false};
+  InternalTestServer server{framework::master_test_suite().p_name.value};
 };
 
 BOOST_GLOBAL_FIXTURE(GlobalFixture);

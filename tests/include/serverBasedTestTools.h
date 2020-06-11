@@ -14,9 +14,8 @@ static const int ACCESS_RW = 1; // read/write
     GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
                                                                                                                        \
     ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};                    \
-    ThreadedDoocsServer server{framework::master_test_suite().p_name.value,                                            \
-        framework::master_test_suite().p_name.value + ".conf", framework::master_test_suite().argc,                    \
-        framework::master_test_suite().argv};                                                                          \
+    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
+        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
   };                                                                                                                   \
                                                                                                                        \
   BOOST_GLOBAL_FIXTURE(GlobalFixture);
@@ -34,9 +33,8 @@ static const int ACCESS_RW = 1; // read/write
                                                                                                                        \
     static ReferenceTestApplication referenceTestApplication;                                                          \
     static std::string rpcNo;                                                                                          \
-    ThreadedDoocsServer server{framework::master_test_suite().p_name.value,                                            \
-        framework::master_test_suite().p_name.value + ".conf", framework::master_test_suite().argc,                    \
-        framework::master_test_suite().argv};                                                                          \
+    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
+        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
   };                                                                                                                   \
                                                                                                                        \
   ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
