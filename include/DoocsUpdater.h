@@ -1,6 +1,7 @@
 #ifndef __DOOCS_UPDATER_H__
 #define __DOOCS_UPDATER_H__
 
+#include <ChimeraTK/TransferElementAbstractor.h>
 #include <ChimeraTK/TransferElement.h>
 #include <boost/noncopyable.hpp>
 #include <eq_fct.h>
