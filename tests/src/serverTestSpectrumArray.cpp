@@ -24,7 +24,11 @@ struct GlobalFixture {
 };
 ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
 
+#if defined(BOOST_FIXTURE_NEEDS_SEMICOLON)
 BOOST_GLOBAL_FIXTURE(GlobalFixture);
+#else
+BOOST_GLOBAL_FIXTURE(GlobalFixture)
+#endif
 
 // the array must have testStartValue+i at index i.
 template<class T>

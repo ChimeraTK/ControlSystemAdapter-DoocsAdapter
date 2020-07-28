@@ -37,7 +37,11 @@ struct GlobalFixture {
   InternalTestServer server{framework::master_test_suite().p_name.value};
 };
 
+#if defined(BOOST_FIXTURE_NEEDS_SEMICOLON)
 BOOST_GLOBAL_FIXTURE(GlobalFixture);
+#else
+BOOST_GLOBAL_FIXTURE(GlobalFixture)
+#endif
 
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
