@@ -13,22 +13,7 @@ using namespace boost::unit_test_framework;
 using namespace boost::unit_test;
 using namespace ChimeraTK;
 
-struct GlobalFixture {
-  GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }
-
-  ~GlobalFixture() { referenceTestApplication.releaseManualLoopControl(); }
-
-  static ReferenceTestApplication referenceTestApplication;
-  ThreadedDoocsServer server{BOOST_STRINGIZE(BOOST_TEST_MODULE) ".conf", framework::master_test_suite().argc,
-      framework::master_test_suite().argv};
-};
-ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};
-
-#if defined(BOOST_FIXTURE_NEEDS_SEMICOLON)
-BOOST_GLOBAL_FIXTURE(GlobalFixture);
-#else
-BOOST_GLOBAL_FIXTURE(GlobalFixture)
-#endif
+DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 // the array must have testStartValue+i at index i.
 template<class T>
@@ -53,9 +38,6 @@ static bool testArrayContent(std::string const& propertyName, T testStartValue, 
 
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testReadWrite) {
-  // halt the test application tread
-  GlobalFixture::referenceTestApplication.initialiseManualLoopControl();
-
   // prepare the x-axis for the float array (we are using the float and double
   // scalar)
   DoocsServerTestHelper::doocsSet("//FLOAT/START", 12.3);

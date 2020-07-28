@@ -5,7 +5,10 @@
 //#include <boost/test/test_case_template.hpp>
 //#include <boost/mpl/list.hpp>
 
+#include "serverBasedTestTools.h"
+
 #include <boost/filesystem.hpp>
+#include <boost/version.hpp>
 
 #include "DoocsAdapter.h"
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
@@ -19,29 +22,7 @@ using namespace boost::unit_test;
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
-struct InternalTestServer : public ThreadedDoocsServer {
-  InternalTestServer(const std::string& serverName) : ThreadedDoocsServer({}, 0, nullptr, false) {
-    _serverName = serverName;
-  }
-};
-
-struct GlobalFixture {
-  GlobalFixture() {
-    boost::filesystem::copy_file(framework::master_test_suite().p_name.value + ".template.conf",
-        framework::master_test_suite().p_name.value + ".conf", boost::filesystem::copy_option::overwrite_if_exists);
-    server.start(framework::master_test_suite().argc, framework::master_test_suite().argv);
-    ChimeraTK::DoocsAdapter::waitUntilInitialised();
-  }
-
-  ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};
-  InternalTestServer server{framework::master_test_suite().p_name.value};
-};
-
-#if defined(BOOST_FIXTURE_NEEDS_SEMICOLON)
-BOOST_GLOBAL_FIXTURE(GlobalFixture);
-#else
-BOOST_GLOBAL_FIXTURE(GlobalFixture)
-#endif
+DOOCS_ADAPTER_DEFAULT_FIXTURE
 
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
