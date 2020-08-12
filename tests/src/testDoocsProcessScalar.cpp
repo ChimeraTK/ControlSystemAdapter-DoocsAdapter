@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceIntegerTypeTest, T, integer_test_types) {
   DoocsUpdater updater;
 
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> deviceVariable =
-      devManager->createProcessArray<T>(controlSystemToDevice, "toDeviceVariable", 1);
+      devManager->createProcessArray<T>(SynchronizationDirection::controlSystemToDevice, "toDeviceVariable", 1);
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> controlSystemVariable =
       csManager->getProcessArray<T>("toDeviceVariable");
   // set the variables to 0
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest) {
   DoocsUpdater updater;
 
   boost::shared_ptr<ProcessArray<float>> deviceFloat =
-      devManager->createProcessArray<float>(controlSystemToDevice, "toDeviceFloat", 1);
+      devManager->createProcessArray<float>(SynchronizationDirection::controlSystemToDevice, "toDeviceFloat", 1);
   boost::shared_ptr<ProcessArray<float>> controlSystemFloat = csManager->getProcessArray<float>("toDeviceFloat");
   // set the variables to 0
   deviceFloat->accessData(0) = 0;
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
   DoocsUpdater updater;
 
   boost::shared_ptr<ProcessArray<double>> deviceDouble =
-      devManager->createProcessArray<double>(controlSystemToDevice, "toDeviceDouble", 1);
+      devManager->createProcessArray<double>(SynchronizationDirection::controlSystemToDevice, "toDeviceDouble", 1);
   boost::shared_ptr<ProcessArray<double>> controlSystemDouble = csManager->getProcessArray<double>("toDeviceDouble");
   // set the variables to 0
   deviceDouble->accessData(0) = 0;
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceIntegerTypeTest, T, integer_test_types) 
   DoocsUpdater updater;
 
   typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> deviceVariable =
-      devManager->createProcessArray<T>(deviceToControlSystem, "fromDeviceVariable", 1);
+      devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", 1);
   typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> controlSystemVariable =
       csManager->getProcessArray<T>("fromDeviceVariable");
   // set the variables to 0
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(toDeviceStringTest) {
   DoocsUpdater updater;
 
   boost::shared_ptr<ProcessArray<std::string>> deviceFloat =
-      devManager->createProcessArray<std::string>(controlSystemToDevice, "toDeviceString", 1);
+      devManager->createProcessArray<std::string>(SynchronizationDirection::controlSystemToDevice, "toDeviceString", 1);
   boost::shared_ptr<ProcessArray<std::string>> controlSystemFloat =
       csManager->getProcessArray<std::string>("toDeviceString");
   // set the variables to 0
@@ -218,8 +218,8 @@ BOOST_AUTO_TEST_CASE(fromDeviceStringTest) {
 
   DoocsUpdater updater;
 
-  ProcessArray<std::string>::SharedPtr deviceVariable =
-      devManager->createProcessArray<std::string>(deviceToControlSystem, "fromDeviceVariable", 1);
+  ProcessArray<std::string>::SharedPtr deviceVariable = devManager->createProcessArray<std::string>(
+      SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", 1);
   ProcessArray<std::string>::SharedPtr controlSystemVariable =
       csManager->getProcessArray<std::string>("fromDeviceVariable");
   // set the variables to 0
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceFloatTest) {
   DoocsUpdater updater;
 
   ProcessArray<float>::SharedPtr deviceVariable =
-      devManager->createProcessArray<float>(deviceToControlSystem, "fromDeviceVariable", 1);
+      devManager->createProcessArray<float>(SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", 1);
   ProcessArray<float>::SharedPtr controlSystemVariable = csManager->getProcessArray<float>("fromDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0) = 0.0;
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceDoubleTest) {
   DoocsUpdater updater;
 
   ProcessArray<double>::SharedPtr deviceVariable =
-      devManager->createProcessArray<double>(deviceToControlSystem, "fromDeviceVariable", 1);
+      devManager->createProcessArray<double>(SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", 1);
   ProcessArray<double>::SharedPtr controlSystemVariable = csManager->getProcessArray<double>("fromDeviceVariable");
   // set the variables to 0
   deviceVariable->accessData(0) = 0;

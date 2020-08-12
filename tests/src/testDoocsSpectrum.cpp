@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceTest, T, simple_test_types) {
 
   static const size_t arraySize = 8;
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> deviceVariable =
-      devManager->createProcessArray<T>(controlSystemToDevice, "toDeviceVariable", arraySize);
+      devManager->createProcessArray<T>(SynchronizationDirection::controlSystemToDevice, "toDeviceVariable", arraySize);
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> controlSystemVariable =
       csManager->getProcessArray<T>("toDeviceVariable");
 
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceTest, T, simple_test_types) {
   boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 8;
-  typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> deviceVariable =
-      devManager->createProcessArray<T>(deviceToControlSystem, "fromDeviceVariable", arraySize);
+  typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> deviceVariable = devManager->createProcessArray<T>(
+      SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", arraySize);
   typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> controlSystemVariable =
       csManager->getProcessArray<T>("fromDeviceVariable");
 

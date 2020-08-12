@@ -53,14 +53,14 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  devManager->createProcessArray<int32_t>(controlSystemToDevice, "/I/int32", 1);
-  devManager->createProcessArray<uint32_t>(controlSystemToDevice, "/U/uint32", 1);
-  devManager->createProcessArray<int16_t>(controlSystemToDevice, "/I/int16", 1);
-  devManager->createProcessArray<uint16_t>(controlSystemToDevice, "/U/uint16", 1);
-  devManager->createProcessArray<int8_t>(controlSystemToDevice, "/I/int8", 1);
-  devManager->createProcessArray<uint8_t>(controlSystemToDevice, "/U/uint8", 1);
-  devManager->createProcessArray<float>(controlSystemToDevice, "/FP/float", 1);
-  devManager->createProcessArray<double>(controlSystemToDevice, "/FP/double", 1);
+  devManager->createProcessArray<int32_t>(SynchronizationDirection::controlSystemToDevice, "/I/int32", 1);
+  devManager->createProcessArray<uint32_t>(SynchronizationDirection::controlSystemToDevice, "/U/uint32", 1);
+  devManager->createProcessArray<int16_t>(SynchronizationDirection::controlSystemToDevice, "/I/int16", 1);
+  devManager->createProcessArray<uint16_t>(SynchronizationDirection::controlSystemToDevice, "/U/uint16", 1);
+  devManager->createProcessArray<int8_t>(SynchronizationDirection::controlSystemToDevice, "/I/int8", 1);
+  devManager->createProcessArray<uint8_t>(SynchronizationDirection::controlSystemToDevice, "/U/uint8", 1);
+  devManager->createProcessArray<float>(SynchronizationDirection::controlSystemToDevice, "/FP/float", 1);
+  devManager->createProcessArray<double>(SynchronizationDirection::controlSystemToDevice, "/FP/double", 1);
 
   DoocsUpdater updater;
 
@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateSpectrum, T, simple_test_types) {
 
   static const size_t arraySize = 10;
   // array 1 will have default settings, array 2 custom start and increment
-  devManager->createProcessArray<T>(controlSystemToDevice, "A/fromDeviceArray1", arraySize);
-  devManager->createProcessArray<T>(controlSystemToDevice, "A/fromDeviceArray2", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::controlSystemToDevice, "A/fromDeviceArray1", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::controlSystemToDevice, "A/fromDeviceArray2", arraySize);
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames(csManager);
@@ -183,12 +183,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateArray, T, simple_test_types) {
   static const size_t arraySize = 10;
   // PVs can only get one decorator, so we have to put one array for each
   // decorator/doocs type we want to test
-  devManager->createProcessArray<T>(deviceToControlSystem, "A/fromDeviceArray1", arraySize);
-  devManager->createProcessArray<T>(deviceToControlSystem, "A/fromDeviceArray2", arraySize);
-  devManager->createProcessArray<T>(deviceToControlSystem, "A/fromDeviceArray3", arraySize);
-  devManager->createProcessArray<T>(deviceToControlSystem, "A/fromDeviceArray4", arraySize);
-  devManager->createProcessArray<T>(deviceToControlSystem, "A/fromDeviceArray5", arraySize);
-  devManager->createProcessArray<T>(deviceToControlSystem, "A/fromDeviceArray6", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "A/fromDeviceArray1", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "A/fromDeviceArray2", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "A/fromDeviceArray3", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "A/fromDeviceArray4", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "A/fromDeviceArray5", arraySize);
+  devManager->createProcessArray<T>(SynchronizationDirection::deviceToControlSystem, "A/fromDeviceArray6", arraySize);
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames(csManager);
@@ -211,16 +211,26 @@ BOOST_AUTO_TEST_CASE(testAutoCreateArray) {
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
   static const size_t arraySize = 10;
-  devManager->createProcessArray<int8_t>(controlSystemToDevice, "A/toDeviceCharArray", arraySize);
-  devManager->createProcessArray<uint8_t>(controlSystemToDevice, "A/toDeviceUCharArray", arraySize);
-  devManager->createProcessArray<int16_t>(controlSystemToDevice, "A/toDeviceShortArray", arraySize);
-  devManager->createProcessArray<uint16_t>(controlSystemToDevice, "A/toDeviceUShortArray", arraySize);
-  devManager->createProcessArray<int32_t>(controlSystemToDevice, "A/toDeviceIntArray", arraySize);
-  devManager->createProcessArray<uint32_t>(controlSystemToDevice, "A/toDeviceUIntArray", arraySize);
-  devManager->createProcessArray<int64_t>(controlSystemToDevice, "A/toDeviceLongArray", arraySize);
-  devManager->createProcessArray<uint64_t>(controlSystemToDevice, "A/toDeviceULongArray", arraySize);
-  devManager->createProcessArray<float>(controlSystemToDevice, "A/toDeviceFloatArray", arraySize);
-  devManager->createProcessArray<double>(controlSystemToDevice, "A/toDeviceDoubleArray", arraySize);
+  devManager->createProcessArray<int8_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceCharArray", arraySize);
+  devManager->createProcessArray<uint8_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceUCharArray", arraySize);
+  devManager->createProcessArray<int16_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceShortArray", arraySize);
+  devManager->createProcessArray<uint16_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceUShortArray", arraySize);
+  devManager->createProcessArray<int32_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceIntArray", arraySize);
+  devManager->createProcessArray<uint32_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceUIntArray", arraySize);
+  devManager->createProcessArray<int64_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceLongArray", arraySize);
+  devManager->createProcessArray<uint64_t>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceULongArray", arraySize);
+  devManager->createProcessArray<float>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceFloatArray", arraySize);
+  devManager->createProcessArray<double>(
+      SynchronizationDirection::controlSystemToDevice, "A/toDeviceDoubleArray", arraySize);
 
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames(csManager);
@@ -246,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testInt64Scalar) {
   shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
   shared_ptr<DevicePVManager> devManager = pvManagers.second;
 
-  devManager->createProcessArray<int64_t>(controlSystemToDevice, "I/toDeviceInt", 1);
+  devManager->createProcessArray<int64_t>(SynchronizationDirection::controlSystemToDevice, "I/toDeviceInt", 1);
 
   DoocsUpdater updater;
 

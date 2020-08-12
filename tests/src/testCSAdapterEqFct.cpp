@@ -39,8 +39,10 @@ struct BusinessLogic {
   boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> fromDeviceInt;
 
   BusinessLogic(boost::shared_ptr<ChimeraTK::DevicePVManager> const& pvManager)
-  : toDeviceInt(pvManager->createProcessArray<int>(controlSystemToDevice, "test/TO_DEVICE/INT", 1)),
-    fromDeviceInt(pvManager->createProcessArray<int>(deviceToControlSystem, "test/FROM_DEVICE/INT", 1)) {}
+  : toDeviceInt(
+        pvManager->createProcessArray<int>(SynchronizationDirection::controlSystemToDevice, "test/TO_DEVICE/INT", 1)),
+    fromDeviceInt(pvManager->createProcessArray<int>(
+        SynchronizationDirection::deviceToControlSystem, "test/FROM_DEVICE/INT", 1)) {}
 };
 
 BOOST_AUTO_TEST_SUITE(CSAdapterEqFctTestSuite)
