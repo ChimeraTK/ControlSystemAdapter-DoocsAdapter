@@ -4,8 +4,6 @@
 #include <D_spectrum.h>
 #include <boost/noncopyable.hpp>
 
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemSynchronizationUtility.h>
-#include <ChimeraTK/ControlSystemAdapter/ProcessVariableListener.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h> // needed for the macro pulse number
 #include <ChimeraTK/DataConsistencyGroup.h>
