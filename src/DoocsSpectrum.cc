@@ -77,6 +77,9 @@ namespace ChimeraTK {
     modified = false;
     if(_processArray->isWriteable()) {
       sendToDevice();
+      // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
+      // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
+      D_spectrum::set_stamp();
     }
   }
 

@@ -143,6 +143,9 @@ namespace ChimeraTK {
       if(_processScalar->isWriteable()) {
         _processScalar->accessData(0) = DOOCS_T::value();
         _processScalar->write();
+        // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
+        // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
+        DOOCS_T::set_stamp();
       }
     }
 
