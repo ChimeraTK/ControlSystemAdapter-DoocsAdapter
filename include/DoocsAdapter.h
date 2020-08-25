@@ -25,6 +25,9 @@ namespace ChimeraTK {
     // A convenience function to wait until the adapter is initialised.
     static void waitUntilInitialised();
 
+    // Function used by the property implementations to decide whether to print a "data loss" warning
+    static bool checkPrintDataLossWarning(size_t counter);
+
    protected:
     boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
     boost::shared_ptr<DevicePVManager> _devicePVManager;

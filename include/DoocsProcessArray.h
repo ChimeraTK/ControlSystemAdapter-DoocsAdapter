@@ -9,6 +9,7 @@
 #include <ChimeraTK/DataConsistencyGroup.h>
 
 #include "DoocsUpdater.h"
+#include "DoocsAdapter.h"
 #include "splitStringAtFirstSlash.h"
 
 #include <eq_fct.h>
@@ -76,8 +77,12 @@ namespace ChimeraTK {
         // check if this will now throw away data and generate a warning
         if(transferElementId == _processArray->getId()) {
           if(!_doocsSuccessfullyUpdated) {
-            std::cout << "WARNING: Data loss in array property " << _eqFct->name() << "/" << this->basename()
-                      << " due to failed data matching between value and macro pulse number." << std::endl;
+            ++_nDataLossWarnings;
+            if(DoocsAdapter::checkPrintDataLossWarning(_nDataLossWarnings)) {
+              std::cout << "WARNING: Data loss in array property " << _eqFct->name() << "/" << this->basename()
+                        << " due to failed data matching between value and macro pulse number (repeated "
+                        << _nDataLossWarnings << " times)." << std::endl;
+            }
           }
         }
         _doocsSuccessfullyUpdated = false;
@@ -150,6 +155,9 @@ namespace ChimeraTK {
     EqFct* _eqFct;               // We need it when adding the macro pulse number
     bool publishZMQ{false};
     bool _doocsSuccessfullyUpdated{true}; // to detect data losses
+
+    // counter used to reduce amount of data loss warnings printed at console
+    size_t _nDataLossWarnings{0};
 
     // Internal function which copies the content from the DOOCS container into
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow

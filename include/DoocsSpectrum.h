@@ -94,6 +94,9 @@ namespace ChimeraTK {
     bool modified{false};
 
     bool _doocsSuccessfullyUpdated{true}; // to detect data losses
+
+    // counter used to reduce amount of data loss warnings printed at console
+    size_t _nDataLossWarnings{0};
   };
 
 } // namespace ChimeraTK

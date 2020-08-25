@@ -34,4 +34,15 @@ namespace ChimeraTK {
     }
   }
 
+  bool DoocsAdapter::checkPrintDataLossWarning(size_t counter) {
+    if(counter < 2) return false;
+    if(counter == 2) return true;
+    if(counter < 100) return counter % 10 == 0;
+    if(counter < 1000) return counter % 100 == 0;
+    if(counter < 10000) return counter % 1000 == 0;
+    if(counter < 100000) return counter % 10000 == 0;
+    if(counter < 1000000) return counter % 100000 == 0;
+    return counter % 1000000 == 0; // if the rate is 10Hz, this is roughly once per day
+  }
+
 } // namespace ChimeraTK
