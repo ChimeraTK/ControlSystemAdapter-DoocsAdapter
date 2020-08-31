@@ -35,8 +35,8 @@ namespace ChimeraTK {
   }
 
   bool DoocsAdapter::checkPrintDataLossWarning(size_t counter) {
-    if(counter < 2) return false;
-    if(counter == 2) return true;
+    // print first time at counter == 10 to suppress the messages spamming at startup
+    if(counter < 1) return false;
     if(counter < 100) return counter % 10 == 0;
     if(counter < 1000) return counter % 100 == 0;
     if(counter < 10000) return counter % 1000 == 0;
