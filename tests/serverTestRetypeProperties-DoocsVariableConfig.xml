@@ -2,20 +2,25 @@
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
     <location name="TO_BYTE">
         <property source="/DOUBLE/DATA_TYPE_CONSTANT" name="DOUBLE.CONSTANT" type="byte" />
-   </location>
+        <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT" type="byte" />
+    </location>
     <location name="TO_SHORT">
         <property source="/FLOAT/DATA_TYPE_CONSTANT" name="FLOAT.CONSTANT" type="short" />
-   </location>
+        <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT" type="short" />
+    </location>
     <location name="TO_INT">
         <property source="/SHORT/DATA_TYPE_CONSTANT" name="SHORT.CONSTANT" type="int" />
-   </location>
+        <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT"/>
+    </location>
     <location name="TO_LONG">
         <property source="/UCHAR/DATA_TYPE_CONSTANT" name="UCHAR.CONSTANT" type="long" />
-   </location>
+        <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT" type="long" />
+    </location>
     <location name="TO_FLOAT">
         <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT" type="float" />
-   </location>
+    </location>
     <location name="TO_DOUBLE">
         <property source="/USHORT/DATA_TYPE_CONSTANT" name="USHORT.CONSTANT" type="double" />
+        <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT" type="double" />
    </location>
 </device_server>

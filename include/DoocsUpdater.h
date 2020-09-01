@@ -35,7 +35,7 @@ namespace ChimeraTK {
     // specified. The lock is held while the updaterFunction is called, so it must
     // neither obtained nor freed within the updaterFunction.
     void addVariable(
-        const ChimeraTK::TransferElementAbstractor& variable, EqFct* eq_fct, std::function<void()> updaterFunction);
+        ChimeraTK::TransferElementAbstractor variable, EqFct* eq_fct, std::function<void()> updaterFunction);
 
    protected:
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
@@ -43,6 +43,8 @@ namespace ChimeraTK {
     // FIXME: make this an unordered map
     std::map<ChimeraTK::TransferElementID, std::vector<std::function<void()>>> _toDoocsUpdateMap;
     std::map<ChimeraTK::TransferElementID, std::vector<EqFct*>> _toDoocsEqFctMap;
+    std::map<ChimeraTK::TransferElementID, std::set<boost::shared_ptr<ChimeraTK::TransferElement>>>
+        _toDoocsAdditionalTransferElementsMap;
   };
 } // namespace ChimeraTK
 

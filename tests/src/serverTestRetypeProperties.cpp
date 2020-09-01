@@ -23,4 +23,25 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
   checkDoocsProperty<D_longarray>("//TO_LONG/UCHAR.CONSTANT", true, false);
   checkDoocsProperty<D_float>("//TO_FLOAT/INT.CONSTANT", true, false);
   checkDoocsProperty<D_double>("//TO_DOUBLE/USHORT.CONSTANT", true, false);
+
+  checkDoocsProperty<D_int>("//TO_BYTE/INT.CONSTANT", true, false);
+  checkDoocsProperty<D_int>("//TO_SHORT/INT.CONSTANT", true, false);
+  checkDoocsProperty<D_int>("//TO_INT/INT.CONSTANT", true, false);
+  checkDoocsProperty<D_longarray>("//TO_LONG/INT.CONSTANT", true, false);
+  checkDoocsProperty<D_double>("//TO_DOUBLE/INT.CONSTANT", true, false);
+}
+
+/// Check the values of the variables
+BOOST_AUTO_TEST_CASE(testVariableValues) {
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_BYTE/INT.CONSTANT"), -((signed)sizeof(int)));
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_SHORT/INT.CONSTANT"), -((signed)sizeof(int)));
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_INT/INT.CONSTANT"), -((signed)sizeof(int)));
+  BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//TO_FLOAT/INT.CONSTANT"), -((signed)sizeof(int)), 0.0001);
+
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_BYTE/DOUBLE.CONSTANT"), 0); // rounded 1./sizeof(double)
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_SHORT/FLOAT.CONSTANT"), 0); // rounded 1./sizeof(float)
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_INT/SHORT.CONSTANT"), -((signed)sizeof(short)));
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_LONG/UCHAR.CONSTANT"), sizeof(unsigned char));
+  BOOST_CHECK_CLOSE(
+      DoocsServerTestHelper::doocsGet<double>("//TO_DOUBLE/USHORT.CONSTANT"), sizeof(unsigned short), 0.0001);
 }
