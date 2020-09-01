@@ -79,19 +79,20 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessArray<int64_t>(propertyDescription.macroPulseNumberSource);
-      if(mpnSource->getNumberOfSamples() != 1) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it has an array "
             "length of " +
-            std::to_string(mpnSource->getNumberOfSamples()) + ". Length must be exactly 1");
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
-      if(!mpnSource->isReadable()) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
       boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->setMacroPulseNumberSource(
-          mpnSource);
+          mpnDecorated);
     }
 
     return doocsPV;
@@ -134,19 +135,20 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessArray<int64_t>(propertyDescription.macroPulseNumberSource);
-      if(mpnSource->getNumberOfSamples() != 1) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it has an array "
             "length of " +
-            std::to_string(mpnSource->getNumberOfSamples()) + ". Length must be exactly 1");
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
-      if(!mpnSource->isReadable()) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
       boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->setMacroPulseNumberSource(
-          mpnSource);
+          mpnDecorated);
     }
 
     return doocsPV;
@@ -208,18 +210,19 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(spectrumDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessArray<int64_t>(spectrumDescription.macroPulseNumberSource);
-      if(mpnSource->getNumberOfSamples() != 1) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(spectrumDescription.macroPulseNumberSource);
+      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it has an array "
             "length of " +
-            std::to_string(mpnSource->getNumberOfSamples()) + ". Length must be exactly 1");
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
-      if(!mpnSource->isReadable()) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnSource);
+      boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
     }
 
     return doocsPV;
@@ -273,18 +276,19 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(ifffDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessArray<int64_t>(ifffDescription.macroPulseNumberSource);
-      if(mpnSource->getNumberOfSamples() != 1) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(ifffDescription.macroPulseNumberSource);
+      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it has an array "
             "length of " +
-            std::to_string(mpnSource->getNumberOfSamples()) + ". Length must be exactly 1");
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
-      if(!mpnSource->isReadable()) {
-        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->setMacroPulseNumberSource(mpnSource);
+      boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
     }
 
     if(ifffDescription.publishZMQ) {
@@ -457,18 +461,20 @@ boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescr
 
   // set macro pulse number source, if configured
   if(propertyDescription.macroPulseNumberSource.size() > 0) {
-    auto mpnSource = _controlSystemPVManager->getProcessArray<int64_t>(propertyDescription.macroPulseNumberSource);
-    if(mpnSource->getNumberOfSamples() != 1) {
-      throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
-          "' is used as a macro pulse number source, but it has an array length of " +
-          std::to_string(mpnSource->getNumberOfSamples()) + ". Length must be exactly 1");
+    auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+    auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+    if(mpnDecorated->getNumberOfSamples() != 1) {
+      throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+          "' is used as a macro pulse number source, but it has an array "
+          "length of " +
+          std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
     }
-    if(!mpnSource->isReadable()) {
-      throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+    if(!mpnDecorated->isReadable()) {
+      throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
           "' is used as a macro pulse number source, but it is not readable.");
     }
     boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
-        mpnSource);
+        mpnDecorated);
   }
 
   return doocsPV;
