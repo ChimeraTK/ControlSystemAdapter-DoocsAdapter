@@ -40,11 +40,15 @@ namespace ChimeraTK {
    protected:
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
     boost::thread _syncThread; // we have to use boost thread to use interruption points
-    // FIXME: make this an unordered map
-    std::map<ChimeraTK::TransferElementID, std::vector<std::function<void()>>> _toDoocsUpdateMap;
-    std::map<ChimeraTK::TransferElementID, std::vector<EqFct*>> _toDoocsEqFctMap;
-    std::map<ChimeraTK::TransferElementID, std::set<boost::shared_ptr<ChimeraTK::TransferElement>>>
-        _toDoocsAdditionalTransferElementsMap;
+
+    // Struct used to aggregate the information needed in the updateLoop when an update is received from the
+    // application.
+    struct ToDoocsUpdateDescriptor {
+      std::vector<std::function<void()>> updateFunctions;
+      std::vector<EqFct*> locations;
+      std::set<boost::shared_ptr<ChimeraTK::TransferElement>> additionalTransferElements;
+    };
+    std::map<ChimeraTK::TransferElementID, ToDoocsUpdateDescriptor> _toDoocsDescriptorMap;
   };
 } // namespace ChimeraTK
 
