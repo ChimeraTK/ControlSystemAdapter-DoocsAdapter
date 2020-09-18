@@ -33,15 +33,18 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
 
 /// Check the values of the variables
 BOOST_AUTO_TEST_CASE(testVariableValues) {
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_BYTE/INT.CONSTANT"), -((signed)sizeof(int)));
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_SHORT/INT.CONSTANT"), -((signed)sizeof(int)));
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_INT/INT.CONSTANT"), -((signed)sizeof(int)));
-  BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//TO_FLOAT/INT.CONSTANT"), -((signed)sizeof(int)), 0.0001);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//TO_BYTE/INT.CONSTANT") == -((signed)sizeof(int)));
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//TO_SHORT/INT.CONSTANT") == -((signed)sizeof(int)));
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//TO_INT/INT.CONSTANT") == -((signed)sizeof(int)));
+  CHECK_WITH_TIMEOUT(
+      std::abs(DoocsServerTestHelper::doocsGet<float>("//TO_FLOAT/INT.CONSTANT") + ((signed)sizeof(int))) < 0.0001F);
 
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_BYTE/DOUBLE.CONSTANT"), 0); // rounded 1./sizeof(double)
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_SHORT/FLOAT.CONSTANT"), 0); // rounded 1./sizeof(float)
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_INT/SHORT.CONSTANT"), -((signed)sizeof(short)));
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<int>("//TO_LONG/UCHAR.CONSTANT"), sizeof(unsigned char));
-  BOOST_CHECK_CLOSE(
-      DoocsServerTestHelper::doocsGet<double>("//TO_DOUBLE/USHORT.CONSTANT"), sizeof(unsigned short), 0.0001);
+  CHECK_WITH_TIMEOUT(
+      DoocsServerTestHelper::doocsGet<int>("//TO_BYTE/DOUBLE.CONSTANT") == 0); // rounded 1./sizeof(double)
+  CHECK_WITH_TIMEOUT(
+      DoocsServerTestHelper::doocsGet<int>("//TO_SHORT/FLOAT.CONSTANT") == 0); // rounded 1./sizeof(float)
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//TO_INT/SHORT.CONSTANT") == -((signed)sizeof(short)));
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//TO_LONG/UCHAR.CONSTANT") == sizeof(unsigned char));
+  CHECK_WITH_TIMEOUT(std::abs(DoocsServerTestHelper::doocsGet<double>("//TO_DOUBLE/USHORT.CONSTANT") -
+                         sizeof(unsigned short)) < 0.0001);
 }
