@@ -62,15 +62,27 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
 
   // check the the control system side still sees 0 in all arrays. The
   // application has not reacted yet
-
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true);
-  CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
+
+  // this check does not hold if the TO_DEVICE_ARRAY had been persisted to the .spec file, which happens sometimes!
+  //CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
 
   // run the application loop.
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 140, 1) == true);
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 240.3, 1) == true);
+
+  // change value
+  DoocsServerTestHelper::doocsSetSpectrum("//INT/TO_DEVICE_ARRAY", {150, 151, 152, 153, 154, 155, 156, 157, 158, 159});
+  DoocsServerTestHelper::doocsSetSpectrum(
+      "//DOUBLE/TO_DEVICE_ARRAY", {250.3, 251.3, 252.3, 253.3, 254.3, 255.3, 256.3, 257.3, 258.3, 259.3});
+
+  // run the application loop.
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
+
+  CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 150, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 250.3, 1) == true);
 
   //  notIntArray =
   //  DoocsServerTestHelper::doocsGetArray<double>("//INT/MY_RENAMED_INTARRAY")
