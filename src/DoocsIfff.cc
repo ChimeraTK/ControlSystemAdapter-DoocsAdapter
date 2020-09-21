@@ -62,10 +62,16 @@ namespace ChimeraTK {
       return;
     }
 
+    bool storeInHistory = true;
+    auto archiverStatus = ArchiveStatus::sts_ok;
     if(_i1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f2Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f3Value->dataValidity() != ChimeraTK::DataValidity::ok) {
+      if(this->d_error()) // data are alredy invalid, do not store in history
+        storeInHistory = false;
+
+      archiverStatus = ArchiveStatus::sts_err;
       this->d_error(stale_data);
     }
     else {
@@ -85,15 +91,17 @@ namespace ChimeraTK {
       set_global_timestamp(timestamp);
     }
 
-    if(this->get_histPointer()) {
+    // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except first invalid data point.
+    // (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
+    if(this->get_histPointer() && storeInHistory) {
       /*
       doocs::EventId eventId =
           (_macroPulseNumberSource) ? doocs::EventId(_macroPulseNumberSource->accessData(0)) : doocs::EventId(0);
       */
-      /*FIXME: The archiver also has a status code. Set it correctly.*/
+
       /*FIXME: This set_and_archive does not support the timestamp yet (only sec and msec, and I guess m is milli?)*/
       /*FIXME: This set_and_archive does not support eventIDs yet */
-      this->set_and_archive(&ifff, ArchiveStatus::sts_ok, 0, 0 /*msec*/);
+      this->set_and_archive(&ifff, archiverStatus, 0, 0 /*msec*/);
     }
     else {
       this->set_value(&ifff);
