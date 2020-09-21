@@ -30,6 +30,17 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
+  // We need data consistency between macro pulse number and the data
+  // Everything from now on will get the same version number, until we manually set a new one.
+  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+
+  // set initial values
+  int macroPulseNumber = 12345;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  uint32_t expectedValue = 42;
+  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+
   /// Note: The data is processed by the ReferenceTestApplication in the order
   /// of the types as listed in the HolderMap of the ReferenceTestApplication.
   /// INT comes before UINT and FLOAT, so the macro pulse number is first
@@ -39,7 +50,9 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_SCALAR");
   dmsg_t tag;
-  int err = dmsg_attach(&ea, &dst, nullptr,
+  dataReceived = false;
+  int err = dmsg_attach(
+      &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -49,27 +62,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
       &tag);
   BOOST_CHECK(!err);
 
-  // Add additional delay for the ZMQ system to come up
-  usleep(2000000);
-
-  // We need data consistency between macro pulse number and the data
-  // Everything from now on will get the same version number, until we manually set a new one.
-  //ChimeraTK::VersionNumber unusedVersion;
-  //std::cout << "unusedVersion " << std::string(unusedVersion) << std::endl;
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  //std::cout << "version number now is " << std::string(referenceTestApplication.versionNumber.value_or(unusedVersion)) << std::endl;
-
-  int macroPulseNumber = 12345;
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-
-  uint32_t expectedValue = 42;
-  DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
-
   // Wait for the notification of the first write to happen.
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
   // in a loop until we receive the data.
   size_t counter = 0;
-  dataReceived = false;
   while(!dataReceived) {
     // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and running
     DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
@@ -140,11 +136,24 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
+  // We need data consistency between macro pulse number and the data
+  // Everything from now on will get the same version number, until we manually set a new one.
+  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+
+  // set initial values
+  int macroPulseNumber = 99999;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
+
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
-  int err = dmsg_attach(&ea, &dst, nullptr,
+  dataReceived = false;
+  int err = dmsg_attach(
+      &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -154,20 +163,9 @@ BOOST_AUTO_TEST_CASE(testArray) {
       &tag);
   BOOST_CHECK(!err);
 
-  // Add additional delay for the ZMQ system to come up
-  usleep(2000000);
-
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  int macroPulseNumber = 99999;
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-
-  std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-  DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
-
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
   // in a loop until we receive the data.
   size_t counter = 0;
-  dataReceived = false;
   while(!dataReceived) {
     DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
@@ -238,11 +236,24 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
+  // We need data consistency between macro pulse number and the data
+  // Everything from now on will get the same version number, until we manually set a new one.
+  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
+
+  // set initial values
+  int macroPulseNumber = -100;
+  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+
+  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
+
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
-  int err = dmsg_attach(&ea, &dst, nullptr,
+  dataReceived = false;
+  int err = dmsg_attach(
+      &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -252,20 +263,9 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       &tag);
   BOOST_CHECK(!err);
 
-  // Add additional delay for the ZMQ system to come up
-  usleep(2000000);
-
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  int macroPulseNumber = -100;
-  DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
-
-  std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
-  DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
-
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
   // in a loop until we receive the data.
   size_t counter = 0;
-  dataReceived = false;
   while(!dataReceived) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
