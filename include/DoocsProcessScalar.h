@@ -47,7 +47,14 @@ namespace ChimeraTK {
       // DoocsUpdater
       auto data = _processScalar->accessData(0);
 
+      bool storeInHistory = true;
+      auto archiverStatus = ArchiveStatus::sts_ok;
       if(_processScalar->dataValidity() != ChimeraTK::DataValidity::ok) {
+        if(this->d_error()) // data are alredy invalid, do not store in history
+          storeInHistory = false;
+
+        archiverStatus = ArchiveStatus::sts_err;
+        //set data invalid in DOOCS for current data
         this->d_error(stale_data);
       }
       else {
@@ -70,14 +77,16 @@ namespace ChimeraTK {
       // we must not call set_and_archive if there is no history (otherwise it
       // will be activated), but we have to if it is there. -> Abstraction,
       // please!
-      if(this->get_histPointer()) {
+      //
+      // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except first invalid data point.
+      // (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
+      if(this->get_histPointer() && storeInHistory) {
         // Set eventId
         doocs::EventId eventId;
         if(_macroPulseNumberSource) eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
 
-        /*FIXME: The archiver also has a status code. Set it correctly.*/
         // The timestamp we give with set_and_archive is for the archiver only.
-        this->set_and_archive(data, ArchiveStatus::sts_ok, timestamp, eventId);
+        this->set_and_archive(data, archiverStatus, timestamp, eventId);
       }
       else {
         this->set_value(data);
