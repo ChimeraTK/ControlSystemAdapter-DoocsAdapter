@@ -130,7 +130,10 @@ namespace ChimeraTK {
         info.sec = seconds;
         info.usec = microseconds;
         info.ident = _macroPulseNumberSource->accessData(0);
-        this->send(&info);
+        auto ret = this->send(&info);
+        if(ret) {
+          std::cout << "ZeroMQ sending failed!!!" << std::endl;
+        }
       }
     }
 

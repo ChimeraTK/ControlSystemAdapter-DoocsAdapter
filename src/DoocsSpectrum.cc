@@ -170,7 +170,10 @@ namespace ChimeraTK {
       else {
         info.ident = 0;
       }
-      this->send(&info);
+      auto ret = this->send(&info);
+      if(ret) {
+        std::cout << "ZeroMQ sending failed!!!" << std::endl;
+      }
     }
   }
 
