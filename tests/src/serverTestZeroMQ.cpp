@@ -83,6 +83,12 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
   }
 
+  // make sure no more data is "in the pipeline"
+  while(dataReceived) {
+    dataReceived = false;
+    usleep(10000);
+  }
+
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
@@ -183,6 +189,12 @@ BOOST_AUTO_TEST_CASE(testArray) {
     for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedArrayValue[k]);
   }
 
+  // make sure no more data is "in the pipeline"
+  while(dataReceived) {
+    dataReceived = false;
+    usleep(10000);
+  }
+
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
@@ -281,6 +293,12 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
   BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
   for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedFloatArrayValue[k], 0.0001);
+
+  // make sure no more data is "in the pipeline"
+  while(dataReceived) {
+    dataReceived = false;
+    usleep(10000);
+  }
 
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
