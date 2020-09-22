@@ -18,7 +18,7 @@ using namespace ChimeraTK;
 
 DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(dmsg_start();)
 
-static std::atomic<bool> dataReceived;
+static std::atomic<uint32_t> dataReceived;
 static EqData received;
 static dmsg_info_t receivedInfo;
 static std::mutex mutex;
@@ -26,7 +26,7 @@ static std::mutex mutex;
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testScalar) {
-  std::cout << "testScalar" << std::endl;
+  std::cout << "testScalar " << GlobalFixture::rpcNo << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
@@ -50,24 +50,29 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_SCALAR");
   dmsg_t tag;
-  dataReceived = false;
+  dataReceived = 0;
   int err = dmsg_attach(
       &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
-        dataReceived = true;
+        auto x = dataReceived++;
       },
       &tag);
   BOOST_CHECK(!err);
 
-  // Wait for the notification of the first write to happen.
-  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
-  // in a loop until we receive the data.
+  // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
+  CHECK_WITH_TIMEOUT(dataReceived > 0);
+  usleep(10000);
+  BOOST_CHECK_EQUAL(dataReceived, 1);
+  dataReceived = 0;
+
+  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
   size_t counter = 0;
-  while(!dataReceived) {
-    // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and running
+  while(dataReceived == 0) {
+    // First send, then wait. We assume that after 10 ms the event has been received once the ZMQ mechanism is up and
+    // running
     DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     // FIXME: This timeout is essential so everything has been received and the next
@@ -76,7 +81,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     usleep(10000);
     if(++counter > 1000) break;
   }
-  BOOST_CHECK(dataReceived == true);
+  BOOST_CHECK(dataReceived > 0);
   {
     std::lock_guard<std::mutex> lock(mutex);
     BOOST_CHECK_EQUAL(received.error(), 0);
@@ -84,8 +89,8 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   }
 
   // make sure no more data is "in the pipeline"
-  while(dataReceived) {
-    dataReceived = false;
+  while(dataReceived > 0) {
+    dataReceived = 0;
     usleep(10000);
   }
 
@@ -104,10 +109,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     }
 
     // nothing must be received, no consistent set yet
-    dataReceived = false;
+    BOOST_CHECK_EQUAL(dataReceived, 0);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     usleep(10000);
-    BOOST_CHECK(dataReceived == false);
+    BOOST_CHECK_EQUAL(dataReceived, 0);
 
     // now send the variable which has not been send yet
     if(sendMacroPulseFirst[i]) {
@@ -118,7 +123,10 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     }
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
-    CHECK_WITH_TIMEOUT(dataReceived == true);
+    CHECK_WITH_TIMEOUT(dataReceived > 0);
+    usleep(10000);
+    BOOST_CHECK_EQUAL(dataReceived, 1);
+    dataReceived--;
     {
       std::lock_guard<std::mutex> lock(mutex);
       BOOST_CHECK_EQUAL(received.error(), 0);
@@ -138,7 +146,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testArray) {
-  std::cout << "testArray" << std::endl;
+  std::cout << "testArray " << GlobalFixture::rpcNo << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
@@ -157,22 +165,27 @@ BOOST_AUTO_TEST_CASE(testArray) {
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
-  dataReceived = false;
+  dataReceived = 0;
   int err = dmsg_attach(
       &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
-        dataReceived = true;
+        auto x = dataReceived++;
       },
       &tag);
   BOOST_CHECK(!err);
 
-  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
-  // in a loop until we receive the data.
+  // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
+  CHECK_WITH_TIMEOUT(dataReceived > 0);
+  usleep(10000);
+  BOOST_CHECK_EQUAL(dataReceived, 1);
+  dataReceived = 0;
+
+  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
   size_t counter = 0;
-  while(!dataReceived) {
+  while(dataReceived == 0) {
     DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     // FIXME: This timeout is essential so everything has been received and the next
@@ -181,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
     usleep(10000);
     if(++counter > 1000) break;
   }
-  BOOST_CHECK(dataReceived == true);
+  BOOST_CHECK(dataReceived > 0);
   {
     std::lock_guard<std::mutex> lock(mutex);
     BOOST_CHECK_EQUAL(received.error(), 0);
@@ -190,8 +203,8 @@ BOOST_AUTO_TEST_CASE(testArray) {
   }
 
   // make sure no more data is "in the pipeline"
-  while(dataReceived) {
-    dataReceived = false;
+  while(dataReceived > 0) {
+    dataReceived = 0;
     usleep(10000);
   }
 
@@ -210,10 +223,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
     }
 
     // nothing must be received, no consistent set yet
-    dataReceived = false;
+    BOOST_CHECK_EQUAL(dataReceived, 0);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     usleep(10000);
-    BOOST_CHECK(dataReceived == false);
+    BOOST_CHECK_EQUAL(dataReceived, 0);
 
     // now send the variable which has not been send yet
     if(sendMacroPulseFirst[i]) {
@@ -223,7 +236,10 @@ BOOST_AUTO_TEST_CASE(testArray) {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
-    CHECK_WITH_TIMEOUT(dataReceived == true);
+    CHECK_WITH_TIMEOUT(dataReceived > 0);
+    usleep(10000);
+    BOOST_CHECK_EQUAL(dataReceived, 1);
+    dataReceived--;
     {
       std::lock_guard<std::mutex> lock(mutex);
       BOOST_CHECK_EQUAL(received.error(), 0);
@@ -244,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testSpectrum) {
-  std::cout << "testSpectrum" << std::endl;
+  std::cout << "testSpectrum " << GlobalFixture::rpcNo << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
@@ -263,22 +279,27 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
   dmsg_t tag;
-  dataReceived = false;
+  dataReceived = 0;
   int err = dmsg_attach(
       &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
-        dataReceived = true;
+        auto x = dataReceived++;
       },
       &tag);
   BOOST_CHECK(!err);
 
-  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try
-  // in a loop until we receive the data.
+  // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
+  CHECK_WITH_TIMEOUT(dataReceived > 0);
+  usleep(10000);
+  BOOST_CHECK_EQUAL(dataReceived, 1);
+  dataReceived = 0;
+
+  // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
   size_t counter = 0;
-  while(!dataReceived) {
+  while(dataReceived == 0) {
     DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     // FIXME: This timeout is essential so everything has been received and the next
@@ -287,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     usleep(10000);
     if(++counter > 1000) break;
   }
-  BOOST_CHECK(dataReceived == true);
+  BOOST_CHECK(dataReceived > 0);
   BOOST_CHECK_EQUAL(received.error(), 0);
   BOOST_CHECK_EQUAL(received.length(), 10);
   BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
@@ -295,8 +316,8 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedFloatArrayValue[k], 0.0001);
 
   // make sure no more data is "in the pipeline"
-  while(dataReceived) {
-    dataReceived = false;
+  while(dataReceived > 0) {
+    dataReceived = 0;
     usleep(10000);
   }
 
@@ -315,10 +336,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     }
 
     // nothing must be received, no consistent set yet
-    dataReceived = false;
+    BOOST_CHECK_EQUAL(dataReceived, 0);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     usleep(10000);
-    BOOST_CHECK(dataReceived == false);
+    BOOST_CHECK_EQUAL(dataReceived, 0);
 
     // now send the variable which has not been send yet
     if(sendMacroPulseFirst[i]) {
@@ -328,7 +349,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
-    CHECK_WITH_TIMEOUT(dataReceived == true);
+    CHECK_WITH_TIMEOUT(dataReceived > 0);
+    usleep(10000);
+    BOOST_CHECK_EQUAL(dataReceived, 1);
+    dataReceived--;
     {
       std::lock_guard<std::mutex> lock(mutex);
       BOOST_CHECK_EQUAL(received.error(), 0);
