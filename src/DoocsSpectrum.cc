@@ -62,6 +62,25 @@ namespace ChimeraTK {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
     modified = true;
     sendToDevice();
+
+    if(publishZMQ) {
+      auto timestamp = _processArray->getVersionNumber().getTime();
+      auto seconds = std::chrono::system_clock::to_time_t(timestamp);
+      auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
+          timestamp - std::chrono::system_clock::from_time_t(seconds))
+                              .count();
+      dmsg_info info;
+      memset(&info, 0, sizeof(info));
+      info.sec = seconds;
+      info.usec = microseconds;
+      if(_macroPulseNumberSource != nullptr) {
+        info.ident = _macroPulseNumberSource->accessData(0);
+      }
+      else {
+        info.ident = 0;
+      }
+      this->send(&info);
+    }
   }
 
   void DoocsSpectrum::auto_init(void) {

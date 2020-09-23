@@ -148,6 +148,25 @@ namespace ChimeraTK {
       else {
         throw ChimeraTK::logic_error("Trying to write to a non-writable variable");
       }
+      // send data via ZeroMQ if enabled
+      if(_publishZMQ) {
+        auto timestamp = _processScalar->getVersionNumber().getTime();
+        auto seconds = std::chrono::system_clock::to_time_t(timestamp);
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
+            timestamp - std::chrono::system_clock::from_time_t(seconds))
+                                .count();
+        dmsg_info info;
+        memset(&info, 0, sizeof(info));
+        info.sec = seconds;
+        info.usec = microseconds;
+        if(_macroPulseNumberSource != nullptr) {
+          info.ident = _macroPulseNumberSource->accessData(0);
+        }
+        else {
+          info.ident = 0;
+        }
+        this->send(&info);
+      }
     }
 
     /**
