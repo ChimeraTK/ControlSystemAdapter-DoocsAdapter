@@ -26,7 +26,7 @@ static std::mutex mutex;
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testScalar) {
-  std::cout << "testScalar " << GlobalFixture::rpcNo << std::endl;
+  std::cout << "testScalar " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
@@ -45,7 +45,8 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   /// of the types as listed in the HolderMap of the ReferenceTestApplication.
   /// INT comes before UINT and FLOAT, so the macro pulse number is first
   /// written and then our values.
-
+  size_t retryCounter = 0;
+retry:
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_SCALAR");
@@ -79,7 +80,13 @@ BOOST_AUTO_TEST_CASE(testScalar) {
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
     usleep(10000);
-    if(++counter > 1000) break;
+    if(++counter > 1000) {
+      dmsg_detach(&ea, tag);
+      std::cout << "RETRY!" << std::endl;
+      ++retryCounter;
+      BOOST_REQUIRE(retryCounter < 10);
+      goto retry;
+    }
   }
   BOOST_CHECK(dataReceived > 0);
   {
@@ -146,7 +153,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testArray) {
-  std::cout << "testArray " << GlobalFixture::rpcNo << std::endl;
+  std::cout << "testArray " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
@@ -161,6 +168,8 @@ BOOST_AUTO_TEST_CASE(testArray) {
   std::vector<int32_t> expectedArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
   DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", expectedArrayValue);
 
+  size_t retryCounter = 0;
+retry:
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_ARRAY");
@@ -192,7 +201,13 @@ BOOST_AUTO_TEST_CASE(testArray) {
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
     usleep(10000);
-    if(++counter > 1000) break;
+    if(++counter > 1000) {
+      dmsg_detach(&ea, tag);
+      std::cout << "RETRY!" << std::endl;
+      ++retryCounter;
+      BOOST_REQUIRE(retryCounter < 10);
+      goto retry;
+    }
   }
   BOOST_CHECK(dataReceived > 0);
   {
@@ -260,7 +275,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testSpectrum) {
-  std::cout << "testSpectrum " << GlobalFixture::rpcNo << std::endl;
+  std::cout << "testSpectrum " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
 
@@ -275,6 +290,8 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   std::vector<float> expectedFloatArrayValue = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
   DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", expectedFloatArrayValue);
 
+  size_t retryCounter = 0;
+retry:
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/FLOAT/FROM_DEVICE_ARRAY");
@@ -306,7 +323,13 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
     usleep(10000);
-    if(++counter > 1000) break;
+    if(++counter > 1000) {
+      dmsg_detach(&ea, tag);
+      std::cout << "RETRY!" << std::endl;
+      ++retryCounter;
+      BOOST_REQUIRE(retryCounter < 10);
+      goto retry;
+    }
   }
   BOOST_CHECK(dataReceived > 0);
   BOOST_CHECK_EQUAL(received.error(), 0);

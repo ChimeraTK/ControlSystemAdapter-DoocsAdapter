@@ -33,6 +33,7 @@ static const int ACCESS_RW = 1; // read/write
   struct GlobalFixture {                                                                                               \
     GlobalFixture() {                                                                                                  \
       rpcNo = server.rpcNo();                                                                                          \
+      bpn = server.bpn();                                                                                              \
       ChimeraTK::DoocsAdapter::waitUntilInitialised();                                                                 \
       GlobalFixture::referenceTestApplication.initialiseManualLoopControl();                                           \
       codeBlockStartUp                                                                                                 \
@@ -42,12 +43,14 @@ static const int ACCESS_RW = 1; // read/write
                                                                                                                        \
     static ReferenceTestApplication referenceTestApplication;                                                          \
     static std::string rpcNo;                                                                                          \
+    static std::string bpn;                                                                                            \
     ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
         framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
   };                                                                                                                   \
                                                                                                                        \
   ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
   std::string GlobalFixture::rpcNo;                                                                                    \
+  std::string GlobalFixture::bpn;                                                                                      \
   CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
 
 #define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE({})
