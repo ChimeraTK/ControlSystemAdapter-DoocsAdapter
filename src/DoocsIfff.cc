@@ -132,6 +132,25 @@ namespace ChimeraTK {
   void DoocsIfff::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
     sendToApplication();
+
+    if(_publishZMQ) {
+      auto timestamp = _i1Value->getVersionNumber().getTime();
+      auto seconds = std::chrono::system_clock::to_time_t(timestamp);
+      auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
+          timestamp - std::chrono::system_clock::from_time_t(seconds))
+                              .count();
+      dmsg_info info;
+      memset(&info, 0, sizeof(info));
+      info.sec = seconds;
+      info.usec = microseconds;
+      if(_macroPulseNumberSource != nullptr) {
+        info.ident = _macroPulseNumberSource->accessData(0);
+      }
+      else {
+        info.ident = 0;
+      }
+      this->send(&info);
+    }
   }
 
   void DoocsIfff::auto_init(void) {
