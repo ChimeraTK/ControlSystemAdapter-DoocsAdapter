@@ -58,7 +58,7 @@ retry:
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
-        auto x = dataReceived++;
+        dataReceived++;
       },
       &tag);
   BOOST_CHECK(!err);
@@ -181,7 +181,7 @@ retry:
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
-        auto x = dataReceived++;
+        dataReceived++;
       },
       &tag);
   BOOST_CHECK(!err);
@@ -303,7 +303,7 @@ retry:
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
-        auto x = dataReceived++;
+        dataReceived++;
       },
       &tag);
   BOOST_CHECK(!err);
