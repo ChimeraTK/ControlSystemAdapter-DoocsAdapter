@@ -22,9 +22,9 @@ static const int ACCESS_RW = 1; // read/write
   struct GlobalFixture {                                                                                               \
     GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
                                                                                                                        \
-    ReferenceTestApplication referenceTestApplication{framework::master_test_suite().p_name.value};                    \
-    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
-        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
+    ReferenceTestApplication referenceTestApplication{boost::unit_test::framework::master_test_suite().p_name.value};  \
+    ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
+        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv}; \
   };                                                                                                                   \
                                                                                                                        \
   CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
@@ -44,8 +44,8 @@ static const int ACCESS_RW = 1; // read/write
     static ReferenceTestApplication referenceTestApplication;                                                          \
     static std::string rpcNo;                                                                                          \
     static std::string bpn;                                                                                            \
-    ThreadedDoocsServer server{framework::master_test_suite().p_name.value + ".conf",                                  \
-        framework::master_test_suite().argc, framework::master_test_suite().argv};                                     \
+    ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
+        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv}; \
   };                                                                                                                   \
                                                                                                                        \
   ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
@@ -110,9 +110,8 @@ DOOCS_T* getDoocsProperty(std::string const& propertyAddress) {
 }
 
 template<class DOOCS_T>
-void checkDoocsProperty(std::string const& propertyAddress,
-    bool expected_has_history = true,
-    bool expected_is_writeable = true) {
+void checkDoocsProperty(
+    std::string const& propertyAddress, bool expected_has_history = true, bool expected_is_writeable = true) {
   auto location = getLocationFromPropertyAddress(propertyAddress);
   location->lock();
 
