@@ -47,15 +47,17 @@ namespace ChimeraTK {
     locationsToLock.reserve(nMaxLocationsToLock);
 
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
-    while(true) {
-      // Call preRead for all TEs on additional transfer elements. waitAny() is doing this for all
-      // elements in the ReadAnyGroup. Unnecessary calls to preRead are ignored anyway.
-      for(auto& pair : _toDoocsDescriptorMap) {
-        for(auto& elem : pair.second.additionalTransferElements) {
-          elem->preRead(ChimeraTK::TransferType::read);
-        }
-      }
 
+    // Call preRead for all TEs on additional transfer elements. waitAny() is doing this for all elements in the
+    // ReadAnyGroup. Unnecessary calls to preRead() are anyway ignored and merely pose a performance issue. For large
+    // servers, the performance impact is significant, hence we keep track of the TEs which need to be called.
+    for(auto& pair : _toDoocsDescriptorMap) {
+      for(auto& elem : pair.second.additionalTransferElements) {
+        elem->preRead(ChimeraTK::TransferType::read);
+      }
+    }
+
+    while(true) {
       // Wait until any variable got an update
       auto notification = group.waitAny();
       auto updatedElement = notification.getId();
@@ -79,6 +81,11 @@ namespace ChimeraTK {
       // Unlock all involved locations
       for(auto& location : locationsToLock) location->unlock();
       locationsToLock.clear();
+
+      // Call preRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
+      for(auto& elem : descriptor.additionalTransferElements) {
+        elem->preRead(ChimeraTK::TransferType::read);
+      }
 
       // Allow shutting down this thread...
       boost::this_thread::interruption_point();
