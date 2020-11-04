@@ -417,7 +417,7 @@ boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDesc
     case AutoPropertyDescription::DataType::Auto:
       if(valueType == typeid(std::string)) {
         return typedCreateScalarOrArray<D_textUnifier, std::string, std::nullptr_t, std::nullptr_t>(
-            valueType, *processVariable, *autoPropertyDescription, DecoratorType::range_checking);
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::limiting);
       }
       throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
   }
