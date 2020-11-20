@@ -40,6 +40,11 @@ namespace ChimeraTK {
           << ". Try selecting a different DOOCS type in the mappng XML file, e.g. a D_spectrum!";
         throw ChimeraTK::logic_error(s.str());
       }
+
+      // put variable into error state, until a valid value has been received
+      if(!_processArray->isWriteable()) {
+        this->d_error(stale_data);
+      }
     }
 
     /**

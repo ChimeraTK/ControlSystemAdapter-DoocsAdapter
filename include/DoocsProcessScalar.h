@@ -123,6 +123,11 @@ namespace ChimeraTK {
         updater.addVariable(ChimeraTK::ScalarRegisterAccessor<T>(processScalar), eqFct,
             std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this, processScalar->getId()));
         _consistencyGroup.add(processScalar);
+
+        // put variable into error state, until a valid value has been received
+        if(!_processScalar->isWriteable()) {
+          this->d_error(stale_data);
+        }
       }
     }
 
@@ -133,6 +138,11 @@ namespace ChimeraTK {
         updater.addVariable(ChimeraTK::ScalarRegisterAccessor<T>(processScalar), eqFct,
             std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this, processScalar->getId()));
         _consistencyGroup.add(processScalar);
+
+        // put variable into error state, until a valid value has been received
+        if(!_processScalar->isWriteable()) {
+          this->d_error(stale_data);
+        }
       }
     }
 
