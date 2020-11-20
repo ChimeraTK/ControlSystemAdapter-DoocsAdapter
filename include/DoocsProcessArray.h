@@ -37,8 +37,7 @@ namespace ChimeraTK {
         s << "Error: The selected DOOCS data type for the variable '" << processArray->getName() << "' "
           << "(mapped to the DOOCS name '" << doocsPropertyName << "') seems not to support the requested length of "
           << processArray->getNumberOfSamples() << " since the DOOCS property has a length of " << this->length()
-          << ". Try selectin a different DOOCS type in the mappng XML file, e.g. "
-             "a D_spectrum!";
+          << ". Try selecting a different DOOCS type in the mappng XML file, e.g. a D_spectrum!";
         throw ChimeraTK::logic_error(s.str());
       }
     }
