@@ -63,7 +63,8 @@ namespace ChimeraTK {
     modified = true;
     sendToDevice();
 
-    if(publishZMQ) {
+    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+    if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       auto timestamp = _processArray->getVersionNumber().getTime();
       auto seconds = std::chrono::system_clock::to_time_t(timestamp);
       auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -79,7 +80,10 @@ namespace ChimeraTK {
       else {
         info.ident = 0;
       }
-      this->send(&info);
+      auto ret = this->send(&info);
+      if(ret) {
+        std::cout << "ZeroMQ sending failed!!!" << std::endl;
+      }
     }
   }
 
@@ -178,7 +182,8 @@ namespace ChimeraTK {
     else {
       fill_spectrum(processVector.data(), processVector.size(), ibuf);
     }
-    if(publishZMQ) {
+    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+    if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       dmsg_info info;
       memset(&info, 0, sizeof(info));
       info.sec = seconds;

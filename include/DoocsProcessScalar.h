@@ -97,8 +97,8 @@ namespace ChimeraTK {
       this->set_tmstmp(seconds, microseconds);
       if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
 
-      // send data via ZeroMQ if enabled
-      if(_publishZMQ) {
+      // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+      if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         dmsg_info info;
         memset(&info, 0, sizeof(info));
         info.sec = seconds;
@@ -163,8 +163,8 @@ namespace ChimeraTK {
       else {
         throw ChimeraTK::logic_error("Trying to write to a non-writable variable");
       }
-      // send data via ZeroMQ if enabled
-      if(_publishZMQ) {
+      // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+      if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         auto timestamp = _processScalar->getVersionNumber().getTime();
         auto seconds = std::chrono::system_clock::to_time_t(timestamp);
         auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -180,7 +180,10 @@ namespace ChimeraTK {
         else {
           info.ident = 0;
         }
-        this->send(&info);
+        auto ret = this->send(&info);
+        if(ret) {
+          std::cout << "ZeroMQ sending failed!!!" << std::endl;
+        }
       }
     }
 

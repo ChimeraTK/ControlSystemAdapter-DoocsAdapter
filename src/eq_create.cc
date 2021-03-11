@@ -91,3 +91,8 @@ void post_init_epilog() {
   doocsAdapter.updater->run();
   ChimeraTK::DoocsAdapter::isInitialised = true;
 }
+
+
+void eq_cancel() {
+  ChimeraTK::DoocsAdapter::isInitialised = false;
+}

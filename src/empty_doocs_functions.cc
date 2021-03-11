@@ -7,4 +7,3 @@ void interrupt_usr2_prolog() {}
 void interrupt_usr1_epilog(int) {}
 void interrupt_usr2_epilog() {}
 void post_init_prolog() {}
-void eq_cancel() {}

@@ -54,8 +54,8 @@ namespace ChimeraTK {
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override {
       DOOCS_T::set(eqAdr, data1, data2, eqFct);
       sendToDevice();
-      // send data via ZeroMQ if enabled
-      if(publishZMQ) {
+      // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+      if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         auto timestamp = _processArray->getVersionNumber().getTime();
         auto seconds = std::chrono::system_clock::to_time_t(timestamp);
         auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -71,7 +71,10 @@ namespace ChimeraTK {
         else {
           info.ident = 0;
         }
-        this->send(&info);
+        auto ret = this->send(&info);
+        if(ret) {
+          std::cout << "ZeroMQ sending failed!!!" << std::endl;
+        }
       }
     }
 
@@ -146,8 +149,8 @@ namespace ChimeraTK {
       this->set_tmstmp(seconds, microseconds);
       if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
 
-      // send data via ZeroMQ if enabled
-      if(publishZMQ) {
+      // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+      if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         dmsg_info info;
         memset(&info, 0, sizeof(info));
         info.sec = seconds;

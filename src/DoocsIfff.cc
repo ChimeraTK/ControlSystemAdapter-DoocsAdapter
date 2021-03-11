@@ -1,5 +1,6 @@
 #include "DoocsIfff.h"
 #include "DoocsUpdater.h"
+#include "DoocsAdapter.h"
 
 #include <ChimeraTK/Exception.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
@@ -114,7 +115,8 @@ namespace ChimeraTK {
     this->set_tmstmp(seconds, microseconds);
     if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
 
-    if(_publishZMQ) {
+    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+    if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       dmsg_info info;
       memset(&info, 0, sizeof(info));
       info.sec = seconds;
@@ -125,7 +127,10 @@ namespace ChimeraTK {
       else {
         info.ident = 0;
       }
-      this->send(&info);
+      auto ret = this->send(&info);
+      if(ret) {
+        std::cout << "ZeroMQ sending failed!!!" << std::endl;
+      }
     }
   }
 
@@ -133,7 +138,8 @@ namespace ChimeraTK {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
     sendToApplication();
 
-    if(_publishZMQ) {
+    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
+    if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       auto timestamp = _i1Value->getVersionNumber().getTime();
       auto seconds = std::chrono::system_clock::to_time_t(timestamp);
       auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -149,7 +155,10 @@ namespace ChimeraTK {
       else {
         info.ident = 0;
       }
-      this->send(&info);
+      auto ret = this->send(&info);
+      if(ret) {
+        std::cout << "ZeroMQ sending failed!!!" << std::endl;
+      }
     }
   }
 
