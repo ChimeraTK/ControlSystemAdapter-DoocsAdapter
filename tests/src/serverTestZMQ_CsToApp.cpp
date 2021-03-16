@@ -29,6 +29,15 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/TEST_LOCATION/D_SCALAR");
   dmsg_t tag;
 
+  // Wait until server is available
+  EqCall eq;
+  EqData s, d;
+  size_t counter=0;
+  while(eq.get(&ea,&s,&d) != 0) {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    if(++counter > 30) BOOST_FAIL("Timeout in waiting for server");
+  }
+
   using Channel = std::promise<ZmqData>;
   Channel channel;
   auto receiver = channel.get_future();
