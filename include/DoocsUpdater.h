@@ -37,6 +37,8 @@ namespace ChimeraTK {
     void addVariable(
         ChimeraTK::TransferElementAbstractor variable, EqFct* eq_fct, std::function<void()> updaterFunction);
 
+    const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
+
    protected:
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
     boost::thread _syncThread; // we have to use boost thread to use interruption points

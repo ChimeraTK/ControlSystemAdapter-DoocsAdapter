@@ -41,6 +41,15 @@ void eq_init_prolog() {
     ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
   }
 
+  // prepare list of unmapped read variables and pass it to the Application for optimisation
+  for(auto &p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
+    auto it = pvNames.find(p);
+    if(it != pvNames.end()) {
+      pvNames.erase(it);
+    }
+  }
+  ChimeraTK::ApplicationBase::getInstance().optimiseUnmappedVariables(pvNames);
+
   // activate the advanced archiver to have histories
   set_arch_mode(1);
 }

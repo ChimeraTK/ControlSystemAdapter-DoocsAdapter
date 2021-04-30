@@ -54,6 +54,8 @@ namespace ChimeraTK {
     /// Functiont o convert a string into a DataConsistencyGroup::MatchingMode enum value
     static DataConsistencyGroup::MatchingMode evaluateDataMatching(std::string txt);
 
+    const std::set<std::string>& getUsedVariables() const { return _usedInputVariables; }
+
    protected:
     VariableMapper() = default;
 
