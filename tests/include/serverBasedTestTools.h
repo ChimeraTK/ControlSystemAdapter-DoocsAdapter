@@ -22,10 +22,13 @@ static const int ACCESS_RW = 1; // read/write
   struct GlobalFixture {                                                                                               \
     GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
                                                                                                                        \
-    ReferenceTestApplication referenceTestApplication{boost::unit_test::framework::master_test_suite().p_name.value};  \
+    static ReferenceTestApplication referenceTestApplication;                                                          \
     ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
         boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv}; \
   };                                                                                                                   \
+                                                                                                                       \
+  ReferenceTestApplication GlobalFixture::referenceTestApplication{                                                    \
+      boost::unit_test::framework::master_test_suite().p_name.value};                                                  \
                                                                                                                        \
   CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
 
