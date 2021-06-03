@@ -171,7 +171,6 @@ namespace ChimeraTK {
     void publishZeroMQ() { publishZMQ = true; }
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-      if(_processArray->isReadable()) {
         _macroPulseNumberSource = macroPulseNumberSource;
         if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
           _consistencyGroup.add(macroPulseNumberSource);
@@ -179,7 +178,13 @@ namespace ChimeraTK {
               std::bind(&DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer, this,
                   macroPulseNumberSource->getId()));
         }
-      }
+        else {
+          // We don't need to match up anything with it when it changes, but we have to register this at least once
+          // so the macropulse number will be included in the readAnyGroup in the updater if
+          // <data_matching> is none everywhere
+          _doocsUpdater.addVariable(
+              ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct, []() {});
+        }
     }
 
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> _processArray;

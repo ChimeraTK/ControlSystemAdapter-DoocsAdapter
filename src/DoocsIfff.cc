@@ -187,17 +187,15 @@ namespace ChimeraTK {
 
   void DoocsIfff::setMacroPulseNumberSource(
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-    // FIXME: Assuming macroPulseNumberSource is relavent only when all 4
-    // components are readable; correct behavior later if this assumption
-    // does not hold.
-    bool isIfffReadable =
-        (_i1Value->isReadable() && _f1Value->isReadable() && _f2Value->isReadable() && _f3Value->isReadable());
-    if(not isIfffReadable) {
-      return;
-    }
     _macroPulseNumberSource = macroPulseNumberSource;
     if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
       registerVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(_macroPulseNumberSource));
+    }
+    else {
+      // We don't need to match up anything with it when it changes, but we have to register this at least once
+      // so the macropulse number will be included in the readAnyGroup in the updater if
+      // <data_matching> is none everywhere
+      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct, []() {});
     }
   }
 

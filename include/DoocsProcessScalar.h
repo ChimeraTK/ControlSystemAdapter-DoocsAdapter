@@ -175,6 +175,7 @@ namespace ChimeraTK {
         info.sec = seconds;
         info.usec = microseconds;
         if(_macroPulseNumberSource != nullptr) {
+          this->set_mpnum(_macroPulseNumberSource->accessData(0));
           info.ident = _macroPulseNumberSource->accessData(0);
         }
         else {
@@ -206,14 +207,19 @@ namespace ChimeraTK {
     void publishZeroMQ() { _publishZMQ = true; }
 
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-      if(_processScalar->isReadable()) {
         _macroPulseNumberSource = macroPulseNumberSource;
         if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
           _consistencyGroup.add(macroPulseNumberSource);
           _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
               std::bind(&DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
         }
-      }
+        else {
+          // We don't need to match up anything with it when it changes, but we have to register this at least once
+          // so the macropulse number will be included in the readAnyGroup in the updater if
+          // <data_matching> is none everywhere
+          _doocsUpdater.addVariable(
+              ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct, []() {});
+        }
     }
 
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> _processScalar;
