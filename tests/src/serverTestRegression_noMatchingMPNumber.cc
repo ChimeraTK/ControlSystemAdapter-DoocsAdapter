@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE serverTestRegression - noMatchingMPNumber
+#define BOOST_TEST_MODULE serverTestRegression_noMatchingMPNumber
 #include <boost/test/included/unit_test.hpp>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
@@ -52,8 +52,7 @@ retry:
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/TO_DEVICE_SCALAR");
   dmsg_t tag;
   dataReceived = 0;
-  int err = dmsg_attach(
-      &ea, &dst, nullptr,
+  int err = dmsg_attach(&ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -151,8 +150,7 @@ retry:
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/TO_DEVICE_ARRAY");
   dmsg_t tag;
   dataReceived = 0;
-  int err = dmsg_attach(
-      &ea, &dst, nullptr,
+  int err = dmsg_attach(&ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -231,8 +229,7 @@ retry:
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/CUSTOM/IFFF");
   dmsg_t tag;
   dataReceived = 0;
-  int err = dmsg_attach(
-      &ea, &dst, nullptr,
+  int err = dmsg_attach(&ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
