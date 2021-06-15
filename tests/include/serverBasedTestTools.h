@@ -190,7 +190,7 @@ void checkDataType(std::string const& propertyAddress, int dataType) {
 }
 
 #define CHECK_WITH_TIMEOUT(...)                                                                                        \
-  {                                                                                                                    \
+  do {                                                                                                                 \
     static const size_t nIterations = 10000;                                                                           \
     size_t local_index_i = 0;                                                                                          \
     for(; local_index_i < nIterations; ++local_index_i) {                                                              \
@@ -201,7 +201,7 @@ void checkDataType(std::string const& propertyAddress, int dataType) {
       usleep(100);                                                                                                     \
     }                                                                                                                  \
     if(local_index_i == nIterations) BOOST_CHECK(__VA_ARGS__);                                                         \
-  }
+  } while(false)
 
 template<class T>
 void checkWithTimeout(std::function<T()> accessorFunction, T referenceValue, size_t nIterations = 10000,
