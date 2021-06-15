@@ -15,7 +15,6 @@ struct ZmqData {
   explicit ZmqData(EqData* d, dmsg_info_t* i) : info(*i) { data.copy_from(d); }
 };
 
-
 extern const char* object_name;
 DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(dmsg_start();)
 
@@ -32,8 +31,8 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
   // Wait until server is available
   EqCall eq;
   EqData s, d;
-  size_t counter=0;
-  while(eq.get(&ea,&s,&d) != 0) {
+  size_t counter = 0;
+  while(eq.get(&ea, &s, &d) != comp_code::ok) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
     if(++counter > 30) BOOST_FAIL("Timeout in waiting for server");
   }
@@ -60,4 +59,3 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
 
   dmsg_detach(&ea, tag);
 }
-

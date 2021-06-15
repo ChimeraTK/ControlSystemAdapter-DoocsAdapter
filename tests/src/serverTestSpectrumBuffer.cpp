@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, 0);
+    BOOST_CHECK_EQUAL(rc, comp_code::ok);
     BOOST_CHECK_EQUAL(dst.error(), 0);
     expectedFloatArrayValue[1] = i;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, 0);
+    BOOST_CHECK_EQUAL(rc, comp_code::ok);
     BOOST_CHECK_EQUAL(dst.error(), 0);
     expectedFloatArrayValue[1] = i + 10000;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, -1);
+    BOOST_CHECK_EQUAL(rc, comp_code::data_error);
     BOOST_CHECK_EQUAL(dst.error(), scope_out_of_range);
   }
 
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, 0);
+    BOOST_CHECK_EQUAL(rc, comp_code::ok);
     BOOST_CHECK_EQUAL(dst.error(), 0);
     expectedFloatArrayValue[1] = i + 10000;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {
