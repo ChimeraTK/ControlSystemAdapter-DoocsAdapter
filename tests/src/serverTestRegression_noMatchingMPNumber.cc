@@ -34,10 +34,15 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   // Everything from now on will get the same version number, until we manually set a new one.
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
 
+  //sleep(10);
   // set initial values
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == macroPulseNumber);
+
+  // now the new value must propagate with the correct MPN, via RPC or ZMQ does not matter
   uint32_t expectedValue = 42;
   DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
 
@@ -63,6 +68,7 @@ retry:
   BOOST_CHECK(!err);
 
   // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
+
   CHECK_WITH_TIMEOUT(dataReceived > 0);
   usleep(10000);
   BOOST_CHECK_EQUAL(dataReceived, 1);
@@ -133,8 +139,13 @@ BOOST_AUTO_TEST_CASE(testArray) {
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
 
   // set initial values
-  int macroPulseNumber = 12345;
+  int macroPulseNumber = 12346;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
+
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == macroPulseNumber);
+
+  // now the new value must propagate with the correct MPN, via RPC or ZMQ does not matter
 
   int expectedValue = 42;
   DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_ARRAY", std::initializer_list<int>{expectedValue});
@@ -206,8 +217,13 @@ BOOST_AUTO_TEST_CASE(testIff) {
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
 
   // set initial values
-  int macroPulseNumber = 12345;
+  int macroPulseNumber = 12347;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
+
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == macroPulseNumber);
+
+  // now the new value must propagate with the correct MPN, via RPC or ZMQ does not matter
 
   IFFF ifff;
   ifff.f1_data = 1.0;
