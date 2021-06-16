@@ -17,8 +17,8 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 include(cmake/add_dependency.cmake)
 
 add_dependency(ChimeraTK-ControlSystemAdapter 02.02 REQUIRED)
-add_dependency(doocs-server-test-helper 01.03 REQUIRED)
-add_dependency(DOOCS 21.03.1 COMPONENTS server REQUIRED)
+add_dependency(doocs-server-test-helper 01.05 REQUIRED)
+add_dependency(DOOCS 21.04.0 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
