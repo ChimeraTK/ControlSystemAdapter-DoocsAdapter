@@ -53,6 +53,11 @@ namespace ChimeraTK {
         locationInfo.useHasHistoryDefault = true;
         locationInfo.hasHistory = evaluateBool(getContentString(node));
       }
+      else if(node->get_name() == "persist") {
+        auto& locationInfo = _locationDefaults[locationName];
+        locationInfo.usePersistDefault = true;
+        locationInfo.persist = PersistConfig(getContentString(node));
+      }
       else if(node->get_name() == "is_writeable") {
         auto& locationInfo = _locationDefaults[locationName];
         locationInfo.useIsWriteableDefault = true;
@@ -131,6 +136,14 @@ namespace ChimeraTK {
     }
     else {
       propertyDescription->hasHistory = getHasHistoryDefault(locationName);
+    }
+
+    auto persistNodes = propertyXmlElement->get_children("persist");
+    if(!persistNodes.empty()) {
+      propertyDescription->persist = PersistConfig(getContentString(persistNodes.front()));
+    }
+    else {
+      propertyDescription->persist = _locationDefaults[locationName].persist;
     }
 
     auto isWriteableNodes = propertyXmlElement->get_children("is_writeable");
@@ -418,6 +431,7 @@ namespace ChimeraTK {
         // individual settings)
         autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
         autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
+        autoPropertyDescription->persist = getPersistDefault(locationName);
         autoPropertyDescription->macroPulseNumberSource = getMacroPusleNumberSourceDefault(locationName);
         autoPropertyDescription->dataMatching = getDataMatchingDefault(locationName);
 
@@ -491,6 +505,9 @@ namespace ChimeraTK {
         }
         else if(mainNode->get_name() == "is_writeable") {
           _globalDefaults.isWriteable = evaluateBool(getContentString(mainNode));
+        }
+        else if(mainNode->get_name() == "persist") {
+          _globalDefaults.persist = PersistConfig(getContentString(mainNode));
         }
         else if(mainNode->get_name() == "macro_pulse_number_source") {
           _globalDefaults.macroPulseNumberSource = getContentString(mainNode);
@@ -642,6 +659,16 @@ namespace ChimeraTK {
     }
     else {
       return _globalDefaults.isWriteable;
+    }
+  }
+
+  PersistConfig VariableMapper::getPersistDefault(std::string const& locationName) {
+    auto locationInfo = _locationDefaults[locationName];
+    if(locationInfo.usePersistDefault) {
+      return locationInfo.persist;
+    }
+    else {
+      return _globalDefaults.persist;
     }
   }
 

@@ -76,6 +76,8 @@ namespace ChimeraTK {
     void import(std::string importSource, std::string importLocationName, std::string directory = "");
     bool getHasHistoryDefault(std::string const& locationName);
     bool getIsWriteableDefault(std::string const& locationName);
+    PersistConfig getPersistDefault(std::string const& locationName);
+
     std::string getMacroPusleNumberSourceDefault(std::string const& locationName);
     DataConsistencyGroup::MatchingMode getDataMatchingDefault(std::string const& locationName);
 
