@@ -84,6 +84,11 @@ in a property tag (or any tag for a special property, see Secion \ref special_pr
                   writeable.
 - `macro_pulse_number_source`: Name of process variable which contains the macro pusle number which should be attached
                                to the properties.
+- `persist`: Controls behaviour of DOOCS persistency files. This is only important for writable arrays with more than MAX_CONF_LENGTH entries 
+             (usually 20). Possible values are `true` (the default) - always save the array,
+             `false` -  do not save the array,
+             `auto` - default DOOCS behaviour, only arrays with up to 20 entries are saved, in server config file.
+             Long arrays are saved in separate files below `hist/` instead of the server config file.
 
 \subsection zeromq ZeroMQ publication
 
