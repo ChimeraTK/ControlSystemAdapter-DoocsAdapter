@@ -73,31 +73,6 @@ std::string GlobalFixture::bpn;
 
 CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
 
-// this was crashing the test at the end, for some reason.
-//struct ServerFixture {
-//  ServerFixture() {
-//    referenceTestApplication.reset(new ReferenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE), alen});
-//    server.reset(new ThreadedDoocsServer{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",
-//        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv});
-
-//    rpcNo = server->rpcNo();
-//    bpn = server->bpn();
-//    ChimeraTK::DoocsAdapter::waitUntilInitialised();
-//    referenceTestApplication->initialiseManualLoopControl();
-//  }
-
-//  ~ServerFixture() {
-//    referenceTestApplication->releaseManualLoopControl();
-//    server.release();
-//    referenceTestApplication.release();
-//  }
-
-//  std::unique_ptr<ReferenceTestApplication> referenceTestApplication;
-//  std::string rpcNo;
-//  std::string bpn;
-//  std::unique_ptr<ThreadedDoocsServer>  server;
-//};
-
 // the array must have testStartValue+i at index i.
 template<class T>
 static bool testArrayContent1(std::vector<T>& array, std::string const& propertyName, T testStartValue, T delta) {
@@ -145,14 +120,15 @@ BOOST_AUTO_TEST_CASE(testArrayWrite) {
   // run the application loop.
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
-  // changes values
+  // check changed values
+  usleep(100000);
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 150, 1) == true);
   CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 250.3, 1) == true);
 
   // trigger array storing
   DoocsServerTestHelper::doocsSet<bool>("//ARRAY_PERSISTENCE_TEST._SVR/SVR.SAVE", true);
   // wait till disk file written
-  usleep(1000000);
+  usleep(500000);
 
   // check persisted file against known values
   std::vector<int> vint2(alen);
