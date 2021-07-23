@@ -24,10 +24,10 @@ namespace ChimeraTK {
 
     PersistConfig(std::string txt) {
       transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
-      if(txt == "false" or txt == "0") {
+      if(txt == "false" or txt =="off" or txt == "0") {
         val = OFF;
       }
-      else if(txt == "true" or txt == "1") {
+      else if(txt == "true" or txt == "on" or txt == "1") {
         val = ON;
       }
       else if(txt == "auto") {

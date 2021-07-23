@@ -35,7 +35,8 @@ void vectorFromFile(std::vector<T>& vec, const char* fname) {
 
 const int alen = 40;
 
-// slightly modified GlobalFixture from serverBasedTestTools.h
+// slightly modified GlobalFixture from serverBasedTestTools.h:
+// use longer arrays in ReferenceTestApplication, cleanup persistency files at startup
 struct GlobalFixture {
   GlobalFixture() {
     cleanupFiles();
@@ -75,7 +76,7 @@ CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
 
 // the array must have testStartValue+i at index i.
 template<class T>
-static bool testArrayContent1(std::vector<T>& array, std::string const& propertyName, T testStartValue, T delta) {
+static bool testArrayContent(std::vector<T>& array, std::string const& propertyName, T testStartValue, T delta) {
   bool isOK = true;
   T currentTestValue = testStartValue;
   size_t index = 0;
@@ -93,20 +94,20 @@ static bool testArrayContent1(std::vector<T>& array, std::string const& property
   return isOK;
 }
 template<class T>
-static bool testArrayContent(std::string const& propertyName, T testStartValue, T delta) {
+static bool testArrayContentFromProperty(std::string const& propertyName, T testStartValue, T delta) {
   auto array = DoocsServerTestHelper::doocsGetArray<T>(propertyName);
-  return testArrayContent1(array, propertyName, testStartValue, delta);
+  return testArrayContent(array, propertyName, testStartValue, delta);
 }
 
 /// Using prepared persistence file, start server, check restored values, change values, trigger persisting, compare file with expectation
 BOOST_AUTO_TEST_CASE(testArrayWrite) {
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
-  std::string const& propertyAddress = "//INT/MY_RENAMED_INTARRAY";
+  std::string const& propertyAddress = "//INT/FROM_DEVICE_ARRAY";
   checkDataType(propertyAddress, DATA_A_INT);
 
-  CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 100, 1) == true);
-  CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 200.1, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContentFromProperty<float>("//INT/FROM_DEVICE_ARRAY", 100, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContentFromProperty<float>("//DOUBLE/FROM_DEVICE_ARRAY", 200.1, 1) == true);
 
   std::vector<int> vint(alen);
   std::vector<double> vdouble(alen);
@@ -122,19 +123,28 @@ BOOST_AUTO_TEST_CASE(testArrayWrite) {
 
   // check changed values
   usleep(100000);
-  CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 150, 1) == true);
-  CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 250.3, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContentFromProperty<float>("//INT/FROM_DEVICE_ARRAY", 150, 1) == true);
+  CHECK_WITH_TIMEOUT(testArrayContentFromProperty<float>("//DOUBLE/FROM_DEVICE_ARRAY", 250.3, 1) == true);
 
   // trigger array storing
   DoocsServerTestHelper::doocsSet<bool>("//ARRAY_PERSISTENCE_TEST._SVR/SVR.SAVE", true);
-  // wait till disk file written
-  usleep(500000);
 
-  // check persisted file against known values
-  std::vector<int> vint2(alen);
-  std::vector<double> vdouble2(alen);
-  vectorFromFile(vint2, "hist/INT-TO_DEVICE_ARRAY.intarray");
-  vectorFromFile(vdouble2, "hist/DOUBLE-TO_DEVICE_ARRAY.doublearray");
-  CHECK_WITH_TIMEOUT(testArrayContent1<int>(vint2, "//INT/MY_RENAMED_INTARRAY", 150, 1) == true);
-  CHECK_WITH_TIMEOUT(testArrayContent1<double>(vdouble2, "//DOUBLE/FROM_DEVICE_ARRAY", 250.3, 1) == true);
+  // check persisted file against known values. Try several times, reading from disk.
+  bool intArrayRestored = false;
+  bool doubleArrayRestored = false;
+  for(int count = 0; count < 100; ++count) {
+    usleep(100000);
+    std::vector<int> vint2(alen);
+    std::vector<double> vdouble2(alen);
+    vectorFromFile(vint2, "hist/INT-TO_DEVICE_ARRAY.intarray");
+    vectorFromFile(vdouble2, "hist/DOUBLE-TO_DEVICE_ARRAY.doublearray");
+    intArrayRestored = testArrayContent<int>(vint2, "//INT/TO_DEVICE_ARRAY from file", 150, 1);
+    doubleArrayRestored = testArrayContent<double>(vdouble2, "//DOUBLE/TO_DEVICE_ARRAY from file", 250.3, 1);
+    if(intArrayRestored && doubleArrayRestored) {
+      std::cout << "arrays recovered after read tries: " << count+1 << std::endl;
+      break;
+    }
+  }
+  BOOST_CHECK(intArrayRestored);
+  BOOST_CHECK(doubleArrayRestored);
 }

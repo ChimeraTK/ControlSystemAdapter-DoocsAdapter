@@ -2,15 +2,17 @@
 <device_server xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter" 
 xsi:schemaLocation="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter ../xmlschema/doocs_variable_tree.xsd">
   <!-- global default -->
-  <persist>false</persist>
+  <persist>auto</persist>
   <location name="INT">
      <!--default for this location -->
     <persist>true</persist>
     <D_array source="TO_DEVICE_ARRAY" type="int" />
-    <D_array source="FROM_DEVICE_ARRAY" name="MY_RENAMED_INTARRAY" type="int" />
+    <D_array source="FROM_DEVICE_ARRAY" type="int" />
   </location>
 
   <location name="DOUBLE">
+     <!--default for this location -->
+    <persist>false</persist>
     <D_array source="TO_DEVICE_ARRAY" type="double" >
       <persist>true</persist>
     </D_array>
