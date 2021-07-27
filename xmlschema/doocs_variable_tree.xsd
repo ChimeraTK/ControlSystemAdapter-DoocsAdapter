@@ -1,54 +1,52 @@
-<?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter"
-            xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter"
-            elementFormDefault="qualified"
-            attributeFormDefault="unqualified">
-
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter" targetNamespace="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:annotation>
     <xs:documentation xml:lang="en">
      Variable tree definition for the ChimeraTK DOOCS Adapter.
      NOTE: This is a first draft version! Do not use for production!
     </xs:documentation>
   </xs:annotation>
-
   <xs:element name="device_server" type="Device"/>
-
+  
   <xs:complexType name="Device">
     <xs:sequence>
-      <xs:group ref="PropertyDetails"/>
-      <xs:element name="location" type="Location"  minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="import" type="xs:string"  minOccurs="0" maxOccurs="unbounded"/>
-   </xs:sequence>
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:element name="location" type="Location" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="import" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
   </xs:complexType>
 
-   <xs:complexType name="Location">
-     <xs:sequence>
-       <xs:group ref="PropertyDetails" minOccurs="0"/>
-       <xs:group ref="Property" minOccurs="0" maxOccurs="unbounded"/>
-       <xs:element name="import" type="LocationImport" minOccurs="0" maxOccurs="unbounded"/>
-     </xs:sequence>
-     <xs:attribute name="name" type="xs:string" use="required"/>
-   </xs:complexType>
+  <xs:complexType name="Location">
+    <xs:sequence>
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:group ref="Property" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="import" type="LocationImport" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="code" type="xs:integer"/>
+  </xs:complexType>
 
-   <!-- The property group basically is the choice of the different property types we have-->
-   <xs:group name="Property">
-     <xs:choice>
-       <xs:element name="property" type="AutoProperty"/>
-       <xs:element name="D_spectrum" type="D_spectrum"/>
-       <xs:element name="D_array" type="D_array"/>
-     </xs:choice>
-   </xs:group>
-  
-   <xs:complexType name="AutoProperty">
-     <xs:sequence>
-        <xs:group ref="PropertyDetails" minOccurs="0"/>
-     </xs:sequence>
-     <xs:attribute name="source" type="xs:string" use="required"/>
-     <xs:attribute name="name" type="xs:string"/>
-   </xs:complexType>
+  <!-- The property group basically is the choice of the different property types we have-->
+  <xs:group name="Property">
+    <xs:choice>
+      <xs:element name="property" type="AutoProperty"/>
+      <xs:element name="D_spectrum" type="D_spectrum"/>
+      <xs:element name="D_array" type="D_array"/>
+      <xs:element name="D_xy" type="D_xy"/>
+      <xs:element name="D_ifff" type="D_ifff"/>
+    </xs:choice>
+  </xs:group>
 
-   <!-- This group describes if a "DOOCS property" has history, which type it is etc.
+  <xs:complexType name="AutoProperty">
+    <xs:sequence>
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string"/>
+    <xs:attribute name="type" type="BaseDataType"/>
+  </xs:complexType>
+
+  <!-- This group describes if a "DOOCS property" has history, which type it is etc.
         Unfortunately the name property is already taken (otherwise I would call it property of a
         process variable), and attribute is taken by xml (it cannot be an xml attribute because
         those are only simple types, and to call the group PropertyAttributes but they are not
@@ -56,47 +54,86 @@
         Also the Device and the Location will have PropertyDetails, which will serve as default
         values.
    -->
-   <xs:group name="PropertyDetails">
-     <xs:sequence>
-       <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0"/>
-       <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0"/>
-     </xs:sequence>
-   </xs:group>
+  <xs:group name="PropertyDetails">
+    <xs:choice>
+      <xs:element name="has_history" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="is_writeable" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="persist" type="PersistDataType" default="auto" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="publish_ZMQ" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="macro_pulse_number_source" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="data_matching" type="DataMatchingDataType" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
+  </xs:group>
 
   <xs:complexType name="LocationImport">
-     <xs:simpleContent>
-       <xs:extension base="xs:string">
-         <xs:attribute name="directory" type="xs:string" />
-       </xs:extension>
-     </xs:simpleContent>
-   </xs:complexType>
-
-   <xs:complexType name="D_spectrum">
-     <xs:sequence>
-       <xs:group ref="PropertyDetails" minOccurs="0"/>
-       <xs:choice minOccurs="0">
-         <xs:element name="start" type="xs:float"/>
-         <xs:element name="startSource" type="xs:string"/>
-       </xs:choice>
-       <xs:choice minOccurs="0">
-         <xs:element name="increment" type="xs:float"/>
-         <xs:element name="incrementSource" type="xs:string"/>
-       </xs:choice>
-     </xs:sequence>
-     <xs:attribute name="source" type="xs:string" use="required"/>
-     <xs:attribute name="name" type="xs:string"/>
-   </xs:complexType>
-   
-   <xs:complexType name="D_array">
-     <xs:sequence>
-       <xs:group ref="PropertyDetails" minOccurs="0"/>
-     </xs:sequence>
-     <xs:attribute name="source" type="xs:string" use="required"/>
-     <xs:attribute name="name" type="xs:string"/>
-     <xs:attribute name="type" type="ArrayDataType" default="auto"/>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="directory" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
-  <xs:simpleType name="ArrayDataType">
+  <xs:complexType name="D_spectrum">
+    <!-- we always use unbounded xml choice instead of xml sequence, in order to leave undefined the order of contained elements -->
+    <xs:choice maxOccurs="unbounded">
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element name="start" type="xs:float"/>
+        <xs:element name="startSource" type="xs:string"/>
+      </xs:choice>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element name="increment" type="xs:float"/>
+        <xs:element name="incrementSource" type="xs:string"/>
+        <xs:element name="numberOfBuffers" type="xs:integer"/>
+      </xs:choice>
+    </xs:choice>
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="D_array">
+    <xs:choice maxOccurs="unbounded">
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="type" type="BaseDataType" default="auto"/>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="D_xy">
+    <xs:choice maxOccurs="unbounded">
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="2"/>
+    </xs:choice>
+    <xs:attribute name="x_source" type="xs:string" use="required"/>
+    <xs:attribute name="y_source" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="D_ifff">
+    <xs:choice maxOccurs="unbounded">
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="i1_source" type="xs:string" use="required"/>
+    <xs:attribute name="f1_source" type="xs:string" use="required"/>
+    <xs:attribute name="f2_source" type="xs:string" use="required"/>
+    <xs:attribute name="f3_source" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="AxisUnitType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="axis" type="xs:string" use="required"/>
+        <xs:attribute name="start" type="xs:decimal"/>
+        <xs:attribute name="stop" type="xs:decimal"/>
+        <xs:attribute name="logarithmic" type="xs:integer"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:simpleType name="BaseDataType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="auto"/>
       <xs:enumeration value="byte"/>
@@ -107,5 +144,23 @@
       <xs:enumeration value="double"/>
     </xs:restriction>
   </xs:simpleType>
-  
- </xs:schema>
+
+  <xs:simpleType name="PersistDataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="false"/>
+      <xs:enumeration value="off"/>
+      <xs:enumeration value="0"/>
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="on"/>
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="auto"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DataMatchingDataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="exact"/>
+      <xs:enumeration value="none"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

@@ -38,6 +38,14 @@ namespace ChimeraTK {
     void init() override;
     void post_init() override;
     int fct_code() override;
+
+    template<class ValueType>
+    void saveArray(doocs::D_array<ValueType>* arr) {
+      if(arr && arr->length() > MAX_CONF_LENGTH) {
+        arr->save();
+      }
+    }
+    int write(std::ostream &fprt) override;
   };
 
 } // namespace ChimeraTK

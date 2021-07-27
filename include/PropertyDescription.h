@@ -13,6 +13,36 @@
 
 namespace ChimeraTK {
 
+  /// configuration choices for writing persistance files for DOOCS properties
+  struct PersistConfig {
+    enum {
+      OFF = 0,
+      ON = 1,  // write long arrays to separate files below hist/, short arrays to config file
+      AUTO = 2 // default DOOCS behaviour: persist only short arrays, in config file
+    };
+    int val;
+
+    PersistConfig(std::string txt) {
+      transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
+      if(txt == "false" or txt =="off" or txt == "0") {
+        val = OFF;
+      }
+      else if(txt == "true" or txt == "on" or txt == "1") {
+        val = ON;
+      }
+      else if(txt == "auto") {
+        val = AUTO;
+      }
+      else {
+        throw std::invalid_argument(std::string("Error parsing xml file: invalid input for PersistConfig: ") + txt);
+      }
+    }
+    PersistConfig(int enumVal) {
+      this->val = enumVal;
+    }
+    bool operator==(const PersistConfig& other) const { return val==other.val;}
+  };
+
   // PropertyAttributes are used in the property description itself, and
   // as default values (global and in the locations)
   struct PropertyAttributes {
@@ -21,6 +51,7 @@ namespace ChimeraTK {
     bool publishZMQ;
     std::string macroPulseNumberSource;
     DataConsistencyGroup::MatchingMode dataMatching;
+    PersistConfig persist = PersistConfig::ON;
     PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false,
         std::string macroPulseNumberSource_ = "",
         DataConsistencyGroup::MatchingMode dataMatching_ = DataConsistencyGroup::MatchingMode::exact)
@@ -28,7 +59,8 @@ namespace ChimeraTK {
       macroPulseNumberSource(macroPulseNumberSource_), dataMatching(dataMatching_) {}
     bool operator==(PropertyAttributes const& other) const {
       return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ &&
-          macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching);
+              macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching &&
+              persist == other.persist);
     }
   };
 
@@ -162,6 +194,7 @@ namespace ChimeraTK {
   struct LocationInfo : public PropertyAttributes {
     bool useHasHistoryDefault;
     bool useIsWriteableDefault;
+    bool usePersistDefault = false;
     bool useMacroPulseNumberSourceDefault;
     bool useDataMatchingDefault;
     LocationInfo(bool useHasHistoryDefault_ = false, bool useIsWriteableDefault_ = false,
