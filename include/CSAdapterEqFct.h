@@ -14,6 +14,9 @@
 
 namespace ChimeraTK {
 
+  template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
+  class DoocsProcessArray;
+
   class CSAdapterEqFct : public EqFct, boost::noncopyable {
    protected:
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
@@ -40,11 +43,7 @@ namespace ChimeraTK {
     int fct_code() override;
 
     template<class ValueType>
-    void saveArray(doocs::D_array<ValueType>* arr) {
-      if(arr && arr->length() > MAX_CONF_LENGTH) {
-        arr->save();
-      }
-    }
+    void saveArray(D_fct* p);
     int write(std::ostream &fprt) override;
   };
 

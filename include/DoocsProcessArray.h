@@ -53,6 +53,7 @@ namespace ChimeraTK {
      */
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override {
       DOOCS_T::set(eqAdr, data1, data2, eqFct);
+      modified = true;
       sendToDevice();
       // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
       if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
@@ -84,6 +85,7 @@ namespace ChimeraTK {
      */
     void auto_init(void) override {
       DOOCS_T::auto_init();
+      modified = false;
       // send the current value to the device
       if(_processArray->isWriteable()) {
         sendToDevice();
@@ -137,6 +139,7 @@ namespace ChimeraTK {
       }
 
       this->fill_array(dataPtr, processVector.size());
+      modified = true;
 
       // Convert time stamp from version number in Unix time (seconds and microseconds).
       // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
@@ -197,6 +200,10 @@ namespace ChimeraTK {
 
     // counter used to reduce amount of data loss warnings printed at console
     size_t _nDataLossWarnings{0};
+
+    // Flag whether the value has been modified since the content has been saved to disk the last time
+    // (see CSAdapterEqFct::saveArray()).
+    bool modified{false};
 
     // Internal function which copies the content from the DOOCS container into
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow
