@@ -115,7 +115,8 @@ namespace ChimeraTK {
     efp_->unlock();
     usleep(1000);
     efp_->lock();
-    if(!modified) return;
+    if(!modified || _processArray->isReadOnly()) return;
+    modified = false;
     D_spectrum::write(s);
   }
 
@@ -182,6 +183,10 @@ namespace ChimeraTK {
     else {
       fill_spectrum(processVector.data(), processVector.size(), ibuf);
     }
+
+    // mark property as modified, for (optional) persistence
+    modified = true;
+
     // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
     if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       dmsg_info info;
