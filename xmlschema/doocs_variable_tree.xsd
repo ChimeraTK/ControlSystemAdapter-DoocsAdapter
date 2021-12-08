@@ -89,6 +89,7 @@
     </xs:choice>
     <xs:attribute name="source" type="xs:string" use="required"/>
     <xs:attribute name="name" type="xs:string"/>
+    <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="2"/>
   </xs:complexType>
 
   <xs:complexType name="D_array">
