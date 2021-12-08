@@ -204,6 +204,18 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->publishZeroMQ();
     }
 
+    auto const xIt = spectrumDescription.axis.find("x");
+    if(xIt != spectrumDescription.axis.cend()) {
+      auto const& axis = xIt->second;
+      spectrum->xegu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+    }
+
+    auto const yIt = spectrumDescription.axis.find("y");
+    if(yIt != spectrumDescription.axis.cend()) {
+      auto const& axis = yIt->second;
+      spectrum->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+    }
+
     // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
     boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->_consistencyGroup.setMatchingMode(
         spectrumDescription.dataMatching);

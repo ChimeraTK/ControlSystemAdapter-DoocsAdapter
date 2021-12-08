@@ -279,6 +279,38 @@ namespace ChimeraTK {
       usedVariables.push_back(numberOfBuffers);
     }
 
+    auto descriptionNode = spectrumXml->get_first_child("description");
+    if(descriptionNode != nullptr) spectrumDescription->description = getContentString(descriptionNode);
+
+    auto unitNodes = spectrumXml->get_children("unit");
+    for(const auto unit : unitNodes) {
+      auto unitElement = asXmlElement(unit);
+      auto axis = getAttributeValue(unitElement, "axis");
+      if(axis != "x" && axis != "y")
+        throw std::invalid_argument("Unsupported axis in D_spectrum, must be \"x\" or \"y\": " + axis);
+
+      std::string label;
+      if(not unit->get_children().empty()) label = getContentString(unit);
+
+      spectrumDescription->axis[axis].label = label;
+      try {
+        spectrumDescription->axis[axis].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        spectrumDescription->axis[axis].start = std::stof(getAttributeValue(unitElement, "start"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        spectrumDescription->axis[axis].stop = std::stof(getAttributeValue(unitElement, "stop"));
+      }
+      catch(std::invalid_argument&) {
+      }
+    }
     addDescription(spectrumDescription, usedVariables);
   }
 

@@ -121,12 +121,21 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   struct SpectrumDescription : public PropertyDescription, public PropertyAttributes {
+    struct Axis {
+      std::string label;
+      int logarithmic;
+      float start;
+      float stop;
+    };
+
     ChimeraTK::RegisterPath source;
     ChimeraTK::RegisterPath startSource;
     ChimeraTK::RegisterPath incrementSource;
     float start;
     float increment;
     size_t numberOfBuffers;
+    std::string description;
+    std::map<std::string, Axis> axis;
 
     SpectrumDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "", std::string name_ = "",
         bool hasHistory_ = true, bool isWriteable_ = true)
