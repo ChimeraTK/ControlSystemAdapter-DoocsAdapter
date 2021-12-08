@@ -131,6 +131,11 @@ The `D_spectrum` tag takes the following arguments through sub-tags:
 - `numberOfBuffers`: Create a buffered D_spectrum with a short-term history (so clients can read consistent data across
                      multiple D_spectrum). Requires a configured macro_pulse_number_source.
 
+The `D_spectrum` tag takes the following arguments through sub-tags:
+- `unit` : A description of the respective axis. The axis is chosen with the `axis` property which can either be `x` or `y`.
+   It can also contain a "start" and an "end" for the initial display parameters as well as "logarithmic" for switching the
+   scale accordingly. For an example of this see \ref D_xy
+
 For an example, see above in Section \ref mapping_file.
 
 \subsubsection D_array D_array

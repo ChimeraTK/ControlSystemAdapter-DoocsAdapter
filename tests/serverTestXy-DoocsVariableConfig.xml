@@ -6,8 +6,8 @@
           x_source="/FLOAT/FROM_DEVICE_ARRAY"
           y_source="/DOUBLE/FROM_DEVICE_ARRAY">
           <description>Some XY test</description>
-          <unit axis="x">X_DESCRIPTION</unit>
-          <unit axis="y">Y_DESCRIPTION</unit>
+          <unit axis="x">mm</unit>
+          <unit axis="y">µS</µunit>
       </D_xy>
       <import>/FLOAT</import>
   </location>
