@@ -207,6 +207,8 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->publishZeroMQ();
     }
 
+    if(not spectrumDescription.description.empty()) spectrum->description(spectrumDescription.description);
+
     auto const xIt = spectrumDescription.axis.find("x");
     if(xIt != spectrumDescription.axis.cend()) {
       auto const& axis = xIt->second;
