@@ -35,9 +35,9 @@ BOOST_AUTO_TEST_CASE(testXyMetadata) {
   char buf[255];
 
   xy->plot_x_value(&i1, &f1, &f2, &tmp, buf, sizeof(buf));
-  BOOST_CHECK_EQUAL(buf, "X_DESCRIPTION");
+  BOOST_CHECK_EQUAL(buf, "mm");
   xy->plot_y_value(&i1, &f1, &f2, &tmp, buf, sizeof(buf));
-  BOOST_CHECK_EQUAL(buf, "Y_DESCRIPTION");
+  BOOST_CHECK_EQUAL(buf, "µs");
 }
 
 /**********************************************************************************************************************/

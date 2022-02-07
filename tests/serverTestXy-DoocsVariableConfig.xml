@@ -7,7 +7,7 @@
           y_source="/DOUBLE/FROM_DEVICE_ARRAY">
           <description>Some XY test</description>
           <unit axis="x">mm</unit>
-          <unit axis="y">µS</µunit>
+          <unit axis="y">µs</unit>
       </D_xy>
       <import>/FLOAT</import>
   </location>
