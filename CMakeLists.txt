@@ -31,13 +31,12 @@ include_directories(SYSTEM "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_I
 
 #For some reason the system library has to be mentioned explicitly to the linker.
 #This is strange because the thead library has it as a dependency.
-FIND_PACKAGE(Boost COMPONENTS thread system unit_test_framework)
-IF(Boost_UNIT_TEST_FRAMEWORK_FOUND)
-  set(TESTING_IS_ENABLED "true")
+option(BUILD_TESTS "Build test programs" ON)
+IF(BUILD_TESTS)
+  FIND_PACKAGE(Boost COMPONENTS unit_test_framework REQUIRED)
   ENABLE_TESTING()
-ELSE(Boost_UNIT_TEST_FRAMEWORK_FOUND)
-  message("Boost unit_test_framework, disabling testing")
-ENDIF(Boost_UNIT_TEST_FRAMEWORK_FOUND)
+ENDIF()
+
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/include ${CMAKE_SOURCE_DIR}/example)
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
@@ -47,7 +46,7 @@ aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 # Create the executables for automated unit testing.
 # Currently we assume that they are all tests contained in one file, so
 # each file gives a new executable. This section has to be adapted if this should change.
-if(TESTING_IS_ENABLED)
+if(BUILD_TESTS)
 
   # loop over all sources files in execultables_src directory
   aux_source_directory(${CMAKE_SOURCE_DIR}/tests/src testExecutables)
@@ -80,7 +79,7 @@ if(TESTING_IS_ENABLED)
                        COMMENT "Generating test coverage documentation" VERBATIM )
   ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-endif(TESTING_IS_ENABLED)
+endif()
 
 include(cmake/enable_doxygen_documentation.cmake)
 
