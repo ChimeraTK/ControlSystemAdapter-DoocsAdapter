@@ -1,3 +1,3 @@
 @Library('ChimeraTK') _
 env.CTESTOPTS="-j1"
-autojob(['ChimeraTK/ControlSystemAdapter', 'ChimeraTK/DOOCS_server_test_helper'], 'https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter')
+autojob(['ChimeraTK/ControlSystemAdapter', 'ChimeraTK/DoocsServerTestHelper'], 'https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter')
