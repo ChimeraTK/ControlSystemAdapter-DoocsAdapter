@@ -15,6 +15,7 @@ include(cmake/set_default_flags.cmake)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
 include(cmake/add_dependency.cmake)
+include(cmake/enable_code_coverage_report.cmake)
 
 add_dependency(ChimeraTK-ControlSystemAdapter 02.02 REQUIRED)
 add_dependency(doocs-server-test-helper 01.05 REQUIRED)
@@ -69,15 +70,6 @@ if(BUILD_TESTS)
 
   file(GLOB TEST_CONF_FILES variable  ${CMAKE_SOURCE_DIR}/tests/*.conf)
   file(COPY ${TEST_CONF_FILES} DESTINATION ${PROJECT_BINARY_DIR})
-
-  #The make coverage command is only available in debug mode
-  IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    configure_file(cmake/Makefile.coverage.in ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
-    add_custom_target( coverage
-                       make -f Makefile.coverage
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                       COMMENT "Generating test coverage documentation" VERBATIM )
-  ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 endif()
 
