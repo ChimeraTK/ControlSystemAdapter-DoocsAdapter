@@ -54,7 +54,7 @@ namespace ChimeraTK {
     boost::shared_ptr<D_fct> autoCreate(std::shared_ptr<PropertyDescription> const& propertyDescription);
 
     template<class DOOCS_SCALAR_T, class DOOCS_PRIMARY_T, class DOOCS_ARRAY_T, class DOOCS_ARRAY_PRIMITIVE_T>
-    boost::shared_ptr<D_fct> typedCreateScalarOrArray(std::type_index valueType, ProcessVariable& processVariable,
+    boost::shared_ptr<D_fct> typedCreateScalarOrArray(const std::type_info& valueType, ProcessVariable& processVariable,
         AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
   };
 
