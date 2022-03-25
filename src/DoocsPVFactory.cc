@@ -377,6 +377,13 @@ namespace ChimeraTK {
       case AutoPropertyDescription::DataType::Double:
         return typedCreateScalarOrArray<D_double, double, D_doublearray, double>(
             valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Bool:
+        return typedCreateScalarOrArray<doocs::D_value<bool>, ChimeraTK::Boolean, doocs::D_array<int32_t>, int32_t>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
+      case AutoPropertyDescription::DataType::Void:
+        // TODO: Map this to something more appropriate, e.g. D_fwd
+        return typedCreateScalarOrArray<D_int, int32_t, D_intarray, int32_t>(
+            valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
       case AutoPropertyDescription::DataType::Auto:
         if(valueType == typeid(std::string)) {
           return typedCreateScalarOrArray<D_textUnifier, std::string, std::nullptr_t, std::nullptr_t>(
@@ -477,6 +484,9 @@ namespace ChimeraTK {
     }
     else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Double) {
       return typedCreateDoocsArray<double, D_doublearray>(*propertyDescription);
+    }
+    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Bool) {
+      return typedCreateDoocsArray<int32_t, doocs::D_array<int32_t>>(*propertyDescription);
     }
     else {
       throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
