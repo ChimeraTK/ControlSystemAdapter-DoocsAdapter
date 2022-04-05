@@ -122,14 +122,28 @@ namespace ChimeraTK {
       // DoocsUpdater
       auto& processVector = _processArray->accessChannel(0);
 
-      // We have to cast the pointer to the correct underlying DOOCS type. This
-      // cast never does anything, the only reason is to "convert" from int64_t to
-      // long long int (which are different types!)
+      // We have to cast the pointer to the correct underlying DOOCS type. No real conversion is done, since only
+      // equivalent types are casted here.
       typedef typename std::result_of<decltype (&DOOCS_T::value)(DOOCS_T, int)>::type THE_DOOCS_TYPE;
-      static_assert(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value ||
-              (std::is_same<DOOCS_PRIMITIVE_T, int64_t>::value && std::is_same<THE_DOOCS_TYPE, long long int>::value),
-          "Bad type casting.");
-      auto dataPtr = reinterpret_cast<THE_DOOCS_TYPE*>(processVector.data());
+      THE_DOOCS_TYPE* dataPtr;
+      if constexpr(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value) {
+        // No cast necessary if types are identical.
+        dataPtr = processVector.data();
+      }
+      else if constexpr(std::is_same<DOOCS_PRIMITIVE_T, int64_t>::value &&
+          std::is_same<THE_DOOCS_TYPE, long long int>::value) {
+        // Cast from int64_t to long long int (which are different types!)
+        dataPtr = reinterpret_cast<long long int*>(processVector.data());
+      }
+      else if constexpr(std::is_same<DOOCS_PRIMITIVE_T, ChimeraTK::Boolean>::value &&
+          std::is_same<THE_DOOCS_TYPE, bool>::value) {
+        // FIXME: Is it really ok to use reinterpret_cast here?
+        static_assert(sizeof(ChimeraTK::Boolean) == sizeof(bool));
+        dataPtr = reinterpret_cast<bool*>(processVector.data());
+      }
+      else {
+        static_assert(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value, "Bad type casting.");
+      }
 
       if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
         this->d_error(stale_data);

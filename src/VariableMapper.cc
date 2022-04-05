@@ -212,7 +212,7 @@ namespace ChimeraTK {
         {{"auto", AutoPropertyDescription::DataType::Auto}, {"byte", AutoPropertyDescription::DataType::Byte},
             {"short", AutoPropertyDescription::DataType::Short}, {"int", AutoPropertyDescription::DataType::Int},
             {"long", AutoPropertyDescription::DataType::Long}, {"float", AutoPropertyDescription::DataType::Float},
-            {"double", AutoPropertyDescription::DataType::Double}});
+            {"double", AutoPropertyDescription::DataType::Double}, {"bool", AutoPropertyDescription::DataType::Bool}});
 
     auto type = AutoPropertyDescription::DataType::Auto;
 

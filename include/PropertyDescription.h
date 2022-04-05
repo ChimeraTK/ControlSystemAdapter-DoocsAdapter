@@ -85,7 +85,7 @@ namespace ChimeraTK {
   // Combines property attributes and the base description
   // FIXME: should sort by name to put it into a set?
   struct AutoPropertyDescription : public PropertyDescription, public PropertyAttributes {
-    enum class DataType { Byte, Short, Int, Long, Float, Double, Auto };
+    enum class DataType { Byte, Short, Int, Long, Float, Double, Bool, Void, Auto };
     ChimeraTK::RegisterPath source;
     AutoPropertyDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
@@ -113,6 +113,8 @@ namespace ChimeraTK {
       if(info == typeid(uint64_t) || info == typeid(int64_t)) dataType = DataType::Long;
       if(info == typeid(float)) dataType = DataType::Float;
       if(info == typeid(double)) dataType = DataType::Double;
+      if(info == typeid(ChimeraTK::Boolean)) dataType = DataType::Bool;
+      if(info == typeid(ChimeraTK::Void)) dataType = DataType::Void;
     }
 
     DataType dataType;
