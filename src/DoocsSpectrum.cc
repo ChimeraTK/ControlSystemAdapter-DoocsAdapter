@@ -148,14 +148,18 @@ namespace ChimeraTK {
     }
     _doocsSuccessfullyUpdated = true;
 
-    // Convert time stamp from version number in Unix time (seconds and microseconds).
-    // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
-    // and hence is not the duration since the epoch! We have to convert to time_t and then find out the microseconds.
-    auto timestamp = _processArray->getVersionNumber().getTime();
-    auto seconds = std::chrono::system_clock::to_time_t(timestamp);
-    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
-        timestamp - std::chrono::system_clock::from_time_t(seconds))
-                            .count();
+    // Convert time stamp from version number to DOOCS timestamp
+    doocs::Timestamp timestamp(_processArray->getVersionNumber().getTime());
+
+    // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
+    // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
+    if(this->get_timestamp() == timestamp) {
+      timestamp += std::chrono::microseconds(1);
+    }
+
+    auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
+    auto seconds = sinceEpoch.seconds;
+    auto microseconds = sinceEpoch.microseconds;
 
     // set macro pulse number, buffer number and time stamp
     size_t ibuf = 0;

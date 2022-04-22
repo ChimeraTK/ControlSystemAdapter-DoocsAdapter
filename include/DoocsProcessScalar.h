@@ -61,13 +61,14 @@ namespace ChimeraTK {
         this->d_error(no_error);
       }
 
-      // Convert time stamp from version number in Unix time (seconds and microseconds).
-      // Note that epoch of std::chrono::system_time might be different from Unix time, and Unix time omits leap seconds
-      // and hence is not the duration since the epoch! We have to convert to time_t and then find out the microseconds.
+      // Convert time stamp from version number to DOOCS timestamp
       doocs::Timestamp timestamp(_processScalar->getVersionNumber().getTime());
-      auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
-      auto seconds = sinceEpoch.seconds;
-      auto microseconds = sinceEpoch.microseconds;
+
+      // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
+      // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
+      if(this->get_timestamp() == timestamp) {
+        timestamp += std::chrono::microseconds(1);
+      }
 
       // update global time stamp of DOOCS, but only if our time stamp is newer
       if(get_global_timestamp() < timestamp) {
@@ -94,15 +95,16 @@ namespace ChimeraTK {
 
       // We must set the timestamp again so it is correctly attached to the variable. set_and_archive does not to it.
       // This must happen after set_and_archive, otherwise the global time stamp is taken.
-      this->set_tmstmp(seconds, microseconds);
+      this->set_timestamp(timestamp);
       if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
 
       // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
       if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         dmsg_info info;
         memset(&info, 0, sizeof(info));
-        info.sec = seconds;
-        info.usec = microseconds;
+        auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
+        info.sec = sinceEpoch.seconds;
+        info.usec = sinceEpoch.microseconds;
         if(_macroPulseNumberSource != nullptr) {
           info.ident = _macroPulseNumberSource->accessData(0);
         }

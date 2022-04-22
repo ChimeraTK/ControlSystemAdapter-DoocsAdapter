@@ -87,6 +87,12 @@ namespace ChimeraTK {
 
     doocs::Timestamp timestamp(_i1Value->getVersionNumber().getTime());
 
+    // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
+    // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
+    if(this->get_timestamp() == timestamp) {
+      timestamp += std::chrono::microseconds(1);
+    }
+
     // update global time stamp of DOOCS, but only if our time stamp is newer
     if(get_global_timestamp() < timestamp) {
       set_global_timestamp(timestamp);
