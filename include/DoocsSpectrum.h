@@ -4,6 +4,7 @@
 #include <D_spectrum.h>
 #include <boost/noncopyable.hpp>
 
+#include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
 #include "splitStringAtFirstSlash.h"
 #include <ChimeraTK/NDRegisterAccessor.h>
@@ -17,7 +18,7 @@ class EqFct;
 
 namespace ChimeraTK {
 
-  class DoocsSpectrum : public D_spectrum, public boost::noncopyable {
+  class DoocsSpectrum : public D_spectrum, public boost::noncopyable, public PropertyBase {
    public:
     /** The constructor expects an NDRegisterAccessor of float, which usually will
      * be a decorator to the implementation type. The decorator cannot be
@@ -64,7 +65,9 @@ namespace ChimeraTK {
     void auto_init(void) override;
 
     // call this function after a tranfer element has requested it.
-    void updateDoocsBuffer(TransferElementID transferElementId);
+    void updateDoocsBuffer(const TransferElementID& transferElementId) override;
+
+    EqFct* getEqFct() override { return this->get_eqfct(); }
 
     // callback function after the start or increment variables have changed
     void updateParameters();
@@ -88,7 +91,7 @@ namespace ChimeraTK {
     // Internal function which copies the content from the DOOCS container into
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow
     // unit testing.
-    void sendToDevice();
+    void sendToDevice(bool getLock);
 
     // Flag whether the value has been modified since the content has been saved to disk the last time (see write()).
     bool modified{false};

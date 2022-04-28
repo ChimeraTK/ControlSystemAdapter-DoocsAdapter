@@ -78,6 +78,7 @@ namespace ChimeraTK {
     }
     virtual const std::type_info& type() const { return typeid(PropertyDescription); }
     virtual void print(std::ostream& os = std::cout) const { os << location << " / " << name << std::endl; }
+    virtual std::set<std::string> getSources() = 0;
   };
 
   /********************************************************************************************************************/
@@ -117,6 +118,8 @@ namespace ChimeraTK {
       if(info == typeid(ChimeraTK::Void)) dataType = DataType::Void;
     }
 
+    std::set<std::string> getSources() override { return {source}; };
+
     DataType dataType;
   };
 
@@ -149,6 +152,13 @@ namespace ChimeraTK {
       os << source << " -> " << location << " / " << name << " (startSource = " << startSource
          << ", incrementSource = " << incrementSource << ", numberOfBuffers = " << numberOfBuffers << ")" << std::endl;
     }
+
+    std::set<std::string> getSources() override {
+      std::set<std::string> ret{source};
+      if(startSource.length() > 1) ret.insert(startSource);
+      if(incrementSource.length() > 1) ret.insert(incrementSource);
+      return ret;
+    };
   };
 
   /********************************************************************************************************************/
@@ -176,6 +186,8 @@ namespace ChimeraTK {
     void print(std::ostream& os = std::cout) const override {
       os << "x: " << xSource << " y: " << ySource << " -> " << location << " / " << name << std::endl;
     }
+
+    std::set<std::string> getSources() override { return {xSource, ySource}; };
   };
 
   /********************************************************************************************************************/
@@ -196,6 +208,8 @@ namespace ChimeraTK {
       os << "i1: " << i1Source << ", f1: " << f1Source << ", f2: " << f2Source << ", f3: " << f3Source << " -> "
          << location << " / " << name << std::endl;
     }
+
+    std::set<std::string> getSources() override { return {i1Source, f1Source, f2Source, f3Source}; };
   };
 
   /********************************************************************************************************************/

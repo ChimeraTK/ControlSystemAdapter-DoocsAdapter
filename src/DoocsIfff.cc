@@ -58,7 +58,7 @@ namespace ChimeraTK {
     registerVariable(OneDRegisterAccessor<float>(_f3Value));
   }
 
-  void DoocsIfff::updateAppToDoocs(TransferElementID& elementId) {
+  void DoocsIfff::updateDoocsBuffer(const TransferElementID& elementId) {
     if(!_consistencyGroup.update(elementId)) {
       return;
     }
@@ -142,7 +142,7 @@ namespace ChimeraTK {
 
   void DoocsIfff::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
-    sendToApplication();
+    sendToApplication(true);
 
     // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
     if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
@@ -169,13 +169,15 @@ namespace ChimeraTK {
   }
 
   void DoocsIfff::auto_init(void) {
+    doocsAdapter.before_auto_init();
+
     D_ifff::auto_init(); // inherited functionality fill the local doocs buffer
     if(isWriteable) {
-      sendToApplication();
+      sendToApplication(false);
     }
   }
 
-  void DoocsIfff::sendToApplication() {
+  void DoocsIfff::sendToApplication(bool getLock) {
     IFFF* ifff = value();
 
     _i1Value->accessData(0) = ifff->i1_data;
@@ -189,6 +191,15 @@ namespace ChimeraTK {
     _f1Value->write(v);
     _f2Value->write(v);
     _f3Value->write(v);
+
+    // make sure other properties using these PVs see the update
+    if(getLock) this->get_eqfct()->unlock();
+    for(auto& prop : otherPropertiesToUpdate) {
+      if(getLock) prop->getEqFct()->lock();
+      prop->updateDoocsBuffer({});
+      if(getLock) prop->getEqFct()->unlock();
+    }
+    if(getLock) this->get_eqfct()->lock();
   }
 
   void DoocsIfff::setMacroPulseNumberSource(
@@ -207,7 +218,7 @@ namespace ChimeraTK {
 
   void DoocsIfff::registerVariable(const ChimeraTK::TransferElementAbstractor& var) {
     if(var.isReadable()) {
-      _updater.addVariable(var, _eqFct, std::bind(&DoocsIfff::updateAppToDoocs, this, var.getId()));
+      _updater.addVariable(var, _eqFct, std::bind(&DoocsIfff::updateDoocsBuffer, this, var.getId()));
       _consistencyGroup.add(var);
     }
   }

@@ -64,8 +64,7 @@ namespace ChimeraTK {
     std::map<std::string, int> _inputLocationAndCode; // map of location and fct_code,
                                                       // from location tag of the mapping xml file
     std::set<std::string> _inputVariables;
-    std::set<std::string> _usedInputVariables; // For tracing which variables are
-                                               // not to be imported.
+    std::set<std::string> _usedInputVariables; // For tracing which variables are not to be imported.
 
     std::list<ErrorReportingInfo> _errorReportingInfos;
 

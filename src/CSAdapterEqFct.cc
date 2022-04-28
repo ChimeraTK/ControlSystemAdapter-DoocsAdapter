@@ -131,6 +131,18 @@ namespace ChimeraTK {
     for(auto& propertyDescription : mappingForThisLocation) {
       try {
         doocsProperties_[propertyDescription] = factory.create(propertyDescription);
+
+        // if one of the PVs used by the property is among the keys of the writeableVariablesWithMultipleProperties map,
+        // add the property to the list of properties to update (value of the beforementioned map).
+        auto& theMap = doocsAdapter.writeableVariablesWithMultipleProperties;
+        for(const auto& pvNameUsedByProperty : propertyDescription->getSources()) {
+          if(theMap.find(pvNameUsedByProperty) != theMap.end()) {
+            // the PV name has been found in the map keys -> add the property to the list to update
+            auto p = boost::dynamic_pointer_cast<ChimeraTK::PropertyBase>(doocsProperties_.at(propertyDescription));
+            auto& listOfPropertiesToUpdate = theMap.at(pvNameUsedByProperty);
+            listOfPropertiesToUpdate.insert(p);
+          }
+        }
       }
       catch(std::invalid_argument& e) {
         std::cerr << "**** WARNING: Could not create property for variable '" << propertyDescription->location << "/"

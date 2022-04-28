@@ -18,9 +18,9 @@ namespace ChimeraTK {
    *  \li \c DOOCS_T, The Doocs type which is used
    */
   template<typename T, typename DOOCS_T>
-  class DoocsProcessScalar : public DOOCS_T, public boost::noncopyable {
+  class DoocsProcessScalar : public DOOCS_T, public boost::noncopyable, public PropertyBase {
    public:
-    void updateDoocsBuffer(TransferElementID transferElementId) {
+    void updateDoocsBuffer(const TransferElementID& transferElementId) override {
       // FIXME: A first  implementation is checking the data consistency here. Later this should be
       // before calling this function because calling this function through a function pointer is
       // comparatively expensive.
@@ -96,6 +96,8 @@ namespace ChimeraTK {
       }
     }
 
+    EqFct* getEqFct() override { return this->get_eqfct(); }
+
     DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
         boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater)
     : DOOCS_T(eqFct, doocsPropertyName.c_str()), _processScalar(processScalar), _doocsUpdater(updater), _eqFct(eqFct) {
@@ -143,6 +145,16 @@ namespace ChimeraTK {
       else {
         throw ChimeraTK::logic_error("Trying to write to a non-writable variable");
       }
+
+      // make sure other properties using these PVs see the update
+      this->get_eqfct()->unlock();
+      for(auto& prop : otherPropertiesToUpdate) {
+        prop->getEqFct()->lock();
+        prop->updateDoocsBuffer({});
+        prop->getEqFct()->unlock();
+      }
+      this->get_eqfct()->lock();
+
       // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
       if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         auto timestamp = _processScalar->getVersionNumber().getTime();
@@ -173,14 +185,21 @@ namespace ChimeraTK {
      * the value of the property from the config file.
      */
     void auto_init(void) override {
+      doocsAdapter.before_auto_init();
+
       DOOCS_T::auto_init();
       // send the current value to the device
-      if(_processScalar->isWriteable()) {
+      if(this->get_access() == 1) { // property is writeable
         _processScalar->accessData(0) = DOOCS_T::value();
         _processScalar->write();
         // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
         // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
         DOOCS_T::set_stamp();
+
+        // make sure other properties using these PVs see the update
+        for(auto& prop : otherPropertiesToUpdate) {
+          prop->updateDoocsBuffer({});
+        }
       }
     }
 

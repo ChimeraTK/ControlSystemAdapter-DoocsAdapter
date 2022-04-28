@@ -6,12 +6,14 @@
 #include <ChimeraTK/NDRegisterAccessor.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
 
+#include "DoocsAdapter.h"
+
 class EqFct;
 
 namespace ChimeraTK {
   class DoocsUpdater;
 
-  class DoocsIfff : public D_ifff, public boost::noncopyable {
+  class DoocsIfff : public D_ifff, public boost::noncopyable, public PropertyBase {
    public:
     // Constructor with history enabled
     DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
@@ -35,11 +37,13 @@ namespace ChimeraTK {
     DataConsistencyGroup _consistencyGroup;
     
    protected:
-    void updateAppToDoocs(TransferElementID& elementId);
-    void sendToApplication();
+    void updateDoocsBuffer(const TransferElementID& elementId) override;
+    void sendToApplication(bool getLock);
     void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
     void registerIfffSources();
     void checkSourceConsistency();
+
+    EqFct* getEqFct() override { return this->get_eqfct(); }
 
     boost::shared_ptr<NDRegisterAccessor<int>> _i1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f1Value;
