@@ -45,4 +45,25 @@ namespace ChimeraTK {
     return counter % 1000000 == 0; // if the rate is 10Hz, this is roughly once per day
   }
 
+  void DoocsAdapter::before_auto_init() {
+    // prevent concurrent execution. It is unclear whether DOOCS may call auto_init in parallel in some situations, so
+    // better implement a lock.
+    static std::mutex mx;
+    std::unique_lock<std::mutex> lk(mx);
+
+    // execute actions only once
+    if(before_auto_init_called) return;
+    before_auto_init_called = true;
+
+    // connect properties which use the same writable PV to keep the property values consistent
+    for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
+      for(const auto& property : group.second) {
+        auto pc = boost::dynamic_pointer_cast<D_fct>(property);
+        property->otherPropertiesToUpdate = group.second;
+        property->otherPropertiesToUpdate.erase(property); // the property should not be in its own list
+      }
+    }
+    doocsAdapter.writeableVariablesWithMultipleProperties.clear(); // save memory (information no longer needed)
+  }
+
 } // namespace ChimeraTK

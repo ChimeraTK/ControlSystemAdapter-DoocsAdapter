@@ -61,7 +61,7 @@ namespace ChimeraTK {
   void DoocsSpectrum::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
     modified = true;
-    sendToDevice();
+    sendToDevice(true);
 
     // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
     if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
@@ -88,6 +88,8 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::auto_init(void) {
+    doocsAdapter.before_auto_init();
+
     // check if the macro pulse number source has been set if the spectrum is buffered
     if(nBuffers > 1) {
       if(_macroPulseNumberSource == nullptr) {
@@ -99,8 +101,8 @@ namespace ChimeraTK {
     // send the current value to the device
     D_spectrum::read();
     modified = false;
-    if(_processArray->isWriteable()) {
-      sendToDevice();
+    if(this->get_access() == 1) { // property is writeable
+      sendToDevice(false);
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
       D_spectrum::set_stamp();
@@ -120,7 +122,7 @@ namespace ChimeraTK {
     D_spectrum::write(s);
   }
 
-  void DoocsSpectrum::updateDoocsBuffer(TransferElementID transferElementId) {
+  void DoocsSpectrum::updateDoocsBuffer(const TransferElementID& transferElementId) {
     // Note: we already own the location lock by specification of the DoocsUpdater
 
     // FIXME: A first  implementation is checking the data consistency here. Later this should be
@@ -252,7 +254,7 @@ namespace ChimeraTK {
     }
   }
 
-  void DoocsSpectrum::sendToDevice() {
+  void DoocsSpectrum::sendToDevice(bool getLock) {
     // Brute force implementation with a loop. Works for all data types.
     // FIXME: find the efficient, memcopying function for float
     // always get a fresh reference
@@ -262,6 +264,15 @@ namespace ChimeraTK {
       processVector[i] = read_spectrum(i);
     }
     _processArray->write();
+
+    // make sure other properties using these PVs see the update
+    if(getLock) this->get_eqfct()->unlock();
+    for(auto& prop : otherPropertiesToUpdate) {
+      if(getLock) prop->getEqFct()->lock();
+      prop->updateDoocsBuffer({});
+      if(getLock) prop->getEqFct()->unlock();
+    }
+    if(getLock) this->get_eqfct()->lock();
   }
 
 } // namespace ChimeraTK

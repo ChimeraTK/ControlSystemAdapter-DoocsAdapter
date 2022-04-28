@@ -17,7 +17,7 @@
 namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
-  class DoocsProcessArray : public DOOCS_T, public boost::noncopyable {
+  class DoocsProcessArray : public DOOCS_T, public boost::noncopyable, public PropertyBase {
    public:
     DoocsProcessArray(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> const& processArray, DoocsUpdater& updater)
@@ -54,7 +54,7 @@ namespace ChimeraTK {
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override {
       DOOCS_T::set(eqAdr, data1, data2, eqFct);
       modified = true;
-      sendToDevice();
+      sendToDevice(true);
       // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
       if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
         auto timestamp = _processArray->getVersionNumber().getTime();
@@ -79,23 +79,27 @@ namespace ChimeraTK {
       }
     }
 
+    EqFct* getEqFct() override { return this->get_eqfct(); }
+
     /**
      * Override the Doocs auto_init() method, which is called after initialising
      * the value of the property from the config file.
      */
     void auto_init(void) override {
+      doocsAdapter.before_auto_init();
+
       DOOCS_T::auto_init();
       modified = false;
       // send the current value to the device
-      if(_processArray->isWriteable()) {
-        sendToDevice();
+      if(this->get_access() == 1) { // property is writeable
+        sendToDevice(false);
         // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
         // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
         DOOCS_T::set_stamp();
       }
     }
 
-    void updateDoocsBuffer(TransferElementID transferElementId) {
+    void updateDoocsBuffer(const TransferElementID& transferElementId) override {
       // FIXME: A first  implementation is checking the data consistency here. Later this should be
       // before calling this function because calling this function through a function pointer is
       // comparatively expensive.
@@ -224,7 +228,7 @@ namespace ChimeraTK {
     // Internal function which copies the content from the DOOCS container into
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow
     // unit testing.
-    void sendToDevice() {
+    void sendToDevice(bool getLocks) {
       // Brute force implementation with a loop. Works for all data types.
       // always get a fresh reference
       auto& processVector = _processArray->accessChannel(0);
@@ -233,6 +237,15 @@ namespace ChimeraTK {
         processVector[i] = this->value(i);
       }
       _processArray->write();
+
+      // make sure other properties using these PVs see the update
+      if(getLocks) this->get_eqfct()->unlock();
+      for(auto& prop : otherPropertiesToUpdate) {
+        if(getLocks) prop->getEqFct()->lock();
+        prop->updateDoocsBuffer({});
+        if(getLocks) prop->getEqFct()->unlock();
+      }
+      if(getLocks) this->get_eqfct()->lock();
     }
   };
 

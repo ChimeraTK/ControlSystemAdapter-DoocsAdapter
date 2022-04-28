@@ -3,12 +3,13 @@
 #include "DoocsAdapter.h"
 #include "VariableMapper.h"
 #include "getAllVariableNames.h"
+#include "PropertyDescription.h"
 #include <sys/stat.h>
 
 char const* object_name;
 static char const* XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
 
-static ChimeraTK::DoocsAdapter doocsAdapter;
+ChimeraTK::DoocsAdapter doocsAdapter;
 
 extern int eq_server(int, char**);
 
@@ -49,6 +50,44 @@ void eq_init_prolog() {
     }
   }
   ChimeraTK::ApplicationBase::getInstance().optimiseUnmappedVariables(pvNames);
+
+  // prepare list of properties connected to the same writable PV
+  {
+    // create map of PV name to properties using the PV (only for writable PVs)
+    std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
+    for(const auto& descr : ChimeraTK::VariableMapper::getInstance().getAllProperties()) {
+      for(const auto& source : descr->getSources()) {
+        if(!doocsAdapter.getControlSystemPVManager()->getProcessVariable(source)->isWriteable()) {
+          // to not add PVs to the mapping which are not writeable
+          continue;
+        }
+        reverseMapping[source].insert(descr);
+      }
+    }
+    // filter the map to contain only PVs being used at least twice with at least one writable property
+    for(const auto& p : reverseMapping) {
+      if(p.second.size() < 2) {
+        continue;
+      }
+      size_t writeableCount = 0;
+      for(const auto& d : p.second) {
+        auto attr = std::dynamic_pointer_cast<ChimeraTK::PropertyAttributes>(d);
+        if(attr->isWriteable) ++writeableCount;
+      }
+      if(writeableCount == 0) {
+        continue;
+      }
+      if(writeableCount > 1) {
+        // This case is not (yet) covered. It would require some synchronisation mechanism between writeable properties,
+        // which is not trivial as inconsistencies and dead locks must be avoided.
+        std::cout << "**** WARNING: Variable '" + p.first +
+                "' mapped to more than one writeable property. Expect inconsistencies!\n";
+      }
+
+      // Add PVs which are used at least twice with at least one writable property to list
+      doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
+    }
+  }
 
   // activate the advanced archiver to have histories
   set_arch_mode(1);
@@ -95,12 +134,11 @@ void post_init_epilog() {
     }
   }
 
-  // start the application and the updated
+  // start the application and the updater
   ChimeraTK::ApplicationBase::getInstance().run();
   doocsAdapter.updater->run();
   ChimeraTK::DoocsAdapter::isInitialised = true;
 }
-
 
 void eq_cancel() {
   ChimeraTK::DoocsAdapter::isInitialised = false;

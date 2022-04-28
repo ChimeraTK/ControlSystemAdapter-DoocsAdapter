@@ -23,7 +23,7 @@ class TestableDoocsSpectrum : public DoocsSpectrum {
       boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater)
   : DoocsSpectrum(eqFct, doocsPropertyName, processArray, updater, nullptr, nullptr) {}
 
-  void sendToDevice() { DoocsSpectrum::sendToDevice(); }
+  using DoocsSpectrum::sendToDevice;
 };
 
 // use boost meta-programming to use test case templates
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceTest, T, simple_test_types) {
   for(size_t i = 0; i < arraySize; ++i) {
     doocsSpectrum.fill_spectrum(i, sign * static_cast<T>(i * i) + offset);
   }
-  doocsSpectrum.sendToDevice();
+  doocsSpectrum.sendToDevice(false);
 
   // receive on the device side and check that the value has arrived
   deviceVariable->readNonBlocking();

@@ -10,18 +10,18 @@ namespace ChimeraTK {
   : D_xy(doocsPropertyName, xValues->getNumberOfSamples(), eqFct), _xValues(xValues), _yValues(yValues) {
     if(_xValues->isReadable()) {
       updater.addVariable(
-          OneDRegisterAccessor<float>(xValues), eqFct, std::bind(&DoocsXy::updateValues, this, _xValues->getId()));
+          OneDRegisterAccessor<float>(xValues), eqFct, std::bind(&DoocsXy::updateDoocsBuffer, this, _xValues->getId()));
       _consistencyGroup.add(OneDRegisterAccessor<float>(xValues));
     }
 
     if(_yValues->isReadable()) {
       updater.addVariable(
-          OneDRegisterAccessor<float>(yValues), eqFct, std::bind(&DoocsXy::updateValues, this, _yValues->getId()));
+          OneDRegisterAccessor<float>(yValues), eqFct, std::bind(&DoocsXy::updateDoocsBuffer, this, _yValues->getId()));
       _consistencyGroup.add(OneDRegisterAccessor<float>(yValues));
     }
   }
 
-  void DoocsXy::updateValues(TransferElementID& elementId) {
+  void DoocsXy::updateDoocsBuffer(const TransferElementID& elementId) {
     if(_consistencyGroup.update(elementId)) {
       if(_xValues->dataValidity() != ChimeraTK::DataValidity::ok ||
           _yValues->dataValidity() != ChimeraTK::DataValidity::ok) {
