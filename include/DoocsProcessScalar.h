@@ -47,11 +47,11 @@ namespace ChimeraTK {
       // DoocsUpdater
       auto data = _processScalar->accessData(0);
 
-      bool storeInHistory = true;
+      //bool storeInHistory = true;
       auto archiverStatus = ArchiveStatus::sts_ok;
       if(_processScalar->dataValidity() != ChimeraTK::DataValidity::ok) {
-        if(this->d_error()) // data are alredy invalid, do not store in history
-          storeInHistory = false;
+        //if(this->d_error())       // data are already invalid, do not store in history
+        //  storeInHistory = false;
 
         archiverStatus = ArchiveStatus::sts_err;
         //set data invalid in DOOCS for current data
@@ -80,22 +80,11 @@ namespace ChimeraTK {
       //
       // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except first invalid data point.
       // (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
-      if(this->get_histPointer() && storeInHistory) {
-        // Set eventId
-        doocs::EventId eventId;
-        if(_macroPulseNumberSource) eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
-
-        // The timestamp we give with set_and_archive is for the archiver only.
-        this->set_and_archive(data, archiverStatus, timestamp, eventId);
-      }
-      else {
-        this->set_value(data);
-      }
-
-      // We must set the timestamp again so it is correctly attached to the variable. set_and_archive does not to it.
-      // This must happen after set_and_archive, otherwise the global time stamp is taken.
-      this->set_tmstmp(seconds, microseconds);
-      if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
+      // FIXME the implementation no longer works since DOOCS API changed:
+      // set_value() always writes to history as well. that's wy we can no longer use storeInHistory
+      doocs::EventId eventId;
+      if(_macroPulseNumberSource) eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
+      this->set_value(data, timestamp, eventId, archiverStatus);
 
       // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
       if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
