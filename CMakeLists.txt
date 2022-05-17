@@ -43,6 +43,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/includ
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
 
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
+file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/include/*.h")
+set(library_sources ${library_sources} ${headers})
 
 # Create the executables for automated unit testing.
 # Currently we assume that they are all tests contained in one file, so
