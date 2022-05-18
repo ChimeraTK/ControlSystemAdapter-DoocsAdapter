@@ -85,6 +85,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_ifff") {
         processIfffNode(node, locationName);
       }
+      else if(node->get_name() == "set_error") {
+        processSetErrorNode(node, locationName);
+      }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": Unknown node '" + node->get_name() + "'");
@@ -384,6 +387,27 @@ namespace ChimeraTK {
     processHistoryAndWritableAttributes(ifffDescription, ifffXml, locationName);
 
     addDescription(ifffDescription, absoluteSources);
+  }
+
+  /********************************************************************************************************************/
+  void VariableMapper::processSetErrorNode(xmlpp::Node const* node, std::string& locationName) {
+    ErrorReportingInfo errInfo;
+    errInfo.targetLocation = locationName;
+
+    auto setErrorXml = asXmlElement(node);
+    errInfo.statusCodeSource = getAttributeValue(setErrorXml, "statusCodeSource");
+    auto attribute = setErrorXml->get_attribute("statusStringSource");
+    if(attribute) {
+      errInfo.statusStringSource = std::string(attribute->get_value());
+      errInfo.hasStatusStringSource = true;
+    }
+    _errorReportingInfos.push_back(errInfo);
+
+    // TODO discuss - do we want to remove the used process from the not-yet mapped list
+    //    std::list<std::string> absoluteSources;
+    //    absoluteSources.push_back(getAbsoluteSource(statusCodeSource, locationName));
+    //    absoluteSources.push_back(getAbsoluteSource(statusStringSource, locationName));
+    // addDescription(ifffDescription, absoluteSources);
   }
 
   /********************************************************************************************************************/

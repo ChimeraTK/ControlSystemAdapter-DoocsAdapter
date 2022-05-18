@@ -12,6 +12,8 @@
 #include "DoocsUpdater.h"
 #include "PropertyDescription.h"
 
+#include "StatusHandler.h"
+
 namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
@@ -27,6 +29,8 @@ namespace ChimeraTK {
 
     static bool emptyLocationVariablesHandled;
     boost::shared_ptr<DoocsUpdater> updater_;
+
+    std::list<StatusHandler> statusHandlers_;
 
    public:
     // The fctName (location name ) is usually coming from the config file and
