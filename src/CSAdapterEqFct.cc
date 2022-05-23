@@ -25,11 +25,12 @@ namespace ChimeraTK {
     }
     registerProcessVariablesInDoocs();
 
-    // construct the StatusHandlers for this location
+    // construct and populate the StatusHandler for this location
     for(const ErrorReportingInfo& errorReportingInfo :
         ChimeraTK::VariableMapper::getInstance().getErrorReportingInfos()) {
       if(name_.get_value() != errorReportingInfo.targetLocation) continue;
 
+      if(!statusHandler_) statusHandler_.reset(new StatusHandler(this, updater_));
       auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
       if(!statusCodeVariable)
         throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
@@ -38,7 +39,7 @@ namespace ChimeraTK {
         statusStringVariable =
             controlSystemPVManager_->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
 
-      statusHandlers_.emplace_back(this, statusCodeVariable, statusStringVariable, updater_);
+      statusHandler_->addVariable(statusCodeVariable, statusStringVariable);
     }
   }
 

@@ -30,7 +30,7 @@ namespace ChimeraTK {
     static bool emptyLocationVariablesHandled;
     boost::shared_ptr<DoocsUpdater> updater_;
 
-    std::list<StatusHandler> statusHandlers_;
+    boost::shared_ptr<StatusHandler> statusHandler_;
 
    public:
     // The fctName (location name ) is usually coming from the config file and

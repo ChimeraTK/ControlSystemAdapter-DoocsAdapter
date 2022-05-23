@@ -36,59 +36,119 @@ namespace ChimeraTK {
   class StatusHandler : public boost::noncopyable {
    public:
     void updateError(TransferElementID transferElementId) {
-      if(_errorSource.isValid() && _errorSource != transferElementId) return;
       // TODO maybe we need some kind of data consistency between error code and error string updates?
       // Current behaviour: set_error might be called more often than neccessary
 
-      // Note: we already own the location lock by specification of the DoocsUpdater
-      int statusCode = _statusScalar->accessData(0);
-      int err_no = statusCodeMapping(statusCode);
+      bool foundVar = false;
+      int err_no = 0;
+      std::string err_str;
+      for(auto const& entry : _varsToMonitor) {
+        const VarToMonitor& var = entry.second;
+        if(var.statusScalar->getId() == transferElementId ||
+            (var.statusString && var.statusString->getId() == transferElementId)) {
+          // Note: we already own the location lock by specification of the DoocsUpdater
+          int statusCode = var.statusScalar->accessData(0);
+          err_no = statusCodeMapping(statusCode, var.mappingType);
+          err_str = var.statusString ? var.statusString->accessData(0) : "(null)";
+          foundVar = true;
+        }
+      }
+      assert(foundVar); // we have found updated values
 
-      std::string err_str = _statusString ? _statusString->accessData(0) : "(null)";
-      // set or clear error source id
-      _errorSource = (err_no != 0) ? transferElementId : TransferElementID();
+      if(err_no == 0) {
+        // new or re-triggered error
+        _errorSource = transferElementId;
+      }
+      else {
+        // clear only if no other errors
+        // find most recent occurred error and take over code and string
+        VersionNumber v(nullptr);
+        for(auto const& entry : _varsToMonitor) {
+          const VarToMonitor& var = entry.second;
+          auto vn = var.statusScalar->getVersionNumber();
+          if(vn > v) {
+            int statusCode = var.statusScalar->accessData(0);
+            int errMapped = statusCodeMapping(statusCode, var.mappingType);
+            if(errMapped != 0) {
+              v = vn;
+              err_no = errMapped;
+              err_str = var.statusString ? var.statusString->accessData(0) : "(null)";
+              _errorSource = var.statusScalar->getId();
+            }
+          }
+        }
+        if(v == VersionNumber(nullptr)) {
+          // no more active errors
+          _errorSource = TransferElementID();
+        }
+      }
       _eqFct->set_error(err_no, err_str);
     }
 
-    StatusHandler(EqFct* eqFct, boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> const& statusScalar,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> const& statusString,
-        boost::shared_ptr<DoocsUpdater> const& updater)
-    : _statusScalar(statusScalar), _statusString(statusString), _doocsUpdater(updater), _eqFct(eqFct) {
-      if(!_statusScalar->isReadable()) throw ChimeraTK::logic_error(_statusScalar->getName() + " is not readable!");
-      updater->addVariable(ChimeraTK::ScalarRegisterAccessor<int32_t>(_statusScalar), eqFct,
-          std::bind(&StatusHandler::updateError, this, _statusScalar->getId()));
-      if(_statusString) {
-        if(!_statusString->isReadable()) throw ChimeraTK::logic_error(_statusString->getName() + " is not readable!");
-        updater->addVariable(ChimeraTK::ScalarRegisterAccessor<std::string>(_statusString), eqFct,
-            std::bind(&StatusHandler::updateError, this, _statusString->getId()));
+    StatusHandler(EqFct* eqFct, boost::shared_ptr<DoocsUpdater> const& updater)
+    : _doocsUpdater(updater), _eqFct(eqFct) {}
+
+    void addVariable(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> const& statusScalar,
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> const& statusString) {
+      {
+        if(!statusScalar->isReadable()) throw ChimeraTK::logic_error(statusScalar->getName() + " is not readable!");
+        TransferElementID transferElementId = statusScalar->getId();
+        VarToMonitor& var = _varsToMonitor[transferElementId];
+        var.statusScalar = statusScalar;
+
+        _doocsUpdater->addVariable(ChimeraTK::ScalarRegisterAccessor<int32_t>(statusScalar), _eqFct,
+            std::bind(&StatusHandler::updateError, this, statusScalar->getId()));
+        if(statusString) {
+          if(!statusString->isReadable()) throw ChimeraTK::logic_error(statusString->getName() + " is not readable!");
+          var.statusString = statusString;
+
+          _doocsUpdater->addVariable(ChimeraTK::ScalarRegisterAccessor<std::string>(statusString), _eqFct,
+              std::bind(&StatusHandler::updateError, this, statusString->getId()));
+        }
+        // here we just assume devices have status strings and StatusOutputs not
+        if(statusString)
+          var.mappingType = VarToMonitor::MapDeviceError;
+        else
+          var.mappingType = VarToMonitor::MapStatusCode;
       }
     }
 
-    // StatusOutput and Device.status are both int32
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> _statusScalar;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> _statusString;
-
-    //    void f() {
-    //      // a mapping for StatusOutput values -> DOOCS error codes
-    //      StatusAccessorBase::Status s;
-    //      s == StatusAccessorBase::Status::OK;
-    //      no_error;
-    //      s == StatusAccessorBase::Status::FAULT;
-    //      ill_function;
-    //      s == StatusAccessorBase::Status::OFF;
-    //      no_error; not_available;
-    //      s == StatusAccessorBase::Status::WARNING;
-    //      warning;
-    //      // a mapping for DeviceModule.status values -> DOOCS error codes
-    //      0;
-    //      no_error;
-    //      1;
-    //      not_available;
-    //    }
+    struct VarToMonitor {
+      // StatusOutput and Device.status are both int32
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> statusScalar;
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> statusString;
+      enum MappingType { MapStatusCode, MapDeviceError } mappingType;
+    };
+    // we use std::map as a set, TransferElementId of statusScalar is unique key
+    std::map<TransferElementID, VarToMonitor> _varsToMonitor;
 
     // mapping function from Device.status/StatusOutput to DOOCS error codes
-    // TODO details
-    std::function<int(int)> statusCodeMapping{[](int x) { return x; }};
+    int statusCodeMapping(int x, VarToMonitor::MappingType mappingType) {
+      if(mappingType == VarToMonitor::MapStatusCode) {
+        auto err = StatusAccessorBase::Status(x);
+        // a mapping for StatusOutput values -> DOOCS error codes
+        switch(err) {
+          case StatusAccessorBase::Status::OK:
+            return no_error;
+          case StatusAccessorBase::Status::FAULT:
+            //return ill_function;
+            return not_available; // better compatibility with mapping below
+          case StatusAccessorBase::Status::OFF:
+            return no_error; // or  not_available ?
+          case StatusAccessorBase::Status::WARNING:
+            return warning;
+          default:
+            return x;
+        }
+      }
+      else {
+        // a mapping for DeviceModule.status values -> DOOCS error codes
+        if(x == 0)
+          return no_error;
+        else
+          return not_available;
+      }
+    }
 
     boost::shared_ptr<DoocsUpdater> _doocsUpdater;
     EqFct* _eqFct;
