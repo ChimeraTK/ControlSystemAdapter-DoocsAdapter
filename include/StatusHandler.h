@@ -34,22 +34,44 @@
 namespace ChimeraTK {
 
   class StatusHandler : public boost::noncopyable {
+    struct VarToMonitor {
+      // StatusOutput and Device.status are both int32
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> statusScalar;
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> statusString;
+      enum MappingType { MapStatusCode, MapDeviceError } mappingType;
+    };
+    // we use std::map as a set, TransferElementId of statusScalar is unique key
+    std::map<TransferElementID, VarToMonitor> _varsToMonitor;
+
+    boost::shared_ptr<DoocsUpdater> _doocsUpdater;
+    EqFct* _eqFct;
+    TransferElementID _errorSource;
+
    public:
     void updateError(TransferElementID transferElementId) {
-      // TODO maybe we need some kind of data consistency between error code and error string updates?
-      // Current behaviour: set_error might be called more often than neccessary
+      // TODO do we need some kind of data consistency between error code and error string updates?
+      // Current behaviour: set_error is called more often than neccessary
+      // this leads to log which is a bit confusing.
+      // Problem - sometimes device error message is updated without status change/update, so we don't know whether we should wait on consistent state with status
 
       bool foundVar = false;
       int err_no = 0;
       std::string err_str;
       for(auto const& entry : _varsToMonitor) {
         const VarToMonitor& var = entry.second;
-        if(var.statusScalar->getId() == transferElementId ||
+        if((var.statusScalar && var.statusScalar->getId() == transferElementId) ||
             (var.statusString && var.statusString->getId() == transferElementId)) {
-          // Note: we already own the location lock by specification of the DoocsUpdater
-          int statusCode = var.statusScalar->accessData(0);
+          // TODO discuss whether this approach is fine - skip trigger event from statusScalar if statusString is present
+          //if(var.statusString && var.statusScalar->getId() == transferElementId) return;
+
+          int statusCode;
+          if(var.statusScalar)
+            statusCode = var.statusScalar->accessData(0);
+          else
+            // TODO discuss - does it make sense to leave out statusScalar input and deduce statusCode from string? It would simplify things, but works only if error the only code used.
+            statusCode = var.statusString->accessData(0) != "";
           err_no = statusCodeMapping(statusCode, var.mappingType);
-          err_str = var.statusString ? var.statusString->accessData(0) : "(null)";
+          err_str = errorStringForVar(var);
           foundVar = true;
         }
       }
@@ -72,7 +94,7 @@ namespace ChimeraTK {
             if(errMapped != 0) {
               v = vn;
               err_no = errMapped;
-              err_str = var.statusString ? var.statusString->accessData(0) : "(null)";
+              err_str = errorStringForVar(var);
               _errorSource = var.statusScalar->getId();
             }
           }
@@ -82,7 +104,41 @@ namespace ChimeraTK {
           _errorSource = TransferElementID();
         }
       }
-      _eqFct->set_error(err_no, err_str);
+      // Note: we already own the location lock by specification of the DoocsUpdater
+      // TODO discuss - maybe printing "ok" instead of cleared error makes sense.
+      if(err_no == no_error)
+        _eqFct->set_error(err_no);
+      else
+        _eqFct->set_error(err_no, err_str);
+    }
+
+    std::string errorStringForVar(const VarToMonitor& var) {
+      if(var.mappingType == var.MapDeviceError) {
+        assert(var.statusString);
+        return var.statusString->accessData(0);
+      }
+      else {
+        int statusCode = var.statusScalar->accessData(0);
+        auto err = StatusAccessorBase::Status(statusCode);
+        std::string statusString;
+        switch(err) {
+          case StatusAccessorBase::Status::OK:
+            statusString = "OK";
+            break;
+          case StatusAccessorBase::Status::FAULT:
+            statusString = "FAULT";
+            break;
+          case StatusAccessorBase::Status::OFF:
+            statusString = "OFF";
+            break;
+          case StatusAccessorBase::Status::WARNING:
+            statusString = "WARNING";
+            break;
+          default:
+            assert(false);
+        }
+        return var.statusScalar->getName() + " switched to " + statusString;
+      }
     }
 
     StatusHandler(EqFct* eqFct, boost::shared_ptr<DoocsUpdater> const& updater)
@@ -113,15 +169,6 @@ namespace ChimeraTK {
       }
     }
 
-    struct VarToMonitor {
-      // StatusOutput and Device.status are both int32
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> statusScalar;
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> statusString;
-      enum MappingType { MapStatusCode, MapDeviceError } mappingType;
-    };
-    // we use std::map as a set, TransferElementId of statusScalar is unique key
-    std::map<TransferElementID, VarToMonitor> _varsToMonitor;
-
     // mapping function from Device.status/StatusOutput to DOOCS error codes
     int statusCodeMapping(int x, VarToMonitor::MappingType mappingType) {
       if(mappingType == VarToMonitor::MapStatusCode) {
@@ -149,10 +196,6 @@ namespace ChimeraTK {
           return not_available;
       }
     }
-
-    boost::shared_ptr<DoocsUpdater> _doocsUpdater;
-    EqFct* _eqFct;
-    TransferElementID _errorSource;
   };
 
 } // namespace ChimeraTK
