@@ -30,16 +30,21 @@ namespace ChimeraTK {
         ChimeraTK::VariableMapper::getInstance().getErrorReportingInfos()) {
       if(name_.get_value() != errorReportingInfo.targetLocation) continue;
 
-      if(!statusHandler_) statusHandler_.reset(new StatusHandler(this, updater_));
+      assert(!statusHandler_); // only single StatusHandler may be requested per location
       auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
       if(!statusCodeVariable)
         throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
       ProcessArray<std::string>::SharedPtr statusStringVariable;
-      if(errorReportingInfo.hasStatusStringSource)
+      if(errorReportingInfo.hasStatusStringSource) {
         statusStringVariable =
             controlSystemPVManager_->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
-
-      statusHandler_->addVariable(statusCodeVariable, statusStringVariable);
+        if(!statusStringVariable)
+          throw ChimeraTK::logic_error(
+              "illegal/non-existing statusStringSource: " + errorReportingInfo.statusStringSource);
+        // TODO check - maybe we do not even need to explicitly specify both?
+        // depends on how StatusAggregator string var will be named.
+      }
+      statusHandler_.reset(new StatusHandler(this, updater_, statusCodeVariable, statusStringVariable));
     }
   }
 

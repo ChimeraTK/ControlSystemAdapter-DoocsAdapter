@@ -391,6 +391,11 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
   void VariableMapper::processSetErrorNode(xmlpp::Node const* node, std::string& locationName) {
+    for(auto const& errRepInfo : _errorReportingInfos) {
+      if(errRepInfo.targetLocation == locationName)
+        throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
+            ": tag <set_error> is allowed only once per location.");
+    }
     ErrorReportingInfo errInfo;
     errInfo.targetLocation = locationName;
 
@@ -403,7 +408,7 @@ namespace ChimeraTK {
     }
     _errorReportingInfos.push_back(errInfo);
 
-    // TODO discuss - do we want to remove the used process from the not-yet mapped list
+    // TODO discuss - do we want to remove the used process variables from the not-yet mapped list
     //    std::list<std::string> absoluteSources;
     //    absoluteSources.push_back(getAbsoluteSource(statusCodeSource, locationName));
     //    absoluteSources.push_back(getAbsoluteSource(statusStringSource, locationName));
