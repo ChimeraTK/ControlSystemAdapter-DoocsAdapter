@@ -226,7 +226,14 @@ namespace ChimeraTK {
       increment = this->spec_inc();
     }
 
+    // WORKAROUND: spectrum_parameter modifies the internal timestamp of
+    // the spectrum, this confuses our code that it thinks it has already sent off the
+    // spectrum with this timestamp, bumps the timestamp to enable DOOCS to check for inconsistencies
+    // which then confuses the DAQ since it sees data for the same MP with different timestamps
+    // https://mcs-gitlab.desy.de/doocs/doocs-core-libraries/serverlib/-/issues/35
+    auto oldTimeStamp = this->get_timestamp();
     spectrum_parameter(this->spec_time(), start, increment, this->spec_status());
+    this->set_timestamp(oldTimeStamp);
   }
 
   void DoocsSpectrum::setMacroPulseNumberSource(
