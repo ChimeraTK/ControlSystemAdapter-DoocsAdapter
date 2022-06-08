@@ -219,7 +219,6 @@ namespace ChimeraTK {
   struct ErrorReportingInfo {
     ChimeraTK::RegisterPath statusCodeSource;
     ChimeraTK::RegisterPath statusStringSource;
-    bool hasStatusStringSource{false};
     std::string targetLocation;
   };
 

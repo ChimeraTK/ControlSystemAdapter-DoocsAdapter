@@ -400,19 +400,11 @@ namespace ChimeraTK {
     errInfo.targetLocation = locationName;
 
     auto setErrorXml = asXmlElement(node);
-    errInfo.statusCodeSource = getAttributeValue(setErrorXml, "statusCodeSource");
-    auto attribute = setErrorXml->get_attribute("statusStringSource");
-    if(attribute) {
-      errInfo.statusStringSource = std::string(attribute->get_value());
-      errInfo.hasStatusStringSource = true;
-    }
+    std::string s = getAttributeValue(setErrorXml, "statusCodeSource");
+    errInfo.statusCodeSource = s;
+    // matching status message source is found automatically by naming convention - if it exists
+    errInfo.statusStringSource = s + "_message";
     _errorReportingInfos.push_back(errInfo);
-
-    // TODO discuss - do we want to remove the used process variables from the not-yet mapped list
-    //    std::list<std::string> absoluteSources;
-    //    absoluteSources.push_back(getAbsoluteSource(statusCodeSource, locationName));
-    //    absoluteSources.push_back(getAbsoluteSource(statusStringSource, locationName));
-    // addDescription(ifffDescription, absoluteSources);
   }
 
   /********************************************************************************************************************/

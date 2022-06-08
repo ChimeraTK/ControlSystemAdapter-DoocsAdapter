@@ -8,11 +8,18 @@
 #include <eq_fct.h>
 #include <eq_errors.h>
 
+// TODO discuss - I'm unsure whether pulling in a header from ApplicationCore is ok, if we don't have
+// that dependency in DoocsAdapter otherwise.
+// so maybe, split that header StatusWithMessage.h in a part for DeviceAccess and one for ApplicationCore?
+// But: We use status codes defined in ApplicationCore, StatusAccessorBase::Status
+
 // beware - StatusAccessor name clash with FAULT defined in ArchiveError.h included indirectly by d_fct.h
 #undef FAULT
 #include <ChimeraTK/ApplicationCore/StatusAccessor.h>
 
 #include <ChimeraTK/ApplicationCore/StatusWithMessage.h>
+
+// TODO automatically find status string input, instead of config option.
 
 namespace ChimeraTK {
 
@@ -35,7 +42,6 @@ namespace ChimeraTK {
       std::string err_str = _varPair.getMessage();
 
       // Note: we already own the location lock by specification of the DoocsUpdater
-      // TODO discuss this - print "ok" instead of cleared error message
       if(err_no == no_error)
         _eqFct->set_error(err_no);
       else
@@ -72,7 +78,7 @@ namespace ChimeraTK {
           //return ill_function;
           return not_available; // better compatibility with mapping below
         case StatusAccessorBase::Status::OFF:
-          return no_error; // or  not_available ?
+          return device_offline; // no_error; // or  not_available ?
         case StatusAccessorBase::Status::WARNING:
           return warning;
         default:

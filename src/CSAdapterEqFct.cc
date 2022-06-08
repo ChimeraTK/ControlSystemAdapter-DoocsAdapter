@@ -34,16 +34,9 @@ namespace ChimeraTK {
       auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
       if(!statusCodeVariable)
         throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
-      ProcessArray<std::string>::SharedPtr statusStringVariable;
-      if(errorReportingInfo.hasStatusStringSource) {
-        statusStringVariable =
-            controlSystemPVManager_->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
-        if(!statusStringVariable)
-          throw ChimeraTK::logic_error(
-              "illegal/non-existing statusStringSource: " + errorReportingInfo.statusStringSource);
-        // TODO check - maybe we do not even need to explicitly specify both?
-        // depends on how StatusAggregator string var will be named.
-      }
+      // this one is optional
+      ProcessArray<std::string>::SharedPtr statusStringVariable =
+          controlSystemPVManager_->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
       statusHandler_.reset(new StatusHandler(this, updater_, statusCodeVariable, statusStringVariable));
     }
   }
