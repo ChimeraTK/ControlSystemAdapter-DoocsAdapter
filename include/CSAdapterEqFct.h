@@ -1,5 +1,4 @@
-#ifndef CS_ADAPTER_EQ_FCT_H
-#define CS_ADAPTER_EQ_FCT_H
+#pragma once
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -9,15 +8,13 @@
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 
-#include "DoocsUpdater.h"
-#include "PropertyDescription.h"
-
-#include "StatusHandler.h"
-
 namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   class DoocsProcessArray;
+  class StatusHandler;
+  class DoocsUpdater;
+  class PropertyDescription;
 
   class CSAdapterEqFct : public EqFct, boost::noncopyable {
    protected:
@@ -52,5 +49,3 @@ namespace ChimeraTK {
   };
 
 } // namespace ChimeraTK
-
-#endif // CS_ADAPTER_EQ_FCT_H

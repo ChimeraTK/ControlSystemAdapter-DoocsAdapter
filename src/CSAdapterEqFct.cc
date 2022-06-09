@@ -1,10 +1,10 @@
+#include "StatusHandler.h" // include this first to avoid name clash with #define from DOOCS
 #include "CSAdapterEqFct.h"
 #include "DoocsPVFactory.h"
 #include "DoocsUpdater.h"
 #include "VariableMapper.h"
 #include "DoocsProcessArray.h"
-
-#include "StatusHandler.h"
+#include "PropertyDescription.h"
 
 namespace ChimeraTK {
 
