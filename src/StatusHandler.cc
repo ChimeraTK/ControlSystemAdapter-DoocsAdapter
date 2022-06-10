@@ -1,5 +1,5 @@
 
-// name clash of DOOCS-defined error code, so include this first and then remove #define FAULT
+// name clash with DOOCS-#defined FAULT, so include this first and then #undef
 #include <eq_errors.h>
 #include <eq_fct.h>
 #undef FAULT
@@ -10,7 +10,7 @@
 #include "DoocsAdapter.h"
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
-#include <ChimeraTK/ControlSystemAdapter/StatusWithMessageReaderBase.h>
+#include <ChimeraTK/ControlSystemAdapter/StatusWithMessageReader.h>
 #include <boost/shared_ptr.hpp>
 
 namespace ChimeraTK {
@@ -52,10 +52,9 @@ namespace ChimeraTK {
       case StatusAccessorBase::Status::OK:
         return no_error;
       case StatusAccessorBase::Status::FAULT:
-        //return ill_function;
-        return not_available; // better compatibility with mapping below
+        return not_available;
       case StatusAccessorBase::Status::OFF:
-        return device_offline; // no_error; // or  not_available ?
+        return device_offline;
       case StatusAccessorBase::Status::WARNING:
         return warning;
       default:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ChimeraTK/ControlSystemAdapter/StatusWithMessageReaderBase.h>
+#include <ChimeraTK/ControlSystemAdapter/StatusWithMessageReader.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 
