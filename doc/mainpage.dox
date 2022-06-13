@@ -162,7 +162,7 @@ The `D_xy` tag takes the following arguments through sub-tags:
 
 \include tests/serverTestXy-DoocsVariableConfig.xml
 
-\subsubsection set_error set_error
+\subsection set_error Error reporting
 The special tag `set_error` is allowed only once per location. XML attributes:
 - `statusCodeSource` : Path to the process variable which should be used for reading error/status codes.
 

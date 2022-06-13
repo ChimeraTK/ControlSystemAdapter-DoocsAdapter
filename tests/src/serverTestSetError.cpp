@@ -19,19 +19,18 @@ using namespace ChimeraTK;
 DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 std::string lastErrString = "(unset)";
-static eq_errors checkLocationError(const std::string& property) {
-  auto location = getLocationFromPropertyAddress(property);
-  location->lock();
-  int code = location->get_error();
-  lastErrString = location->get_errorstr();
-  location->unlock();
-
-  return static_cast<eq_errors>(code);
-}
 
 // basic check for error code handling, without associated message source
 BOOST_AUTO_TEST_CASE(testErrorNoMessageSource) {
-  auto check = std::bind(checkLocationError, "//INT/FROM_DEVICE_SCALAR");
+  auto check = [] {
+    auto location = getLocationFromPropertyAddress("//INT/FROM_DEVICE_SCALAR");
+    location->lock();
+    int code = location->get_error();
+    lastErrString = location->get_errorstr();
+    location->unlock();
+
+    return static_cast<eq_errors>(code);
+  };
   // Testing initial state
   GlobalFixture::referenceTestApplication.dataValidity = DataValidity::ok;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 0);
