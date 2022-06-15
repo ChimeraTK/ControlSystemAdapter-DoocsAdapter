@@ -85,6 +85,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_ifff") {
         processIfffNode(node, locationName);
       }
+      else if(node->get_name() == "set_error") {
+        processSetErrorNode(node, locationName);
+      }
       else {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": Unknown node '" + node->get_name() + "'");
@@ -384,6 +387,24 @@ namespace ChimeraTK {
     processHistoryAndWritableAttributes(ifffDescription, ifffXml, locationName);
 
     addDescription(ifffDescription, absoluteSources);
+  }
+
+  /********************************************************************************************************************/
+  void VariableMapper::processSetErrorNode(xmlpp::Node const* node, std::string& locationName) {
+    for(auto const& errRepInfo : _errorReportingInfos) {
+      if(errRepInfo.targetLocation == locationName)
+        throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
+            ": tag <set_error> is allowed only once per location.");
+    }
+    ErrorReportingInfo errInfo;
+    errInfo.targetLocation = locationName;
+
+    auto setErrorXml = asXmlElement(node);
+    std::string s = getAttributeValue(setErrorXml, "statusCodeSource");
+    errInfo.statusCodeSource = s;
+    // matching status message source is found automatically by naming convention - if it exists
+    errInfo.statusStringSource = s + "_message";
+    _errorReportingInfos.push_back(errInfo);
   }
 
   /********************************************************************************************************************/

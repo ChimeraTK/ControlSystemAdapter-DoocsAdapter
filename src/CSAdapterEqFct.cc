@@ -1,8 +1,10 @@
+#include "StatusHandler.h" // include this first to avoid name clash with #define from DOOCS
 #include "CSAdapterEqFct.h"
 #include "DoocsPVFactory.h"
 #include "DoocsUpdater.h"
 #include "VariableMapper.h"
 #include "DoocsProcessArray.h"
+#include "PropertyDescription.h"
 
 namespace ChimeraTK {
 
@@ -22,6 +24,21 @@ namespace ChimeraTK {
       name_.assign(fctName);
     }
     registerProcessVariablesInDoocs();
+
+    // construct and populate the StatusHandler for this location
+    for(const ErrorReportingInfo& errorReportingInfo :
+        ChimeraTK::VariableMapper::getInstance().getErrorReportingInfos()) {
+      if(name_.get_value() != errorReportingInfo.targetLocation) continue;
+
+      assert(!statusHandler_); // only single StatusHandler may be requested per location
+      auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
+      if(!statusCodeVariable)
+        throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
+      // this one is optional
+      ProcessArray<std::string>::SharedPtr statusStringVariable =
+          controlSystemPVManager_->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
+      statusHandler_.reset(new StatusHandler(this, updater_, statusCodeVariable, statusStringVariable));
+    }
   }
 
   CSAdapterEqFct::~CSAdapterEqFct() {

@@ -56,6 +56,8 @@ namespace ChimeraTK {
 
     const std::set<std::string>& getUsedVariables() const { return _usedInputVariables; }
 
+    const std::list<ErrorReportingInfo>& getErrorReportingInfos() const { return _errorReportingInfos; }
+
    protected:
     VariableMapper() = default;
 
@@ -65,11 +67,14 @@ namespace ChimeraTK {
     std::set<std::string> _usedInputVariables; // For tracing which variables are
                                                // not to be imported.
 
+    std::list<ErrorReportingInfo> _errorReportingInfos;
+
     void processLocationNode(xmlpp::Node const* locationNode);
     void processNode(xmlpp::Node const* propertyNode, std::string locationName);
     void processSpectrumNode(xmlpp::Node const* node, std::string locationName);
     void processXyNode(xmlpp::Node const* node, std::string& locationName);
     void processIfffNode(xmlpp::Node const* node, std::string& locationName);
+    void processSetErrorNode(xmlpp::Node const* node, std::string& locationName);
     void processImportNode(xmlpp::Node const* importNode, std::string importLocationName = std::string());
     void processCode(xmlpp::Element const* location, std::string locationName);
 

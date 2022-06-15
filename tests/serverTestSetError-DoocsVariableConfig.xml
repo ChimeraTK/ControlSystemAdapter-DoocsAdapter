@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+    <location name="INT">
+        <set_error statusCodeSource="/INT/FROM_DEVICE_SCALAR" />
+        <D_spectrum name="TEST" source="/FLOAT/FROM_DEVICE_ARRAY" />
+    </location>
+
+    <import>/</import>
+</device_server>

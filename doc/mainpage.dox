@@ -151,7 +151,7 @@ The `D_array` tag takes the following arguments through XML attributes of the D_
 
 For an example, see above in Section \ref mapping_file.
 
-\subsection D_xy D_xy
+\subsubsection D_xy D_xy
 The `D_xy` tag takes the following arguments through properties:
 - `x_source` : Name of process variable which should be used for x-axis values
 - `y_source` : Name of process variable which should be used for y-axis values
@@ -162,8 +162,18 @@ The `D_xy` tag takes the following arguments through sub-tags:
 
 \include tests/serverTestXy-DoocsVariableConfig.xml
 
+\subsection set_error Error reporting
+The special tag `set_error` is allowed only once per location. XML attributes:
+- `statusCodeSource` : Path to the process variable which should be used for reading error/status codes.
+
+DoocsAdapter will automatically look for an associated variable with error/status messages, and if present, read both
+consistently.
+Errors indicated via the status variable will be published via DOOCS set_error function (of the location), which
+sets the properties ERROR, ERROR.STR, STS.ERROR, STS.NEWERROR, and also logs into LOG, LOG.LAST, LOG_HTML and LOG_HTML.LAST.
+Compare DOOCS documentation for error properties and propagation to the overall error counting per server, SVR.ERROR_COUNT.
+
           
-\subsection specifie_code Specifie `eq_fct_code` in the mapping file
+\subsection specifie_code Specify `eq_fct_code` in the mapping file
 
 It is possible to specify the `eq_fct_code` which must match `eq_fct_type` in the configuration file with `code` in 
 the \<location\> tag of the mapping file.

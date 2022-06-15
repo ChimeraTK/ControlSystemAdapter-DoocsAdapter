@@ -3,7 +3,7 @@
 // Only after defining the name include the unit test header.
 #include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/test_case_template.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <sstream>
 #include <typeinfo>

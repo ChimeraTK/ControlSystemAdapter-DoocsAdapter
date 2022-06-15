@@ -215,6 +215,13 @@ namespace ChimeraTK {
       useDataMatchingDefault(useDataMatchingDefault_) {}
   };
 
+  // parsed info about error reporting to locations
+  struct ErrorReportingInfo {
+    ChimeraTK::RegisterPath statusCodeSource;
+    ChimeraTK::RegisterPath statusStringSource;
+    std::string targetLocation;
+  };
+
 } // namespace ChimeraTK
 
 #endif // CHIMERATK_DOOCS_ADAPTER_PROPERTY_DESCRIPTION_H

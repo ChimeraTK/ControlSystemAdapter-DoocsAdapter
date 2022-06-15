@@ -1,5 +1,4 @@
-#ifndef CS_ADAPTER_EQ_FCT_H
-#define CS_ADAPTER_EQ_FCT_H
+#pragma once
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -9,13 +8,13 @@
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 
-#include "DoocsUpdater.h"
-#include "PropertyDescription.h"
-
 namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   class DoocsProcessArray;
+  class StatusHandler;
+  class DoocsUpdater;
+  class PropertyDescription;
 
   class CSAdapterEqFct : public EqFct, boost::noncopyable {
    protected:
@@ -27,6 +26,8 @@ namespace ChimeraTK {
 
     static bool emptyLocationVariablesHandled;
     boost::shared_ptr<DoocsUpdater> updater_;
+
+    boost::shared_ptr<StatusHandler> statusHandler_;
 
    public:
     // The fctName (location name ) is usually coming from the config file and
@@ -48,5 +49,3 @@ namespace ChimeraTK {
   };
 
 } // namespace ChimeraTK
-
-#endif // CS_ADAPTER_EQ_FCT_H
