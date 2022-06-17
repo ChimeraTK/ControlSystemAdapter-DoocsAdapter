@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
-set(${PROJECT_NAME}_MINOR_VERSION 04)
-set(${PROJECT_NAME}_PATCH_VERSION 02)
+set(${PROJECT_NAME}_MINOR_VERSION 05)
+set(${PROJECT_NAME}_PATCH_VERSION 00)
 include(cmake/set_version_numbers.cmake)
 
 include(cmake/set_default_build_to_release.cmake)
@@ -17,9 +17,9 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 include(cmake/add_dependency.cmake)
 include(cmake/enable_code_coverage_report.cmake)
 
-add_dependency(ChimeraTK-ControlSystemAdapter 02.02 REQUIRED)
+add_dependency(ChimeraTK-ControlSystemAdapter 02.04 REQUIRED)
 add_dependency(doocs-server-test-helper 01.05 REQUIRED)
-add_dependency(DOOCS 21.04.0 COMPONENTS server REQUIRED)
+add_dependency(DOOCS 22.05.0 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
