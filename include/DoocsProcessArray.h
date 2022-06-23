@@ -104,7 +104,10 @@ namespace ChimeraTK {
       // before calling this function because calling this function through a function pointer is
       // comparatively expensive.
       // Only check the consistency group if there is a macro pulse number associated.
-      if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
+      // Do not check if update is coming from another DOOCS property mapped to the same variable (ID invalid), since
+      // the check would never pass. Such variables cannot use exact data matching anyway, since the update is triggered
+      // from the DOOCS write to the other property.
+      if(transferElementId.isValid() && _macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
         // data is not consistent (yet). Don't update the Doocs buffer.
         // check if this will now throw away data and generate a warning
         if(transferElementId == _processArray->getId()) {

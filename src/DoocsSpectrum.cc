@@ -132,7 +132,10 @@ namespace ChimeraTK {
     // There are only the processArray and the macro pulse number in the consistency
     // group. The limits are coming asynchronously and not for every macro pulse,
     // so we just take test latest we have.
-    if(_macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
+    // Do not check if update is coming from another DOOCS property mapped to the same variable (ID invalid), since
+    // the check would never pass. Such variables cannot use exact data matching anyway, since the update is triggered
+    // from the DOOCS write to the other property.
+    if(transferElementId.isValid() && _macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
       // data is not consistent (yet). Don't update the Doocs buffer.
       // check if this will now throw away data and generate a warning
       if(transferElementId == _processArray->getId()) {
