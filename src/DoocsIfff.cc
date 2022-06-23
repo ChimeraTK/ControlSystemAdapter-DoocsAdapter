@@ -58,8 +58,11 @@ namespace ChimeraTK {
     registerVariable(OneDRegisterAccessor<float>(_f3Value));
   }
 
-  void DoocsIfff::updateDoocsBuffer(const TransferElementID& elementId) {
-    if(!_consistencyGroup.update(elementId)) {
+  void DoocsIfff::updateDoocsBuffer(const TransferElementID& transferElementId) {
+    // Do not check if update is coming from another DOOCS property mapped to the same variable (ID invalid), since
+    // the check would never pass. Such variables cannot use exact data matching anyway, since the update is triggered
+    // from the DOOCS write to the other property.
+    if(transferElementId.isValid() && !_consistencyGroup.update(transferElementId)) {
       return;
     }
 
