@@ -236,10 +236,25 @@ namespace ChimeraTK {
       // always get a fresh reference
       auto& processVector = _processArray->accessChannel(0);
       size_t arraySize = processVector.size();
+      if(this->length() != arraySize) {
+        std::cout << "Warning: Array length mismatch in property " << this->getEqFct()->name() << "/"
+                  << this->basename() << ": Property has length " << this->length() << " but " << arraySize
+                  << " expected." << std::endl;
+        arraySize = std::min(arraySize, size_t(this->length()));
+      }
       for(size_t i = 0; i < arraySize; ++i) {
         processVector[i] = this->value(i);
       }
       _processArray->write();
+
+      // Correct property length in case of a mismatch.
+      if(this->length() != processVector.size()) {
+        this->set_length(processVector.size());
+        // restore value from ProcessArray, as it may have been destroyed in set_length().
+        for(size_t i = 0; i < arraySize; ++i) {
+          this->set_value(processVector[i], i);
+        }
+      }
 
       // make sure other properties using these PVs see the update
       if(getLocks) this->get_eqfct()->unlock();
