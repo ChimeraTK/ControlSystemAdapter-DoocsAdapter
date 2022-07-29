@@ -74,8 +74,8 @@ namespace ChimeraTK {
     }
 
     // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)
-        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+    boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->setMatchingMode(
+        propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
@@ -116,8 +116,9 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1); // array of strings is not supported
-    boost::shared_ptr<D_fct> doocsPV(new DoocsProcessScalar<std::string, D_textUnifier>(
-        _eqFct, propertyDescription.name.c_str(), processArray, _updater));
+    boost::shared_ptr<DoocsProcessScalar<std::string, D_textUnifier>> doocsPV(
+        new DoocsProcessScalar<std::string, D_textUnifier>(
+            _eqFct, propertyDescription.name.c_str(), processArray, _updater));
 
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
@@ -126,12 +127,11 @@ namespace ChimeraTK {
 
     // publish via ZeroMQ if configured in the xml file
     if(propertyDescription.publishZMQ) {
-      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->publishZeroMQ();
+      doocsPV->publishZeroMQ();
     }
 
     // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)
-        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+    doocsPV->setMatchingMode(propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
@@ -147,8 +147,7 @@ namespace ChimeraTK {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsProcessScalar<std::string, D_textUnifier>>(doocsPV)->setMacroPulseNumberSource(
-          mpnDecorated);
+      doocsPV->setMacroPulseNumberSource(mpnDecorated);
     }
 
     return doocsPV;
@@ -178,7 +177,7 @@ namespace ChimeraTK {
     }
 
     //    assert(processArray->getNumberOfChannels() == 1);
-    boost::shared_ptr<D_fct> doocsPV;
+    boost::shared_ptr<DoocsSpectrum> doocsPV;
     if(spectrumDescription.numberOfBuffers == 1) {
       doocsPV.reset(new DoocsSpectrum(_eqFct, spectrumDescription.name,
           getDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor,
@@ -217,8 +216,7 @@ namespace ChimeraTK {
     }
 
     // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->_consistencyGroup.setMatchingMode(
-        spectrumDescription.dataMatching);
+    doocsPV->setMatchingMode(spectrumDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(spectrumDescription.macroPulseNumberSource.size() > 0) {
@@ -234,7 +232,7 @@ namespace ChimeraTK {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
+      doocsPV->setMacroPulseNumberSource(mpnDecorated);
     }
 
     return doocsPV;
@@ -276,7 +274,7 @@ namespace ChimeraTK {
     auto f2ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f2Source);
     auto f3ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f3Source);
 
-    boost::shared_ptr<D_fct> doocsPV;
+    boost::shared_ptr<DoocsIfff> doocsPV;
     doocsPV.reset(new DoocsIfff(_eqFct, ifffDescription.name,
         getDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
         getDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
@@ -284,7 +282,7 @@ namespace ChimeraTK {
         getDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
 
     // set specified data_matching mode
-    boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->_consistencyGroup.setMatchingMode(ifffDescription.dataMatching);
+    doocsPV->setMatchingMode(ifffDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(ifffDescription.macroPulseNumberSource.size() > 0) {
@@ -300,11 +298,11 @@ namespace ChimeraTK {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->setMacroPulseNumberSource(mpnDecorated);
+      doocsPV->setMacroPulseNumberSource(mpnDecorated);
     }
 
     if(ifffDescription.publishZMQ) {
-      boost::dynamic_pointer_cast<DoocsIfff>(doocsPV)->publishZeroMQ();
+      doocsPV->publishZeroMQ();
     }
 
     if(not ifffDescription.isWriteable) {
@@ -412,22 +410,21 @@ namespace ChimeraTK {
 
     ///@todo FIXME Add the decorator type as option  to the array description, and
     /// only use C_style_conversion as default
-    boost::shared_ptr<D_fct> doocsPV(
+    boost::shared_ptr<PropertyBase> doocsPV(
         new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name, processArray, _updater));
 
     // set read only mode if configures in the xml file or for output variables
     if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
-      doocsPV->set_ro_access();
+      doocsPV->getDfct()->set_ro_access();
     }
 
     // publish via ZeroMQ if configured in the xml file
     if(propertyDescription.publishZMQ) {
-      boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->publishZeroMQ();
+      doocsPV->publishZeroMQ();
     }
 
     // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)
-        ->_consistencyGroup.setMatchingMode(propertyDescription.dataMatching);
+    doocsPV->setMatchingMode(propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(propertyDescription.macroPulseNumberSource.size() > 0) {
@@ -443,11 +440,10 @@ namespace ChimeraTK {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
             "' is used as a macro pulse number source, but it is not readable.");
       }
-      boost::dynamic_pointer_cast<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(doocsPV)->setMacroPulseNumberSource(
-          mpnDecorated);
+      doocsPV->setMacroPulseNumberSource(mpnDecorated);
     }
 
-    return doocsPV;
+    return boost::dynamic_pointer_cast<D_fct>(doocsPV);
   }
 
   // template specialisation for cases with no matching DOOCS array type (e.g.

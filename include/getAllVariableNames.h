@@ -1,5 +1,6 @@
-#ifndef GET_ALL_VARIABLENAMES_H
-#define GET_ALL_VARIABLENAMES_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <set>
@@ -12,5 +13,3 @@ namespace ChimeraTK {
   std::set<std::string> getAllVariableNames(boost::shared_ptr<ControlSystemPVManager> csManager);
 
 } //  namespace ChimeraTK
-
-#endif // GET_ALL_VARIABLENAMES_H

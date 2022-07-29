@@ -14,14 +14,10 @@ namespace ChimeraTK {
       boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
-  : D_ifff(eqFct, doocsPropertyName), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value),
-    _updater(updater), _eqFct(eqFct), isWriteable(_i1Value->isWriteable() && _f1Value->isWriteable() &&
-                                          _f2Value->isWriteable() && _f3Value->isWriteable()) {
+  : D_ifff(eqFct, doocsPropertyName), PropertyBase(eqFct, doocsPropertyName, updater), _i1Value(i1Value),
+    _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value) {
     checkSourceConsistency();
     registerIfffSources();
-    if(_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly()) {
-      this->set_ro_access();
-    }
   }
 
   // Constructor without history
@@ -30,24 +26,24 @@ namespace ChimeraTK {
       boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
-  : D_ifff(doocsPropertyName, eqFct), _i1Value(i1Value), _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value),
-    _updater(updater), _eqFct(eqFct), isWriteable(_i1Value->isWriteable() && _f1Value->isWriteable() &&
-                                          _f2Value->isWriteable() && _f3Value->isWriteable()) {
+  : D_ifff(doocsPropertyName, eqFct), PropertyBase(eqFct, doocsPropertyName, updater), _i1Value(i1Value),
+    _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value) {
     checkSourceConsistency();
     registerIfffSources();
-    if(_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly()) {
-      this->set_ro_access();
-    }
   }
 
   void DoocsIfff::checkSourceConsistency() {
     bool areAllSourcesWritable =
         (_i1Value->isWriteable() && _f1Value->isWriteable() && _f2Value->isWriteable() && _f3Value->isWriteable());
+    _isWriteable = areAllSourcesWritable;
     bool areAllSourcesReadOnly =
         (_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly());
 
     if(!areAllSourcesWritable && !areAllSourcesReadOnly) {
       ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: some IFFF sources are not writable");
+    }
+    if(areAllSourcesReadOnly) {
+      this->set_ro_access();
     }
   }
 
@@ -56,13 +52,11 @@ namespace ChimeraTK {
     registerVariable(OneDRegisterAccessor<float>(_f1Value));
     registerVariable(OneDRegisterAccessor<float>(_f2Value));
     registerVariable(OneDRegisterAccessor<float>(_f3Value));
+    _mainOutputVar = _i1Value;
   }
 
   void DoocsIfff::updateDoocsBuffer(const TransferElementID& transferElementId) {
-    // Do not check if update is coming from another DOOCS property mapped to the same variable (ID invalid), since
-    // the check would never pass. Such variables cannot use exact data matching anyway, since the update is triggered
-    // from the DOOCS write to the other property.
-    if(transferElementId.isValid() && !_consistencyGroup.update(transferElementId)) {
+    if(!updateConsistency(transferElementId)) {
       return;
     }
 
@@ -72,7 +66,7 @@ namespace ChimeraTK {
         _f1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f2Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f3Value->dataValidity() != ChimeraTK::DataValidity::ok) {
-      if(this->d_error()) // data are alredy invalid, do not store in history
+      if(this->d_error()) // data are already invalid, do not store in history
         storeInHistory = false;
 
       archiverStatus = ArchiveStatus::sts_err;
@@ -88,27 +82,13 @@ namespace ChimeraTK {
     ifff.f2_data = _f2Value->accessData(0);
     ifff.f3_data = _f3Value->accessData(0);
 
-    doocs::Timestamp timestamp(_i1Value->getVersionNumber().getTime());
-
-    // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
-    // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
-    if(this->get_timestamp() == timestamp) {
-      timestamp += std::chrono::microseconds(1);
+    doocs::Timestamp timestamp = correctDoocsTimestamp();
+    if(_macroPulseNumberSource) {
+      this->set_mpnum(_macroPulseNumberSource->accessData(0));
     }
-
-    // update global time stamp of DOOCS, but only if our time stamp is newer
-    if(get_global_timestamp() < timestamp) {
-      set_global_timestamp(timestamp);
-    }
-
     // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except first invalid data point.
     // (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
     if(this->get_histPointer() && storeInHistory) {
-      /*
-      doocs::EventId eventId =
-          (_macroPulseNumberSource) ? doocs::EventId(_macroPulseNumberSource->accessData(0)) : doocs::EventId(0);
-      */
-
       /*FIXME: This set_and_archive does not support the timestamp yet (only sec and msec, and I guess m is milli?)*/
       /*FIXME: This set_and_archive does not support eventIDs yet */
       this->set_and_archive(&ifff, archiverStatus, 0, 0 /*msec*/);
@@ -116,66 +96,31 @@ namespace ChimeraTK {
     else {
       this->set_value(&ifff);
     }
+    // Note, I guess above will in future look something like this:
+    //doocs::EventId eventid(_macroPulseNumberSource->accessData(0));
+    //this->set_value(ifff, timestamp, eventid, archiverStatus);
+    // because the feature "do not store invalid data in history" is effectily lost
+    // when set_value() now also stores to history.
+    // However, currently it does _not_ yet.
 
-    auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
-    auto seconds = sinceEpoch.seconds;
-    auto microseconds = sinceEpoch.microseconds;
-
-    this->set_tmstmp(seconds, microseconds);
-    if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
-
-    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
-    if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
-      dmsg_info info;
-      memset(&info, 0, sizeof(info));
-      info.sec = seconds;
-      info.usec = microseconds;
-      if(_macroPulseNumberSource != nullptr) {
-        info.ident = _macroPulseNumberSource->accessData(0);
-      }
-      else {
-        info.ident = 0;
-      }
-      auto ret = this->send(&info);
-      if(ret) {
-        std::cout << "ZeroMQ sending failed!!!" << std::endl;
-      }
-    }
+    sendZMQ(timestamp);
   }
 
   void DoocsIfff::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
+    if(_macroPulseNumberSource != nullptr) {
+      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    }
     sendToApplication(true);
 
-    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
-    if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
-      auto timestamp = _i1Value->getVersionNumber().getTime();
-      auto seconds = std::chrono::system_clock::to_time_t(timestamp);
-      auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
-          timestamp - std::chrono::system_clock::from_time_t(seconds))
-                              .count();
-      dmsg_info info;
-      memset(&info, 0, sizeof(info));
-      info.sec = seconds;
-      info.usec = microseconds;
-      if(_macroPulseNumberSource != nullptr) {
-        info.ident = _macroPulseNumberSource->accessData(0);
-      }
-      else {
-        info.ident = 0;
-      }
-      auto ret = this->send(&info);
-      if(ret) {
-        std::cout << "ZeroMQ sending failed!!!" << std::endl;
-      }
-    }
+    sendZMQ(getTimestamp());
   }
 
   void DoocsIfff::auto_init(void) {
     doocsAdapter.before_auto_init();
 
     D_ifff::auto_init(); // inherited functionality fill the local doocs buffer
-    if(isWriteable) {
+    if(_isWriteable) {
       sendToApplication(false);
     }
   }
@@ -195,34 +140,7 @@ namespace ChimeraTK {
     _f2Value->write(v);
     _f3Value->write(v);
 
-    // make sure other properties using these PVs see the update
-    if(getLock) this->get_eqfct()->unlock();
-    for(auto& prop : otherPropertiesToUpdate) {
-      if(getLock) prop->getEqFct()->lock();
-      prop->updateDoocsBuffer({});
-      if(getLock) prop->getEqFct()->unlock();
-    }
-    if(getLock) this->get_eqfct()->lock();
+    updateOthers(getLock);
   }
 
-  void DoocsIfff::setMacroPulseNumberSource(
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-    _macroPulseNumberSource = macroPulseNumberSource;
-    if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
-      registerVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(_macroPulseNumberSource));
-    }
-    else {
-      // We don't need to match up anything with it when it changes, but we have to register this at least once
-      // so the macropulse number will be included in the readAnyGroup in the updater if
-      // <data_matching> is none everywhere
-      _updater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct, []() {});
-    }
-  }
-
-  void DoocsIfff::registerVariable(const ChimeraTK::TransferElementAbstractor& var) {
-    if(var.isReadable()) {
-      _updater.addVariable(var, _eqFct, std::bind(&DoocsIfff::updateDoocsBuffer, this, var.getId()));
-      _consistencyGroup.add(var);
-    }
-  }
 } // namespace ChimeraTK

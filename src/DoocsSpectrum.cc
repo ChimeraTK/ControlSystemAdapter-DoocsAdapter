@@ -15,21 +15,11 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor)
   : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
-    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor),
-    _doocsUpdater(updater), _eqFct(eqFct), nBuffers(1) {
-    if(processArray->isReadable()) {
-      updater.addVariable(ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct,
-          std::bind(&DoocsSpectrum::updateDoocsBuffer, this, processArray->getId()));
-      _consistencyGroup.add(processArray);
-    }
-    if(startAccessor && startAccessor->isReadable()) {
-      updater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(startAccessor), eqFct,
-          std::bind(&DoocsSpectrum::updateParameters, this));
-    }
-    if(incrementAccessor && incrementAccessor->isReadable()) {
-      updater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(incrementAccessor), eqFct,
-          std::bind(&DoocsSpectrum::updateParameters, this));
-    }
+    PropertyBase(eqFct, doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
+    _incrementAccessor(incrementAccessor), nBuffers(1) {
+    init(processArray);
+
+    addParameterAccessors();
   }
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
@@ -37,54 +27,26 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor, size_t numberOfBuffers)
   : D_spectrum(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct, numberOfBuffers, DATA_A_FLOAT),
-    _processArray(processArray), _startAccessor(startAccessor), _incrementAccessor(incrementAccessor),
-    _doocsUpdater(updater), _eqFct(eqFct), nBuffers(numberOfBuffers) {
+    PropertyBase(eqFct, doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
+    _incrementAccessor(incrementAccessor), nBuffers(numberOfBuffers) {
     if(nBuffers > 1 && !processArray->isReadable()) {
       throw ChimeraTK::logic_error(
           "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but is not readable.");
     }
-    if(processArray->isReadable()) {
-      updater.addVariable(ChimeraTK::OneDRegisterAccessor<float>(processArray), eqFct,
-          std::bind(&DoocsSpectrum::updateDoocsBuffer, this, processArray->getId()));
-      _consistencyGroup.add(processArray);
-    }
-    if(startAccessor && startAccessor->isReadable()) {
-      updater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(startAccessor), eqFct,
-          std::bind(&DoocsSpectrum::updateParameters, this));
-    }
-    if(incrementAccessor && incrementAccessor->isReadable()) {
-      updater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(incrementAccessor), eqFct,
-          std::bind(&DoocsSpectrum::updateParameters, this));
-    }
+    init(processArray);
+
+    addParameterAccessors();
   }
 
   void DoocsSpectrum::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
+    if(_macroPulseNumberSource != nullptr) {
+      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    }
     modified = true;
     sendToDevice(true);
 
-    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
-    if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
-      auto timestamp = _processArray->getVersionNumber().getTime();
-      auto seconds = std::chrono::system_clock::to_time_t(timestamp);
-      auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
-          timestamp - std::chrono::system_clock::from_time_t(seconds))
-                              .count();
-      dmsg_info info;
-      memset(&info, 0, sizeof(info));
-      info.sec = seconds;
-      info.usec = microseconds;
-      if(_macroPulseNumberSource != nullptr) {
-        info.ident = _macroPulseNumberSource->accessData(0);
-      }
-      else {
-        info.ident = 0;
-      }
-      auto ret = this->send(&info);
-      if(ret) {
-        std::cout << "ZeroMQ sending failed!!!" << std::endl;
-      }
-    }
+    sendZMQ(getTimestamp());
   }
 
   void DoocsSpectrum::auto_init(void) {
@@ -122,45 +84,28 @@ namespace ChimeraTK {
     D_spectrum::write(s);
   }
 
+  void DoocsSpectrum::addParameterAccessors() {
+    if(_startAccessor && _startAccessor->isReadable()) {
+      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(_startAccessor), _eqFct,
+          std::bind(&DoocsSpectrum::updateParameters, this));
+    }
+    if(_incrementAccessor && _incrementAccessor->isReadable()) {
+      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(_incrementAccessor), _eqFct,
+          std::bind(&DoocsSpectrum::updateParameters, this));
+    }
+  }
+
   void DoocsSpectrum::updateDoocsBuffer(const TransferElementID& transferElementId) {
     // Note: we already own the location lock by specification of the DoocsUpdater
 
-    // FIXME: A first  implementation is checking the data consistency here. Later this should be
-    // before calling this function because calling this function through a function pointer is
-    // comparatively expensive.
-    // Only check the consistency group if there is a macro pulse number associated.
     // There are only the processArray and the macro pulse number in the consistency
     // group. The limits are coming asynchronously and not for every macro pulse,
     // so we just take test latest we have.
-    // Do not check if update is coming from another DOOCS property mapped to the same variable (ID invalid), since
-    // the check would never pass. Such variables cannot use exact data matching anyway, since the update is triggered
-    // from the DOOCS write to the other property.
-    if(transferElementId.isValid() && _macroPulseNumberSource && !_consistencyGroup.update(transferElementId)) {
-      // data is not consistent (yet). Don't update the Doocs buffer.
-      // check if this will now throw away data and generate a warning
-      if(transferElementId == _processArray->getId()) {
-        if(!_doocsSuccessfullyUpdated) {
-          ++_nDataLossWarnings;
-          if(DoocsAdapter::checkPrintDataLossWarning(_nDataLossWarnings)) {
-            std::cout << "WARNING: Data loss in spectrum property " << _eqFct->name() << "/" << this->basename()
-                      << " due to failed data matching between value and macro pulse number (repeated "
-                      << _nDataLossWarnings << " times)." << std::endl;
-          }
-        }
-      }
-      _doocsSuccessfullyUpdated = false;
+    if(!updateConsistency(transferElementId)) {
       return;
     }
-    _doocsSuccessfullyUpdated = true;
 
-    // Convert time stamp from version number to DOOCS timestamp
-    doocs::Timestamp timestamp(_processArray->getVersionNumber().getTime());
-
-    // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
-    // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
-    if(this->get_timestamp() == timestamp) {
-      timestamp += std::chrono::microseconds(1);
-    }
+    doocs::Timestamp timestamp = correctDoocsTimestamp();
 
     auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
     auto seconds = sinceEpoch.seconds;
@@ -196,23 +141,7 @@ namespace ChimeraTK {
     // mark property as modified, for (optional) persistence
     modified = true;
 
-    // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
-    if(publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
-      dmsg_info info;
-      memset(&info, 0, sizeof(info));
-      info.sec = seconds;
-      info.usec = microseconds;
-      if(_macroPulseNumberSource != nullptr) {
-        info.ident = _macroPulseNumberSource->accessData(0);
-      }
-      else {
-        info.ident = 0;
-      }
-      auto ret = this->send(&info);
-      if(ret) {
-        std::cout << "ZeroMQ sending failed!!!" << std::endl;
-      }
-    }
+    sendZMQ(timestamp);
   }
 
   void DoocsSpectrum::updateParameters() {
@@ -241,22 +170,6 @@ namespace ChimeraTK {
     this->set_timestamp(oldTimeStamp);
   }
 
-  void DoocsSpectrum::setMacroPulseNumberSource(
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
-      _macroPulseNumberSource = macroPulseNumberSource;
-      if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
-        _consistencyGroup.add(macroPulseNumberSource);
-        _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
-            std::bind(&DoocsSpectrum::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
-      }
-      else {
-        // We don't need to match up anything with it when it changes, but we have to register this at least once
-        // so the macropulse number will be included in the readAnyGroup in the updater if
-        // <data_matching> is none everywhere
-        _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct, []() {});
-    }
-  }
-
   void DoocsSpectrum::sendToDevice(bool getLock) {
     // Brute force implementation with a loop. Works for all data types.
     // FIXME: find the efficient, memcopying function for float
@@ -268,14 +181,7 @@ namespace ChimeraTK {
     }
     _processArray->write();
 
-    // make sure other properties using these PVs see the update
-    if(getLock) this->get_eqfct()->unlock();
-    for(auto& prop : otherPropertiesToUpdate) {
-      if(getLock) prop->getEqFct()->lock();
-      prop->updateDoocsBuffer({});
-      if(getLock) prop->getEqFct()->unlock();
-    }
-    if(getLock) this->get_eqfct()->lock();
+    updateOthers(getLock);
   }
 
 } // namespace ChimeraTK

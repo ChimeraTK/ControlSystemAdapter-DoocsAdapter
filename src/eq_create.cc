@@ -88,9 +88,6 @@ void eq_init_prolog() {
       doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
     }
   }
-
-  // activate the advanced archiver to have histories
-  set_arch_mode(1);
 }
 
 /* eq_create returns a ControlSystemAdapter-based location for any location type

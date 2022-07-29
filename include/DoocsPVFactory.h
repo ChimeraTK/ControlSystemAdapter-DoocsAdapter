@@ -1,5 +1,6 @@
-#ifndef CHIMERATK_DOOCS_PV_FACTORY_H
-#define CHIMERATK_DOOCS_PV_FACTORY_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 #include "DoocsUpdater.h"
 #include "PropertyDescription.h"
@@ -64,5 +65,3 @@ namespace ChimeraTK {
       AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
 
 } // namespace ChimeraTK
-
-#endif // CHIMERATK_DOOCS_PV_FACTORY_H
