@@ -3,6 +3,9 @@
 
 #define BOOST_TEST_MODULE DoocsProcessScalarTest
 // Only after defining the name include the unit test header.
+#include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be first include
+
 #include "D_textUnifier.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsUpdater.h"
@@ -14,7 +17,6 @@
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 
 #include <boost/mpl/list.hpp>
-#include <boost/test/included/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace boost::unit_test_framework;

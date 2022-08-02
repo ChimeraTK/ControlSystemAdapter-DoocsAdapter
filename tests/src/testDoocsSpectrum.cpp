@@ -3,6 +3,8 @@
 
 #define BOOST_TEST_MODULE DoocsSpectrumTest
 // Only after defining the name include the unit test header.
+#include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be first include
 #include "DoocsSpectrum.h"
 #include "emptyServerFunctions.h"
 
@@ -11,7 +13,6 @@
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
 
 #include <boost/mpl/list.hpp>
-#include <boost/test/included/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <limits>

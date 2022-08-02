@@ -4,9 +4,7 @@
 #define BOOST_TEST_MODULE serverTestAutoCreateLocations
 
 #include <boost/test/included/unit_test.hpp>
-
-//#include <boost/test/test_case_template.hpp>
-//#include <boost/mpl/list.hpp>
+// boost unit_test needs to be first include
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"

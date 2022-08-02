@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "CSAdapterEqFct.h"
+#include "StatusHandler.h"
+// include above first to avoid name clash with #define from DOOCS
 
+#include "CSAdapterEqFct.h"
 #include "DoocsProcessArray.h"
 #include "DoocsPVFactory.h"
 #include "DoocsUpdater.h"
 #include "PropertyDescription.h"
-#include "StatusHandler.h" // include this first to avoid name clash with #define from DOOCS
 #include "VariableMapper.h"
 
 namespace ChimeraTK {

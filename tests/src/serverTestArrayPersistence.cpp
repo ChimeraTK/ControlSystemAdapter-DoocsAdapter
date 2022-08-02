@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestArrayPersistence
+
+#include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be first include
+
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-
-#include <boost/test/included/unit_test.hpp>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>

@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestImportAllIntoLocation
-#include <boost/test/included/unit_test.hpp>
 
-//#include <boost/test/test_case_template.hpp>
-//#include <boost/mpl/list.hpp>
+#include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be first include
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"

@@ -3,9 +3,10 @@
 
 #define BOOST_TEST_MODULE serverTestErrorFlag
 
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-
 #include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be first include
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 extern const char* object_name;
 #include "DoocsAdapter.h"
