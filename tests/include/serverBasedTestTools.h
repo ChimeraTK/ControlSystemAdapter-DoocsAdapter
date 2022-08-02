@@ -1,5 +1,6 @@
-#ifndef SERVER_BASED_TEST_TOOLS_H
-#define SERVER_BASED_TEST_TOOLS_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 #include "basenameFromAddress.h"
 #include <eq_fct.h>
@@ -241,5 +242,3 @@ void checkSpectrum(std::string const& propertyAddress, bool expected_has_history
   CHECK_WITH_TIMEOUT(std::fabs(readSpectrumStart(propertyAddress) - expected_start) < 0.001);
   CHECK_WITH_TIMEOUT(std::fabs(readSpectrumIncrement(propertyAddress) - expected_increment) < 0.001);
 }
-
-#endif // SERVER_BASED_TEST_TOOLS_H

@@ -1,10 +1,15 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #include "VariableMapper.h"
 
 #include "splitStringAtFirstSlash.h"
+#include <libxml++/libxml++.h>
+
 #include <ChimeraTK/RegisterPath.h>
+
 #include <algorithm>
 #include <iostream>
-#include <libxml++/libxml++.h>
 #include <locale>
 #include <regex>
 

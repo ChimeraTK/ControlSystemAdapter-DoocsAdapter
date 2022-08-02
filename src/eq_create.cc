@@ -1,10 +1,13 @@
-#include <ChimeraTK/ControlSystemAdapter/ApplicationBase.h>
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "DoocsAdapter.h"
-#include "VariableMapper.h"
 #include "getAllVariableNames.h"
 #include "PropertyDescription.h"
+#include "VariableMapper.h"
 #include <sys/stat.h>
+
+#include <ChimeraTK/ControlSystemAdapter/ApplicationBase.h>
 
 char const* object_name;
 static char const* XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";

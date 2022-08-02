@@ -1,11 +1,16 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #include "DoocsIfff.h"
-#include "DoocsUpdater.h"
+
 #include "DoocsAdapter.h"
+#include "DoocsUpdater.h"
+#include <doocs/EventId.h>
 
 #include <ChimeraTK/Exception.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
-#include <doocs/EventId.h>
+
 #include <functional>
 
 namespace ChimeraTK {
@@ -86,8 +91,8 @@ namespace ChimeraTK {
     if(_macroPulseNumberSource) {
       this->set_mpnum(_macroPulseNumberSource->accessData(0));
     }
-    // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except first invalid data point.
-    // (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
+    // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except
+    // first invalid data point. (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
     if(this->get_histPointer() && storeInHistory) {
       /*FIXME: This set_and_archive does not support the timestamp yet (only sec and msec, and I guess m is milli?)*/
       /*FIXME: This set_and_archive does not support eventIDs yet */
@@ -97,8 +102,8 @@ namespace ChimeraTK {
       this->set_value(&ifff);
     }
     // Note, I guess above will in future look something like this:
-    //doocs::EventId eventid(_macroPulseNumberSource->accessData(0));
-    //this->set_value(ifff, timestamp, eventid, archiverStatus);
+    // doocs::EventId eventid(_macroPulseNumberSource->accessData(0));
+    // this->set_value(ifff, timestamp, eventid, archiverStatus);
     // because the feature "do not store invalid data in history" is effectily lost
     // when set_value() now also stores to history.
     // However, currently it does _not_ yet.

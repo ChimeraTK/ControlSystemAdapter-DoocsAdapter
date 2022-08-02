@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #include "DoocsAdapter.h"
 
 namespace ChimeraTK {
@@ -144,13 +147,13 @@ namespace ChimeraTK {
       dmsg_info info;
       memset(&info, 0, sizeof(info));
       // code using std::chrono::time_point<std::chrono::system_clock>:
-      //auto timestamp = getTimestamp();
-      //auto seconds = std::chrono::system_clock::to_time_t(timestamp);
-      //auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
+      // auto timestamp = getTimestamp();
+      // auto seconds = std::chrono::system_clock::to_time_t(timestamp);
+      // auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
       //    timestamp - std::chrono::system_clock::from_time_t(seconds))
       //                       .count();
-      //info.sec = seconds;
-      //info.usec = microseconds;
+      // info.sec = seconds;
+      // info.usec = microseconds;
 
       // code using doocs::Timestamp
       auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();

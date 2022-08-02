@@ -1,16 +1,20 @@
-#include <boost/make_shared.hpp>
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include "DoocsPVFactory.h"
+
+#include "D_textUnifier.h"
+#include "DoocsIfff.h"
 #include "DoocsProcessArray.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsSpectrum.h"
 #include "DoocsXY.h"
-#include "DoocsIfff.h"
-#include "D_textUnifier.h"
+#include "splitStringAtFirstSlash.h"
 #include <d_fct.h>
 
-#include "DoocsPVFactory.h"
-#include "splitStringAtFirstSlash.h"
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+
+#include <boost/make_shared.hpp>
 
 namespace ChimeraTK {
 

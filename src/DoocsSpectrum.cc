@@ -1,6 +1,9 @@
-#include "DoocsSpectrum.h"
-#include "DoocsAdapter.h"
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include "DoocsSpectrum.h"
+
+#include "DoocsAdapter.h"
 #include <eq_fct.h>
 
 #include <ChimeraTK/OneDRegisterAccessor.h>
