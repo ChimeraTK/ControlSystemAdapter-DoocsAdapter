@@ -14,14 +14,19 @@ namespace ChimeraTK {
   /**
    * Base class used for all properties.
    * Handles data consistency, ZMQ send, and synchronization with other DOOCS buffers
+   * All derived classes also must derive from DOOCS D_fct implementation.
    */
   class PropertyBase : public boost::enable_shared_from_this<PropertyBase> {
    public:
     PropertyBase(EqFct* eqFct, std::string doocsPropertyName, DoocsUpdater& updater)
-    : _eqFct(eqFct), _doocsPropertyName(doocsPropertyName), _doocsUpdater(updater) {}
+    : _eqFct(eqFct), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+    virtual ~PropertyBase() = default;
 
-    virtual EqFct* getEqFct() { return _eqFct; }
+    /// returns associated DOOCS location
+    EqFct* getEqFct() { return _eqFct; }
+    /// returns associated DOOCS property. Not null.
     D_fct* getDfct() { return dynamic_cast<D_fct*>(this); }
+    /// turns on ZeroMQ publishing
     virtual void publishZeroMQ() { _publishZMQ = true; }
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
     void setMatchingMode(DataConsistencyGroup::MatchingMode newMode) { _consistencyGroup.setMatchingMode(newMode); }
@@ -33,14 +38,17 @@ namespace ChimeraTK {
     virtual void updateDoocsBuffer(const TransferElementID& transferElementId) = 0;
 
     /// should be called for output vars mapped to doocs
+    /// registers processVar in data consistency group, initializes DOOCS error state and keeps a reference as _mainOutputVar
     template<typename T>
     void init(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar);
 
     /// register a variable in consistency group
     void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
-
+    /// update for data consistency group
     bool updateConsistency(const TransferElementID& updatedId);
+    /// default implementation returns timestamp of _mainOutputVar
     virtual doocs::Timestamp getTimestamp();
+    /// implements timestamp workarounds for associated DOOCS property
     doocs::Timestamp correctDoocsTimestamp();
 
     /// send data via ZeroMQ if enabled and if DOOCS initialisation is complete
@@ -77,8 +85,8 @@ namespace ChimeraTK {
   class DoocsAdapter {
    public:
     DoocsAdapter();
-    boost::shared_ptr<DevicePVManager> const& getDevicePVManager() const;
-    boost::shared_ptr<ControlSystemPVManager> const& getControlSystemPVManager() const;
+    [[nodiscard]] boost::shared_ptr<DevicePVManager> const& getDevicePVManager() const;
+    [[nodiscard]] boost::shared_ptr<ControlSystemPVManager> const& getControlSystemPVManager() const;
 
     boost::shared_ptr<DoocsUpdater> updater;
 
