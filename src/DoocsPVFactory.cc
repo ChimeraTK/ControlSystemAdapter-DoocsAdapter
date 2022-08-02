@@ -246,12 +246,12 @@ namespace ChimeraTK {
     auto xProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.xSource);
     auto yProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.ySource);
 
-    boost::shared_ptr<D_fct> doocsPV;
+    boost::shared_ptr<DoocsXy> doocsPV;
     doocsPV.reset(new DoocsXy(_eqFct, xyDescription.name,
         getDecorator<float>(xProcessVariable, DecoratorType::C_style_conversion),
         getDecorator<float>(yProcessVariable, DecoratorType::C_style_conversion), _updater));
 
-    auto xy = boost::dynamic_pointer_cast<DoocsXy>(doocsPV);
+    auto xy = boost::static_pointer_cast<DoocsXy>(doocsPV);
 
     if(not xyDescription.description.empty()) xy->description(xyDescription.description);
 
@@ -265,6 +265,10 @@ namespace ChimeraTK {
     if(yIt != xyDescription.axis.cend()) {
       auto const& axis = yIt->second;
       xy->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+    }
+
+    if(xyDescription.publishZMQ) {
+      doocsPV->publishZeroMQ();
     }
 
     doocsPV->set_ro_access();
