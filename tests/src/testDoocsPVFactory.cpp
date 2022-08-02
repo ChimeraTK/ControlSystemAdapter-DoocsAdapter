@@ -4,23 +4,23 @@
 // Define a name for the test module.
 #define BOOST_TEST_MODULE DoocsPVFactoryTest
 // Only after defining the name include the unit test header.
+#include "DoocsProcessArray.h"
+#include "DoocsProcessScalar.h"
+#include "DoocsPVFactory.h"
+#include "DoocsSpectrum.h"
+#include "emptyServerFunctions.h"
+#include "getAllVariableNames.h"
+#include "PropertyDescription.h"
+
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+
 #include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
 #include <typeinfo>
-
-#include "DoocsPVFactory.h"
-#include "DoocsProcessArray.h"
-#include "DoocsProcessScalar.h"
-#include "DoocsSpectrum.h"
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-
-#include "PropertyDescription.h"
-#include "emptyServerFunctions.h"
-#include "getAllVariableNames.h"
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -71,36 +71,36 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
 
   // We insert check points with integers so we know where the algorithm kicks
   // out in case of an error. These checkpoints are always true.
-  testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int32", "I", "int32"), factory,
-      "int32"); 
-                
+  testCreateProcessScalar<int32_t, D_int>(
+      std::make_shared<AutoPropertyDescription>("I/int32", "I", "int32"), factory, "int32");
+
   BOOST_CHECK(-32);
   testCreateProcessScalar<int32_t, D_int>(
       std::make_shared<AutoPropertyDescription>("U/uint32", "I", "uint32"), factory, "uint32");
   BOOST_CHECK(32);
-  testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int16", "I", "int16"), factory,
-      "int16"); 
-                 
+  testCreateProcessScalar<int32_t, D_int>(
+      std::make_shared<AutoPropertyDescription>("I/int16", "I", "int16"), factory, "int16");
+
   BOOST_CHECK(-16);
-  testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("U/uint16", "I", "uint16"), factory,
-      "uint16"); 
-                  
+  testCreateProcessScalar<int32_t, D_int>(
+      std::make_shared<AutoPropertyDescription>("U/uint16", "I", "uint16"), factory, "uint16");
+
   BOOST_CHECK(16);
-  testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("I/int8", "I", "int8"), factory,
-      "int8"); 
-               
+  testCreateProcessScalar<int32_t, D_int>(
+      std::make_shared<AutoPropertyDescription>("I/int8", "I", "int8"), factory, "int8");
+
   BOOST_CHECK(-8);
-  testCreateProcessScalar<int32_t, D_int>(std::make_shared<AutoPropertyDescription>("U/uint8", "I", "uint8"), factory,
-      "uint8"); 
-                
+  testCreateProcessScalar<int32_t, D_int>(
+      std::make_shared<AutoPropertyDescription>("U/uint8", "I", "uint8"), factory, "uint8");
+
   BOOST_CHECK(8);
-  testCreateProcessScalar<float, D_float>(std::make_shared<AutoPropertyDescription>("FP/float", "FP", "float"), factory,
-      "float"); 
-                
+  testCreateProcessScalar<float, D_float>(
+      std::make_shared<AutoPropertyDescription>("FP/float", "FP", "float"), factory, "float");
+
   BOOST_CHECK(0.5);
-  testCreateProcessScalar<double, D_double>(std::make_shared<AutoPropertyDescription>("FP/double", "FP", "double"),
-      factory, "double"); 
-                          
+  testCreateProcessScalar<double, D_double>(
+      std::make_shared<AutoPropertyDescription>("FP/double", "FP", "double"), factory, "double");
+
   BOOST_CHECK(32);
 }
 

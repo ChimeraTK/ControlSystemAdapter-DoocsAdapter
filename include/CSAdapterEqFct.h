@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-
 #include <eq_fct.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
+
+#include <boost/noncopyable.hpp>
+#include <boost/scoped_ptr.hpp>
 
 namespace ChimeraTK {
 
@@ -35,10 +35,8 @@ namespace ChimeraTK {
     // The fctName (location name ) is usually coming from the config file and
     // should be left empty. Only for testing without actually running a DOOCS
     // server you need it.
-    CSAdapterEqFct(int fctCode,
-        boost::shared_ptr<ControlSystemPVManager> const& controlSystemPVManager,
-        boost::shared_ptr<DoocsUpdater> const& updater,
-        std::string fctName = std::string());
+    CSAdapterEqFct(int fctCode, boost::shared_ptr<ControlSystemPVManager> const& controlSystemPVManager,
+        boost::shared_ptr<DoocsUpdater> const& updater, std::string fctName = std::string());
     ~CSAdapterEqFct();
 
     void init() override;
@@ -47,7 +45,7 @@ namespace ChimeraTK {
 
     template<class ValueType>
     void saveArray(D_fct* p);
-    int write(std::ostream &fprt) override;
+    int write(std::ostream& fprt) override;
   };
 
 } // namespace ChimeraTK

@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include <D_spectrum.h>
-#include <boost/noncopyable.hpp>
-
 #include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
+#include <D_spectrum.h>
+
 #include <ChimeraTK/NDRegisterAccessor.h>
+
+#include <boost/noncopyable.hpp>
 
 #include <iostream>
 

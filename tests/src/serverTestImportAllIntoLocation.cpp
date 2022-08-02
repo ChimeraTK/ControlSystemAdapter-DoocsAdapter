@@ -9,8 +9,9 @@
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>

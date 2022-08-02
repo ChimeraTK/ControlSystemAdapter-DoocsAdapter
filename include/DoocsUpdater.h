@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include <ChimeraTK/TransferElementAbstractor.h>
-#include <ChimeraTK/TransferElement.h>
-#include <boost/noncopyable.hpp>
 #include <eq_fct.h>
-#include <map>
 #include <unordered_map>
+
+#include <ChimeraTK/TransferElement.h>
+#include <ChimeraTK/TransferElementAbstractor.h>
+
+#include <boost/noncopyable.hpp>
+
+#include <map>
 
 namespace ChimeraTK {
 

@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include <ChimeraTK/ScalarRegisterAccessor.h>
-#include <ChimeraTK/OneDRegisterAccessor.h>
-#include <ChimeraTK/DataConsistencyGroup.h>
-
 #include "CSAdapterEqFct.h"
 #include "DoocsPVFactory.h"
+
+#include <ChimeraTK/DataConsistencyGroup.h>
+#include <ChimeraTK/OneDRegisterAccessor.h>
+#include <ChimeraTK/ScalarRegisterAccessor.h>
 
 namespace ChimeraTK {
 
   /**
    * Base class used for all properties.
-   * Handles data consistency, ZMQ send, and synchronization with other DOOCS buffers 
+   * Handles data consistency, ZMQ send, and synchronization with other DOOCS buffers
    */
   class PropertyBase : public boost::enable_shared_from_this<PropertyBase> {
    public:

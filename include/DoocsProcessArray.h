@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "DoocsAdapter.h"
+#include "DoocsUpdater.h"
 #include <D_spectrum.h>
-#include <boost/noncopyable.hpp>
+#include <eq_fct.h>
 
 #include <ChimeraTK/OneDRegisterAccessor.h>
 
-#include "DoocsUpdater.h"
-#include "DoocsAdapter.h"
-
-#include <eq_fct.h>
+#include <boost/noncopyable.hpp>
 
 namespace ChimeraTK {
 

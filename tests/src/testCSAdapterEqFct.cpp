@@ -4,18 +4,18 @@
 // Define a name for the test module.
 #define BOOST_TEST_MODULE CSAdapterEqFct
 // Only after defining the name include the unit test header.
-#include <boost/test/included/unit_test.hpp>
-
 #include "CSAdapterEqFct.h"
 #include "DoocsAdapter.h"
-#include "VariableMapper.h"
 #include "emptyServerFunctions.h"
 #include "getAllVariableNames.h"
 #include "set_doocs_value.h"
+#include "VariableMapper.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
+
+#include <boost/test/included/unit_test.hpp>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

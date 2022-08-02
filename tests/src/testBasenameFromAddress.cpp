@@ -4,9 +4,9 @@
 // Define a name for the test module.
 #define BOOST_TEST_MODULE BasenameFromAddressTest
 // Only after defining the name include the unit test header.
-#include <boost/test/included/unit_test.hpp>
-
 #include "basenameFromAddress.h"
+
+#include <boost/test/included/unit_test.hpp>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

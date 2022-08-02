@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestVariableMapperWithLocationAndCode
-#include <boost/test/included/unit_test.hpp>
-
 #include <boost/filesystem.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 // #include <boost/test/unit_test.hpp>
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
+
 #include <thread>
 
 using namespace boost::unit_test_framework;

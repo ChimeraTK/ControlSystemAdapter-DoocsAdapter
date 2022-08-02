@@ -96,7 +96,9 @@ namespace ChimeraTK {
     }
   }
 
-  void DoocsUpdater::run() { _syncThread = boost::thread(boost::bind(&DoocsUpdater::updateLoop, this)); }
+  void DoocsUpdater::run() {
+    _syncThread = boost::thread(boost::bind(&DoocsUpdater::updateLoop, this));
+  }
 
   void DoocsUpdater::stop() {
     _syncThread.interrupt();
@@ -106,6 +108,8 @@ namespace ChimeraTK {
     _syncThread.join();
   }
 
-  DoocsUpdater::~DoocsUpdater() { stop(); }
+  DoocsUpdater::~DoocsUpdater() {
+    stop();
+  }
 
 } // namespace ChimeraTK

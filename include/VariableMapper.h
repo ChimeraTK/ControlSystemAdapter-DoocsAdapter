@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "PropertyDescription.h"
+#include <unordered_set>
+
 #include <ChimeraTK/RegisterPath.h>
+
 #include <boost/any.hpp>
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <memory>
 #include <set>
-#include <unordered_set>
 #include <string>
-
-#include "PropertyDescription.h"
 
 namespace xmlpp {
   class Node;

@@ -3,18 +3,16 @@
 
 #define BOOST_TEST_MODULE serverTestSetError
 
-#include <boost/test/included/unit_test.hpp>
-
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
+#include <boost/test/included/unit_test.hpp>
+
 extern const char* object_name;
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-
-#include <eq_fct.h>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_fct.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

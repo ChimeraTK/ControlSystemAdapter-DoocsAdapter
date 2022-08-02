@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include "DoocsUpdater.h"
 #include "DoocsAdapter.h"
-#include <ChimeraTK/ScalarRegisterAccessor.h>
-#include <boost/shared_ptr.hpp>
-#include <chrono>
+#include "DoocsUpdater.h"
 #include <d_fct.h>
 #include <eq_fct.h>
+
+#include <ChimeraTK/ScalarRegisterAccessor.h>
+
+#include <boost/shared_ptr.hpp>
+
+#include <chrono>
 #include <string>
 
 namespace ChimeraTK {
@@ -116,7 +119,7 @@ namespace ChimeraTK {
     auto archiverStatus = ArchiveStatus::sts_ok;
     if(_processScalar->dataValidity() != ChimeraTK::DataValidity::ok) {
       archiverStatus = ArchiveStatus::sts_err;
-      //set data invalid in DOOCS for current data
+      // set data invalid in DOOCS for current data
       this->d_error(stale_data);
     }
     else {

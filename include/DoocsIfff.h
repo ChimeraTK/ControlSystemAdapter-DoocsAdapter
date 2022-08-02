@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "DoocsAdapter.h"
 #include <D_xy.h>
-#include <boost/noncopyable.hpp>
 
 #include <ChimeraTK/NDRegisterAccessor.h>
 
-#include "DoocsAdapter.h"
+#include <boost/noncopyable.hpp>
 
 class EqFct;
 
@@ -32,8 +32,7 @@ namespace ChimeraTK {
 
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
     void auto_init(void) override;
-    
-    
+
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;
     void sendToApplication(bool getLock);

@@ -5,12 +5,14 @@
 #include "DoocsUpdater.h"
 #include "PropertyDescription.h"
 #include "VariableMapper.h"
+#include <eq_fct.h>
+
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <eq_fct.h>
 
 namespace ChimeraTK {
 

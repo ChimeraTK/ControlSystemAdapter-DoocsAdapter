@@ -2,20 +2,21 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestIfff
-#include <boost/test/included/unit_test.hpp>
-
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 
-extern const char* object_name;
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
-#include <random>
-#include <thread>
-#include <algorithm>
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
+#include <boost/test/included/unit_test.hpp>
+
+extern const char* object_name;
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_client.h>
+
+#include <algorithm>
+#include <random>
+#include <thread>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -51,7 +52,8 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
   };
 
-  // we used SHORT/FROM_DEVICE_SCALAR for the f3_value, so only values that fit in int16_t can be used for it, no franctional numbers
+  // we used SHORT/FROM_DEVICE_SCALAR for the f3_value, so only values that fit in int16_t can be used for it, no
+  // franctional numbers
   IFFF referenceIfff;
   referenceIfff.i1_data = 123;
   referenceIfff.f1_data = 0.123f;

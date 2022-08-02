@@ -69,7 +69,9 @@ namespace ChimeraTK {
     }
   }
 
-  int CSAdapterEqFct::fct_code() { return fctCode_; }
+  int CSAdapterEqFct::fct_code() {
+    return fctCode_;
+  }
 
   int CSAdapterEqFct::write(std::ostream& fprt) {
     /*
@@ -112,7 +114,7 @@ namespace ChimeraTK {
           case DATA_A_DOUBLE:
             saveArray<double>(p);
             break;
-          // case DATA_A_TS_SPECTRUM does not need handling here, it's already persisted by base implementation.
+            // case DATA_A_TS_SPECTRUM does not need handling here, it's already persisted by base implementation.
         }
       }
     }

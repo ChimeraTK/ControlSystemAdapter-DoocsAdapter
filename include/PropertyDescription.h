@@ -7,8 +7,8 @@
 //#include <set>
 //#include <memory>
 //#include <iostream>
-#include <ChimeraTK/RegisterPath.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
+#include <ChimeraTK/RegisterPath.h>
 
 ///@todo FIXME: Separate these out into individual files
 
@@ -25,7 +25,7 @@ namespace ChimeraTK {
 
     PersistConfig(std::string txt) {
       transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
-      if(txt == "false" or txt =="off" or txt == "0") {
+      if(txt == "false" or txt == "off" or txt == "0") {
         val = OFF;
       }
       else if(txt == "true" or txt == "on" or txt == "1") {
@@ -38,10 +38,8 @@ namespace ChimeraTK {
         throw std::invalid_argument(std::string("Error parsing xml file: invalid input for PersistConfig: ") + txt);
       }
     }
-    PersistConfig(int enumVal) {
-      this->val = enumVal;
-    }
-    bool operator==(const PersistConfig& other) const { return val==other.val;}
+    PersistConfig(int enumVal) { this->val = enumVal; }
+    bool operator==(const PersistConfig& other) const { return val == other.val; }
   };
 
   // PropertyAttributes are used in the property description itself, and
@@ -60,8 +58,8 @@ namespace ChimeraTK {
       macroPulseNumberSource(macroPulseNumberSource_), dataMatching(dataMatching_) {}
     bool operator==(PropertyAttributes const& other) const {
       return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ &&
-              macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching &&
-              persist == other.persist);
+          macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching &&
+          persist == other.persist);
     }
   };
 

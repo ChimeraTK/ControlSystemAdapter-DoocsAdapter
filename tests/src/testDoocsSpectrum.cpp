@@ -3,16 +3,16 @@
 
 #define BOOST_TEST_MODULE DoocsSpectrumTest
 // Only after defining the name include the unit test header.
+#include "DoocsSpectrum.h"
+#include "emptyServerFunctions.h"
+
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+
 #include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
-
-#include "DoocsSpectrum.h"
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-
-#include "emptyServerFunctions.h"
-#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
 
 #include <limits>
 #include <sstream>

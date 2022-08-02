@@ -6,13 +6,14 @@
 #include <eq_fct.h>
 #undef FAULT
 
+#include "DoocsAdapter.h"
+#include "DoocsUpdater.h"
 #include "StatusHandler.h"
 
-#include "DoocsUpdater.h"
-#include "DoocsAdapter.h"
-#include <ChimeraTK/ScalarRegisterAccessor.h>
-#include <ChimeraTK/DataConsistencyGroup.h>
 #include <ChimeraTK/ControlSystemAdapter/StatusWithMessageReader.h>
+#include <ChimeraTK/DataConsistencyGroup.h>
+#include <ChimeraTK/ScalarRegisterAccessor.h>
+
 #include <boost/shared_ptr.hpp>
 
 namespace ChimeraTK {

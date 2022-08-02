@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestZMQ_CsToApp
-#include <boost/test/included/unit_test.hpp>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <eq_data.h>
 #include <eq_fct.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+#include <boost/test/included/unit_test.hpp>
 
 struct ZmqData {
   EqData data;

@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestSpectrumArray
-#include <boost/test/included/unit_test.hpp>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+#include <boost/test/included/unit_test.hpp>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
@@ -66,10 +67,10 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
   // check the the control system side still sees 0 in all arrays. The
   // application has not reacted yet
   // this check does not hold if the TO_DEVICE_ARRAY had been persisted to the .spec file, which happens sometimes!
-  //CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true);
+  // CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true);
 
   // this check does not hold if the TO_DEVICE_ARRAY had been persisted to the .spec file, which happens sometimes!
-  //CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
+  // CHECK_WITH_TIMEOUT(testArrayContent<float>("//DOUBLE/FROM_DEVICE_ARRAY", 0, 0) == true);
 
   // run the application loop.
   GlobalFixture::referenceTestApplication.runMainLoopOnce();

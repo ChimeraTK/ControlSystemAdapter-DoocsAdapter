@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestZeroMQ
-#include <boost/test/included/unit_test.hpp>
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <boost/test/included/unit_test.hpp>
 extern const char* object_name;
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-
-#include <eq_client.h>
-#include <random>
-#include <thread>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_client.h>
+
+#include <random>
+#include <thread>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

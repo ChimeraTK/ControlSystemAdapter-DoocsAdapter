@@ -46,7 +46,7 @@ void eq_init_prolog() {
   }
 
   // prepare list of unmapped read variables and pass it to the Application for optimisation
-  for(auto &p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
+  for(auto& p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
     auto it = pvNames.find(p);
     if(it != pvNames.end()) {
       pvNames.erase(it);

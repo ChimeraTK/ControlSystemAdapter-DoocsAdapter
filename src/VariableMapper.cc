@@ -521,8 +521,8 @@ namespace ChimeraTK {
       }
 
       auto result = _inputLocationAndCode.insert(std::pair<std::string, int>(locationName, locationCode));
-      if(result.second == false) {                 //test if pair is already in map
-        if(result.first->second != locationCode) { //and test if code is the same like before
+      if(result.second == false) {                 // test if pair is already in map
+        if(result.first->second != locationCode) { // and test if code is the same like before
           // maybe an exection is too much and a warning is enough?
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": code '" +
               std::to_string(locationCode) + "' must be consistent with location code before '" +

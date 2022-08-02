@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #define BOOST_TEST_MODULE serverTestReadWrite
-#include <boost/test/included/unit_test.hpp>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+#include <boost/test/included/unit_test.hpp>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
@@ -20,7 +21,6 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testReadWrite) {
-
   // just a few tests before we start
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/DATA_TYPE_CONSTANT") == -4);
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/DATA_TYPE_CONSTANT") == -1);
