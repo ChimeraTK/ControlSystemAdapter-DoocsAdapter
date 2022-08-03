@@ -78,7 +78,7 @@ namespace ChimeraTK {
   void PropertyBase::registerVariable(const TransferElementAbstractor& var) {
     if(var.isReadable()) {
       auto id = var.getId();
-      _doocsUpdater.addVariable(var, _eqFct, [this, id] { return updateDoocsBuffer(id); });
+      _doocsUpdater.addVariable(var, getEqFct(), [this, id] { return updateDoocsBuffer(id); });
       _consistencyGroup.add(var);
     }
   }
@@ -96,8 +96,8 @@ namespace ChimeraTK {
       _doocsSuccessfullyUpdated = true;
       return true;
     }
-    assert(_mainOutputVar);
-    TransferElementID compareTo = _mainOutputVar->getId();
+    assert(_outputVarForVersionNum);
+    TransferElementID compareTo = _outputVarForVersionNum->getId();
 
     if(!_consistencyGroup.update(updatedId)) {
       // data is not consistent (yet). Don't update the Doocs buffer.
@@ -110,7 +110,7 @@ namespace ChimeraTK {
                 " due to failed data matching between value and macro pulse number" :
                 " due to failed data matching between values";
 
-            std::cout << "WARNING: Data loss in property " << _eqFct->name() << "/" << _doocsPropertyName << reason
+            std::cout << "WARNING: Data loss in property " << getEqFct()->name() << "/" << _doocsPropertyName << reason
                       << " (repeated " << _nDataLossWarnings << " times)." << std::endl;
           }
         }
@@ -123,8 +123,8 @@ namespace ChimeraTK {
   }
 
   doocs::Timestamp PropertyBase::getTimestamp() {
-    assert(_mainOutputVar);
-    doocs::Timestamp timestamp(_mainOutputVar->getVersionNumber().getTime());
+    assert(_outputVarForVersionNum);
+    doocs::Timestamp timestamp(_outputVarForVersionNum->getVersionNumber().getTime());
     return timestamp;
   }
 
@@ -201,14 +201,15 @@ namespace ChimeraTK {
     if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
       _consistencyGroup.add(macroPulseNumberSource);
       auto id = macroPulseNumberSource->getId();
-      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
+      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), getEqFct(),
           [this, id] { return updateDoocsBuffer(id); });
     }
     else {
       // We don't need to match up anything with it when it changes, but we have to register this at least once
       // so the macropulse number will be included in the readAnyGroup in the updater if
       // <data_matching> is none everywhere
-      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct, []() {});
+      _doocsUpdater.addVariable(
+          ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), getEqFct(), []() {});
     }
   }
 

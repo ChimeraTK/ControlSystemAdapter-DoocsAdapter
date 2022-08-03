@@ -52,17 +52,15 @@ namespace ChimeraTK {
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>>& processScalar, DoocsUpdater& updater)
-  : DOOCS_T(eqFct, doocsPropertyName.c_str()), PropertyBase(eqFct, doocsPropertyName, updater),
-    _processScalar(processScalar) {
-    init(processScalar);
+  : DOOCS_T(eqFct, doocsPropertyName.c_str()), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
+    setupOutputVar(processScalar);
   }
 
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(std::string doocsPropertyName, EqFct* eqFct,
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>>& processScalar, DoocsUpdater& updater)
-  : DOOCS_T(doocsPropertyName.c_str(), eqFct), PropertyBase(eqFct, doocsPropertyName, updater),
-    _processScalar(processScalar) {
-    init(processScalar);
+  : DOOCS_T(doocsPropertyName.c_str(), eqFct), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
+    setupOutputVar(processScalar);
   }
 
   template<typename T, typename DOOCS_T>

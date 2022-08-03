@@ -18,9 +18,9 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor)
   : D_spectrum(doocsPropertyName, processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
-    PropertyBase(eqFct, doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
+    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
     _incrementAccessor(incrementAccessor), nBuffers(1) {
-    init(processArray);
+    setupOutputVar(processArray);
 
     addParameterAccessors();
   }
@@ -30,13 +30,13 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor, size_t numberOfBuffers)
   : D_spectrum(doocsPropertyName, processArray->getNumberOfSamples(), eqFct, numberOfBuffers, DATA_A_FLOAT),
-    PropertyBase(eqFct, doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
+    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
     _incrementAccessor(incrementAccessor), nBuffers(numberOfBuffers) {
     if(nBuffers > 1 && !processArray->isReadable()) {
       throw ChimeraTK::logic_error(
           "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but is not readable.");
     }
-    init(processArray);
+    setupOutputVar(processArray);
 
     addParameterAccessors();
   }
@@ -90,11 +90,11 @@ namespace ChimeraTK {
   void DoocsSpectrum::addParameterAccessors() {
     if(_startAccessor && _startAccessor->isReadable()) {
       _doocsUpdater.addVariable(
-          ChimeraTK::ScalarRegisterAccessor<float>(_startAccessor), _eqFct, [this] { return updateParameters(); });
+          ChimeraTK::ScalarRegisterAccessor<float>(_startAccessor), getEqFct(), [this] { return updateParameters(); });
     }
     if(_incrementAccessor && _incrementAccessor->isReadable()) {
-      _doocsUpdater.addVariable(
-          ChimeraTK::ScalarRegisterAccessor<float>(_incrementAccessor), _eqFct, [this] { return updateParameters(); });
+      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(_incrementAccessor), getEqFct(),
+          [this] { return updateParameters(); });
     }
   }
 
@@ -174,16 +174,7 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::sendToDevice(bool getLock) {
-    // Brute force implementation with a loop. Works for all data types.
-    // FIXME: find the efficient, memcopying function for float
-    // always get a fresh reference
-    std::vector<float>& processVector = _processArray->accessChannel(0);
-    size_t arraySize = processVector.size();
-    for(size_t i = 0; i < arraySize; ++i) {
-      processVector[i] = read_spectrum((int)i);
-    }
-    _processArray->write();
-
+    sendArrayToDevice<D_spectrum, float>(_processArray);
     updateOthers(getLock);
   }
 

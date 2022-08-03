@@ -19,18 +19,22 @@ namespace ChimeraTK {
    */
   class PropertyBase : public boost::enable_shared_from_this<PropertyBase> {
    public:
-    PropertyBase(EqFct* eqFct, std::string doocsPropertyName, DoocsUpdater& updater)
-    : _eqFct(eqFct), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+    PropertyBase(std::string doocsPropertyName, DoocsUpdater& updater)
+    : _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
     virtual ~PropertyBase() = default;
 
     /// returns associated DOOCS location
-    EqFct* getEqFct() { return _eqFct; }
+    EqFct* getEqFct() { return getDfct()->get_eqfct(); }
     /// returns associated DOOCS property. Not null.
     D_fct* getDfct() { return dynamic_cast<D_fct*>(this); }
     /// turns on ZeroMQ publishing
-    virtual void publishZeroMQ() { _publishZMQ = true; }
+    void publishZeroMQ() { _publishZMQ = true; }
     void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
     void setMatchingMode(DataConsistencyGroup::MatchingMode newMode) { _consistencyGroup.setMatchingMode(newMode); }
+
+    /// List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS
+    /// side. This is used to synchronise multi-mapped PVs.
+    std::set<boost::shared_ptr<PropertyBase>> otherPropertiesToUpdate;
 
    protected:
     /// Update DOOCS buffer from PVs. The given transferElementId shall be used only for checking consistency with the
@@ -41,7 +45,7 @@ namespace ChimeraTK {
     /// should be called for output vars mapped to doocs
     /// registers processVar in data consistency group, initializes DOOCS error state and keeps a reference as _mainOutputVar
     template<typename T>
-    void init(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar);
+    void setupOutputVar(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar);
 
     /// register a variable in consistency group
     void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
@@ -58,21 +62,19 @@ namespace ChimeraTK {
     /// make sure other properties using these PVs see the update
     void updateOthers(bool handleLocking);
 
-   public:
-    /// List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS
-    /// side. This is used to synchronise multi-mapped PVs.
-    std::set<boost::shared_ptr<PropertyBase>> otherPropertiesToUpdate;
+    /// a helper which unifies data->device for D_array<type> and D_spectrum
+    template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
+    void sendArrayToDevice(const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>& processArray);
 
    protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
     DataConsistencyGroup _consistencyGroup;
 
-    EqFct* _eqFct; // We need it when adding the macro pulse number
     std::string _doocsPropertyName;
     DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
     bool _publishZMQ{false};
     // we keep a pointer to the main output var in order to access meta info like VersionNumbers
-    boost::shared_ptr<ChimeraTK::TransferElement> _mainOutputVar;
+    boost::shared_ptr<ChimeraTK::TransferElement> _outputVarForVersionNum;
     bool _doocsSuccessfullyUpdated{true}; // to detect data losses
     // counter used to reduce amount of data loss warnings printed at console
     size_t _nDataLossWarnings{0};
@@ -122,15 +124,73 @@ namespace ChimeraTK {
   /*****************************************************************************/
 
   template<typename T>
-  void PropertyBase::init(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar) {
+  void PropertyBase::setupOutputVar(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar) {
     registerVariable(TransferElementAbstractor{processVar});
-    _mainOutputVar = processVar;
+    _outputVarForVersionNum = processVar;
 
     if(processVar->isReadable() && !processVar->isWriteable()) {
       // put variable into error state, until a valid value has been received
       getDfct()->d_error(stale_data);
     }
   }
+
+  template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
+  void PropertyBase::sendArrayToDevice(
+      const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>& processArray) {
+    auto* dfct = getDfct();
+    auto* specDfct = dynamic_cast<D_spectrum*>(dfct);
+    auto* arrDfct = dynamic_cast<doocs::D_array<DOOCS_PRIMITIVE_T>*>(dfct);
+    bool isSpectrum = std::is_same<DOOCS_T, D_spectrum>::value;
+
+    // always get a fresh reference
+    auto& processVector = processArray->accessChannel(0);
+    size_t arraySize = processVector.size();
+    size_t doocsLen;
+    if(isSpectrum) {
+      assert(specDfct);
+      doocsLen = (size_t)specDfct->length();
+    }
+    else {
+      assert(arrDfct);
+      doocsLen = (size_t)arrDfct->length();
+    }
+    if(doocsLen != arraySize) {
+      std::cout << "Warning: Array length mismatch in property " << this->getEqFct()->name() << "/" << dfct->basename()
+                << ": Property has length " << doocsLen << " but " << arraySize << " expected." << std::endl;
+      arraySize = std::min(arraySize, size_t(doocsLen));
+    }
+    if(isSpectrum) {
+      // FIXME: find the efficient, memcopying function for float
+      // always get a fresh reference
+      for(size_t i = 0; i < arraySize; ++i) {
+        processVector[i] = specDfct->read_spectrum((int)i);
+      }
+    }
+    else {
+      // Brute force implementation with a loop. Works for all data types.
+      for(size_t i = 0; i < arraySize; ++i) {
+        processVector[i] = arrDfct->value(i);
+      }
+    }
+    processArray->write();
+
+    // Correct property length in case of a mismatch.
+    if(doocsLen != processVector.size()) {
+      if(isSpectrum) {
+        specDfct->length(processVector.size());
+        // FIXME - do we need to restore values like for arrays?
+        // it's more difficult with D_spectrum because of the buffered/unbuffered feature
+      }
+      else {
+        arrDfct->set_length(processVector.size());
+        // restore value from ProcessArray, as it may have been destroyed in set_length().
+        for(size_t i = 0; i < arraySize; ++i) {
+          arrDfct->set_value(processVector[i], i);
+        }
+      }
+    }
+  }
+
 } // namespace ChimeraTK
 
 extern ChimeraTK::DoocsAdapter doocsAdapter;

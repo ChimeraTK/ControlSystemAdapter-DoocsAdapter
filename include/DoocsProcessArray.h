@@ -52,7 +52,7 @@ namespace ChimeraTK {
   DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::DoocsProcessArray(EqFct* eqFct, const std::string& doocsPropertyName,
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>& processArray, DoocsUpdater& updater)
   : DOOCS_T(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
-    PropertyBase(eqFct, doocsPropertyName, updater), _processArray(processArray) {
+    PropertyBase(doocsPropertyName, updater), _processArray(processArray) {
     // Check if the array length exceeds the maximum allowed length by DOOCS.
     // DOOCS does not report this as an error and instead silently truncates the
     // array length.
@@ -65,7 +65,7 @@ namespace ChimeraTK {
         << ". Try selecting a different DOOCS type in the mappng XML file, e.g. a D_spectrum!";
       throw ChimeraTK::logic_error(s.str());
     }
-    init(processArray);
+    setupOutputVar(processArray);
   }
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
@@ -139,36 +139,16 @@ namespace ChimeraTK {
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
-    if(_macroPulseNumberSource) this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource) {
+      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    }
 
     sendZMQ(timestamp);
   }
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::sendToDevice(bool getLocks) {
-    // Brute force implementation with a loop. Works for all data types.
-    // always get a fresh reference
-    auto& processVector = _processArray->accessChannel(0);
-    size_t arraySize = processVector.size();
-    if((size_t)this->length() != arraySize) {
-      std::cout << "Warning: Array length mismatch in property " << this->getEqFct()->name() << "/" << this->basename()
-                << ": Property has length " << this->length() << " but " << arraySize << " expected." << std::endl;
-      arraySize = std::min(arraySize, size_t(this->length()));
-    }
-    for(size_t i = 0; i < arraySize; ++i) {
-      processVector[i] = this->value(i);
-    }
-    _processArray->write();
-
-    // Correct property length in case of a mismatch.
-    if((size_t)this->length() != processVector.size()) {
-      this->set_length(processVector.size());
-      // restore value from ProcessArray, as it may have been destroyed in set_length().
-      for(size_t i = 0; i < arraySize; ++i) {
-        this->set_value(processVector[i], i);
-      }
-    }
-
+    sendArrayToDevice<DOOCS_T, DOOCS_PRIMITIVE_T>(_processArray);
     updateOthers(getLocks);
   }
 

@@ -11,10 +11,10 @@ namespace ChimeraTK {
   DoocsXy::DoocsXy(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<NDRegisterAccessor<float>> const& xValues,
       boost::shared_ptr<NDRegisterAccessor<float>> const& yValues, DoocsUpdater& updater)
-  : D_xy(doocsPropertyName, xValues->getNumberOfSamples(), eqFct), PropertyBase(eqFct, doocsPropertyName, updater),
+  : D_xy(doocsPropertyName, xValues->getNumberOfSamples(), eqFct), PropertyBase(doocsPropertyName, updater),
     _xValues(xValues), _yValues(yValues) {
-    init(xValues);
-    init(yValues);
+    setupOutputVar(xValues);
+    setupOutputVar(yValues);
   }
 
   void DoocsXy::updateDoocsBuffer(const TransferElementID& elementId) {

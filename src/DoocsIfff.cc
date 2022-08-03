@@ -19,8 +19,8 @@ namespace ChimeraTK {
       boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
-  : D_ifff(eqFct, doocsPropertyName), PropertyBase(eqFct, doocsPropertyName, updater), _i1Value(i1Value),
-    _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value) {
+  : D_ifff(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _i1Value(i1Value), _f1Value(f1Value),
+    _f2Value(f2Value), _f3Value(f3Value) {
     checkSourceConsistency();
     registerIfffSources();
   }
@@ -31,8 +31,8 @@ namespace ChimeraTK {
       boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
       boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
-  : D_ifff(doocsPropertyName, eqFct), PropertyBase(eqFct, doocsPropertyName, updater), _i1Value(i1Value),
-    _f1Value(f1Value), _f2Value(f2Value), _f3Value(f3Value) {
+  : D_ifff(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _i1Value(i1Value), _f1Value(f1Value),
+    _f2Value(f2Value), _f3Value(f3Value) {
     checkSourceConsistency();
     registerIfffSources();
   }
@@ -57,7 +57,7 @@ namespace ChimeraTK {
     registerVariable(OneDRegisterAccessor<float>(_f1Value));
     registerVariable(OneDRegisterAccessor<float>(_f2Value));
     registerVariable(OneDRegisterAccessor<float>(_f3Value));
-    _mainOutputVar = _i1Value;
+    _outputVarForVersionNum = _i1Value;
   }
 
   void DoocsIfff::updateDoocsBuffer(const TransferElementID& transferElementId) {
