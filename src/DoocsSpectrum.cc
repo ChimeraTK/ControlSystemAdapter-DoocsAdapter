@@ -174,7 +174,7 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::sendToDevice(bool getLock) {
-    sendArrayToDevice<D_spectrum, float>(_processArray);
+    sendArrayToDevice<D_spectrum, float, float>(_processArray);
     updateOthers(getLock);
   }
 

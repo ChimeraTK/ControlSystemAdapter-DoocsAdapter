@@ -16,6 +16,10 @@ namespace ChimeraTK {
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   class DoocsProcessArray : public DOOCS_T, public boost::noncopyable, public PropertyBase {
    public:
+    // We have to cast the pointer to the correct underlying DOOCS type. No real conversion is done, since only
+    // equivalent types are casted here.
+    using THE_DOOCS_TYPE = typename std::result_of<decltype (&DOOCS_T::value)(DOOCS_T, int)>::type;
+
     DoocsProcessArray(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> const& processArray, DoocsUpdater& updater);
 
@@ -104,9 +108,6 @@ namespace ChimeraTK {
     // DoocsUpdater
     auto& processVector = _processArray->accessChannel(0);
 
-    // We have to cast the pointer to the correct underlying DOOCS type. No real conversion is done, since only
-    // equivalent types are casted here.
-    using THE_DOOCS_TYPE = typename std::result_of<decltype (&DOOCS_T::value)(DOOCS_T, int)>::type;
     THE_DOOCS_TYPE* dataPtr;
     if constexpr(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value) {
       // No cast necessary if types are identical.
@@ -148,7 +149,7 @@ namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::sendToDevice(bool getLocks) {
-    sendArrayToDevice<DOOCS_T, DOOCS_PRIMITIVE_T>(_processArray);
+    sendArrayToDevice<DOOCS_T, THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>(_processArray);
     updateOthers(getLocks);
   }
 
