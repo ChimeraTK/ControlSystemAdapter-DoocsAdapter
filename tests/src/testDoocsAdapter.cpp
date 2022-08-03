@@ -5,7 +5,7 @@
 #define BOOST_TEST_MODULE DoocsAdapterTest
 // Only after defining the name include the unit test header.
 #include <boost/test/included/unit_test.hpp>
-// boost unit_test needs to be first include
+// boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
 #include "emptyServerFunctions.h"

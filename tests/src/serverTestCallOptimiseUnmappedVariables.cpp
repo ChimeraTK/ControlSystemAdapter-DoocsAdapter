@@ -3,11 +3,6 @@
 
 #define BOOST_TEST_MODULE serverTestCallOptimiseUnmappedVariables
 
-#define BOOST_NO_EXCEPTIONS
-#include <boost/test/included/unit_test.hpp>
-#undef BOOST_NO_EXCEPTIONS
-// boost unit_test needs to be first include
-
 #include "DoocsAdapter.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 
@@ -16,6 +11,8 @@
 #include <boost/filesystem.hpp>
 
 extern const char* object_name;
+#include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 

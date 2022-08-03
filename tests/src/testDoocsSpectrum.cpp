@@ -4,7 +4,7 @@
 #define BOOST_TEST_MODULE DoocsSpectrumTest
 // Only after defining the name include the unit test header.
 #include <boost/test/included/unit_test.hpp>
-// boost unit_test needs to be first include
+// boost unit_test needs to be included before serverBasedTestTools.h
 #include "DoocsSpectrum.h"
 #include "emptyServerFunctions.h"
 

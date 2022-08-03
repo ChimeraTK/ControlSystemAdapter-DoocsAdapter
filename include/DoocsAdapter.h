@@ -51,7 +51,6 @@ namespace ChimeraTK {
     bool before_auto_init_called{false};
   };
 
-
 } // namespace ChimeraTK
 
 extern ChimeraTK::DoocsAdapter doocsAdapter;

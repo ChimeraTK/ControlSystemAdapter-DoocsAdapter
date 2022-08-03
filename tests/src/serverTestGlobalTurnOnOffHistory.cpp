@@ -3,7 +3,7 @@
 
 #define BOOST_TEST_MODULE serverTestGlobalTurnOnOffHistory
 #include <boost/test/included/unit_test.hpp>
-// boost unit_test needs to be first include
+// boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"

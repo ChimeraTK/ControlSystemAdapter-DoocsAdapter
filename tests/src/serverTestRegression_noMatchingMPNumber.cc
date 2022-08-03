@@ -4,7 +4,7 @@
 #define BOOST_TEST_MODULE serverTestRegression_noMatchingMPNumber
 
 #include <boost/test/included/unit_test.hpp>
-// boost unit_test needs to be first include
+// boost unit_test needs to be included before serverBasedTestTools.h
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
