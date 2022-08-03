@@ -149,7 +149,7 @@ namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::sendToDevice(bool getLocks) {
-    sendArrayToDevice<DOOCS_T, THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>(_processArray);
+    sendArrayToDevice(this, _processArray);
     updateOthers(getLocks);
   }
 

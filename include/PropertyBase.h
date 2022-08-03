@@ -63,10 +63,9 @@ namespace ChimeraTK {
     void updateOthers(bool handleLocking);
 
     /// a helper which unifies data->device for DOOCS_T = one of D_array<DOOCS_PRIMITIVE_T> or D_spectrum
-    template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T, typename UserType>
-    void sendArrayToDevice(const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>& processArray);
+    template<typename SELF, typename UserType>
+    void sendArrayToDevice(SELF* dfct, const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>& processArray);
 
-   protected:
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
     DataConsistencyGroup _consistencyGroup;
 
@@ -93,57 +92,47 @@ namespace ChimeraTK {
     }
   }
 
-  template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T, typename UserType>
-  void PropertyBase::sendArrayToDevice(const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>& processArray) {
-    auto* dfct = getDfct();
-    auto* specDfct = dynamic_cast<D_spectrum*>(dfct);
-    auto* arrDfct = dynamic_cast<doocs::D_array<DOOCS_PRIMITIVE_T>*>(dfct);
-    bool isSpectrum = std::is_same<DOOCS_T, D_spectrum>::value;
+  template<typename SELF, typename UserType>
+  void PropertyBase::sendArrayToDevice(
+      SELF* dfct, const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>& processArray) {
+    constexpr bool isSpectrum = std::is_base_of<D_spectrum, SELF>::value;
 
     // always get a fresh reference
     auto& processVector = processArray->accessChannel(0);
     size_t arraySize = processVector.size();
-    size_t doocsLen;
-    if(isSpectrum) {
-      assert(specDfct);
-      doocsLen = (size_t)specDfct->length();
-    }
-    else {
-      assert(arrDfct);
-      doocsLen = (size_t)arrDfct->length();
-    }
+    auto doocsLen = static_cast<size_t>(dfct->length());
     if(doocsLen != arraySize) {
       std::cout << "Warning: Array length mismatch in property " << this->getEqFct()->name() << "/" << dfct->basename()
                 << ": Property has length " << doocsLen << " but " << arraySize << " expected." << std::endl;
       arraySize = std::min(arraySize, size_t(doocsLen));
     }
-    if(isSpectrum) {
+    if constexpr(isSpectrum) {
       // FIXME: find the efficient, memcopying function for float
       // always get a fresh reference
       for(size_t i = 0; i < arraySize; ++i) {
-        processVector[i] = specDfct->read_spectrum((int)i);
+        processVector[i] = dfct->read_spectrum((int)i);
       }
     }
     else {
       // Brute force implementation with a loop. Works for all data types.
       for(size_t i = 0; i < arraySize; ++i) {
-        processVector[i] = arrDfct->value(i);
+        processVector[i] = dfct->value(i);
       }
     }
     processArray->write();
 
     // Correct property length in case of a mismatch.
     if(doocsLen != processVector.size()) {
-      if(isSpectrum) {
-        specDfct->length(processVector.size());
+      if constexpr(isSpectrum) {
+        dfct->length(processVector.size());
         // FIXME - do we need to restore values like for arrays?
         // it's more difficult with D_spectrum because of the buffered/unbuffered feature
       }
       else {
-        arrDfct->set_length(processVector.size());
+        dfct->set_length(processVector.size());
         // restore value from ProcessArray, as it may have been destroyed in set_length().
         for(size_t i = 0; i < arraySize; ++i) {
-          arrDfct->set_value(processVector[i], i);
+          dfct->set_value(processVector[i], i);
         }
       }
     }
