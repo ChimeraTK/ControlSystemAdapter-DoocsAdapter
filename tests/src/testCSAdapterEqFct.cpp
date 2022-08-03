@@ -9,6 +9,7 @@
 
 #include "CSAdapterEqFct.h"
 #include "DoocsAdapter.h"
+#include "DoocsUpdater.h"
 #include "emptyServerFunctions.h"
 #include "getAllVariableNames.h"
 #include "set_doocs_value.h"

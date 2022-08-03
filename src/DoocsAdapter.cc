@@ -3,6 +3,8 @@
 
 #include "DoocsAdapter.h"
 
+#include "DoocsUpdater.h"
+
 namespace ChimeraTK {
 
   std::atomic<bool> DoocsAdapter::isInitialised(false);
@@ -75,7 +77,8 @@ namespace ChimeraTK {
 
   void PropertyBase::registerVariable(const TransferElementAbstractor& var) {
     if(var.isReadable()) {
-      _doocsUpdater.addVariable(var, _eqFct, std::bind(&PropertyBase::updateDoocsBuffer, this, var.getId()));
+      auto id = var.getId();
+      _doocsUpdater.addVariable(var, _eqFct, [this, id] { return updateDoocsBuffer(id); });
       _consistencyGroup.add(var);
     }
   }
@@ -127,7 +130,7 @@ namespace ChimeraTK {
 
   doocs::Timestamp PropertyBase::correctDoocsTimestamp() {
     doocs::Timestamp timestamp = getTimestamp();
-    auto d_fct = getDfct();
+    auto* d_fct = getDfct();
     // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
     // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
     if(d_fct->get_timestamp() == timestamp) {
@@ -143,7 +146,7 @@ namespace ChimeraTK {
   }
 
   void PropertyBase::sendZMQ(doocs::Timestamp timestamp) {
-    auto d_fct = getDfct();
+    auto* d_fct = getDfct();
     // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
     if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       dmsg_info info;
@@ -178,7 +181,7 @@ namespace ChimeraTK {
     if(handleLocking) {
       getEqFct()->unlock();
     }
-    for(auto& prop : otherPropertiesToUpdate) {
+    for(const auto& prop : otherPropertiesToUpdate) {
       if(handleLocking) {
         prop->getEqFct()->lock();
       }
@@ -197,8 +200,9 @@ namespace ChimeraTK {
     _macroPulseNumberSource = macroPulseNumberSource;
     if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
       _consistencyGroup.add(macroPulseNumberSource);
+      auto id = macroPulseNumberSource->getId();
       _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), _eqFct,
-          std::bind(&PropertyBase::updateDoocsBuffer, this, macroPulseNumberSource->getId()));
+          [this, id] { return updateDoocsBuffer(id); });
     }
     else {
       // We don't need to match up anything with it when it changes, but we have to register this at least once

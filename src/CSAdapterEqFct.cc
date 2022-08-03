@@ -37,8 +37,9 @@ namespace ChimeraTK {
 
       assert(!statusHandler_); // only single StatusHandler may be requested per location
       auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
-      if(!statusCodeVariable)
+      if(!statusCodeVariable) {
         throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
+      }
       // this one is optional
       ProcessArray<std::string>::SharedPtr statusStringVariable;
       if(controlSystemPVManager_->hasProcessVariable(errorReportingInfo.statusStringSource)) {

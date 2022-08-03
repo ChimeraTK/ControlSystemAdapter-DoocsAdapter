@@ -4,7 +4,6 @@
 
 #include "DoocsUpdater.h"
 #include "PropertyDescription.h"
-#include "VariableMapper.h"
 #include <eq_fct.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>

@@ -39,7 +39,7 @@ namespace ChimeraTK {
      * Override the Doocs auto_init() method, which is called after initialising
      * the value of the property from the config file.
      */
-    void auto_init(void) override;
+    void auto_init() override;
 
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;

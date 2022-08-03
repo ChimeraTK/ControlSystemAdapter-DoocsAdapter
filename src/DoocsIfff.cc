@@ -45,7 +45,7 @@ namespace ChimeraTK {
         (_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly());
 
     if(!areAllSourcesWritable && !areAllSourcesReadOnly) {
-      ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: some IFFF sources are not writable");
+      throw ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: some IFFF sources are not writable");
     }
     if(areAllSourcesReadOnly) {
       this->set_ro_access();
@@ -71,8 +71,10 @@ namespace ChimeraTK {
         _f1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f2Value->dataValidity() != ChimeraTK::DataValidity::ok ||
         _f3Value->dataValidity() != ChimeraTK::DataValidity::ok) {
-      if(this->d_error()) // data are already invalid, do not store in history
+      if(this->d_error()) {
+        // data are already invalid, do not store in history
         storeInHistory = false;
+      }
 
       archiverStatus = ArchiveStatus::sts_err;
       this->d_error(stale_data);
@@ -121,7 +123,7 @@ namespace ChimeraTK {
     sendZMQ(getTimestamp());
   }
 
-  void DoocsIfff::auto_init(void) {
+  void DoocsIfff::auto_init() {
     doocsAdapter.before_auto_init();
 
     D_ifff::auto_init(); // inherited functionality fill the local doocs buffer

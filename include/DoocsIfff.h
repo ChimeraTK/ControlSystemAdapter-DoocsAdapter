@@ -31,7 +31,7 @@ namespace ChimeraTK {
         boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater);
 
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
-    void auto_init(void) override;
+    void auto_init() override;
 
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;

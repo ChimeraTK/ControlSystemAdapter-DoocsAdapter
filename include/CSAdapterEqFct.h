@@ -37,7 +37,7 @@ namespace ChimeraTK {
     // server you need it.
     CSAdapterEqFct(int fctCode, boost::shared_ptr<ControlSystemPVManager> const& controlSystemPVManager,
         boost::shared_ptr<DoocsUpdater> const& updater, std::string fctName = std::string());
-    ~CSAdapterEqFct();
+    ~CSAdapterEqFct() override;
 
     void init() override;
     void post_init() override;

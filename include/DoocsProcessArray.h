@@ -29,9 +29,8 @@ namespace ChimeraTK {
      * Override the Doocs auto_init() method, which is called after initialising
      * the value of the property from the config file.
      */
-    void auto_init(void) override;
+    void auto_init() override;
 
-   public:
     /// Flag whether the value has been modified since the content has been saved to disk the last time
     /// (see CSAdapterEqFct::saveArray()).
     bool modified{false};
@@ -107,7 +106,7 @@ namespace ChimeraTK {
 
     // We have to cast the pointer to the correct underlying DOOCS type. No real conversion is done, since only
     // equivalent types are casted here.
-    typedef typename std::result_of<decltype (&DOOCS_T::value)(DOOCS_T, int)>::type THE_DOOCS_TYPE;
+    using THE_DOOCS_TYPE = typename std::result_of<decltype (&DOOCS_T::value)(DOOCS_T, int)>::type;
     THE_DOOCS_TYPE* dataPtr;
     if constexpr(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value) {
       // No cast necessary if types are identical.

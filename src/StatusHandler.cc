@@ -6,7 +6,6 @@
 #include <eq_fct.h>
 #undef FAULT
 
-#include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
 #include "StatusHandler.h"
 
