@@ -82,18 +82,7 @@ namespace ChimeraTK {
     auto* d_fct = getDfct();
     // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
     if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
-      dmsg_info info;
-      memset(&info, 0, sizeof(info));
-      // code using std::chrono::time_point<std::chrono::system_clock>:
-      // auto timestamp = getTimestamp();
-      // auto seconds = std::chrono::system_clock::to_time_t(timestamp);
-      // auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
-      //    timestamp - std::chrono::system_clock::from_time_t(seconds))
-      //                       .count();
-      // info.sec = seconds;
-      // info.usec = microseconds;
-
-      // code using doocs::Timestamp
+      dmsg_info info{};
       auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
       info.sec = sinceEpoch.seconds;
       info.usec = sinceEpoch.microseconds;
@@ -103,6 +92,7 @@ namespace ChimeraTK {
       else {
         info.ident = 0;
       }
+      info.stat = d_fct->d_error();
       auto ret = d_fct->send(&info);
       if(ret) {
         std::cout << "ZeroMQ sending failed!!!" << std::endl;
