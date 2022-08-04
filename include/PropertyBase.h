@@ -51,7 +51,7 @@ namespace ChimeraTK {
     void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
     /// update for data consistency group
     bool updateConsistency(const TransferElementID& updatedId);
-    /// default implementation returns timestamp of _mainOutputVar
+    /// default implementation returns timestamp of _outputVarForVersionNum
     virtual doocs::Timestamp getTimestamp();
     /// implements timestamp workarounds for associated DOOCS property
     doocs::Timestamp correctDoocsTimestamp();
