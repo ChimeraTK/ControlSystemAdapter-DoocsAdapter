@@ -1,15 +1,17 @@
-#ifndef CHIMERATK_DOOCS_PV_FACTORY_H
-#define CHIMERATK_DOOCS_PV_FACTORY_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 #include "DoocsUpdater.h"
 #include "PropertyDescription.h"
-#include "VariableMapper.h"
+#include <eq_fct.h>
+
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <eq_fct.h>
 
 namespace ChimeraTK {
 
@@ -24,8 +26,7 @@ namespace ChimeraTK {
      * inside the EqFct, so the 'this' pointer will be given. As it is not
      * copyable this is ok.
      */
-    DoocsPVFactory(
-        EqFct* const eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> const& csPVManager);
+    DoocsPVFactory(EqFct* eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> const& csPVManager);
 
     boost::shared_ptr<D_fct> create(std::shared_ptr<PropertyDescription> const& propertyDescription);
 
@@ -64,5 +65,3 @@ namespace ChimeraTK {
       AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
 
 } // namespace ChimeraTK
-
-#endif // CHIMERATK_DOOCS_PV_FACTORY_H

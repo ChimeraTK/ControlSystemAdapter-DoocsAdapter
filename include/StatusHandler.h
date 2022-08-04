@@ -1,8 +1,11 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
 #include <ChimeraTK/ControlSystemAdapter/StatusWithMessageReader.h>
-#include <boost/shared_ptr.hpp>
+
 #include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
 
 class EqFct;
 namespace ChimeraTK {
@@ -11,10 +14,10 @@ namespace ChimeraTK {
   class DoocsUpdater;
 
   /**
- * StatusHandler implements an update function for reporting errors to locations.
- * Input should be e.g. status of a DeviceModule or StatusAggregator. 
- * Status codes are mapped to DOOCS and written via set_error(code, string)
- */
+   * StatusHandler implements an update function for reporting errors to locations.
+   * Input should be e.g. status of a DeviceModule or StatusAggregator.
+   * Status codes are mapped to DOOCS and written via set_error(code, string)
+   */
   class StatusHandler : public boost::noncopyable {
     boost::shared_ptr<DoocsUpdater> _doocsUpdater;
     EqFct* _eqFct;

@@ -1,15 +1,19 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #define BOOST_TEST_MODULE DoocsSpectrumTest
 // Only after defining the name include the unit test header.
-#include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/unit_test.hpp>
-
+// boost unit_test needs to be included before serverBasedTestTools.h
 #include "DoocsSpectrum.h"
+#include "emptyServerFunctions.h"
+
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-
-#include "emptyServerFunctions.h"
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+
+#include <boost/mpl/list.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <limits>
 #include <sstream>

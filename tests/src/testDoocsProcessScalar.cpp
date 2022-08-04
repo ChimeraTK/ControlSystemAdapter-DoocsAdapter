@@ -1,18 +1,23 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #define BOOST_TEST_MODULE DoocsProcessScalarTest
 // Only after defining the name include the unit test header.
-#include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
 
+#include "D_textUnifier.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsUpdater.h"
-#include "D_textUnifier.h"
-#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <d_fct.h>
-
 #include "emptyServerFunctions.h"
 #include "set_doocs_value.h"
+#include <d_fct.h>
+
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+
+#include <boost/mpl/list.hpp>
+#include <boost/test/unit_test.hpp>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

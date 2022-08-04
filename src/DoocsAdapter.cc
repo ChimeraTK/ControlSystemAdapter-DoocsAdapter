@@ -1,4 +1,9 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #include "DoocsAdapter.h"
+
+#include "DoocsUpdater.h"
 
 namespace ChimeraTK {
 
@@ -15,7 +20,9 @@ namespace ChimeraTK {
     updater = boost::make_shared<DoocsUpdater>();
   }
 
-  boost::shared_ptr<DevicePVManager> const& DoocsAdapter::getDevicePVManager() const { return _devicePVManager; }
+  boost::shared_ptr<DevicePVManager> const& DoocsAdapter::getDevicePVManager() const {
+    return _devicePVManager;
+  }
 
   boost::shared_ptr<ControlSystemPVManager> const& DoocsAdapter::getControlSystemPVManager() const {
     return _controlSystemPVManager;

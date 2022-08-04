@@ -16,6 +16,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 
 include(cmake/add_dependency.cmake)
 include(cmake/enable_code_coverage_report.cmake)
+include(cmake/enable_code_style_check.cmake)
 
 add_dependency(ChimeraTK-ControlSystemAdapter 02.04 REQUIRED)
 add_dependency(doocs-server-test-helper 01.05 REQUIRED)

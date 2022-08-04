@@ -1,16 +1,22 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #define BOOST_TEST_MODULE serverTestArrayPersistence
+
 #include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 
-#include <vector>
 #include <fstream>
+#include <vector>
 
 using namespace boost::unit_test_framework;
 using namespace boost::unit_test;
@@ -164,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testStoreToFile, *boost::unit_test::depends_on("testLoadFro
     doubleArrayRestored = testArrayContent<double>(vdouble2, "//DOUBLE/TO_DEVICE_ARRAY from file", 20.20, 1);
     doubleArrayRestored2 = testArrayContent<double>(vdouble3, "//DOUBLE/FROM_DEVICE_ARRAY from file", 250.3, 1);
     if(intArrayRestored && intArrayRestored2 && doubleArrayRestored && doubleArrayRestored2) {
-      std::cout << "arrays recovered after read tries: " << count+1 << std::endl;
+      std::cout << "arrays recovered after read tries: " << count + 1 << std::endl;
       break;
     }
   }

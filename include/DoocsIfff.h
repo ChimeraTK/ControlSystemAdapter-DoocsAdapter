@@ -1,12 +1,13 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "DoocsAdapter.h"
 #include <D_xy.h>
-#include <boost/noncopyable.hpp>
 
 #include <ChimeraTK/NDRegisterAccessor.h>
-#include <ChimeraTK/DataConsistencyGroup.h>
 
-#include "DoocsAdapter.h"
+#include <boost/noncopyable.hpp>
 
 class EqFct;
 
@@ -15,14 +16,14 @@ namespace ChimeraTK {
 
   class DoocsIfff : public D_ifff, public boost::noncopyable, public PropertyBase {
    public:
-    // Constructor with history enabled
+    /// Constructor with history enabled
     DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
         boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
         boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
         boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater);
 
-    // Constructor without history
+    /// Constructor without history
     DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct,
         boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
         boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
@@ -30,30 +31,19 @@ namespace ChimeraTK {
         boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater);
 
     void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
-    void auto_init(void) override;
-    
-    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
-    void publishZeroMQ() { _publishZMQ = true; }
-    DataConsistencyGroup _consistencyGroup;
-    
+    void auto_init() override;
+
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;
     void sendToApplication(bool getLock);
-    void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
     void registerIfffSources();
     void checkSourceConsistency();
-
-    EqFct* getEqFct() override { return this->get_eqfct(); }
 
     boost::shared_ptr<NDRegisterAccessor<int>> _i1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f1Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f2Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f3Value;
-    DoocsUpdater& _updater;
-    EqFct* _eqFct;
-    bool _publishZMQ{false};
 
-    bool isWriteable;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
+    bool _isWriteable;
   };
 } // namespace ChimeraTK

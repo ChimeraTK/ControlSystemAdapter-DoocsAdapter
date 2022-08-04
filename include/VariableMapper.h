@@ -1,17 +1,20 @@
-#ifndef CHIMERATK_DOOCS_ADAPTER_VARIABLE_MAPPER_H
-#define CHIMERATK_DOOCS_ADAPTER_VARIABLE_MAPPER_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
+
+#include "PropertyDescription.h"
+#include <unordered_set>
 
 #include <ChimeraTK/RegisterPath.h>
+
 #include <boost/any.hpp>
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <memory>
 #include <set>
-#include <unordered_set>
 #include <string>
-
-#include "PropertyDescription.h"
 
 namespace xmlpp {
   class Node;
@@ -106,5 +109,3 @@ namespace ChimeraTK {
   };
 
 } // namespace ChimeraTK
-
-#endif // CHIMERATK_DOOCS_ADAPTER_VARIABLE_MAPPER_H

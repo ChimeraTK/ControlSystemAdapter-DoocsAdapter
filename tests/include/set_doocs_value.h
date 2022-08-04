@@ -1,5 +1,6 @@
-#ifndef set_doocs_value_h
-#define set_doocs_value_h
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 #include <d_fct.h>
 
@@ -13,5 +14,3 @@ int set_doocs_value(DOOCS_T& property, T value) {
   property.set(&adr, &src, &dest, nullptr);
   return dest.error();
 }
-
-#endif // set_doocs_value_h

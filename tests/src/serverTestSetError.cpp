@@ -1,17 +1,18 @@
-#define BOOST_TEST_MODULE serverTestSetError
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE serverTestSetError
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
+#include <boost/test/included/unit_test.hpp>
+
 extern const char* object_name;
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-
-#include <eq_fct.h>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_fct.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

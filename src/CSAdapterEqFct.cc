@@ -1,10 +1,15 @@
-#include "StatusHandler.h" // include this first to avoid name clash with #define from DOOCS
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
+#include "StatusHandler.h"
+// include above first to avoid name clash with #define from DOOCS
+
 #include "CSAdapterEqFct.h"
+#include "DoocsProcessArray.h"
 #include "DoocsPVFactory.h"
 #include "DoocsUpdater.h"
-#include "VariableMapper.h"
-#include "DoocsProcessArray.h"
 #include "PropertyDescription.h"
+#include "VariableMapper.h"
 
 namespace ChimeraTK {
 
@@ -32,8 +37,9 @@ namespace ChimeraTK {
 
       assert(!statusHandler_); // only single StatusHandler may be requested per location
       auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
-      if(!statusCodeVariable)
+      if(!statusCodeVariable) {
         throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
+      }
       // this one is optional
       ProcessArray<std::string>::SharedPtr statusStringVariable;
       if(controlSystemPVManager_->hasProcessVariable(errorReportingInfo.statusStringSource)) {
@@ -65,7 +71,9 @@ namespace ChimeraTK {
     }
   }
 
-  int CSAdapterEqFct::fct_code() { return fctCode_; }
+  int CSAdapterEqFct::fct_code() {
+    return fctCode_;
+  }
 
   int CSAdapterEqFct::write(std::ostream& fprt) {
     /*
@@ -108,7 +116,7 @@ namespace ChimeraTK {
           case DATA_A_DOUBLE:
             saveArray<double>(p);
             break;
-          // case DATA_A_TS_SPECTRUM does not need handling here, it's already persisted by base implementation.
+            // case DATA_A_TS_SPECTRUM does not need handling here, it's already persisted by base implementation.
         }
       }
     }

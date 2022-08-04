@@ -1,7 +1,11 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 // Define a name for the test module.
 #define BOOST_TEST_MODULE BasenameFromAddressTest
 // Only after defining the name include the unit test header.
 #include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "basenameFromAddress.h"
 

@@ -1,13 +1,19 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #define BOOST_TEST_MODULE serverTestZMQ_CsToApp
+
 #include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <eq_data.h>
 #include <eq_fct.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 struct ZmqData {
   EqData data;

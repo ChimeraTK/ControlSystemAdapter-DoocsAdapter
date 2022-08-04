@@ -84,6 +84,10 @@ in a property tag (or any tag for a special property, see Secion \ref special_pr
                   writeable.
 - `macro_pulse_number_source`: Name of process variable which contains the macro pusle number which should be attached
                                to the properties.
+- `data_matching`: Possible values are `none`, `exact`. This is relevant when macro pulse number source is given.
+            The default is `exact`, which means the server discards data coming in so late that it's version number
+            is overtaken by that of the macro pulse number.
+
 - `persist`: Controls behaviour of DOOCS persistency files. This is only important for writable arrays with more than MAX_CONF_LENGTH entries 
              (usually 20). Possible values are `true` (the default) - always save the array, where
              long arrays are saved in separate files below `hist/` while short arrays go into the server config file;
@@ -161,6 +165,15 @@ The `D_xy` tag takes the following arguments through sub-tags:
 - `unit` : A description of the respective axis. The axis is chosen with the `axis` property which can either be `x` or `y`
 
 \include tests/serverTestXy-DoocsVariableConfig.xml
+
+\subsubsection D_ifff D_ifff
+The `D_ifff` tag takes the following arguments through attributes:
+- `i1_source` : Name of process variable which should be used for first integer values
+- `f1_source`, `f2_source`, `f3_source` : Name of process variables which should be used for float values
+- `name` : Name of the mapped property
+The four mapped variables must provide data-consistent updates, unless `data_matching="none"` is specified.
+
+\include tests/serverTestIfff-DoocsVariableConfig.xml
 
 \subsection set_error Error reporting
 The special tag `set_error` is allowed only once per location. XML attributes:

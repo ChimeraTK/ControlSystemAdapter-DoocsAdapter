@@ -1,12 +1,13 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
 #include "DoocsAdapter.h"
-
 #include <D_xy.h>
-#include <boost/noncopyable.hpp>
 
 #include <ChimeraTK/NDRegisterAccessor.h>
-#include <ChimeraTK/DataConsistencyGroup.h>
+
+#include <boost/noncopyable.hpp>
 
 class EqFct;
 
@@ -21,9 +22,7 @@ namespace ChimeraTK {
 
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;
-    EqFct* getEqFct() override { return this->get_eqfct(); }
 
-    DataConsistencyGroup _consistencyGroup;
     boost::shared_ptr<NDRegisterAccessor<float>> _xValues;
     boost::shared_ptr<NDRegisterAccessor<float>> _yValues;
   };

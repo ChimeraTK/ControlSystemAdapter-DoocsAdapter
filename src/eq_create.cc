@@ -1,10 +1,15 @@
-#include <ChimeraTK/ControlSystemAdapter/ApplicationBase.h>
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include "CSAdapterEqFct.h"
 #include "DoocsAdapter.h"
-#include "VariableMapper.h"
+#include "DoocsUpdater.h"
 #include "getAllVariableNames.h"
 #include "PropertyDescription.h"
+#include "VariableMapper.h"
 #include <sys/stat.h>
+
+#include <ChimeraTK/ControlSystemAdapter/ApplicationBase.h>
 
 char const* object_name;
 static char const* XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
@@ -43,7 +48,7 @@ void eq_init_prolog() {
   }
 
   // prepare list of unmapped read variables and pass it to the Application for optimisation
-  for(auto &p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
+  for(auto& p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
     auto it = pvNames.find(p);
     if(it != pvNames.end()) {
       pvNames.erase(it);
@@ -88,9 +93,6 @@ void eq_init_prolog() {
       doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
     }
   }
-
-  // activate the advanced archiver to have histories
-  set_arch_mode(1);
 }
 
 /* eq_create returns a ControlSystemAdapter-based location for any location type

@@ -1,5 +1,6 @@
-#ifndef D_TEXTUNIFIER_H
-#define D_TEXTUNIFIER_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 #include <d_fct.h>
 
@@ -17,5 +18,3 @@ struct D_textUnifier : public D_text {
       const std::string& str, ArchiveStatus status, doocs::Timestamp timestamp, doocs::EventId eventId);
   D_hist* get_histPointer();
 };
-
-#endif // D_TEXTUNIFIER_H

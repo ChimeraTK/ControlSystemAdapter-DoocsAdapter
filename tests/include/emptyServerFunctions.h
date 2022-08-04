@@ -1,5 +1,6 @@
-#ifndef __EMPTY_SERVER_FUNCTIONS_H__
-#define __EMPTY_SERVER_FUNCTIONS_H__
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
 /* These functions have to be defined when linking to the server library.
    These are the minimal implementations which don't do anything.
@@ -29,5 +30,3 @@ void post_init_epilog() {}
 void eq_cancel() {}
 
 // LCOV_EXCL_STOP
-
-#endif // __EMPTY_SERVER_FUNCTIONS_H__

@@ -1,17 +1,22 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #define BOOST_TEST_MODULE serverTestRegression_noMatchingMPNumber
+
 #include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
+
 extern const char* object_name;
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-
-#include <eq_client.h>
-#include <random>
-#include <thread>
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_client.h>
+
+#include <random>
+#include <thread>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -34,8 +39,8 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   // Everything from now on will get the same version number, until we manually set a new one.
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
 
-  //sleep(10);
-  // set initial values
+  // sleep(10);
+  //  set initial values
   int macroPulseNumber = 12345;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
@@ -57,7 +62,8 @@ retry:
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/TO_DEVICE_SCALAR");
   dmsg_t tag;
   dataReceived = 0;
-  int err = dmsg_attach(&ea, &dst, nullptr,
+  int err = dmsg_attach(
+      &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -161,7 +167,8 @@ retry:
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/TO_DEVICE_ARRAY");
   dmsg_t tag;
   dataReceived = 0;
-  int err = dmsg_attach(&ea, &dst, nullptr,
+  int err = dmsg_attach(
+      &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
@@ -245,7 +252,8 @@ retry:
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/CUSTOM/IFFF");
   dmsg_t tag;
   dataReceived = 0;
-  int err = dmsg_attach(&ea, &dst, nullptr,
+  int err = dmsg_attach(
+      &ea, &dst, nullptr,
       [](void*, EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);

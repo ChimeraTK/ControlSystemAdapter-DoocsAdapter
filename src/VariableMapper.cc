@@ -1,10 +1,15 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #include "VariableMapper.h"
 
 #include "splitStringAtFirstSlash.h"
+#include <libxml++/libxml++.h>
+
 #include <ChimeraTK/RegisterPath.h>
+
 #include <algorithm>
 #include <iostream>
-#include <libxml++/libxml++.h>
 #include <locale>
 #include <regex>
 
@@ -516,8 +521,8 @@ namespace ChimeraTK {
       }
 
       auto result = _inputLocationAndCode.insert(std::pair<std::string, int>(locationName, locationCode));
-      if(result.second == false) {                 //test if pair is already in map
-        if(result.first->second != locationCode) { //and test if code is the same like before
+      if(result.second == false) {                 // test if pair is already in map
+        if(result.first->second != locationCode) { // and test if code is the same like before
           // maybe an exection is too much and a warning is enough?
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": code '" +
               std::to_string(locationCode) + "' must be consistent with location code before '" +

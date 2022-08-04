@@ -1,5 +1,8 @@
-#ifndef _DOOCS_ADAPTER_SPLIT_STRING_AT_FIRST_SLASH_
-#define _DOOCS_ADAPTER_SPLIT_STRING_AT_FIRST_SLASH_
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
+
+#include <string>
 
 namespace ChimeraTK {
 
@@ -27,5 +30,3 @@ namespace ChimeraTK {
   }
 
 } // namespace ChimeraTK
-
-#endif // _DOOCS_ADAPTER_SPLIT_STRING_AT_FIRST_SLASH_

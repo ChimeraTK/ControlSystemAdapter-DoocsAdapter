@@ -1,27 +1,16 @@
-#ifndef _CHIMERATK_DOOCS_ADAPTER_H_
-#define _CHIMERATK_DOOCS_ADAPTER_H_
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
-#include "CSAdapterEqFct.h"
-#include "DoocsPVFactory.h"
+#include "PropertyBase.h"
+#include <eq_fct.h>
+
+#include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
+#include <ChimeraTK/DataConsistencyGroup.h>
+#include <ChimeraTK/OneDRegisterAccessor.h>
+#include <ChimeraTK/ScalarRegisterAccessor.h>
 
 namespace ChimeraTK {
-
-  /**
-   * Base class used for all properties.
-   */
-  class PropertyBase : public boost::enable_shared_from_this<PropertyBase> {
-   public:
-    // List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS
-    // side. This is used to synchronise multi-mapped PVs.
-    std::set<boost::shared_ptr<PropertyBase>> otherPropertiesToUpdate;
-
-    // Update DOOCS buffer from PVs. The given transferElementId shall be used only for checking consistency with the
-    // DataConsistencyGroup. {} will be passed if the update is coming from another property (hence the update will
-    // only be taken with data matching set to none, which is the expected behaviour).
-    virtual void updateDoocsBuffer(const TransferElementID& transferElementId) = 0;
-
-    virtual EqFct* getEqFct() = 0;
-  };
 
   /** The main adapter class. With this tool the EqFct should shrink to about 4
    * lines of code (plus boiler plate).
@@ -29,8 +18,8 @@ namespace ChimeraTK {
   class DoocsAdapter {
    public:
     DoocsAdapter();
-    boost::shared_ptr<DevicePVManager> const& getDevicePVManager() const;
-    boost::shared_ptr<ControlSystemPVManager> const& getControlSystemPVManager() const;
+    [[nodiscard]] boost::shared_ptr<DevicePVManager> const& getDevicePVManager() const;
+    [[nodiscard]] boost::shared_ptr<ControlSystemPVManager> const& getControlSystemPVManager() const;
 
     boost::shared_ptr<DoocsUpdater> updater;
 
@@ -65,5 +54,3 @@ namespace ChimeraTK {
 } // namespace ChimeraTK
 
 extern ChimeraTK::DoocsAdapter doocsAdapter;
-
-#endif // _CHIMERATK_DOOCS_ADAPTER_H_

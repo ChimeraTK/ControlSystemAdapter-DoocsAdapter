@@ -1,21 +1,23 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #define BOOST_TEST_MODULE serverTestAutoCreateLocations
 
 #include <boost/test/included/unit_test.hpp>
+// boost unit_test needs to be included before serverBasedTestTools.h
 
-//#include <boost/test/test_case_template.hpp>
-//#include <boost/mpl/list.hpp>
-
+#include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/version.hpp>
 
-#include "DoocsAdapter.h"
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
+
 #include <thread>
 
 using namespace boost::unit_test;

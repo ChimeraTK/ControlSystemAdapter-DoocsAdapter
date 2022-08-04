@@ -1,12 +1,16 @@
-#ifndef __DOOCS_UPDATER_H__
-#define __DOOCS_UPDATER_H__
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
 
-#include <ChimeraTK/TransferElementAbstractor.h>
-#include <ChimeraTK/TransferElement.h>
-#include <boost/noncopyable.hpp>
 #include <eq_fct.h>
-#include <map>
 #include <unordered_map>
+
+#include <ChimeraTK/TransferElement.h>
+#include <ChimeraTK/TransferElementAbstractor.h>
+
+#include <boost/noncopyable.hpp>
+
+#include <map>
 
 namespace ChimeraTK {
 
@@ -53,5 +57,3 @@ namespace ChimeraTK {
     std::map<ChimeraTK::TransferElementID, ToDoocsUpdateDescriptor> _toDoocsDescriptorMap;
   };
 } // namespace ChimeraTK
-
-#endif // __DOOCS_UPDATER_H__

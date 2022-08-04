@@ -1,7 +1,11 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 #include "DoocsUpdater.h"
 
-#include <ChimeraTK/ReadAnyGroup.h>
 #include <unordered_set>
+
+#include <ChimeraTK/ReadAnyGroup.h>
 
 namespace ChimeraTK {
 
@@ -92,7 +96,9 @@ namespace ChimeraTK {
     }
   }
 
-  void DoocsUpdater::run() { _syncThread = boost::thread(boost::bind(&DoocsUpdater::updateLoop, this)); }
+  void DoocsUpdater::run() {
+    _syncThread = boost::thread(boost::bind(&DoocsUpdater::updateLoop, this));
+  }
 
   void DoocsUpdater::stop() {
     _syncThread.interrupt();
@@ -102,6 +108,8 @@ namespace ChimeraTK {
     _syncThread.join();
   }
 
-  DoocsUpdater::~DoocsUpdater() { stop(); }
+  DoocsUpdater::~DoocsUpdater() {
+    stop();
+  }
 
 } // namespace ChimeraTK
