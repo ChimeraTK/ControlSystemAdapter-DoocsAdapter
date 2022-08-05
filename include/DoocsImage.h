@@ -21,8 +21,6 @@ namespace ChimeraTK {
    * - Use 1D register accessor with fixed size (upper limit) to store image,
    *   consisting of header and data. This ensures data consistency.
    * - keep some flexibility with regard of the UserType of the array.
-   *     The user can choose to have either memory-efficient storage or easy
-   *     computations with floats.
    * - provide mapping to some DOOCS formats
    *
    */
@@ -30,186 +28,196 @@ namespace ChimeraTK {
   //  here comes DOOCS - independent classes.
   // TODO move to ControlsystemAdapter?
 
-  enum class Encoding {
-    // this actually is a lot.
-    // combinations of :
-    // (row/header first)
-    // byte order
-    // number of bytes per value
-    // float/int
-    // number of channels
-    // or even things that don't match here: compressed, ...
-    // so-> just a reasonable short subset
-    Gray_1b,
-    Gray_2b,
-    RGB_3b,
-    RGBA_4b
+  // Image header defined like doocs::IMH, except we use defined-size types
+  struct ImgHeader {
+    uint32_t width;
+    uint32_t height;
+    uint32_t aoi_width;
+    uint32_t aoi_height;
+    uint32_t x_start;
+    uint32_t y_start;
+    uint32_t bpp;
+    uint32_t ebitpp;
+    uint32_t hbin;
+    uint32_t vbin;
+    uint32_t source_format;
+    uint32_t image_format;
+    uint32_t frame;
+    uint32_t event;
+    float scale_x;
+    float scale_y;
+    float image_rotation;
+    float fspare2;
+    float fspare3;
+    float fspare4;
+    uint32_t image_flags;
+    uint32_t channels;
+    uint32_t options;
+    uint32_t ispare4;
+    uint32_t length;
   };
-
+  // values for the options bit field
   const int ImgOpt_RowMajor = 1;
-  const int ImgOpt_ColMajor = 0;
 
-  /**
-   * Provides the interface to an image that is mapped onto a 1D array of ValType
-   * data members are only used for optimizating, everything is really stored in the array
-   */
-  template<typename ValType, int OPTIONS = ImgOpt_RowMajor>
-  struct MappedImage {
-    enum HeaderPositions {
-      // defines header layout in our array
-      // TODO we might want to switch to a more flexible approach based on encoding / decoding values as byte string
-      RES,
-      RES2,
-      WIDTH,
-      WIDTH2,
-      HEIGHT,
-      HEIGHT2,
-      CHANNELS,
-      CHANNELS2,
-      END
-    };
+  template<typename ValType, int OPTIONS>
+  class ImgView {
+    friend class MappedImage;
 
-    MappedImage(std::vector<ValType>& data) {
-      _vec = &data;
-      // read shape from header, assuming minimal value range of ValType
-      _width = decValue(HeaderPositions::WIDTH);
-      _height = decValue(HeaderPositions::HEIGHT);
-      _channels = decValue(HeaderPositions::CHANNELS);
-    }
-    void setShape(unsigned width, unsigned height, unsigned channels = 1) {
-      assert(width * height * channels + _headerLen <= _vec->size());
-      _width = width;
-      _height = height;
-      _channels = channels;
-      // set shape in header
-      encValue(HeaderPositions::WIDTH, _width);
-      encValue(HeaderPositions::HEIGHT, _height);
-      encValue(HeaderPositions::CHANNELS, _channels);
-    }
-    std::vector<ValType>* _vec;
-
-    void encValue(unsigned pos, int value) {
-      // simplest approach
-      (*_vec)[pos] = value % 128;
-      (*_vec)[pos + 1] = value / 128;
-    }
-    int decValue(unsigned pos) { return (*_vec)[pos] + (*_vec)[pos + 1] * 128; }
-
-    template<typename TargetType>
-    void doEncode(std::vector<unsigned char>& destBuf, unsigned bpp) {
-      const unsigned outHeaderLen = sizeof(IMH);
-      unsigned npixels = _width * _height;
-      unsigned nvalues = npixels * _channels;
-      destBuf.resize(npixels * bpp + outHeaderLen);
-      auto pbase = destBuf.data() + outHeaderLen;
-      if constexpr(std::is_same<ValType, TargetType>::value) {
-        // use optimization, since no casts needed
-        memcpy(pbase, _vec->data(), npixels * bpp);
-      }
-      else {
-        for(unsigned i = 0; i < nvalues; i++) {
-          *reinterpret_cast<TargetType*>(pbase + i) = (TargetType)(*_vec)[i];
-        }
-      }
-    }
-
+   public:
     ValType& operator()(unsigned x, unsigned y, unsigned c = 0) {
       // this is the only place where row-major / column-major storage is decided
       if constexpr(OPTIONS & ImgOpt_RowMajor) {
-        return (*_vec)[_headerLen + (y * _width + x) * _channels + c];
+        return _vec[(y * _h->width + x) * _h->channels + c];
       }
       else {
-        return (*_vec)[_headerLen + (y + x * _height) * _channels + c];
+        return _vec[(y + x * _h->height) * _h->channels + c];
       }
     }
-    unsigned _headerLen = HeaderPositions::END;
-    unsigned _width = 1;
-    unsigned _height = 1;
-    unsigned _channels = 1;
+
+   protected:
+    ImgHeader* _h;
+    ValType* _vec;
   };
 
-  template<typename ValType, int OPTIONS = ImgOpt_RowMajor>
-  struct MappedDoocsImg : public MappedImage<ValType, OPTIONS> {
-    using MappedImage<ValType, OPTIONS>::MappedImage;
+  /**
+   * Provides the interface to an image that is mapped onto a 1D array of ValType
+   */
+  class MappedImage {
+   public:
+    /// call with initData=false if data already contains valid image.
+    explicit MappedImage(std::vector<unsigned char>& data, bool initData = true) {
+      _buf = &data;
+      _imh = reinterpret_cast<ImgHeader*>(_buf->data());
+      if(initData) {
+        memset(data.data(), 0, data.size());
+        _imh->options = ImgOpt_RowMajor;
+      }
+    }
+    /// provided for convenience, if MappedImage should allocate the data vector
+    MappedImage() {
+      _allocate = true;
+      _buf = new std::vector<unsigned char>(sizeof(ImgHeader));
+      _imh = reinterpret_cast<ImgHeader*>(_buf->data());
+      _imh->options = ImgOpt_RowMajor;
+    }
+    ~MappedImage() {
+      if(_allocate) delete _buf;
+    }
+    std::vector<unsigned char>& data() { return *_buf; }
 
-    void encodeAsDoocsImg(Encoding selectedEnc, std::vector<unsigned char>& destBuf) {
-      assert((OPTIONS & ImgOpt_RowMajor) && "conversion to DOOCS image only implemented for ROW_MAJOR");
+    /// needs to be called after construction. corrupts all data except header.
+    void setShape(unsigned width, unsigned height, unsigned channels = 1, unsigned bpp = 1) {
+      unsigned headerLen = sizeof(ImgHeader);
+      if(!_allocate) {
+        assert(width * height * bpp + headerLen <= _buf->size());
+      }
+      else {
+        _buf->resize(width * height * bpp + headerLen);
+        _imh = reinterpret_cast<ImgHeader*>(_buf->data());
+      }
+      _imh->width = width;
+      _imh->height = height;
+      _imh->channels = channels;
+      _imh->bpp = bpp;
+    }
 
-      int image_format;
-      unsigned bpp;
-      switch(selectedEnc) {
-        case Encoding::Gray_1b:
-          bpp = 1;
-          assert(this->_channels == 1);
-          this->template doEncode<uint8_t>(destBuf, bpp);
-          image_format = TTF2_IMAGE_FORMAT_GRAY;
-          break;
-        case Encoding::Gray_2b:
-          bpp = 2;
-          assert(this->_channels == 1);
-          this->template doEncode<uint16_t>(destBuf, bpp);
-          image_format = TTF2_IMAGE_FORMAT_GRAY;
-          break;
-        case Encoding::RGB_3b:
-          bpp = 3;
-          assert(this->_channels == 3);
-          this->template doEncode<uint8_t>(destBuf, bpp);
-          image_format = TTF2_IMAGE_FORMAT_RGB;
-          break;
-        case Encoding::RGBA_4b:
-          bpp = 4;
-          assert(this->_channels == 4);
-          this->template doEncode<uint8_t>(destBuf, bpp);
-          image_format = TTF2_IMAGE_FORMAT_RGBA;
-          break;
+    /// returns an ImgView object which can be used like a matrix. The ImgView becomes invalid at next setShape call.
+    template<typename UserType, int OPTIONS = ImgOpt_RowMajor>
+    ImgView<UserType, OPTIONS> interpretedView() {
+      assert(_imh->channels > 0 && "call setShape() before interpretedView()!");
+      assert(
+          _imh->bpp == _imh->channels * sizeof(UserType) && "choose correct bpp and channels value before conversion!");
+      ImgView<UserType, OPTIONS> ret;
+      ret._h = reinterpret_cast<ImgHeader*>(_buf->data());
+      ret._vec = reinterpret_cast<UserType*>(_buf->data() + sizeof(ImgHeader));
+      return ret;
+    }
+
+   protected:
+    bool _allocate = false;
+    ImgHeader* _imh;
+    std::vector<unsigned char>* _buf; // pointer to data for header and image
+  };
+
+  struct MappedDoocsImg : public MappedImage {
+    using MappedImage::MappedImage;
+
+    /// Overwrites headerOut and returns pointer to internal data, without header
+    /// The DOOCS image format is selected based on previously set header info, i.e. channels and bpp.
+    unsigned char* asDoocsImg(IMH* headerOut) {
+      assert((_imh->options & ImgOpt_RowMajor) && "conversion to DOOCS image only possible for row-major ordering");
+
+      if(_imh->channels == 1 && _imh->bpp == 1) {
+        headerOut->image_format = TTF2_IMAGE_FORMAT_GRAY;
+      }
+      else if(_imh->channels == 1 && _imh->bpp == 2) {
+        headerOut->image_format = TTF2_IMAGE_FORMAT_GRAY;
+      }
+      else if(_imh->channels == 3 && _imh->bpp == 3) {
+        headerOut->image_format = TTF2_IMAGE_FORMAT_RGB;
+      }
+      else if(_imh->channels == 4 && _imh->bpp == 4) {
+        headerOut->image_format = TTF2_IMAGE_FORMAT_RGBA;
+      }
+      else {
+        assert(false && "image format not supported!");
       }
 
-      // header destination
-      IMH* imh = (IMH*)destBuf.data();
-      imh->image_format = image_format;
-      imh->width = this->_width;
-      imh->height = this->_height;
-      imh->bpp = bpp;
-      imh->image_format = TTF2_IMAGE_FORMAT_GRAY;
-      imh->image_flags = TTF2_IMAGE_LOSSLESS;
-      imh->source_format = image_format;
-      imh->frame = 1;
-      imh->aoi_width = imh->width;
-      imh->aoi_height = imh->height;
-      imh->length = imh->aoi_width * imh->aoi_height * imh->bpp;
+      headerOut->width = _imh->width;
+      headerOut->height = _imh->height;
+      headerOut->bpp = _imh->bpp;
+      headerOut->image_flags = TTF2_IMAGE_LOSSLESS;
+      headerOut->source_format = headerOut->image_format;
+      headerOut->frame = 1;
+      headerOut->aoi_width = _imh->width; // TODO look up meaning
+      headerOut->aoi_height = _imh->height;
+      headerOut->length = headerOut->aoi_width * headerOut->aoi_height * headerOut->bpp;
+      headerOut->x_start = 0;
+      headerOut->y_start = 0;
+      headerOut->ebitpp = 8; // TODO
+      headerOut->hbin = 1;   // TODO ask for meaning
+      headerOut->vbin = 1;
+      headerOut->event = 1; // TODO
+      headerOut->scale_x = 0;
+      headerOut->scale_y = 0;
+      headerOut->image_rotation = 0;
+      return _buf->data() + sizeof(ImgHeader);
     }
   };
 
   void demo_imageProc() {
     std::cout << "demo_imageProc" << std::endl;
 
-    std::vector<uint8_t> buf(10000); // to be replaced later by buffer of 1D register accessor
+    // std::vector<uint8_t> buf(10000); // to be replaced later by buffer of 1D register accessor
+    // MappedImage A0(buf);
+    MappedImage A0;
 
-    MappedImage<uint8_t, ImgOpt_RowMajor> A0(buf);
-    MappedDoocsImg<uint8_t> A(buf);
-    A.setShape(10, 30);
-    A(0, 2) = 4;
-    A(0, 3) = 5;
-    A(0, 4) = 6;
-    A(1, 0) = 7;
-    float val = A(0, 2);
-
+    A0.setShape(10, 30, 1, 2);
+    auto Av = A0.interpretedView<short>();
+    Av(0, 0) = 8;
+    Av(1, 0) = 7;
+    Av(0, 2) = 4;
+    Av(0, 3) = 5;
+    Av(0, 4) = 6;
+    float val = Av(0, 2);
     std::cout << " pixel val = " << val << std::endl;
-    std::vector<u_char> destbuf;
-    A.encodeAsDoocsImg(Encoding::Gray_1b, destbuf);
-    for(int i = 0; i < 200; i++) std::cout << (void*)destbuf[i] << ", ";
+
+    MappedDoocsImg A(A0.data(), false);
+    IMH headerOut;
+    unsigned char* imgData = A.asDoocsImg(&headerOut);
+    std::cout << " img data: " << val << std::endl;
+    for(int i = 0; i < 200; i++) std::cout << (void*)imgData[i] << ", ";
     std::cout << std::endl;
   }
-
-  // TODO check - does it make sense to template this on base data type?
 
   class DoocsImage : public D_imagec, public PropertyBase {
    public:
     DoocsImage(EqFct* eqFct, std::string const& doocsPropertyName,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<u_char>> const& processArray, DoocsUpdater& updater);
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater);
 
     std::vector<uint8_t> _imageData;
-    IMH* getIMH() { return (IMH*)_imageData.data(); }
+    IMH _imh;
+    IMH* getIMH() { return &_imh; }
 
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;
@@ -238,12 +246,8 @@ namespace ChimeraTK {
     // Note: we already own the location lock by specification of the
     // DoocsUpdater
 
-    MappedDoocsImg<uint8_t> img(_processArray->accessChannel(0));
-    // TODO - how choose right encoding?
-
-    img.encodeAsDoocsImg(Encoding::Gray_1b, _imageData);
-    IMH* imh = getIMH();
-    u_char* dataPtr = _imageData.data() + sizeof(IMH);
+    MappedDoocsImg img(_processArray->accessChannel(0));
+    auto* dataPtr = img.asDoocsImg(&_imh);
 
     if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
       this->d_error(stale_data);
@@ -256,24 +260,20 @@ namespace ChimeraTK {
 
     if(_macroPulseNumberSource) {
       this->set_mpnum(_macroPulseNumberSource->accessData(0));
-      imh->event = _macroPulseNumberSource->accessData(0);
+      _imh.event = _macroPulseNumberSource->accessData(0);
     }
     else {
       // TODO discuss this case
-      imh->event = imh->frame;
+      _imh.event = _imh.frame;
     }
-    // TODO
-    imh->bpp = 2;     // hold->getBytesPerPix();
-    imh->ebitpp = 14; // hold->getEffBitsPerPix();
+    // TODO in app
+    // imh->bpp = 2;     // hold->getBytesPerPix();
+    // imh->ebitpp = 14; // hold->getEffBitsPerPix();
+    // imh->frame = 1;
 
-    // TODO get from meta data? or automatically count up in here?
-    imh->frame = 1;
-    dfct->set_value(imh, dataPtr);
-    // TODO check validity
-    // dataPtr / imh pointer locations could change between function calls
-    // since encodeAsDoocsImg() resizes output vector
-    // (but normally that won't happen)
-    // I guess that's ok as long as we do these changes only while having location lock
+    // dataPtr location could change between function calls
+    // but I think that's ok as long as we do these changes only while having location lock
+    dfct->set_value(&_imh, dataPtr);
 
     // TODO - check wheter we need this in addition to usual dfct calls
     // dfct->set_img_time()
