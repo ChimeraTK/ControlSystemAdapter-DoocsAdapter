@@ -59,7 +59,7 @@ namespace ChimeraTK {
   // values for the options bit field
   const int ImgOpt_RowMajor = 1;
 
-  template<typename ValType, int OPTIONS>
+  template<typename ValType, unsigned OPTIONS>
   class ImgView {
     friend class MappedImage;
 
@@ -246,7 +246,7 @@ namespace ChimeraTK {
     // Note: we already own the location lock by specification of the
     // DoocsUpdater
 
-    MappedDoocsImg img(_processArray->accessChannel(0));
+    MappedDoocsImg img(_processArray->accessChannel(0), false);
     auto* dataPtr = img.asDoocsImg(&_imh);
 
     if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
