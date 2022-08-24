@@ -79,9 +79,9 @@ namespace ChimeraTK {
     // other properties. This can take too long (like seconds), which leads to noticable freezes of the UI. As a
     // work-around we release the lock here, wait some time and acquire the lock again. Since this happens in a separate
     // thread (svr_writer), this slow-down should not be of any harm.
-    efp_->unlock();
+    get_eqfct()->unlock();
     usleep(1000);
-    efp_->lock();
+    get_eqfct()->lock();
     if(!modified || _processArray->isReadOnly()) return;
     modified = false;
     D_spectrum::write(s);
