@@ -5,6 +5,7 @@
 
 #include "D_textUnifier.h"
 #include "DoocsIfff.h"
+#include "DoocsImage.h"
 #include "DoocsProcessArray.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsSpectrum.h"
@@ -159,6 +160,7 @@ namespace ChimeraTK {
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(SpectrumDescription const& spectrumDescription) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(spectrumDescription.source);
+
     float start = spectrumDescription.start;
     float increment = spectrumDescription.increment;
 
@@ -240,7 +242,44 @@ namespace ChimeraTK {
       }
       doocsPV->setMacroPulseNumberSource(mpnDecorated);
     }
+    return doocsPV;
+  }
 
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsImage(ImageDescription const& imageDescription) {
+    auto processVariable = _controlSystemPVManager->getProcessVariable(imageDescription.source);
+    boost::shared_ptr<DoocsImage> doocsPV;
+    doocsPV.reset(new DoocsImage(_eqFct, imageDescription.name,
+        getDecorator<unsigned char>(processVariable, DecoratorType::C_style_conversion), _updater));
+
+    if(not imageDescription.description.empty()) {
+      doocsPV->set_descr_value(imageDescription.description);
+      // D_image: doocsPV->set_img_comment(imageDescription.description.c_str());
+    }
+    doocsPV->set_ro_access();
+
+    // publish via ZeroMQ if configured in the xml file
+    if(imageDescription.publishZMQ) {
+      doocsPV->publishZeroMQ();
+    }
+
+    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
+    doocsPV->setMatchingMode(imageDescription.dataMatching);
+    // set macro pulse number source, if configured
+    if(imageDescription.macroPulseNumberSource.size() > 0) {
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(imageDescription.macroPulseNumberSource);
+      auto mpnDecorated = getDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+            "' is used as a macro pulse number source, but it has an array "
+            "length of " +
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
+      }
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+            "' is used as a macro pulse number source, but it is not readable.");
+      }
+      doocsPV->setMacroPulseNumberSource(mpnDecorated);
+    }
     return doocsPV;
   }
 
@@ -504,21 +543,22 @@ namespace ChimeraTK {
     if(requestedType == typeid(AutoPropertyDescription)) {
       return autoCreate(propertyDescription);
     }
-    else if(requestedType == typeid(SpectrumDescription)) {
+    if(requestedType == typeid(SpectrumDescription)) {
       return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
     }
-    else if(requestedType == typeid(XyDescription)) {
+    if(requestedType == typeid(ImageDescription)) {
+      return createDoocsImage(*std::static_pointer_cast<ImageDescription>(propertyDescription));
+    }
+    if(requestedType == typeid(XyDescription)) {
       return createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
     }
-    else if(requestedType == typeid(IfffDescription)) {
+    if(requestedType == typeid(IfffDescription)) {
       return createIfff(*std::static_pointer_cast<IfffDescription>(propertyDescription));
     }
-    else if(requestedType == typeid(AutoPropertyDescription)) {
+    if(requestedType == typeid(AutoPropertyDescription)) {
       return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
     }
-    else {
-      throw std::invalid_argument("Sorry, your type is not supported yet.");
-    }
+    throw std::invalid_argument("Sorry, your type is not supported yet.");
   }
 
 } // namespace ChimeraTK

@@ -43,6 +43,7 @@ namespace ChimeraTK {
         AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
     /// @todo FIXME: use SpectrumDescription here
     boost::shared_ptr<D_fct> createDoocsSpectrum(SpectrumDescription const& spectrumDescription);
+    boost::shared_ptr<D_fct> createDoocsImage(ImageDescription const& imageDescription);
 
     boost::shared_ptr<D_fct> createXy(XyDescription const& xyDescription);
     boost::shared_ptr<D_fct> createIfff(IfffDescription const& ifffDescription);
