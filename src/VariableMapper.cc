@@ -81,7 +81,7 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_spectrum") {
         processSpectrumNode(node, locationName);
       }
-      else if(node->get_name() == "D_image") {
+      else if(node->get_name() == "D_imagec") {
         processImageNode(node, locationName);
       }
       else if(node->get_name() == "D_array") {

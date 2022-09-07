@@ -175,6 +175,13 @@ The four mapped variables must provide data-consistent updates, unless `data_mat
 
 \include tests/serverTestIfff-DoocsVariableConfig.xml
 
+\subsubsection D_imagec D_imagec
+The `D_imagec` (c for compact image) tag takes the following arguments through attributes:
+- `source` : Name of process variable which contains the data as array of unsigned char. Data consists of an
+  image header defined as ChimeraTK::ImgHeader followed by the encoded pixel values.
+- `description`: Used as comment for the image, in the meta data.
+If `data_matching="exact"` is set, the provided macropulse number is set as event id in the meta data.
+
 \subsection set_error Error reporting
 The special tag `set_error` is allowed only once per location. XML attributes:
 - `statusCodeSource` : Path to the process variable which should be used for reading error/status codes.
