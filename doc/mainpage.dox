@@ -180,6 +180,7 @@ The `D_imagec` (c for compact image) tag takes the following arguments through a
 - `source` : Name of process variable which contains the data as array of unsigned char. Data consists of an
   image header defined as ChimeraTK::ImgHeader followed by the encoded pixel values.
 - `description`: Used as comment for the image, in the meta data.
+
 If `data_matching="exact"` is set, the provided macropulse number is set as event id in the meta data.
 
 \subsection set_error Error reporting

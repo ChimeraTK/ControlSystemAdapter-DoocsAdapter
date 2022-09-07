@@ -3,9 +3,10 @@
 #pragma once
 
 #include "DoocsUpdater.h"
-#include "MappedImage.h"
 #include "PropertyBase.h"
 #include <eq_fct.h>
+
+#include <ChimeraTK/ControlSystemAdapter/MappedImage.h>
 
 namespace ChimeraTK {
 

@@ -1,7 +1,5 @@
 #include "DoocsImage.h"
 
-#include "MappedImage.h"
-
 #include <ChimeraTK/OneDRegisterAccessor.h>
 
 #include <cassert>
