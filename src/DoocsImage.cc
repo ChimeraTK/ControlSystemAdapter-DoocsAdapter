@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
 #include "DoocsImage.h"
 
 #include <ChimeraTK/OneDRegisterAccessor.h>
@@ -32,7 +34,7 @@ namespace ChimeraTK {
     headerOut->width = _header->width;
     headerOut->height = _header->height;
     headerOut->bpp = _header->bpp;
-    headerOut->image_flags = TTF2_IMAGE_LOSSLESS;
+    headerOut->image_flags = TTF2_IMAGE_LOSSLESS | TTF2_IMAGE_LITTLE_ENDIAN_BYTE_ORDER;
     headerOut->source_format = headerOut->image_format;
     headerOut->frame = _header->frame;
     // area of interest: in our case, always the full image
