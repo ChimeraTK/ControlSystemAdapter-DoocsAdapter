@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testMappedImage) {
   BOOST_CHECK(val == 6);
   std::vector<uint8_t> expectedData = {8, 0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1, 0};
 
-  MappedDoocsImg A(A0.data(), A0.dataLen(), MappedDoocsImg::InitData::No);
+  MappedDoocsImg A(A0.data(), A0.capacity(), MappedDoocsImg::InitData::No);
   IMH headerOut;
   unsigned char* imgData = A.asDoocsImg(&headerOut);
   BOOST_CHECK(headerOut.aoi_height == (int)h);
