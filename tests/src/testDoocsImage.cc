@@ -21,24 +21,6 @@ using namespace ChimeraTK;
 
 BOOST_AUTO_TEST_SUITE(DoocsImageTestSuite)
 
-BOOST_AUTO_TEST_CASE(testStructMapping) {
-  // this test shows an example how to map user-defined opaque structs onto a byte array
-  struct AStruct : public OpaqueStructHeader {
-    int a = 0;
-    float x = 0, y = 0;
-    AStruct() : OpaqueStructHeader(typeid(AStruct)) {}
-  };
-  unsigned len = 100;
-  std::vector<unsigned char> buf(len);
-  MappedStruct<AStruct> ms(buf);
-  auto* h = ms.header();
-  h->x = 4.;
-  BOOST_CHECK(h->totalLength == sizeof(AStruct));
-
-  MappedStruct<AStruct> ms1(buf, MappedStruct<AStruct>::InitData::No);
-  BOOST_CHECK(ms1.header()->x == 4.);
-}
-
 BOOST_AUTO_TEST_CASE(testMappedImage) {
   // this test shows MappedImage usage
   std::vector<uint8_t> buffer(100);
@@ -54,8 +36,6 @@ BOOST_AUTO_TEST_CASE(testMappedImage) {
   Av(1, 1) = 3;
   Av(2, 1) = 2;
   Av(3, 1) = 1;
-  float val = Av(2, 0);
-  BOOST_CHECK(val == 6);
   std::vector<uint8_t> expectedData = {8, 0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1, 0};
 
   MappedDoocsImg A(A0.data(), A0.capacity(), MappedDoocsImg::InitData::No);
