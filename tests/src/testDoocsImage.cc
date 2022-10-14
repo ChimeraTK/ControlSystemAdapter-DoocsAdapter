@@ -30,18 +30,19 @@ BOOST_AUTO_TEST_CASE(testStructMapping) {
   };
   unsigned len = 100;
   std::vector<unsigned char> buf(len);
-  MappedStruct<AStruct> ms(buf.data(), len);
-  auto& h = ms.header();
-  h.x = 4.;
-  BOOST_CHECK(h.totalLength == sizeof(AStruct));
+  MappedStruct<AStruct> ms(buf);
+  auto* h = ms.header();
+  h->x = 4.;
+  BOOST_CHECK(h->totalLength == sizeof(AStruct));
 
-  MappedStruct<AStruct> ms1(buf.data(), len, MappedStruct<AStruct>::InitData::No);
-  BOOST_CHECK(ms1.header().x == 4.);
+  MappedStruct<AStruct> ms1(buf, MappedStruct<AStruct>::InitData::No);
+  BOOST_CHECK(ms1.header()->x == 4.);
 }
 
 BOOST_AUTO_TEST_CASE(testMappedImage) {
   // this test shows MappedImage usage
-  MappedImage A0;
+  std::vector<uint8_t> buffer(100);
+  MappedImage A0(buffer);
   unsigned w = 4, h = 2;
   A0.setShape(w, h, ImgFormat::Gray16);
   auto Av = A0.interpretedView<uint16_t>();
@@ -68,13 +69,13 @@ BOOST_AUTO_TEST_CASE(testMappedImage) {
 }
 
 // generate a test image in given byteArray, which should already have required size
-void generateImage(std::vector<uint8_t>& byteArray) {
-  ChimeraTK::MappedImage im(byteArray.data(), byteArray.size(), MappedDoocsImg::InitData::Yes);
+void generateImage(ChimeraTK::OneDRegisterAccessor<uint8_t>& acc) {
+  ChimeraTK::MappedImage im(acc, MappedDoocsImg::InitData::Yes);
   unsigned w = 20, h = 10;
   im.setShape(w, h, ImgFormat::Gray16);
-  ChimeraTK::ImgHeader& imh = im.header();
-  imh.ebitpp = 14;
-  imh.frame = 3;
+  ChimeraTK::ImgHeader* imh = im.header();
+  imh->ebitpp = 14;
+  imh->frame = 3;
 
   auto imv = im.interpretedView<uint16_t>();
   for(unsigned x = 0; x < w; x++) {
@@ -105,8 +106,8 @@ BOOST_AUTO_TEST_CASE(fromDeviceTest) {
   DoocsImage doocsImage(nullptr, "someName", controlSystemVariable, updater);
 
   // generate an image and send it via the device side
-  std::vector<uint8_t>& deviceVector = deviceVariable->accessChannel(0);
-  generateImage(deviceVector);
+  ChimeraTK::OneDRegisterAccessor acc(deviceVariable);
+  generateImage(acc);
   deviceVariable->write();
 
   // everything should still be 0 on the CS side
@@ -121,6 +122,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceTest) {
 
   // The actual vector buffer has changed. We have to get the new reference.
   csVector = controlSystemVariable->accessChannel(0);
+  auto deviceVector = deviceVariable->accessChannel(0);
   for(size_t i = 0; i < arraySizeCheck; ++i) {
     BOOST_CHECK_EQUAL(csVector[i], deviceVector[i]);
     // note, this works only if the image format is not changed by mapping to DOOCS

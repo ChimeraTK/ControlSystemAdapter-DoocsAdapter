@@ -12,7 +12,8 @@
 namespace ChimeraTK {
 
   unsigned char* MappedDoocsImg::asDoocsImg(IMH* headerOut) {
-    switch(_header->image_format) {
+    auto* h = header();
+    switch(h->image_format) {
       case ImgFormat::Unset:
         return nullptr;
       case ImgFormat::Gray8:
@@ -28,28 +29,28 @@ namespace ChimeraTK {
       default:
         assert(false && "image format not supported!");
     }
-    assert(((unsigned)_header->options & (unsigned)ImgOptions::RowMajor) &&
+    assert(((unsigned)h->options & (unsigned)ImgOptions::RowMajor) &&
         "conversion to DOOCS image only possible for row-major ordering");
 
-    headerOut->width = _header->width;
-    headerOut->height = _header->height;
-    headerOut->bpp = _header->bpp;
+    headerOut->width = h->width;
+    headerOut->height = h->height;
+    headerOut->bpp = h->bpp;
     headerOut->image_flags = TTF2_IMAGE_LOSSLESS | TTF2_IMAGE_LITTLE_ENDIAN_BYTE_ORDER;
     headerOut->source_format = headerOut->image_format;
-    headerOut->frame = _header->frame;
+    headerOut->frame = h->frame;
     // area of interest: in our case, always the full image
-    headerOut->aoi_width = _header->width;
-    headerOut->aoi_height = _header->height;
+    headerOut->aoi_width = h->width;
+    headerOut->aoi_height = h->height;
     headerOut->length = headerOut->aoi_width * headerOut->aoi_height * headerOut->bpp;
-    headerOut->x_start = _header->x_start;
-    headerOut->y_start = _header->y_start;
-    headerOut->ebitpp = _header->ebitpp;
+    headerOut->x_start = h->x_start;
+    headerOut->y_start = h->y_start;
+    headerOut->ebitpp = h->ebitpp;
     headerOut->hbin = 1;
     headerOut->vbin = 1;
     headerOut->event = 0; // this will be overwritten if macropulse source was set
     // unused values are set to -1
-    headerOut->scale_x = _header->scale_x;
-    headerOut->scale_y = _header->scale_y;
+    headerOut->scale_x = h->scale_x;
+    headerOut->scale_y = h->scale_y;
     headerOut->image_rotation = 0;
     headerOut->fspare2 = -1;
     headerOut->fspare3 = -1;
@@ -57,7 +58,7 @@ namespace ChimeraTK {
     headerOut->ispare2 = -1;
     headerOut->ispare3 = -1;
     headerOut->ispare4 = -1;
-    return _data + sizeof(ImgHeader);
+    return data() + sizeof(ImgHeader);
   }
 
   /************************* DoocsImage ************************************************************************/
@@ -79,8 +80,8 @@ namespace ChimeraTK {
     D_imagec* dfct = this;
     //  Note: we already own the location lock by specification of the DoocsUpdater
 
-    MappedDoocsImg img(
-        _processArray->accessChannel(0).data(), _processArray->accessChannel(0).size(), MappedDoocsImg::InitData::No);
+    ChimeraTK::OneDRegisterAccessor<uint8_t> pA(_processArray);
+    MappedDoocsImg img(pA, MappedDoocsImg::InitData::No);
     auto* dataPtr = img.asDoocsImg(&_imh);
     if(!dataPtr) {
       throw logic_error("data provided to DoocsImage._processArray was not recognized as image");
