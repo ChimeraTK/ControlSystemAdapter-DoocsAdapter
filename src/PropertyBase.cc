@@ -47,9 +47,9 @@ namespace ChimeraTK {
                       << " (repeated " << _nDataLossWarnings << " times)." << std::endl;
           }
         }
-        // The tracking that data is modified and the consistency group is incomplete is only done for the "compareTo"
-        // variable. If want to detect data on all variables in the consistency group we have to store track this for
-        // each variable differently, so we would need multiple counters.
+        // Tracking that data is modified is only done for the "compareTo" variable.
+        // If we want to detect data loss on all variables in the consistency group, we would have to track this for
+        // each variable separately.
         _doocsSuccessfullyUpdated = false;
       }
       return false;
