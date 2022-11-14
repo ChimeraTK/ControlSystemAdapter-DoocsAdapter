@@ -54,7 +54,7 @@ void generateImage(ChimeraTK::OneDRegisterAccessor<uint8_t>& acc) {
   unsigned w = 20, h = 10;
   im.setShape(w, h, ImgFormat::Gray16);
   ChimeraTK::ImgHeader* imh = im.header();
-  imh->ebitpp = 14;
+  imh->effBitsPerPixel = 14;
   imh->frame = 3;
 
   auto imv = im.interpretedView<uint16_t>();

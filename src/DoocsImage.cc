@@ -34,7 +34,7 @@ namespace ChimeraTK {
 
     headerOut->width = h->width;
     headerOut->height = h->height;
-    headerOut->bpp = h->bpp;
+    headerOut->bpp = h->bytesPerPixel;
     headerOut->image_flags = TTF2_IMAGE_LOSSLESS | TTF2_IMAGE_LITTLE_ENDIAN_BYTE_ORDER;
     headerOut->source_format = headerOut->image_format;
     headerOut->frame = h->frame;
@@ -44,7 +44,7 @@ namespace ChimeraTK {
     headerOut->length = headerOut->aoi_width * headerOut->aoi_height * headerOut->bpp;
     headerOut->x_start = h->x_start;
     headerOut->y_start = h->y_start;
-    headerOut->ebitpp = h->ebitpp;
+    headerOut->ebitpp = h->effBitsPerPixel;
     headerOut->hbin = 1;
     headerOut->vbin = 1;
     headerOut->event = 0; // this will be overwritten if macropulse source was set
