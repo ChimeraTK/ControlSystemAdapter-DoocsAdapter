@@ -29,8 +29,9 @@ namespace ChimeraTK {
       default:
         assert(false && "image format not supported!");
     }
-    assert(((unsigned)h->options & (unsigned)ImgOptions::RowMajor) &&
-        "conversion to DOOCS image only possible for row-major ordering");
+    if(!((unsigned)h->options & (unsigned)ImgOptions::RowMajor)) {
+      throw logic_error("conversion to DOOCS image only possible for row-major ordering");
+    }
 
     headerOut->width = h->width;
     headerOut->height = h->height;
@@ -67,7 +68,9 @@ namespace ChimeraTK {
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater)
   : D_imagec(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _processArray(processArray) {
     if(_processArray->isWriteable()) {
-      std::cout << "WARNING: writable images not supported by DoocsImage" << std::endl;
+      // It could only be writable if the application implements it as an output with back-channel.
+      // Then consider this application to have a logical bug.
+      throw logic_error("writable images not supported by DoocsImage");
     }
     setupOutputVar(processArray);
   }

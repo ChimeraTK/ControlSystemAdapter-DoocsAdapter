@@ -247,9 +247,8 @@ namespace ChimeraTK {
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsImage(ImageDescription const& imageDescription) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(imageDescription.source);
-    boost::shared_ptr<DoocsImage> doocsPV;
-    doocsPV.reset(new DoocsImage(_eqFct, imageDescription.name,
-        getDecorator<unsigned char>(processVariable, DecoratorType::C_style_conversion), _updater));
+    boost::shared_ptr<DoocsImage> doocsPV = boost::make_shared<DoocsImage>(_eqFct, imageDescription.name,
+        getDecorator<unsigned char>(processVariable, DecoratorType::C_style_conversion), _updater);
 
     if(not imageDescription.description.empty()) {
       doocsPV->set_descr_value(imageDescription.description);
