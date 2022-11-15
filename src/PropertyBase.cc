@@ -47,8 +47,11 @@ namespace ChimeraTK {
                       << " (repeated " << _nDataLossWarnings << " times)." << std::endl;
           }
         }
+        // Tracking that data is modified is only done for the "compareTo" variable.
+        // If we want to detect data loss on all variables in the consistency group, we would have to track this for
+        // each variable separately.
+        _doocsSuccessfullyUpdated = false;
       }
-      _doocsSuccessfullyUpdated = false;
       return false;
     }
     _doocsSuccessfullyUpdated = true;
