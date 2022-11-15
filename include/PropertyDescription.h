@@ -124,6 +124,27 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  struct ImageDescription : public PropertyDescription, public PropertyAttributes {
+    ChimeraTK::RegisterPath source;
+    std::string description;
+
+    ImageDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "", std::string name_ = "",
+        bool hasHistory_ = false, bool isWriteable_ = false)
+    : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, isWriteable_), source(source_) {}
+
+    const std::type_info& type() const override { return typeid(ImageDescription); }
+    void print(std::ostream& os = std::cout) const override {
+      os << source << " -> " << location << " / " << name << std::endl;
+    }
+
+    std::set<std::string> getSources() override {
+      std::set<std::string> ret{source};
+      return ret;
+    };
+  };
+
+  /********************************************************************************************************************/
+
   struct SpectrumDescription : public PropertyDescription, public PropertyAttributes {
     struct Axis {
       std::string label;

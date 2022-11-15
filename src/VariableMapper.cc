@@ -81,6 +81,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_spectrum") {
         processSpectrumNode(node, locationName);
       }
+      else if(node->get_name() == "D_imagec") {
+        processImageNode(node, locationName);
+      }
       else if(node->get_name() == "D_array") {
         processNode(node, locationName);
       }
@@ -320,6 +323,27 @@ namespace ChimeraTK {
       }
     }
     addDescription(spectrumDescription, usedVariables);
+  }
+
+  /********************************************************************************************************************/
+
+  void VariableMapper::processImageNode(xmlpp::Node const* node, std::string locationName) {
+    auto xmlEl = asXmlElement(node);
+
+    std::string source = getAttributeValue(xmlEl, "source");
+    std::string name = determineName(xmlEl, source);
+    std::string absoluteSource = getAbsoluteSource(source, locationName);
+
+    // prepare the property description
+    auto imageDescription = std::make_shared<ImageDescription>(absoluteSource, locationName, name);
+    processHistoryAndWritableAttributes(imageDescription, xmlEl, locationName);
+
+    auto descriptionNode = xmlEl->get_first_child("description");
+    if(descriptionNode != nullptr) {
+      imageDescription->description = getContentString(descriptionNode);
+    }
+    std::list<std::string> usedVariables({absoluteSource});
+    addDescription(imageDescription, usedVariables);
   }
 
   /********************************************************************************************************************/
