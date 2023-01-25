@@ -10,6 +10,7 @@
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+#include <ChimeraTK/Device.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -21,10 +22,28 @@ using namespace ChimeraTK;
 
 BOOST_AUTO_TEST_SUITE(DoocsImageTestSuite)
 
-BOOST_AUTO_TEST_CASE(testMappedImage) {
+struct DeviceFixture {
+  const size_t arraySize = 400000;
+  std::pair<boost::shared_ptr<ControlSystemPVManager>, boost::shared_ptr<DevicePVManager>> pvManagers;
+  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> deviceVariable;
+  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> controlSystemVariable;
+
+  DeviceFixture() {
+    pvManagers = createPVManager();
+    boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
+    boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
+
+    deviceVariable = devManager->createProcessArray<uint8_t>(
+        SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", arraySize);
+    controlSystemVariable = csManager->getProcessArray<uint8_t>("fromDeviceVariable");
+  }
+};
+
+BOOST_FIXTURE_TEST_CASE(testMappedDoocsImage, DeviceFixture) {
   // this test shows MappedImage usage
-  std::vector<uint8_t> buffer(100);
-  MappedImage A0(buffer);
+
+  ChimeraTK::OneDRegisterAccessor acc(deviceVariable);
+  MappedImage A0(acc);
   unsigned w = 4, h = 2;
   A0.setShape(w, h, ImgFormat::Gray16);
   auto Av = A0.interpretedView<uint16_t>();
@@ -38,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testMappedImage) {
   Av(3, 1) = 1;
   std::vector<uint8_t> expectedData = {8, 0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1, 0};
 
-  MappedDoocsImg A(A0.data(), A0.capacity(), MappedDoocsImg::InitData::No);
+  MappedDoocsImg A(acc, MappedDoocsImg::InitData::No);
   IMH headerOut;
   unsigned char* imgData = A.asDoocsImg(&headerOut);
   BOOST_CHECK(headerOut.aoi_height == (int)h);
@@ -66,19 +85,8 @@ void generateImage(ChimeraTK::OneDRegisterAccessor<uint8_t>& acc) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(fromDeviceTest) {
-  std::pair<boost::shared_ptr<ControlSystemPVManager>, boost::shared_ptr<DevicePVManager>> pvManagers =
-      createPVManager();
-  boost::shared_ptr<ControlSystemPVManager> csManager = pvManagers.first;
-  boost::shared_ptr<DevicePVManager> devManager = pvManagers.second;
-
-  static const size_t arraySize = 400000;
-  static const size_t arraySizeCheck = 400;
-  typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> deviceVariable =
-      devManager->createProcessArray<uint8_t>(
-          SynchronizationDirection::deviceToControlSystem, "fromDeviceVariable", arraySize);
-  typename boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> controlSystemVariable =
-      csManager->getProcessArray<uint8_t>("fromDeviceVariable");
+BOOST_FIXTURE_TEST_CASE(fromDeviceTest, DeviceFixture) {
+  const size_t arraySizeCheck = 400;
 
   DoocsUpdater updater;
 
