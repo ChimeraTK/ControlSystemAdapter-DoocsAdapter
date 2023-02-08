@@ -123,10 +123,12 @@ namespace ChimeraTK {
     set_tmstmp(seconds, microseconds, ibuf);
 
     if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
-      this->d_error(stale_data);
+      // this will set error code correctly in given buffer _and_ in main property attribute, while
+      // d_error() sets it only in latter
+      this->error(stale_data, ibuf);
     }
     else {
-      this->d_error(no_error);
+      this->error(no_error, ibuf);
     }
 
     // fill the spectrum

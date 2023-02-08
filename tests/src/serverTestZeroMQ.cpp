@@ -110,6 +110,7 @@ retry:
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
+  std::array<bool, 10> sendError = {false, false, false, false, false, false, false, false, true, true};
   for(size_t i = 0; i < 10; ++i) {
     GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     ++macroPulseNumber;
@@ -134,6 +135,13 @@ retry:
     else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
+    bool isError = sendError[i];
+    if(isError) {
+      GlobalFixture::referenceTestApplication.dataValidity = ChimeraTK::DataValidity::faulty;
+    }
+    else {
+      GlobalFixture::referenceTestApplication.dataValidity = ChimeraTK::DataValidity::ok;
+    }
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
     CHECK_WITH_TIMEOUT(dataReceived > 0);
@@ -142,7 +150,7 @@ retry:
     dataReceived--;
     {
       std::lock_guard<std::mutex> lock(mutex);
-      BOOST_CHECK_EQUAL(received.error(), 0);
+      BOOST_CHECK_EQUAL(received.error() != 0, isError);
       BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
       auto time = appPVmanager->getProcessArray<uint32_t>("UINT/FROM_DEVICE_SCALAR")->getVersionNumber().getTime();
       auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
@@ -150,6 +158,7 @@ retry:
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
+      BOOST_CHECK_EQUAL(receivedInfo.stat != 0, isError);
     }
   }
 
@@ -338,6 +347,7 @@ retry:
     }
   }
   BOOST_CHECK(dataReceived > 0);
+  // note first value via ZMQ != initial value (which would be invalid)
   BOOST_CHECK_EQUAL(received.error(), 0);
   BOOST_CHECK_EQUAL(received.length(), 10);
   BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
@@ -353,6 +363,7 @@ retry:
   // From now on, each consistent update should be received.
   // Make sure consistent receiving is happening whether the macro pulse number is send first or second.
   std::array<bool, 10> sendMacroPulseFirst = {true, true, true, false, false, false, true, false, true, false};
+  std::array<bool, 10> sendError = {false, false, false, false, false, false, false, false, true, true};
   for(size_t i = 0; i < 10; ++i) {
     GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
     macroPulseNumber *= -2;
@@ -377,6 +388,13 @@ retry:
     else {
       DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
     }
+    bool isError = sendError[i];
+    if(isError) {
+      GlobalFixture::referenceTestApplication.dataValidity = ChimeraTK::DataValidity::faulty;
+    }
+    else {
+      GlobalFixture::referenceTestApplication.dataValidity = ChimeraTK::DataValidity::ok;
+    }
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
     CHECK_WITH_TIMEOUT(dataReceived > 0);
     usleep(10000);
@@ -384,7 +402,7 @@ retry:
     dataReceived--;
     {
       std::lock_guard<std::mutex> lock(mutex);
-      BOOST_CHECK_EQUAL(received.error(), 0);
+      BOOST_CHECK_EQUAL(received.error() != 0, isError);
       BOOST_CHECK_EQUAL(received.length(), 10);
       BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
       BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
@@ -392,9 +410,12 @@ retry:
       auto time = appPVmanager->getProcessArray<float>("FLOAT/FROM_DEVICE_ARRAY")->getVersionNumber().getTime();
       auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
       auto usecs = std::chrono::duration_cast<std::chrono::microseconds>(time.time_since_epoch()).count() - secs * 1e6;
+      // check ZMQ header data
       BOOST_CHECK_EQUAL(receivedInfo.sec, secs);
       BOOST_CHECK_EQUAL(receivedInfo.usec, usecs);
       BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
+      BOOST_CHECK_EQUAL(receivedInfo.stat != 0, isError);
+      // note, the "status" field in spectrum metadata (of ZMQ payload) is not set as an error field
     }
   }
 
