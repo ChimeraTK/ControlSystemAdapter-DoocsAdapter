@@ -39,14 +39,15 @@ struct ZMQFixture {
   dmsg_t tag;
   std::string toDevicePath;
   std::string fromDevicePath;
-  int macroPulseNumber = 1;
+  uint32_t macroPulseNumber = 1;
   void init() {
     // We need data consistency between macro pulse number and the data
     // Everything from now on will get the same version number, until we manually set a new one.
     GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
 
     // set initial values
-    DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+    // we use the UINT variable for the macropulse number because we want INT to be reserved for actual values
+    DoocsServerTestHelper::doocsSet<int>("//UINT/TO_DEVICE_SCALAR", macroPulseNumber);
 
     // this makes sure initial value that we read back should be valid
     ExpectedValueType expectedValue = generateValue(0);
@@ -55,8 +56,6 @@ struct ZMQFixture {
 
     /// Note: The data is processed by the ReferenceTestApplication in the order
     /// of the types as listed in the HolderMap of the ReferenceTestApplication.
-    /// INT comes before UINT and FLOAT, so the macro pulse number is first
-    /// written and then our values.
     ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + fromDevicePath);
     dataReceived = 0;
     auto fun = [](void* fixture, EqData* data, dmsg_info_t* info) {
@@ -113,10 +112,10 @@ struct ZMQFixture {
   }
   ExpectedValueType generateValue(size_t seed) {
     ExpectedValueType v;
-    if constexpr(std::is_same_v<ExpectedValueType, uint32_t>) {
+    if constexpr(std::is_same_v<ExpectedValueType, int32_t>) {
       v = 42 + seed;
     }
-    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<uint32_t>>) {
+    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<int32_t>>) {
       v = {42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
       v[1] = 100 + seed;
     }
@@ -131,11 +130,11 @@ struct ZMQFixture {
   }
 
   void setDoocsValue(ExpectedValueType& expectedValue) {
-    if constexpr(std::is_same_v<ExpectedValueType, uint32_t>) {
-      DoocsServerTestHelper::doocsSet<uint32_t>(toDevicePath, expectedValue);
+    if constexpr(std::is_same_v<ExpectedValueType, int32_t>) {
+      DoocsServerTestHelper::doocsSet<int32_t>(toDevicePath, expectedValue);
     }
-    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<uint32_t>>) {
-      DoocsServerTestHelper::doocsSet<uint32_t>(toDevicePath, expectedValue);
+    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<int32_t>>) {
+      DoocsServerTestHelper::doocsSet<int32_t>(toDevicePath, expectedValue);
     }
     else if constexpr(std::is_same_v<ExpectedValueType, std::vector<float>>) {
       DoocsServerTestHelper::doocsSet<float>(toDevicePath, expectedValue);
@@ -145,10 +144,10 @@ struct ZMQFixture {
     }
   }
   void checkReceivedValue(ExpectedValueType& expectedValue) {
-    if constexpr(std::is_same_v<ExpectedValueType, uint32_t>) {
+    if constexpr(std::is_same_v<ExpectedValueType, int32_t>) {
       BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
     }
-    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<uint32_t>>) {
+    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<int32_t>>) {
       BOOST_REQUIRE(received.length() == 10);
       for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedValue[k]);
     }
@@ -174,7 +173,7 @@ struct ZMQFixture {
       ++macroPulseNumber;
       expectedValue = generateValue(i);
       if(sendMacroPulseFirst[i]) {
-        DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+        DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_SCALAR", macroPulseNumber);
       }
       else { // send the value first
         setDoocsValue(expectedValue);
@@ -191,7 +190,7 @@ struct ZMQFixture {
         setDoocsValue(expectedValue);
       }
       else {
-        DoocsServerTestHelper::doocsSet<int32_t>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
+        DoocsServerTestHelper::doocsSet<int32_t>("//UINT/TO_DEVICE_SCALAR", macroPulseNumber);
       }
       bool isError = sendError[i];
       if(isError) {
@@ -241,12 +240,12 @@ struct ZMQFixture {
 
 /**********************************************************************************************************************/
 
-BOOST_FIXTURE_TEST_CASE(testScalar, ZMQFixture<uint32_t>) {
+BOOST_FIXTURE_TEST_CASE(testScalar, ZMQFixture<int32_t>) {
   std::cout << "testScalar " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   macroPulseNumber = 12345;
-  toDevicePath = "//UINT/TO_DEVICE_SCALAR";
-  fromDevicePath = "/F/D/UINT/FROM_DEVICE_SCALAR";
+  toDevicePath = "//INT/TO_DEVICE_SCALAR";
+  fromDevicePath = "/F/D/INT/FROM_DEVICE_SCALAR";
   init();
 
   checkTransport();
@@ -254,13 +253,12 @@ BOOST_FIXTURE_TEST_CASE(testScalar, ZMQFixture<uint32_t>) {
 
 /**********************************************************************************************************************/
 
-BOOST_FIXTURE_TEST_CASE(testArray, ZMQFixture<std::vector<uint32_t>>) {
+BOOST_FIXTURE_TEST_CASE(testArray, ZMQFixture<std::vector<int32_t>>) {
   std::cout << "testArray " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
-  // original test was counting down macroPulseNumber, but I guess it doesn't matter
   macroPulseNumber = 99999;
-  toDevicePath = "//UINT/TO_DEVICE_ARRAY";
-  fromDevicePath = "/F/D/UINT/FROM_DEVICE_ARRAY";
+  toDevicePath = "//INT/TO_DEVICE_ARRAY";
+  fromDevicePath = "/F/D/INT/FROM_DEVICE_ARRAY";
 
   init();
   checkTransport();
@@ -271,9 +269,7 @@ BOOST_FIXTURE_TEST_CASE(testArray, ZMQFixture<std::vector<uint32_t>>) {
 BOOST_FIXTURE_TEST_CASE(testSpectrum, ZMQFixture<std::vector<float>>) {
   std::cout << "testSpectrum " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
-  // in original test macropulse number sequence was macroPulseNumber *= -2,
-  // but I think it doesn't matter
-  macroPulseNumber = -100;
+  macroPulseNumber = 100;
   toDevicePath = "//FLOAT/TO_DEVICE_ARRAY";
   fromDevicePath = "/F/D/FLOAT/FROM_DEVICE_ARRAY";
 

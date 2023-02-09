@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
-  <!-- We use a type which is processed by the ReferenceTestApplication before the data properties used by the test.
-       Otherwise the macro pulse number gets attachted to the next value. The order is determined by the order of types
-       in the HolderMap, as this map is iterated. -->
-  <macro_pulse_number_source>/INT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
+  <!-- It must be irrelevant whether the macro pulse number is processed before or after the variable which is tested by value;
+     the test cases cover both cases. -->
+  <data_matching>exact</data_matching>
+  <macro_pulse_number_source>/UINT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
 
-  <location name="UINT">
-    <property source="/UINT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
+  <location name="INT">
+    <property source="/INT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
       <publish_ZMQ>true</publish_ZMQ>
     </property>
-    <property source="/UINT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
+    <property source="/INT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
       <publish_ZMQ>true</publish_ZMQ>
     </property>
-    <import>/UINT</import>
+    <import>/INT</import>
   </location>
 
   <location name="FLOAT">
@@ -24,8 +24,8 @@
     <import>/FLOAT</import>
   </location>
 
-  <location name="INT">
-    <property source="/INT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR"/>
+  <location name="UINT">
+    <property source="/UINT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR"/>
   </location>
 
 </device_server>
