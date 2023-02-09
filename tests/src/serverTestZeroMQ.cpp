@@ -45,14 +45,14 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
 
   uint32_t expectedValue = 42;
+  // this makes sure initial value that we read back should be valid
   DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
+  GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
   /// Note: The data is processed by the ReferenceTestApplication in the order
   /// of the types as listed in the HolderMap of the ReferenceTestApplication.
   /// INT comes before UINT and FLOAT, so the macro pulse number is first
   /// written and then our values.
-  size_t retryCounter = 0;
-retry:
   EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/FROM_DEVICE_SCALAR");
@@ -69,10 +69,22 @@ retry:
       &tag);
   BOOST_CHECK(!err);
 
-  // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
-  CHECK_WITH_TIMEOUT(dataReceived > 0);
-  usleep(10000);
-  BOOST_CHECK_EQUAL(dataReceived, 1);
+  // Wait until initial value is received, which is polled via RPC by the DOOCS serverlib.
+  // The difficulty here is that ZMQ responds already before connection was established, with
+  // received.error() = unavail_serv
+  // need long timeout ~ 1 minute
+  for(unsigned local_index_i = 0; local_index_i < 60000; ++local_index_i) {
+    usleep(1000);
+    if(dataReceived > 0 && received.error() == 0) {
+      std::cout << "ok after " << local_index_i << std::endl;
+      break;
+    }
+  }
+  {
+    std::lock_guard<std::mutex> lock(mutex);
+    BOOST_CHECK_EQUAL(received.error(), 0);
+    BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
+  }
   dataReceived = 0;
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
@@ -82,20 +94,12 @@ retry:
     // running
     DoocsServerTestHelper::doocsSet<uint32_t>("//UINT/TO_DEVICE_SCALAR", expectedValue);
     GlobalFixture::referenceTestApplication.runMainLoopOnce();
-    // FIXME: This timeout is essential so everything has been received and the next
-    // dataReceived really is false. It is a potential source of timing problems /
-    // race conditions in this test.
     usleep(10000);
-    if(++counter > 1000) {
-      dmsg_detach(&ea, tag);
-      std::cout << "RETRY!" << std::endl;
-      ++retryCounter;
-      BOOST_REQUIRE(retryCounter < 10);
-      goto retry;
-    }
+    counter++;
+    BOOST_REQUIRE(counter < 1000);
   }
-  BOOST_CHECK(dataReceived > 0);
   {
+    // check first value actually transported via ZMQ protocol
     std::lock_guard<std::mutex> lock(mutex);
     BOOST_CHECK_EQUAL(received.error(), 0);
     BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
@@ -163,6 +167,7 @@ retry:
   }
 
   dmsg_detach(&ea, tag);
+  GlobalFixture::referenceTestApplication.dataValidity = ChimeraTK::DataValidity::ok;
 }
 
 /**********************************************************************************************************************/
