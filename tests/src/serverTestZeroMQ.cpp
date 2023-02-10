@@ -6,15 +6,13 @@
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
 
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-
-extern const char* object_name;
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <eq_client.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 #include <random>
 #include <thread>
@@ -28,15 +26,15 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(dmsg_start();)
 
 template<typename ExpectedValueType>
 struct ZMQFixture {
-  std::atomic<uint32_t> dataReceived;
+  std::atomic<uint32_t> dataReceived = 0;
   EqData received;
-  dmsg_info_t receivedInfo;
+  dmsg_info_t receivedInfo{};
   std::mutex mutex;
 
   EqData dst;
   EqAdr ea;
 
-  dmsg_t tag;
+  dmsg_t tag{};
   std::string toDevicePath;
   std::string fromDevicePath;
   uint32_t macroPulseNumber = 1;
@@ -130,10 +128,8 @@ struct ZMQFixture {
   }
 
   void setDoocsValue(ExpectedValueType& expectedValue) {
-    if constexpr(std::is_same_v<ExpectedValueType, int32_t>) {
-      DoocsServerTestHelper::doocsSet<int32_t>(toDevicePath, expectedValue);
-    }
-    else if constexpr(std::is_same_v<ExpectedValueType, std::vector<int32_t>>) {
+    if constexpr(std::is_same_v<ExpectedValueType, int32_t> or
+        std::is_same_v<ExpectedValueType, std::vector<int32_t>>) {
       DoocsServerTestHelper::doocsSet<int32_t>(toDevicePath, expectedValue);
     }
     else if constexpr(std::is_same_v<ExpectedValueType, std::vector<float>>) {
@@ -240,7 +236,7 @@ struct ZMQFixture {
 
 /**********************************************************************************************************************/
 
-BOOST_FIXTURE_TEST_CASE(testScalar, ZMQFixture<int32_t>) {
+BOOST_FIXTURE_TEST_CASE(testZMQScalar, ZMQFixture<int32_t>) {
   std::cout << "testScalar " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   macroPulseNumber = 12345;
@@ -253,7 +249,7 @@ BOOST_FIXTURE_TEST_CASE(testScalar, ZMQFixture<int32_t>) {
 
 /**********************************************************************************************************************/
 
-BOOST_FIXTURE_TEST_CASE(testArray, ZMQFixture<std::vector<int32_t>>) {
+BOOST_FIXTURE_TEST_CASE(testZMQArray, ZMQFixture<std::vector<int32_t>>) {
   std::cout << "testArray " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   macroPulseNumber = 99999;
@@ -266,7 +262,7 @@ BOOST_FIXTURE_TEST_CASE(testArray, ZMQFixture<std::vector<int32_t>>) {
 
 /**********************************************************************************************************************/
 
-BOOST_FIXTURE_TEST_CASE(testSpectrum, ZMQFixture<std::vector<float>>) {
+BOOST_FIXTURE_TEST_CASE(testZMQSpectrum, ZMQFixture<std::vector<float>>) {
   std::cout << "testSpectrum " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   macroPulseNumber = 100;
