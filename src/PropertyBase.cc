@@ -95,7 +95,7 @@ namespace ChimeraTK {
       else {
         info.ident = 0;
       }
-      info.stat = d_fct->d_error();
+      dmsg_error(&info, d_fct->d_error());
       auto ret = d_fct->send(&info);
       if(ret) {
         std::cout << "ZeroMQ sending failed!!!" << std::endl;
