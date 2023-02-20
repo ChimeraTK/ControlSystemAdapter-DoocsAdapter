@@ -1,5 +1,6 @@
 PROJECT(ChimeraTK-ControlSystemAdapter-DoocsAdapter)
 cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0028 NEW) # disables a warning
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
@@ -12,6 +13,7 @@ include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 
 # linker flags
+# TODO check - does this get exported? I guess not. But I don't know if it needs to be.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
 include(cmake/add_dependency.cmake)
@@ -29,7 +31,7 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 set(LIBXML++_VERSION "libxml++-2.6")
 PKG_CHECK_MODULES(LibXML++ REQUIRED ${LIBXML++_VERSION})
 PKG_CHECK_MODULES(glib REQUIRED glib-2.0)
-include_directories(SYSTEM "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_INCLUDE_DIRS} ${LibXML++_INCLUDE_DIRS})
+set(privateSystemIncludes "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_INCLUDE_DIRS} ${LibXML++_INCLUDE_DIRS})
 
 #For some reason the system library has to be mentioned explicitly to the linker.
 #This is strange because the thead library has it as a dependency.
@@ -39,9 +41,8 @@ IF(BUILD_TESTS)
   ENABLE_TESTING()
 ENDIF()
 
-
-include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/include ${CMAKE_SOURCE_DIR}/example)
-set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
+# TODO -remove this? It might be problematic with exports
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/include/*.h")
@@ -59,7 +60,9 @@ if(BUILD_TESTS)
     get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
-    set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS} ${doocs-server-test-helper_CXX_FLAGS}")
+    target_include_directories(${excutableName} SYSTEM PRIVATE ${privateSystemIncludes})
+    target_include_directories(${excutableName} PRIVATE ${CMAKE_SOURCE_DIR}/tests/include)
+    target_compile_options(${excutableName} PRIVATE "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS} ${doocs-server-test-helper_CXX_FLAGS}")
     set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "-Wl,-rpath=${CMAKE_BINARY_DIR},--enable-new-dtags ${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS} ${doocs-server-test-helper_LINKER_FLAGS}")
     target_link_libraries(${excutableName} ${PROJECT_NAME} ${doocs-server-test-helper_LIBRARIES})
     add_test(${excutableName} ${excutableName})
@@ -80,9 +83,16 @@ include(cmake/enable_doxygen_documentation.cmake)
 
 # C++ library
 add_library(${PROJECT_NAME} SHARED ${library_sources} )
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${privateSystemIncludes})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
+# TODO check - are CS FLags really needed, or would they come from imported target?
+#   
+target_compile_options(${PROJECT_NAME} PUBLIC "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
 target_link_libraries(${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES})
+# replace that by use of imported target
+# TODO - it might be that we change add_dependency instead of this?
+#   - well, not really. add_dependency will just find it but not link to it.
+#target_link_libraries(${PROJECT_NAME} ${DOOCS_LIBRARIES} ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
 # do not remove runtime path of the library when installing
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -97,13 +107,14 @@ FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocs
 
 #Install the library and the executables
 install( TARGETS ${PROJECT_NAME}
+         EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION bin
-             LIBRARY DESTINATION lib )
+         LIBRARY DESTINATION lib )
 
 #all include files go into include/PROJECT_NAME
 #The exclusion of ${PROJECT_NAME} prevents the recursive installation of the files just being installed.
 #The original headers are in include/*.h, the installed ones in include/PROJECT_NAME/*.h.
-install( DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/${PROJECT_NAME}
          FILES_MATCHING PATTERN "*.h"
          PATTERN ".svn" EXCLUDE
          PATTERN "${PROJECT_NAME}" EXCLUDE )
