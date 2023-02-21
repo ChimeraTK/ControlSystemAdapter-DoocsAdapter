@@ -62,8 +62,11 @@ if(BUILD_TESTS)
     add_executable(${excutableName} ${testExecutableSrcFile})
     target_include_directories(${excutableName} SYSTEM PRIVATE ${privateSystemIncludes})
     target_include_directories(${excutableName} PRIVATE ${CMAKE_SOURCE_DIR}/tests/include)
-    target_compile_options(${excutableName} PRIVATE "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS} ${doocs-server-test-helper_CXX_FLAGS}")
+    target_compile_options(${excutableName} PRIVATE ${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS} ${doocs-server-test-helper_CXX_FLAGS})
+    message("linkdirs: ${doocs-server-test-helper_LIBRARY_DIRS}")
+    target_link_directories(${excutableName} PRIVATE ${doocs-server-test-helper_LIBRARY_DIRS})
     set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "-Wl,-rpath=${CMAKE_BINARY_DIR},--enable-new-dtags ${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS} ${doocs-server-test-helper_LINKER_FLAGS}")
+    message("libs: ${doocs-server-test-helper_LIBRARIES}")
     target_link_libraries(${excutableName} ${PROJECT_NAME} ${doocs-server-test-helper_LIBRARIES})
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
@@ -86,22 +89,38 @@ add_library(${PROJECT_NAME} SHARED ${library_sources} )
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${privateSystemIncludes})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
 # TODO check - are CS FLags really needed, or would they come from imported target?
-#   
-target_compile_options(${PROJECT_NAME} PUBLIC "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
+target_compile_options(${PROJECT_NAME} PUBLIC ${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS})
 target_link_libraries(${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES})
 # replace that by use of imported target
 # TODO - it might be that we change add_dependency instead of this?
 #   - well, not really. add_dependency will just find it but not link to it.
-#target_link_libraries(${PROJECT_NAME} ${DOOCS_LIBRARIES} ChimeraTK::ChimeraTK-ControlSystemAdapter)
+#target_link_libraries(${PROJECT_NAME}  PRIVATE ${DOOCS_LIBRARIES} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
 # do not remove runtime path of the library when installing
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
-set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
-target_link_libraries(referenceTestDoocsServer ${PROJECT_NAME} ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} )
+message("global cxx flags:${CMAKE_CXX_FLAGS}")
+message("referenceTestDoocsServer compile-flags:${ChimeraTK-ControlSystemAdapter_CXX_FLAGS};${DOOCS_CXX_FLAGS}")
+#set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}") # old style, needs space separated
+# new style, ; separated
+target_compile_options(referenceTestDoocsServer PRIVATE ${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS})
+string(REPLACE " " ";" doocsLinkerFlags "${DOOCS_LINKER_FLAGS}")
+# need to remove ; at beginning
+string(REGEX REPLACE "^;+" "" doocsLinkerFlags "${doocsLinkerFlags}")
+string(REGEX REPLACE "^;+" "" ChimeraTK-ControlSystemAdapter_LINKER_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS}")
+message("referenceTestDoocsServer link-flags:${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS}")
+message("referenceTestDoocsServer link-flags:${doocsLinkerFlags}")
+#target_link_options(referenceTestDoocsServer PRIVATE ${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS})
+target_link_options(referenceTestDoocsServer PRIVATE ${doocsLinkerFlags})
+string(REPLACE " " ";" doocsLibraries "${DOOCS_LIBRARIES}")
+string(REGEX REPLACE "^;+" "" doocsLibraries "${doocsLibraries}")
+#seems also ;; is a problem
+string(REGEX REPLACE ";+" ";" ChimeraTK-ControlSystemAdapter_LIBRARIES "${ChimeraTK-ControlSystemAdapter_LIBRARIES}")
+message("referenceTestDoocsServer link-libs:${PROJECT_NAME};${doocsLibraries};${ChimeraTK-ControlSystemAdapter_LIBRARIES};${Boost_LIBRARIES}")
+target_link_libraries(referenceTestDoocsServer PRIVATE ${PROJECT_NAME} ${doocsLibraries} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} )
+
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
 
