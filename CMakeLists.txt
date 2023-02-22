@@ -1,6 +1,5 @@
 PROJECT(ChimeraTK-ControlSystemAdapter-DoocsAdapter)
 cmake_minimum_required(VERSION 2.8)
-cmake_policy(SET CMP0028 NEW) # disables a warning
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
@@ -17,6 +16,7 @@ set(PROVIDES_EXPORTED_TARGETS 1)
 include(cmake/format_options.cmake)
 # linker flags
 # TODO check - does this get exported? I guess not. But I don't know if it needs to be.
+#  result: no, currently it's not exported 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
 include(cmake/add_dependency.cmake)
@@ -53,13 +53,24 @@ IF(BUILD_TESTS)
   FIND_PACKAGE(Boost COMPONENTS unit_test_framework REQUIRED)
   ENABLE_TESTING()
 ENDIF()
-
-# TODO -remove this? It might be problematic with exports
-include_directories(${CMAKE_SOURCE_DIR}/include)
-
+  
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/include/*.h")
 set(library_sources ${library_sources} ${headers})
+
+# first define C++ library, will be referenced by tests
+add_library(${PROJECT_NAME} SHARED ${library_sources} )
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${privateSystemIncludes})
+# TODO we probably need to change this to make exported config relocatable
+target_include_directories(${PROJECT_NAME} PUBLIC 
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>")
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
+# since we refer to imported target ChimeraTK::ChimeraTK-ControlSystemAdapter, CXX flags etc are pulled in automatically
+target_link_libraries(${PROJECT_NAME} PUBLIC ${DOOCS_LIBRARIES} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
+
+# do not remove runtime path of the library when installing
+set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Create the executables for automated unit testing.
 # Currently we assume that they are all tests contained in one file, so
@@ -92,16 +103,6 @@ if(BUILD_TESTS)
 endif()
 
 include(cmake/enable_doxygen_documentation.cmake)
-
-# C++ library
-add_library(${PROJECT_NAME} SHARED ${library_sources} )
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${privateSystemIncludes})
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
-# since we refer to imported target ChimeraTK::ChimeraTK-ControlSystemAdapter, CXX flags etc are pulled in automatically
-target_link_libraries(${PROJECT_NAME} PUBLIC ${DOOCS_LIBRARIES} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
-
-# do not remove runtime path of the library when installing
-set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
