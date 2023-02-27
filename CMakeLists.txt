@@ -29,11 +29,7 @@ add_dependency(doocs-server-test-helper 01.05 REQUIRED)
 formatOptionsAsArray(testHelperLinkerFlags ${doocs-server-test-helper_LINKER_FLAGS})
 formatOptionsAsArray(testHelperLibraries ${doocs-server-test-helper_LIBRARIES})
 
-add_dependency(DOOCS 22.05.0 COMPONENTS server REQUIRED)
-# we need the options as cmake-array - this conversion will go away once we have proper imported target for DOOCS
-# include dirs, library dirs and cxx flags are automatically pulled in globally => leave out here
-formatOptionsAsArray(doocsLinkerFlags ${DOOCS_LINKER_FLAGS})
-formatOptionsAsArray(doocsLibraries ${DOOCS_LIBRARIES})
+FIND_PACKAGE(DOOCS 22.05.0 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
@@ -65,7 +61,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     "$<INSTALL_INTERFACE:include>")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
 # since we refer to imported target ChimeraTK::ChimeraTK-ControlSystemAdapter, CXX flags etc are pulled in automatically
-target_link_libraries(${PROJECT_NAME} PUBLIC ${DOOCS_LIBRARIES} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
+target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::DOOCS PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
 # do not remove runtime path of the library when installing
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -84,7 +80,7 @@ if(BUILD_TESTS)
     add_executable(${excutableName} ${testExecutableSrcFile})
     target_include_directories(${excutableName} SYSTEM PRIVATE ${privateSystemIncludes})
     target_include_directories(${excutableName} PRIVATE ${CMAKE_SOURCE_DIR}/tests/include)
-    target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags" ${doocsLinkerFlags} ${testHelperLinkerFlags})
+    target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags"  ${testHelperLinkerFlags})
     target_link_libraries(${excutableName} PRIVATE ${PROJECT_NAME} ${testHelperLibraries})
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
@@ -104,8 +100,7 @@ include(cmake/enable_doxygen_documentation.cmake)
 
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
-target_link_options(referenceTestDoocsServer PRIVATE ${doocsLinkerFlags})
-target_link_libraries(referenceTestDoocsServer PRIVATE ${PROJECT_NAME} ${doocsLibraries} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} )
+target_link_libraries(referenceTestDoocsServer PRIVATE ${PROJECT_NAME} ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} )
 
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
