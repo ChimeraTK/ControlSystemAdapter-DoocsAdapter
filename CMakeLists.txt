@@ -1,5 +1,5 @@
 PROJECT(ChimeraTK-ControlSystemAdapter-DoocsAdapter)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.16)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
@@ -14,9 +14,7 @@ include(cmake/set_default_flags.cmake)
 # we support our cmake EXPORTS as imported targets
 set(PROVIDES_EXPORTED_TARGETS 1)
 include(cmake/format_options.cmake)
-# linker flags
-# TODO check - does this get exported? I guess not. But I don't know if it needs to be.
-#  result: no, currently it's not exported 
+# global linker flags. Note, this is not exported.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
 include(cmake/add_dependency.cmake)
@@ -26,7 +24,7 @@ include(cmake/enable_code_style_check.cmake)
 FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.05 REQUIRED)
 
 add_dependency(doocs-server-test-helper 01.05 REQUIRED)
-# we need the options as cmake-array - this conversion will go away once we have proper imported target for doocs-server-test-helper
+# we need the options as array - this conversion will go away once we have proper imported target for doocs-server-test-helper
 # include dirs, library dirs and cxx flags are automatically pulled in globally => leave out here
 formatOptionsAsArray(testHelperLinkerFlags ${doocs-server-test-helper_LINKER_FLAGS})
 formatOptionsAsArray(testHelperLibraries ${doocs-server-test-helper_LIBRARIES})
@@ -61,10 +59,10 @@ set(library_sources ${library_sources} ${headers})
 # first define C++ library, will be referenced by tests
 add_library(${PROJECT_NAME} SHARED ${library_sources} )
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${privateSystemIncludes})
-# TODO we probably need to change this to make exported config relocatable
 target_include_directories(${PROJECT_NAME} PUBLIC 
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>")
+    # relative to ${CMAKE_INSTALL_PREFIX} but don't explicitly mention it
+    "$<INSTALL_INTERFACE:include>")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
 # since we refer to imported target ChimeraTK::ChimeraTK-ControlSystemAdapter, CXX flags etc are pulled in automatically
 target_link_libraries(${PROJECT_NAME} PUBLIC ${DOOCS_LIBRARIES} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
@@ -106,9 +104,8 @@ include(cmake/enable_doxygen_documentation.cmake)
 
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
-message("global cxx flags:${CMAKE_CXX_FLAGS}")
 target_link_options(referenceTestDoocsServer PRIVATE ${doocsLinkerFlags})
-target_link_libraries(referenceTestDoocsServer PRIVATE ${PROJECT_NAME} PUBLIC ${doocsLibraries} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter PUBLIC ${Boost_LIBRARIES} )
+target_link_libraries(referenceTestDoocsServer PRIVATE ${PROJECT_NAME} ${doocsLibraries} PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} )
 
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
@@ -134,4 +131,3 @@ set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-Contro
 set(${PROJECT_NAME}_CXX_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS}")
 set(${PROJECT_NAME}_LINKER_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
-
