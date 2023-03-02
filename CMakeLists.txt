@@ -36,9 +36,8 @@ FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 # libXML++ is used for parsing/writing XML files
 FIND_PACKAGE(PkgConfig REQUIRED)
 set(LIBXML++_VERSION "libxml++-2.6")
-PKG_CHECK_MODULES(LibXML++ REQUIRED ${LIBXML++_VERSION})
-PKG_CHECK_MODULES(glib REQUIRED glib-2.0)
-set(privateSystemIncludes "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_INCLUDE_DIRS} ${LibXML++_INCLUDE_DIRS})
+PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
+PKG_CHECK_MODULES(glib REQUIRED IMPORTED_TARGET glib-2.0)
 
 #For some reason the system library has to be mentioned explicitly to the linker.
 #This is strange because the thead library has it as a dependency.
@@ -54,7 +53,6 @@ set(library_sources ${library_sources} ${headers})
 
 # first define C++ library, will be referenced by tests
 add_library(${PROJECT_NAME} SHARED ${library_sources} )
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${privateSystemIncludes})
 target_include_directories(${PROJECT_NAME} PUBLIC 
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
     # relative to ${CMAKE_INSTALL_PREFIX} but don't explicitly mention it
@@ -63,7 +61,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_
 # since we refer to imported target ChimeraTK::ChimeraTK-ControlSystemAdapter, CXX flags etc are pulled in automatically
 target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::DOOCS PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
-# do not remove runtime path of the library when installing
+# do not remove runtime paths of the library when installing (helps for unsually located implicit dependencies)
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Create the executables for automated unit testing.
@@ -78,10 +76,11 @@ if(BUILD_TESTS)
     get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
-    target_include_directories(${excutableName} SYSTEM PRIVATE ${privateSystemIncludes})
     target_include_directories(${excutableName} PRIVATE ${CMAKE_SOURCE_DIR}/tests/include)
     target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags"  ${testHelperLinkerFlags})
-    target_link_libraries(${excutableName} PRIVATE ${PROJECT_NAME} ${testHelperLibraries})
+    target_link_libraries(${excutableName} 
+        PRIVATE ${PROJECT_NAME} ${testHelperLibraries}
+        PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
@@ -100,10 +99,17 @@ include(cmake/enable_doxygen_documentation.cmake)
 
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
-target_link_libraries(referenceTestDoocsServer PRIVATE ${PROJECT_NAME} ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} )
+target_link_libraries(referenceTestDoocsServer 
+    PRIVATE ${PROJECT_NAME} ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} 
+    PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
 
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
+# TODO - remove again when done with testing: 
+# install referenceTestDoocsServer for testing of rpath
+set_property(TARGET referenceTestDoocsServer PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
+install(TARGETS referenceTestDoocsServer
+    RUNTIME DESTINATION bin)
 
 #Install the library and the executables
 install( TARGETS ${PROJECT_NAME}
