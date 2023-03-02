@@ -11,30 +11,24 @@ include(cmake/set_version_numbers.cmake)
 include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 
-# we support our cmake EXPORTS as imported targets
-set(PROVIDES_EXPORTED_TARGETS 1)
 include(cmake/format_options.cmake)
 # global linker flags. Note, this is not exported.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
-include(cmake/add_dependency.cmake)
 include(cmake/enable_code_coverage_report.cmake)
 include(cmake/enable_code_style_check.cmake)
 
 FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.05 REQUIRED)
 
-add_dependency(doocs-server-test-helper 01.05 REQUIRED)
-# we need the options as array - this conversion will go away once we have proper imported target for doocs-server-test-helper
-# include dirs, library dirs and cxx flags are automatically pulled in globally => leave out here
-formatOptionsAsArray(testHelperLinkerFlags ${doocs-server-test-helper_LINKER_FLAGS})
-formatOptionsAsArray(testHelperLibraries ${doocs-server-test-helper_LIBRARIES})
+FIND_PACKAGE(doocs-server-test-helper 01.05 REQUIRED)
 
 FIND_PACKAGE(DOOCS 22.05.0 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
-# libXML++ is used for parsing/writing XML files
 FIND_PACKAGE(PkgConfig REQUIRED)
+# note, libxml++ is already used in ControlSystemAdapter but set as PRIVATE. 
+# It makes sinse to keep versions in sync.
 set(LIBXML++_VERSION "libxml++-2.6")
 PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
 PKG_CHECK_MODULES(glib REQUIRED IMPORTED_TARGET glib-2.0)
@@ -58,8 +52,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     # relative to ${CMAKE_INSTALL_PREFIX} but don't explicitly mention it
     "$<INSTALL_INTERFACE:include>")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
-# since we refer to imported target ChimeraTK::ChimeraTK-ControlSystemAdapter, CXX flags etc are pulled in automatically
-target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::DOOCS PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
+# with imported targets, CXX flags etc are pulled in automatically
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE PkgConfig::LibXML++
+    # public seems to be necessary otherwise weird linker errors downstream
+    PUBLIC ChimeraTK::DOOCS 
+    # we make this public because of implicitly carried DeviceAccess compile flags, needed e.g. for tests
+    PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
 # do not remove runtime paths of the library when installing (helps for unsually located implicit dependencies)
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -77,9 +76,9 @@ if(BUILD_TESTS)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
     target_include_directories(${excutableName} PRIVATE ${CMAKE_SOURCE_DIR}/tests/include)
-    target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags"  ${testHelperLinkerFlags})
+    target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags")
     target_link_libraries(${excutableName} 
-        PRIVATE ${PROJECT_NAME} ${testHelperLibraries}
+        PRIVATE ${PROJECT_NAME} ChimeraTK::doocs-server-test-helper
         PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
@@ -126,9 +125,16 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/${PROJECT_NA
          PATTERN "${PROJECT_NAME}" EXCLUDE )
 
 # generate cmake config so other projects can find this library
+# (this section is for compatibility only, no longer required when consuming project uses imported target)
 set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${ChimeraTK-ControlSystemAdapter_INCLUDE_DIRS}")
 set(${PROJECT_NAME}_LIBRARIES "${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES}")
 set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-ControlSystemAdapter_LIBRARY_DIRS} ${DOOCS_LIBRARY_DIRS}")
 set(${PROJECT_NAME}_CXX_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS}")
 set(${PROJECT_NAME}_LINKER_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
+# (end of compatibility section)
+
+# we support our cmake EXPORTS as imported targets
+set(PROVIDES_EXPORTED_TARGETS 1)
+# we need the public dependencies so create_cmake_config_files can find them as implicit dependencies
+#list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
