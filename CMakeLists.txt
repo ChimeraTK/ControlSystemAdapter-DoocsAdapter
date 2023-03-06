@@ -56,7 +56,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE PkgConfig::LibXML++
     # public seems to be necessary otherwise weird linker errors downstream
-    PUBLIC ChimeraTK::DOOCS 
+    PUBLIC DOOCS::server 
     # we make this public because of implicitly carried DeviceAccess compile flags, needed e.g. for tests
     PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
@@ -136,5 +136,5 @@ set(${PROJECT_NAME}_LINKER_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS}
 # we support our cmake EXPORTS as imported targets
 set(PROVIDES_EXPORTED_TARGETS 1)
 # we need the public dependencies so create_cmake_config_files can find them as implicit dependencies
-#list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "")
+list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "DOOCS Components server;ChimeraTK-ControlSystemAdapter")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
