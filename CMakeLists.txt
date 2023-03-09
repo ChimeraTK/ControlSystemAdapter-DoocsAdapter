@@ -128,5 +128,5 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/${PROJECT_NA
 # we support our cmake EXPORTS as imported targets
 set(PROVIDES_EXPORTED_TARGETS 1)
 # we need the public dependencies so create_cmake_config_files can find them as implicit dependencies
-list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "DOOCS Components server;ChimeraTK-ControlSystemAdapter")
+list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "DOOCS COMPONENTS server;ChimeraTK-ControlSystemAdapter")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
