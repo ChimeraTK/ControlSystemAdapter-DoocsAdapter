@@ -104,12 +104,6 @@ target_link_libraries(referenceTestDoocsServer
 
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
-# TODO - remove again when done with testing: 
-# install referenceTestDoocsServer for testing of rpath
-set_property(TARGET referenceTestDoocsServer PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
-install(TARGETS referenceTestDoocsServer
-    RUNTIME DESTINATION bin)
-
 #Install the library and the executables
 install( TARGETS ${PROJECT_NAME}
          EXPORT ${PROJECT_NAME}Targets
