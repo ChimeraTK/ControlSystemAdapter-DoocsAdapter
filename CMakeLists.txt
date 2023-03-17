@@ -12,8 +12,6 @@ include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 
 include(cmake/format_options.cmake)
-# global linker flags. Note, this is not exported.
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
 include(cmake/enable_code_coverage_report.cmake)
 include(cmake/enable_code_style_check.cmake)
