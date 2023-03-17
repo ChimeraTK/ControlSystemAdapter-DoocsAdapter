@@ -31,7 +31,6 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 # It makes sinse to keep versions in sync.
 set(LIBXML++_VERSION "libxml++-2.6")
 PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
-PKG_CHECK_MODULES(glib REQUIRED IMPORTED_TARGET glib-2.0)
 
 #For some reason the system library has to be mentioned explicitly to the linker.
 #This is strange because the thead library has it as a dependency.
@@ -78,7 +77,7 @@ if(BUILD_TESTS)
     target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags")
     target_link_libraries(${excutableName} 
         PRIVATE ${PROJECT_NAME} ChimeraTK::doocs-server-test-helper
-        PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
+        PRIVATE PkgConfig::LibXML++)
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
@@ -99,7 +98,7 @@ include(cmake/enable_doxygen_documentation.cmake)
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
 target_link_libraries(referenceTestDoocsServer 
     PRIVATE ${PROJECT_NAME} ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} 
-    PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
+    PRIVATE PkgConfig::LibXML++)
 
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
