@@ -1,35 +1,34 @@
 PROJECT(ChimeraTK-ControlSystemAdapter-DoocsAdapter)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.16)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
-set(${PROJECT_NAME}_MINOR_VERSION 07)
-set(${PROJECT_NAME}_PATCH_VERSION 01)
+set(${PROJECT_NAME}_MINOR_VERSION 08)
+set(${PROJECT_NAME}_PATCH_VERSION 00)
 include(cmake/set_version_numbers.cmake)
 
 include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 
-# linker flags
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
+include(cmake/format_options.cmake)
 
-include(cmake/add_dependency.cmake)
 include(cmake/enable_code_coverage_report.cmake)
 include(cmake/enable_code_style_check.cmake)
 
-add_dependency(ChimeraTK-ControlSystemAdapter 02.05 REQUIRED)
-add_dependency(doocs-server-test-helper 01.05 REQUIRED)
-add_dependency(DOOCS 22.05.0 COMPONENTS server REQUIRED)
+FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.06 REQUIRED)
+
+FIND_PACKAGE(doocs-server-test-helper 01.06 REQUIRED)
+
+FIND_PACKAGE(DOOCS 22.11 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 
-# libXML++ is used for parsing/writing XML files
 FIND_PACKAGE(PkgConfig REQUIRED)
+# note, libxml++ is already used in ControlSystemAdapter but set as PRIVATE. 
+# It makes sinse to keep versions in sync.
 set(LIBXML++_VERSION "libxml++-2.6")
-PKG_CHECK_MODULES(LibXML++ REQUIRED ${LIBXML++_VERSION})
-PKG_CHECK_MODULES(glib REQUIRED glib-2.0)
-include_directories(SYSTEM "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_INCLUDE_DIRS} ${LibXML++_INCLUDE_DIRS})
+PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
 
 #For some reason the system library has to be mentioned explicitly to the linker.
 #This is strange because the thead library has it as a dependency.
@@ -38,14 +37,27 @@ IF(BUILD_TESTS)
   FIND_PACKAGE(Boost COMPONENTS unit_test_framework REQUIRED)
   ENABLE_TESTING()
 ENDIF()
-
-
-include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/include ${CMAKE_SOURCE_DIR}/example)
-set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
-
+  
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/include/*.h")
 set(library_sources ${library_sources} ${headers})
+
+# first define C++ library, will be referenced by tests
+add_library(${PROJECT_NAME} SHARED ${library_sources} )
+target_include_directories(${PROJECT_NAME} PUBLIC 
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
+    # relative to ${CMAKE_INSTALL_PREFIX} but don't explicitly mention it
+    "$<INSTALL_INTERFACE:include>")
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
+# with imported targets, CXX flags etc are pulled in automatically
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE PkgConfig::LibXML++
+    PRIVATE DOOCS::server 
+    # we make this public because of implicitly carried DeviceAccess compile flags, needed e.g. for tests
+    PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
+
+# do not remove runtime paths of the library when installing (helps for unsually located implicit dependencies)
+set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Create the executables for automated unit testing.
 # Currently we assume that they are all tests contained in one file, so
@@ -59,9 +71,11 @@ if(BUILD_TESTS)
     get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile})
-    set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS} ${doocs-server-test-helper_CXX_FLAGS}")
-    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "-Wl,-rpath=${CMAKE_BINARY_DIR},--enable-new-dtags ${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS} ${doocs-server-test-helper_LINKER_FLAGS}")
-    target_link_libraries(${excutableName} ${PROJECT_NAME} ${doocs-server-test-helper_LIBRARIES})
+    target_include_directories(${excutableName} PRIVATE ${CMAKE_SOURCE_DIR}/tests/include)
+    target_link_options(${excutableName} PRIVATE "-Wl,--enable-new-dtags")
+    target_link_libraries(${excutableName} 
+        PRIVATE ${PROJECT_NAME} ChimeraTK::doocs-server-test-helper
+        PRIVATE PkgConfig::LibXML++)
     add_test(${excutableName} ${excutableName})
   endforeach( testExecutableSrcFile )
 
@@ -78,41 +92,31 @@ endif()
 
 include(cmake/enable_doxygen_documentation.cmake)
 
-# C++ library
-add_library(${PROJECT_NAME} SHARED ${library_sources} )
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-target_link_libraries(${PROJECT_NAME} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES})
-
-# do not remove runtime path of the library when installing
-set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 # build the reference test doocs server
 add_executable(referenceTestDoocsServer ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.cc)
-set_target_properties(referenceTestDoocsServer PROPERTIES COMPILE_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-set_target_properties(referenceTestDoocsServer PROPERTIES LINK_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
-target_link_libraries(referenceTestDoocsServer ${PROJECT_NAME} ${DOOCS_LIBRARIES} ${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${Boost_LIBRARIES} )
-FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
+target_link_libraries(referenceTestDoocsServer 
+    PRIVATE ${PROJECT_NAME} ChimeraTK::ChimeraTK-ControlSystemAdapter ${Boost_LIBRARIES} 
+    PRIVATE PkgConfig::LibXML++)
 
+FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
 #Install the library and the executables
 install( TARGETS ${PROJECT_NAME}
+         EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION bin
-             LIBRARY DESTINATION lib )
+         LIBRARY DESTINATION lib )
 
 #all include files go into include/PROJECT_NAME
 #The exclusion of ${PROJECT_NAME} prevents the recursive installation of the files just being installed.
 #The original headers are in include/*.h, the installed ones in include/PROJECT_NAME/*.h.
-install( DIRECTORY ${${PROJECT_NAME}_INCLUDE_DIRS} DESTINATION include/${PROJECT_NAME}
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/${PROJECT_NAME}
          FILES_MATCHING PATTERN "*.h"
          PATTERN ".svn" EXCLUDE
          PATTERN "${PROJECT_NAME}" EXCLUDE )
 
 # generate cmake config so other projects can find this library
-set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${ChimeraTK-ControlSystemAdapter_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_LIBRARIES "${ChimeraTK-ControlSystemAdapter_LIBRARIES} ${DOOCS_LIBRARIES}")
-set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-ControlSystemAdapter_LIBRARY_DIRS} ${DOOCS_LIBRARY_DIRS}")
-set(${PROJECT_NAME}_CXX_FLAGS "${ChimeraTK-ControlSystemAdapter_CXX_FLAGS}")
-set(${PROJECT_NAME}_LINKER_FLAGS "${ChimeraTK-ControlSystemAdapter_LINKER_FLAGS} ${DOOCS_LINKER_FLAGS}")
+# we support our cmake EXPORTS as imported targets
+set(PROVIDES_EXPORTED_TARGETS 1)
+# we need the public dependencies so create_cmake_config_files can find them as implicit dependencies
+list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "ChimeraTK-ControlSystemAdapter")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
-
