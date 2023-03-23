@@ -101,10 +101,11 @@ target_link_libraries(referenceTestDoocsServer
 FILE( COPY ${CMAKE_SOURCE_DIR}/tests/referenceTestDoocsServer/referenceTestDoocsServer.conf DESTINATION ${PROJECT_BINARY_DIR})
 
 #Install the library and the executables
+# this defines architecture-dependent ${CMAKE_INSTALL_LIBDIR}
+include(GNUInstallDirs)
 install( TARGETS ${PROJECT_NAME}
          EXPORT ${PROJECT_NAME}Targets
-         RUNTIME DESTINATION bin
-         LIBRARY DESTINATION lib )
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
 #all include files go into include/PROJECT_NAME
 #The exclusion of ${PROJECT_NAME} prevents the recursive installation of the files just being installed.
