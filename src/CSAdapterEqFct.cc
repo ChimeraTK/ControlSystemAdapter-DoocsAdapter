@@ -105,10 +105,10 @@ namespace ChimeraTK {
             saveArray<unsigned int>(p);
             break;
           case DATA_A_LONG:
-            saveArray<long long>(p);
+            saveArray<int64_t>(p);
             break;
           case DATA_A_ULONG:
-            saveArray<unsigned long long>(p);
+            saveArray<uint64_t>(p);
             break;
           case DATA_A_FLOAT:
             saveArray<float>(p);
