@@ -113,11 +113,6 @@ namespace ChimeraTK {
       // No cast necessary if types are identical.
       dataPtr = processVector.data();
     }
-    else if constexpr(std::is_same<DOOCS_PRIMITIVE_T, int64_t>::value &&
-        std::is_same<THE_DOOCS_TYPE, long long int>::value) {
-      // Cast from int64_t to long long int (which are different types!)
-      dataPtr = reinterpret_cast<long long int*>(processVector.data());
-    }
     else if constexpr(std::is_same<DOOCS_PRIMITIVE_T, ChimeraTK::Boolean>::value &&
         std::is_same<THE_DOOCS_TYPE, bool>::value) {
       // FIXME: Is it really ok to use reinterpret_cast here?
