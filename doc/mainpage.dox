@@ -39,6 +39,10 @@ see \ref specifie_code.
 The mapping of the application variable household on to the DOOCS structure is done with a XML file. The file has to be
 called `applicationName-DoocsVariableConfig.xml` (replace `applicationName` with the name of your application).
 
+If this file is omitted, all variables will be exported to DOOCS, with the highest hierarchy level becoming the location 
+name, and the other levels being converted into a dot-separated property name (i.e. /Module2/SubModule3/property7
+becomes DOOCS property //Module2/SubModule3.property7).
+
 An example for the mapping file is:
 
 \include tests/serverTestSpectrumArray-DoocsVariableConfig.xml
