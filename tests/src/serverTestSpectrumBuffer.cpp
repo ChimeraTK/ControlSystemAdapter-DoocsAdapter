@@ -14,6 +14,7 @@
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_res.h>
 
 using namespace boost::unit_test_framework;
 using namespace boost::unit_test;

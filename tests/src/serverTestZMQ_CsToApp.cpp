@@ -12,6 +12,7 @@
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <eq_data.h>
 #include <eq_fct.h>
+#include <eq_res.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
