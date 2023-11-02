@@ -6,7 +6,7 @@
 #include "PropertyBase.h"
 #include <eq_fct.h>
 
-#include <ChimeraTK/ControlSystemAdapter/MappedImage.h>
+#include <ChimeraTK/MappedImage.h>
 
 namespace ChimeraTK {
 
