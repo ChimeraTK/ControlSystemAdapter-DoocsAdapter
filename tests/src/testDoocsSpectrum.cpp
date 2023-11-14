@@ -10,7 +10,7 @@
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+#include <ChimeraTK/TypeChangingDecorator.h>
 
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
@@ -53,7 +53,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceTest, T, simple_test_types) {
   // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise
   // is protected.
-  TestableDoocsSpectrum doocsSpectrum(NULL, "someName", getDecorator<float>(controlSystemVariable), updater);
+  TestableDoocsSpectrum doocsSpectrum(
+      NULL, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater);
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -93,7 +94,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceTest, T, simple_test_types) {
   DoocsUpdater updater;
 
   // initialise the doocs spectrum
-  DoocsSpectrum doocsSpectrum(NULL, "someName", getDecorator<float>(controlSystemVariable), updater, nullptr, nullptr);
+  DoocsSpectrum doocsSpectrum(
+      NULL, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater, nullptr, nullptr);
   for(size_t i = 0; i < arraySize; ++i) {
     doocsSpectrum.fill_spectrum(i, 0);
   }
