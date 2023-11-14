@@ -8,7 +8,7 @@
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
-#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
+#include <ChimeraTK/TypeChangingDecorator.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>

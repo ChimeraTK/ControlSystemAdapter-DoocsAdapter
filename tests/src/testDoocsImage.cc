@@ -9,8 +9,8 @@
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
-#include <ChimeraTK/ControlSystemAdapter/TypeChangingDecorator.h>
 #include <ChimeraTK/Device.h>
+#include <ChimeraTK/TypeChangingDecorator.h>
 
 #include <boost/test/unit_test.hpp>
 
