@@ -7,12 +7,12 @@
 // boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
+#include "fixMissingDoocs_eq_res.h"
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <eq_data.h>
 #include <eq_fct.h>
-#include <eq_res.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
   EqCall eq;
   EqData s, d;
   size_t counter = 0;
-  while(eq.get(&ea, &s, &d) != comp_code::ok) {
+  while(eq.get(&ea, &s, &d) != fixme::comp_code::ok) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
     if(++counter > 30) BOOST_FAIL("Timeout in waiting for server");
   }
