@@ -32,16 +32,13 @@ namespace ChimeraTK {
     boost::shared_ptr<StatusHandler> statusHandler_;
 
    public:
-    // The fctName (location name ) is usually coming from the config file and
-    // should be left empty. Only for testing without actually running a DOOCS
-    // server you need it.
-    CSAdapterEqFct(int fctCode, boost::shared_ptr<ControlSystemPVManager> const& controlSystemPVManager,
-        boost::shared_ptr<DoocsUpdater> const& updater, std::string fctName = std::string());
+    CSAdapterEqFct(const EqFctParameters& p);
     ~CSAdapterEqFct() override;
 
     void init() override;
     void post_init() override;
-    int fct_code() override;
+
+    constexpr static int code = 10; // EqFct code
 
     template<class ValueType>
     void saveArray(D_fct* p);

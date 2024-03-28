@@ -13,18 +13,18 @@
     <property name="START" source="/FLOAT/TO_DEVICE_SCALAR"/>
   </location>
 <!-- the code is set to 12 ( not default) -->
-  <location name="NEW" code="12" >
+  <location name="NEW" >
     <property name="START2" source="/DOUBLE/TO_DEVICE_SCALAR"/>
   </location>
 <!-- you can set the code, or not, but it wust be the same code as in config file -->
-  <location name="DOUBLE" code="10" >
+  <location name="DOUBLE"  >
     <D_spectrum source="FROM_DEVICE_ARRAY">
-      <start>123.</start>
       <increment>0.56</increment>
+      <start>123.</start>
     </D_spectrum>
   </location>
- 
-  <location name="DOUBLE" code="10" >
+
+  <location name="DOUBLE" >
     <property name="POOL" source="/FLOAT/TO_DEVICE_SCALAR"/>
   </location>
 </device_server>

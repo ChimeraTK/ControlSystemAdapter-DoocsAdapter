@@ -25,7 +25,8 @@ static const int ACCESS_RW = 1; // read/write
                                                                                                                        \
     static ReferenceTestApplication referenceTestApplication;                                                          \
     ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
-        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv}; \
+        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv,  \
+        doocsAdapter.createServer()};                                                                                  \
   };                                                                                                                   \
                                                                                                                        \
   ReferenceTestApplication GlobalFixture::referenceTestApplication{                                                    \
@@ -49,7 +50,8 @@ static const int ACCESS_RW = 1; // read/write
     static std::string rpcNo;                                                                                          \
     static std::string bpn;                                                                                            \
     ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
-        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv}; \
+        boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv,  \
+        doocsAdapter.createServer()};                                                                                  \
   };                                                                                                                   \
                                                                                                                        \
   ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
