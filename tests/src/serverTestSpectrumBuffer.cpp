@@ -68,7 +68,10 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, fixme::comp_code::ok);
+    if(rc != fixme::comp_code::ok) {
+      BOOST_FAIL("Error connecting to DOOCS server: " + dst.get_string());
+      return;
+    }
     BOOST_CHECK_EQUAL(dst.error(), 0);
     expectedFloatArrayValue[1] = i;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {

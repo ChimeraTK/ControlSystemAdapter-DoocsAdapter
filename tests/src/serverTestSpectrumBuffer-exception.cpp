@@ -5,15 +5,12 @@
 
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
-
-extern const char* object_name;
-
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <eq_client.h>
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 #include <random>
 #include <thread>
@@ -22,10 +19,6 @@ using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
 
 static ReferenceTestApplication referenceTestApplication("serverTestSpectrumBuffer-exception");
-
-/**********************************************************************************************************************/
-
-extern int eq_server(int, char**);
 
 /**********************************************************************************************************************/
 
@@ -43,8 +36,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // staring the server should cause the exception
   try {
-    object_name = "serverTestSpectrumBuffer-exception";
-    eq_server(
+    doocsAdapter.createServer()->run(
         boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
     BOOST_ERROR("Exception expected");
   }

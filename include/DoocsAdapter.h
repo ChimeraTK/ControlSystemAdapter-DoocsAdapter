@@ -3,6 +3,7 @@
 #pragma once
 
 #include "PropertyBase.h"
+#include <doocs/Server.h>
 #include <eq_fct.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
@@ -43,9 +44,18 @@ namespace ChimeraTK {
     // Note: this is cleared in post_init_epilog() to save memory.
     std::map<std::string, std::set<boost::shared_ptr<PropertyBase>>> writeableVariablesWithMultipleProperties;
 
+    // create the doocs::Server object
+    std::unique_ptr<doocs::Server> createServer();
+
+    boost::shared_ptr<ControlSystemPVManager> getControlSystemPVManager() { return _controlSystemPVManager; }
+
+    void eq_init_prolog();
+    void post_init_epilog();
+    void eq_cancel();
+
    protected:
-    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
     boost::shared_ptr<DevicePVManager> _devicePVManager;
+    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
 
     // flag whether before_auto_init() has already been called.
     bool before_auto_init_called{false};

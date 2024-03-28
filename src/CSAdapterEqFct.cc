@@ -15,19 +15,8 @@ namespace ChimeraTK {
 
   bool CSAdapterEqFct::emptyLocationVariablesHandled = false;
 
-  CSAdapterEqFct::CSAdapterEqFct(int fctCode, boost::shared_ptr<ControlSystemPVManager> const& controlSystemPVManager,
-      boost::shared_ptr<DoocsUpdater> const& updater, std::string fctName)
-  // The second argument in EqFct has to be a pointer to string, and NULL
-  // pointer is used when the name is coming from the config file. This
-  // interface is so ugly that I changed it to std::string and need the ?:
-  // trick to get a NULL pointer in if the string is empty
-  : EqFct("NAME = CSAdapterEqFct"), controlSystemPVManager_(controlSystemPVManager), fctCode_(fctCode),
-    updater_(updater) {
-    // When testing the EqFct stand alone, the name is not set properly. Do this
-    // with the additional parameter of this constructor.
-    if(name().empty()) {
-      name_.assign(fctName);
-    }
+  CSAdapterEqFct::CSAdapterEqFct(const EqFctParameters& p)
+  : EqFct(p), controlSystemPVManager_(doocsAdapter.getControlSystemPVManager()), updater_(doocsAdapter.updater) {
     registerProcessVariablesInDoocs();
 
     // construct and populate the StatusHandler for this location
@@ -69,10 +58,6 @@ namespace ChimeraTK {
         }
       }
     }
-  }
-
-  int CSAdapterEqFct::fct_code() {
-    return fctCode_;
   }
 
   int CSAdapterEqFct::write(std::ostream& fprt) {

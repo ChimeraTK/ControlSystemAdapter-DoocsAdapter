@@ -539,9 +539,9 @@ namespace ChimeraTK {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": Unknown code '" + locationCodeAttribute->get_value() + "'");
       }
-      if(locationCode < 2) {
+      if(locationCode != 10) {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": code '" +
-            locationCodeAttribute->get_value() + "' must be > 1, in doocs 1 is reserved for server");
+            locationCodeAttribute->get_value() + "' must be always equal to 10 now (or just left out), sorry!");
       }
 
       auto result = _inputLocationAndCode.insert(std::pair<std::string, int>(locationName, locationCode));
