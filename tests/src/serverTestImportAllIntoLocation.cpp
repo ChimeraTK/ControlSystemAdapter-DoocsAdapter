@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
   //  for (auto const directory : { "CHAR", "DOUBLE", "FLOAT", "INT", "SHORT",
   //  "UCHAR", "UINT", "USHORT"} ){
   for(auto const directory : {"DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT", "CHAR"}) {
-    for(auto const variable : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "}) {
+    for(auto const variable : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
       // if this throws the property does not exist. we should always be able to
       // read"
       std::cout << "testing existence of " << std::string("//MASTER/") + directory + "." + variable << std::endl;

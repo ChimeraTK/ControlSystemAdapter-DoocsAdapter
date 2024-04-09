@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
   }
 
   for(auto const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
-    for(auto const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY "}) {
+    for(auto const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
       // if this throws the property does not exist. we should always be able to
       // read"
       BOOST_CHECK_NO_THROW(
