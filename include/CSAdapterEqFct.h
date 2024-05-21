@@ -21,7 +21,6 @@ namespace ChimeraTK {
   class CSAdapterEqFct : public EqFct, boost::noncopyable {
    protected:
     boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
-    int fctCode_;
     std::map<std::shared_ptr<ChimeraTK::PropertyDescription>, boost::shared_ptr<D_fct>> doocsProperties_;
     void registerProcessVariablesInDoocs();
     std::vector<ChimeraTK::ProcessVariable::SharedPtr> getProcessVariablesInThisLocation();
@@ -37,6 +36,8 @@ namespace ChimeraTK {
 
     void init() override;
     void post_init() override;
+
+    int fct_code() override { return code; }
 
     constexpr static int code = 10; // EqFct code
 
