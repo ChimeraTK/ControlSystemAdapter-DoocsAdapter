@@ -80,7 +80,8 @@ namespace ChimeraTK {
     // let the DOOCS_T set function do all the dirty work and use the
     // get_value function afterwards to get the already assigned value
     _processScalar->accessData(0) = this->value();
-    _processScalar->write();
+    auto timestamp = DOOCS_T::get_timestamp().to_time_point();
+    _processScalar->write(VersionNumber(timestamp));
 
     updateOthers(true);
 

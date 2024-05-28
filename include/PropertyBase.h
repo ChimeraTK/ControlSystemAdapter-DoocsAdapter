@@ -119,7 +119,8 @@ namespace ChimeraTK {
         processVector[i] = dfct->value(i);
       }
     }
-    processArray->write();
+    auto timestamp = dfct->get_timestamp().to_time_point();
+    processArray->write(VersionNumber(timestamp));
 
     // Correct property length in case of a mismatch.
     if(doocsLen != processVector.size()) {

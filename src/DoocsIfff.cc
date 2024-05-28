@@ -141,7 +141,8 @@ namespace ChimeraTK {
     _f3Value->accessData(0) = ifff->f3_data;
 
     // write all with the same version number
-    VersionNumber v = {};
+    auto timestamp = DoocsIfff::get_timestamp().to_time_point();
+    VersionNumber v(timestamp);
     _i1Value->write(v);
     _f1Value->write(v);
     _f2Value->write(v);
