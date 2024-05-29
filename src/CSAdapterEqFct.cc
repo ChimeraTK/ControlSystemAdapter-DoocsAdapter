@@ -15,8 +15,9 @@ namespace ChimeraTK {
 
   bool CSAdapterEqFct::emptyLocationVariablesHandled = false;
 
-  CSAdapterEqFct::CSAdapterEqFct(const EqFctParameters& p)
-  : EqFct(p), controlSystemPVManager_(doocsAdapter.getControlSystemPVManager()), updater_(doocsAdapter.updater) {
+  CSAdapterEqFct::CSAdapterEqFct(int code, const EqFctParameters& p)
+  : EqFct(p), controlSystemPVManager_(doocsAdapter.getControlSystemPVManager()), updater_(doocsAdapter.updater),
+    _code(code) {
     registerProcessVariablesInDoocs();
 
     // construct and populate the StatusHandler for this location

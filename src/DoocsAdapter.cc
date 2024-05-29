@@ -104,7 +104,21 @@ namespace ChimeraTK {
     server->set_post_init_epilog([&] { this->post_init_epilog(); });
     server->set_cancel_epilog([&] { this->eq_cancel(); });
 
-    server->register_location_class<ChimeraTK::CSAdapterEqFct>();
+    // This is a work-around for not being able to create the same location type for any arbitrary location code
+    // found in the conf file. It works as long as the largest code is below 10000. The registration here takes
+    // around 1ms on a standard MicroTCA AMC CPU.
+    // See: https://mcs-gitlab.desy.de/doocs/doocs-core-libraries/serverlib/-/issues/79
+    for(int c = 2; c < 10000; ++c) {
+      server->register_location_class(
+          c, [=](const EqFctParameters& p) { return std::make_unique<CSAdapterEqFct>(c, p); });
+    }
+    // The DCM server uses the code 5522228 = 0x544334 = 'TC4', so we register it here as well. Need to remove this
+    // temporary hack ASAP!
+    server->register_location_class(
+        5522228, [=](const EqFctParameters& p) { return std::make_unique<CSAdapterEqFct>(5522228, p); });
+
+    // Note: We cannot go back to use eq_create(), since we have link order issues and sometimes the wrong mplementation
+    // might win (the default implementation from the serverlib, which terminates the server with an error message).
 
     return server;
   }

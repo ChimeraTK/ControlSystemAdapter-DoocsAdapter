@@ -31,16 +31,17 @@ namespace ChimeraTK {
     boost::shared_ptr<StatusHandler> statusHandler_;
 
    public:
-    CSAdapterEqFct(const EqFctParameters& p);
+    CSAdapterEqFct(int code, const EqFctParameters& p);
     ~CSAdapterEqFct() override;
 
     void init() override;
     void post_init() override;
 
-    int fct_code() override { return code; }
+    int fct_code() override { return _code; }
 
-    constexpr static int code = 10; // EqFct code
-
+   private:
+    int _code; // EqFct code
+   public:
     template<class ValueType>
     void saveArray(D_fct* p);
     int write(std::ostream& fprt) override;
