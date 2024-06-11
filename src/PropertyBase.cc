@@ -68,9 +68,10 @@ namespace ChimeraTK {
     doocs::Timestamp timestamp = getTimestamp();
     auto* d_fct = getDfct();
     // Make sure we never send out two absolute identical time stamps. If we would do so, the "watchdog" which
-    // corrects inconsistencies in ZeroMQ subscriptions between sender and subcriber cannot detect the inconsistency.
-    if(d_fct->get_timestamp() == timestamp) {
-      timestamp += std::chrono::microseconds(1);
+    // corrects inconsistencies in ZeroMQ subscriptions between sender and subscriber cannot detect the inconsistency.
+    // This check also enforces that the timestamp is always increasing (never going backwards in time)
+    if(timestamp <= d_fct->get_timestamp()) {
+      timestamp = d_fct->get_timestamp() + std::chrono::microseconds(1);
     }
 
     // update global time stamp of DOOCS, but only if our time stamp is newer
