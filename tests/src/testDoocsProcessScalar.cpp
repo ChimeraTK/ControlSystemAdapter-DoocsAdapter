@@ -18,6 +18,7 @@
 
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
+#include <doocs/EqFctTest.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -26,7 +27,7 @@ using namespace ChimeraTK;
 // The list of types is an mpl type
 typedef boost::mpl::list<int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t> integer_test_types;
 
-EqFct myLocation;
+doocs::EqFctTest myLocation;
 
 BOOST_AUTO_TEST_SUITE(DoocsProcessScalarTestSuite)
 
