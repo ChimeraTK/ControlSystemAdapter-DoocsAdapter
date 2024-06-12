@@ -14,6 +14,7 @@
 #include "emptyServerFunctions.h"
 #include "getAllVariableNames.h"
 #include "PropertyDescription.h"
+#include <doocs/EqFctTest.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
@@ -33,7 +34,7 @@ using boost::shared_ptr;
 typedef boost::mpl::list<int64_t, uint64_t, int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t, float, double>
     simple_test_types;
 
-EqFct myEqFct("MY_EQ_FCT");
+doocs::EqFctTest myEqFct("MY_EQ_FCT");
 
 template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
 static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const& propertyDescription,
