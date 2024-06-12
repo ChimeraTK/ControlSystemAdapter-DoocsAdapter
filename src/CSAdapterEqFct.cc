@@ -52,7 +52,8 @@ namespace ChimeraTK {
       auto attrs = std::dynamic_pointer_cast<PropertyAttributes>(pair.first);
       assert(attrs != nullptr);
       if(attrs->publishZMQ) {
-        auto res = pair.second->set_mode(DMSG_EN);
+
+        auto res = pair.second->set_mode(DMSG_EN, 10);
         if(res != 0) {
           throw ChimeraTK::logic_error("Could not enable ZeroMQ messaging for variable '" + pair.first->location + "/" +
               pair.first->name + "'. Code: " + std::to_string(res));
