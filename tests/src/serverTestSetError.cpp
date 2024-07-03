@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(testErrorNoMessageSource) {
 
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
   checkWithTimeout<eq_errors>(check, no_error);
-  BOOST_CHECK(lastErrString == "ok");
+  TEST_WITH_TIMEOUT((check(), (lastErrString == "ok")));
 
   // Check fault state
   GlobalFixture::referenceTestApplication.dataValidity = DataValidity::faulty;
@@ -46,5 +46,5 @@ BOOST_AUTO_TEST_CASE(testErrorNoMessageSource) {
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
   checkWithTimeout<eq_errors>(check, not_available);
   // there must be a generic error message
-  BOOST_CHECK(lastErrString != "ok");
+  TEST_WITH_TIMEOUT((check(), (lastErrString != "ok")));
 }
