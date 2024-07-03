@@ -55,7 +55,7 @@ namespace ChimeraTK {
      * Overload the set function which is called by DOOCS to inject sending to the
      * device.
      */
-    void set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) override;
+    void set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) override;
 
     /**
      * Override the Doocs auto_init() method, which is called after initialising

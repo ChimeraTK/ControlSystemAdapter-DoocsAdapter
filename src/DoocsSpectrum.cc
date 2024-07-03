@@ -41,7 +41,7 @@ namespace ChimeraTK {
     addParameterAccessors();
   }
 
-  void DoocsSpectrum::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
+  void DoocsSpectrum::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
     if(_macroPulseNumberSource != nullptr) {
       this->set_mpnum(_macroPulseNumberSource->accessData(0));

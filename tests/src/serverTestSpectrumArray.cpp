@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
 
 static void testPropertyDoesNotExist(std::string addressString) {
   EqAdr ad;
-  EqData ed, res;
+  doocs::EqData ed, res;
   // obtain location pointer
   ad.adr(addressString.c_str());
   EqFct* eqFct = eq_get(&ad);

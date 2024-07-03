@@ -113,7 +113,7 @@ namespace ChimeraTK {
     sendZMQ(timestamp);
   }
 
-  void DoocsIfff::set(EqAdr* eqAdr, EqData* data1, EqData* data2, EqFct* eqFct) {
+  void DoocsIfff::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
     if(_macroPulseNumberSource != nullptr) {
       this->set_mpnum(_macroPulseNumberSource->accessData(0));

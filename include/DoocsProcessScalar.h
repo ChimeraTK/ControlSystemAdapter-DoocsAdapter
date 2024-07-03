@@ -33,7 +33,7 @@ namespace ChimeraTK {
     /**
      * Override the Doocs set method which is triggered by the RPC calls.
      */
-    void set(EqAdr* adr, EqData* data1, EqData* data2, EqFct* eqfct) override;
+    void set(EqAdr* adr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqfct) override;
 
     /**
      * Override the Doocs auto_init() method, which is called after initialising
@@ -64,7 +64,7 @@ namespace ChimeraTK {
   }
 
   template<typename T, typename DOOCS_T>
-  void DoocsProcessScalar<T, DOOCS_T>::set(EqAdr* adr, EqData* data1, EqData* data2, EqFct* eqfct) {
+  void DoocsProcessScalar<T, DOOCS_T>::set(EqAdr* adr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqfct) {
     // only assign the value if the variable is writeable
     // Otherwise the content displayed by Doocs and the value in the application
     // are inconsistent
