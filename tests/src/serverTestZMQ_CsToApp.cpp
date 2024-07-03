@@ -18,9 +18,9 @@
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
 struct ZmqData {
-  EqData data;
+  doocs::EqData data;
   dmsg_info_t info;
-  explicit ZmqData(EqData* d, dmsg_info_t* i) : info(*i) { data.copy_from(d); }
+  explicit ZmqData(doocs::EqData* d, dmsg_info_t* i) : info(*i) { data.copy_from(d); }
 };
 
 extern const char* object_name;
@@ -31,14 +31,14 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
 
   // TODO: move subscription boilerplate into a fixture.
   // subscribe to property with zmq.
-  EqData dst;
+  doocs::EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/TEST_LOCATION/D_SCALAR");
   dmsg_t tag;
 
   // Wait until server is available
   EqCall eq;
-  EqData s, d;
+  doocs::EqData s, d;
   size_t counter = 0;
   while(eq.get(&ea, &s, &d) != fixme::comp_code::ok) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
   using Channel = std::promise<ZmqData>;
   Channel channel;
   auto receiver = channel.get_future();
-  auto callback = [](void* c, EqData* data, dmsg_info_t* info) {
+  auto callback = [](void* c, doocs::EqData* data, dmsg_info_t* info) {
     static_cast<Channel*>(c)->set_value(ZmqData{data, info});
   };
   int err = dmsg_attach(&ea, &dst, &channel, callback, &tag);

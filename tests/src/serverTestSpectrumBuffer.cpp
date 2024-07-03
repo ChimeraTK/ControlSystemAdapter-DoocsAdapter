@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // read out the 10 updates from the buffers
   for(size_t i = 0; i < 10; ++i) {
-    EqData src, dst;
+    doocs::EqData src, dst;
     src.init();
     IIII par;
     par.i1_data = int(firstMacroPulseNumber + i);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // read out the 32 updates from the buffers
   for(size_t i = 0; i < 32; ++i) {
-    EqData src, dst;
+    doocs::EqData src, dst;
     src.init();
     IIII par;
     par.i1_data = int(firstMacroPulseNumber + i + 10);
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // try requesting macropuse with is just out of range
   {
-    EqData src, dst;
+    doocs::EqData src, dst;
     src.init();
     IIII par;
     par.i1_data = int(firstMacroPulseNumber + 9);
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // read out the 32 updates from the buffers again
   for(size_t i = 0; i < 32; ++i) {
-    EqData src, dst;
+    doocs::EqData src, dst;
     src.init();
     IIII par;
     par.i1_data = int(firstMacroPulseNumber + i + 10);

@@ -9,7 +9,7 @@
 template<class DOOCS_T, class T>
 int set_doocs_value(DOOCS_T& property, T value) {
   EqAdr adr;
-  EqData src, dest;
+  doocs::EqData src, dest;
   src.set(value);
   property.set(&adr, &src, &dest, nullptr);
   return dest.error();

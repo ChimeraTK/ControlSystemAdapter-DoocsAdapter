@@ -27,11 +27,11 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(dmsg_start();)
 template<typename ExpectedValueType>
 struct ZMQFixture {
   std::atomic<uint32_t> dataReceived = 0;
-  EqData received;
+  doocs::EqData received;
   dmsg_info_t receivedInfo{};
   std::mutex mutex;
 
-  EqData dst;
+  doocs::EqData dst;
   EqAdr ea;
 
   dmsg_t tag{};
@@ -56,7 +56,7 @@ struct ZMQFixture {
     /// of the types as listed in the HolderMap of the ReferenceTestApplication.
     ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + fromDevicePath);
     dataReceived = 0;
-    auto fun = [](void* fixture, EqData* data, dmsg_info_t* info) {
+    auto fun = [](void* fixture, doocs::EqData* data, dmsg_info_t* info) {
       auto* f = static_cast<ZMQFixture*>(fixture);
       std::lock_guard<std::mutex> lock(f->mutex);
       f->received.copy_from(data);

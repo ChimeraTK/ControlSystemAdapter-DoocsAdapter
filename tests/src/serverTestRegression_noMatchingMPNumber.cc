@@ -24,7 +24,7 @@ using namespace ChimeraTK;
 DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(dmsg_start();)
 
 static std::atomic<uint32_t> dataReceived;
-static EqData received;
+static doocs::EqData received;
 static dmsg_info_t receivedInfo;
 static std::mutex mutex;
 
@@ -57,14 +57,14 @@ BOOST_AUTO_TEST_CASE(testScalar) {
   /// written and then our values.
   size_t retryCounter = 0;
 retry:
-  EqData dst;
+  doocs::EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/TO_DEVICE_SCALAR");
   dmsg_t tag;
   dataReceived = 0;
   int err = dmsg_attach(
       &ea, &dst, nullptr,
-      [](void*, EqData* data, dmsg_info_t* info) {
+      [](void*, doocs::EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
@@ -162,14 +162,14 @@ BOOST_AUTO_TEST_CASE(testArray) {
   /// written and then our values.
   size_t retryCounter = 0;
 retry:
-  EqData dst;
+  doocs::EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/UINT/TO_DEVICE_ARRAY");
   dmsg_t tag;
   dataReceived = 0;
   int err = dmsg_attach(
       &ea, &dst, nullptr,
-      [](void*, EqData* data, dmsg_info_t* info) {
+      [](void*, doocs::EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
@@ -247,14 +247,14 @@ BOOST_AUTO_TEST_CASE(testIff) {
   /// written and then our values.
   size_t retryCounter = 0;
 retry:
-  EqData dst;
+  doocs::EqData dst;
   EqAdr ea;
   ea.adr("doocs://localhost:" + GlobalFixture::rpcNo + "/F/D/CUSTOM/IFFF");
   dmsg_t tag;
   dataReceived = 0;
   int err = dmsg_attach(
       &ea, &dst, nullptr,
-      [](void*, EqData* data, dmsg_info_t* info) {
+      [](void*, doocs::EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         receivedInfo = *info;
