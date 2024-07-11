@@ -73,7 +73,8 @@ namespace ChimeraTK {
   }
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
-  void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
+  void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::set(
+      EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     DOOCS_T::set(eqAdr, data1, data2, eqFct);
     if(_macroPulseNumberSource != nullptr) {
       this->set_mpnum(_macroPulseNumberSource->accessData(0));
