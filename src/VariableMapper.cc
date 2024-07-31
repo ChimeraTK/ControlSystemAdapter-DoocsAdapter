@@ -433,6 +433,10 @@ namespace ChimeraTK {
     errInfo.statusCodeSource = s;
     // matching status message source is found automatically by naming convention - if it exists
     errInfo.statusStringSource = s + "_message";
+    _usedInputVariables.insert(s);
+    if(_inputVariables.find(errInfo.statusStringSource) != _inputVariables.end()) {
+      _usedInputVariables.insert(errInfo.statusStringSource);
+    }
     _errorReportingInfos.push_back(errInfo);
   }
 
