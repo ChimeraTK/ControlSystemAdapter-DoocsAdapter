@@ -48,3 +48,14 @@ BOOST_AUTO_TEST_CASE(testErrorNoMessageSource) {
   // there must be a generic error message
   TEST_WITH_TIMEOUT((check(), (lastErrString != "ok")));
 }
+
+BOOST_AUTO_TEST_CASE(setErrorSourceMarkedAsUsed) {
+  // kind of a regression test for bug #11853
+  // (set_error source was thrown away in optimization step since it was not marked as used)
+  // - do not explicitly map statusCodeSource of set_error
+  // - check that statusCodeSource goes into set of used variables
+  bool setErrorSourceMarkedAsUsed =
+      GlobalFixture::referenceTestApplication._unmappedVariables.find("/INT/FROM_DEVICE_SCALAR") ==
+      GlobalFixture::referenceTestApplication._unmappedVariables.end();
+  BOOST_TEST(setErrorSourceMarkedAsUsed);
+}
