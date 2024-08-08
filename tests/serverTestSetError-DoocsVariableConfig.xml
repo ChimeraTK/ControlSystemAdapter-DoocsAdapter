@@ -2,8 +2,7 @@
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
     <location name="INT">
         <set_error statusCodeSource="/INT/FROM_DEVICE_SCALAR" />
-        <D_spectrum name="TEST" source="/FLOAT/FROM_DEVICE_ARRAY" />
+	<property name="TO_DEVICE_SCALAR" source="/INT/TO_DEVICE_SCALAR" />
     </location>
 
-    <import>/</import>
 </device_server>
