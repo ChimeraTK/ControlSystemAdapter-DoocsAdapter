@@ -12,13 +12,6 @@
 static const int ACCESS_RO = 0; // read only
 static const int ACCESS_RW = 1; // read/write
 
-// Remove this once we can get rid of xenial
-#if BOOST_VERSION < 106501
-#  define CTK_BOOST_GLOBAL_FIXTURE(f) BOOST_GLOBAL_FIXTURE(f)
-#else
-#  define CTK_BOOST_GLOBAL_FIXTURE(f) BOOST_GLOBAL_FIXTURE(f);
-#endif
-
 #define DOOCS_ADAPTER_DEFAULT_FIXTURE                                                                                  \
   struct GlobalFixture {                                                                                               \
     GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
@@ -32,7 +25,7 @@ static const int ACCESS_RW = 1; // read/write
   ReferenceTestApplication GlobalFixture::referenceTestApplication{                                                    \
       boost::unit_test::framework::master_test_suite().p_name.value};                                                  \
                                                                                                                        \
-  CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
+  BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE(codeBlockStartUp)                                   \
   struct GlobalFixture {                                                                                               \
@@ -57,7 +50,7 @@ static const int ACCESS_RW = 1; // read/write
   ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
   std::string GlobalFixture::rpcNo;                                                                                    \
   std::string GlobalFixture::bpn;                                                                                      \
-  CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
+  BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #define DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION_WITH_CODE({})
 
