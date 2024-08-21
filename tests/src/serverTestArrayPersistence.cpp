@@ -79,7 +79,7 @@ ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE
 std::string GlobalFixture::rpcNo;
 std::string GlobalFixture::bpn;
 
-CTK_BOOST_GLOBAL_FIXTURE(GlobalFixture)
+BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 // the array must have testStartValue+i at index i.
 template<class T>
