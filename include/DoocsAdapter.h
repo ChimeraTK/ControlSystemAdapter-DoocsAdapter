@@ -42,7 +42,7 @@ namespace ChimeraTK {
 
     // stores list of writable PVs which are mapped to multiple properties
     // Note: this is cleared in post_init_epilog() to save memory.
-    std::map<std::string, std::set<boost::shared_ptr<PropertyBase>>> writeableVariablesWithMultipleProperties;
+    std::map<std::string, std::set<boost::weak_ptr<PropertyBase>>> writeableVariablesWithMultipleProperties;
 
     // create the doocs::Server object
     std::unique_ptr<doocs::Server> createServer();

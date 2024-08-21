@@ -34,7 +34,7 @@ namespace ChimeraTK {
 
     /// List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS
     /// side. This is used to synchronise multi-mapped PVs.
-    std::set<boost::shared_ptr<PropertyBase>> otherPropertiesToUpdate;
+    std::set<boost::weak_ptr<PropertyBase>> otherPropertiesToUpdate;
 
    protected:
     /// Update DOOCS buffer from PVs. The given transferElementId shall be used only for checking consistency with the

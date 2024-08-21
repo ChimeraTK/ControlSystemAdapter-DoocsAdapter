@@ -86,8 +86,8 @@ namespace ChimeraTK {
 
     // connect properties which use the same writable PV to keep the property values consistent
     for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
-      for(const auto& property : group.second) {
-        auto pc = boost::dynamic_pointer_cast<D_fct>(property);
+      for(const auto& weakProperty : group.second) {
+        auto property = weakProperty.lock(); // cannot fail, DoocsAdapter has ownership via PV manager
         property->otherPropertiesToUpdate = group.second;
         property->otherPropertiesToUpdate.erase(property); // the property should not be in its own list
       }

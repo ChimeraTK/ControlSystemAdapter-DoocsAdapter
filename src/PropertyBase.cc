@@ -108,7 +108,12 @@ namespace ChimeraTK {
     if(handleLocking) {
       getEqFct()->unlock();
     }
-    for(const auto& prop : otherPropertiesToUpdate) {
+    for(const auto& weakProp : otherPropertiesToUpdate) {
+      auto prop = weakProp.lock();
+      if(!prop) {
+        // property went away, could happen in shutdown phase
+        continue;
+      }
       if(handleLocking) {
         prop->getEqFct()->lock();
       }
