@@ -145,13 +145,17 @@ struct ZMQFixture {
     }
     else if constexpr(std::is_same_v<ExpectedValueType, std::vector<int32_t>>) {
       BOOST_REQUIRE(received.length() == 10);
-      for(size_t k = 0; k < 10; ++k) BOOST_CHECK_EQUAL(received.get_int(k), expectedValue[k]);
+      for(size_t k = 0; k < 10; ++k) {
+        BOOST_CHECK_EQUAL(received.get_int(k), expectedValue[k]);
+      }
     }
     else if constexpr(std::is_same_v<ExpectedValueType, std::vector<float>>) {
       BOOST_CHECK_CLOSE(received.get_spectrum()->s_start, 123., 0.001);
       BOOST_CHECK_CLOSE(received.get_spectrum()->s_inc, 0.56, 0.001);
       BOOST_REQUIRE(received.length() == 10);
-      for(size_t k = 0; k < 10; ++k) BOOST_CHECK_CLOSE(received.get_float(k), expectedValue[k], 0.0001);
+      for(size_t k = 0; k < 10; ++k) {
+        BOOST_CHECK_CLOSE(received.get_float(k), expectedValue[k], 0.0001);
+      }
     }
     else {
       BOOST_REQUIRE(false);

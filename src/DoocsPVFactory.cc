@@ -17,11 +17,13 @@
 
 #include <boost/make_shared.hpp>
 
+#include <utility>
+
 namespace ChimeraTK {
 
   DoocsPVFactory::DoocsPVFactory(
-      EqFct* const eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> const& csPVManager)
-  : _eqFct(eqFct), _updater(updater), _controlSystemPVManager(csPVManager) {
+      EqFct* const eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> csPVManager)
+  : _eqFct(eqFct), _updater(updater), _controlSystemPVManager(std::move(csPVManager)) {
     assert(eqFct != nullptr);
   }
 
@@ -52,19 +54,19 @@ namespace ChimeraTK {
     // "._HIST", which also has to fit into the 64 characters
     if(propertyDescription.name.length() > 64 - 6) {
       std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
-      doocsPV.reset(new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(
-          propertyDescription.name.c_str(), _eqFct, processArray, _updater));
+      doocsPV.reset(
+          new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(propertyDescription.name, _eqFct, processArray, _updater));
     }
     else {
       if(propertyDescription.hasHistory) {
         // version with history: EqFtc first
         doocsPV.reset(new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(
-            _eqFct, propertyDescription.name.c_str(), processArray, _updater));
+            _eqFct, propertyDescription.name, processArray, _updater));
       }
       else {
         // version without history: name first
         doocsPV.reset(new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(
-            propertyDescription.name.c_str(), _eqFct, processArray, _updater));
+            propertyDescription.name, _eqFct, processArray, _updater));
       }
     } // if name too long
 
@@ -83,7 +85,7 @@ namespace ChimeraTK {
         propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
-    if(propertyDescription.macroPulseNumberSource.size() > 0) {
+    if(!propertyDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
@@ -104,7 +106,7 @@ namespace ChimeraTK {
   }
 
   template<>
-  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_textUnifier>(
+  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, DTextUnifier>(
       AutoPropertyDescription const& propertyDescription, DecoratorType /*decoratorType*/) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
 
@@ -121,9 +123,8 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1); // array of strings is not supported
-    boost::shared_ptr<DoocsProcessScalar<std::string, D_textUnifier>> doocsPV(
-        new DoocsProcessScalar<std::string, D_textUnifier>(
-            _eqFct, propertyDescription.name.c_str(), processArray, _updater));
+    boost::shared_ptr<DoocsProcessScalar<std::string, DTextUnifier>> doocsPV(
+        new DoocsProcessScalar<std::string, DTextUnifier>(_eqFct, propertyDescription.name, processArray, _updater));
 
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
@@ -139,7 +140,7 @@ namespace ChimeraTK {
     doocsPV->setMatchingMode(propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
-    if(propertyDescription.macroPulseNumberSource.size() > 0) {
+    if(!propertyDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
@@ -210,7 +211,9 @@ namespace ChimeraTK {
       boost::dynamic_pointer_cast<DoocsSpectrum>(doocsPV)->publishZeroMQ();
     }
 
-    if(not spectrumDescription.description.empty()) spectrum->description(spectrumDescription.description);
+    if(not spectrumDescription.description.empty()) {
+      spectrum->description(spectrumDescription.description);
+    }
 
     auto const xIt = spectrumDescription.axis.find("x");
     if(xIt != spectrumDescription.axis.cend()) {
@@ -228,7 +231,7 @@ namespace ChimeraTK {
     doocsPV->setMatchingMode(spectrumDescription.dataMatching);
 
     // set macro pulse number source, if configured
-    if(spectrumDescription.macroPulseNumberSource.size() > 0) {
+    if(!spectrumDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(spectrumDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
@@ -265,7 +268,7 @@ namespace ChimeraTK {
     // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
     doocsPV->setMatchingMode(imageDescription.dataMatching);
     // set macro pulse number source, if configured
-    if(imageDescription.macroPulseNumberSource.size() > 0) {
+    if(!imageDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(imageDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
@@ -294,7 +297,9 @@ namespace ChimeraTK {
 
     auto xy = boost::static_pointer_cast<DoocsXy>(doocsPV);
 
-    if(not xyDescription.description.empty()) xy->description(xyDescription.description);
+    if(not xyDescription.description.empty()) {
+      xy->description(xyDescription.description);
+    }
 
     auto const xIt = xyDescription.axis.find("x");
     if(xIt != xyDescription.axis.cend()) {
@@ -334,7 +339,7 @@ namespace ChimeraTK {
     doocsPV->setMatchingMode(ifffDescription.dataMatching);
 
     // set macro pulse number source, if configured
-    if(ifffDescription.macroPulseNumberSource.size() > 0) {
+    if(!ifffDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(ifffDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
@@ -380,10 +385,8 @@ namespace ChimeraTK {
     if(nSamples == 1) {
       return createDoocsScalar<DOOCS_PRIMITIVE_T, DOOCS_SCALAR_T>(autoPropertyDescription, decoratorType);
     }
-    else {
-      return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(
-          AutoPropertyDescription(autoPropertyDescription));
-    }
+    return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(
+        AutoPropertyDescription(autoPropertyDescription));
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDescription> const& propertyDescription) {
@@ -433,7 +436,7 @@ namespace ChimeraTK {
             valueType, *processVariable, *autoPropertyDescription, DecoratorType::C_style_conversion);
       case AutoPropertyDescription::DataType::Auto:
         if(valueType == typeid(std::string)) {
-          return typedCreateScalarOrArray<D_textUnifier, std::string, std::nullptr_t, std::nullptr_t>(
+          return typedCreateScalarOrArray<DTextUnifier, std::string, std::nullptr_t, std::nullptr_t>(
               valueType, *processVariable, *autoPropertyDescription, DecoratorType::limiting);
         }
         throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
@@ -476,7 +479,7 @@ namespace ChimeraTK {
     doocsPV->setMatchingMode(propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
-    if(propertyDescription.macroPulseNumberSource.size() > 0) {
+    if(!propertyDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
@@ -512,34 +515,32 @@ namespace ChimeraTK {
       // scalar
       return autoCreate(propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Byte) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Byte) {
       return typedCreateDoocsArray<uint8_t, D_bytearray>(*propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Short) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Short) {
       return typedCreateDoocsArray<int16_t, D_shortarray>(*propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Int) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Int) {
       return typedCreateDoocsArray<int32_t, D_intarray>(*propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Long) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Long) {
       return typedCreateDoocsArray<int64_t, D_longarray>(*propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Float) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Float) {
       return typedCreateDoocsArray<float, D_floatarray>(*propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Double) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Double) {
       return typedCreateDoocsArray<double, D_doublearray>(*propertyDescription);
     }
-    else if(propertyDescription->dataType == AutoPropertyDescription::DataType::Bool) {
+    if(propertyDescription->dataType == AutoPropertyDescription::DataType::Bool) {
       return typedCreateDoocsArray<int32_t, doocs::D_array<int32_t>>(*propertyDescription);
     }
-    else {
-      throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
-    }
+    throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
-    auto& requestedType = propertyDescription->type();
+    const auto& requestedType = propertyDescription->type();
     if(requestedType == typeid(AutoPropertyDescription)) {
       return autoCreate(propertyDescription);
     }

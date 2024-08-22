@@ -31,8 +31,8 @@ using boost::shared_ptr;
 
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type
-typedef boost::mpl::list<int64_t, uint64_t, int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t, float, double>
-    simple_test_types;
+using simple_test_types =
+    boost::mpl::list<int64_t, uint64_t, int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t, float, double>;
 
 doocs::EqFctTest myEqFct("MY_EQ_FCT");
 
@@ -42,8 +42,7 @@ static void testCreateProcessScalar(std::shared_ptr<PropertyDescription> const& 
   // have the variable created and check that it is the right type
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(propertyDescription);
   // get the raw pointer and dynamic cast it to the expected type
-  DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>* doocsScalarType =
-      dynamic_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>*>(doocsVariableAsDFct.get());
+  auto* doocsScalarType = dynamic_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>*>(doocsVariableAsDFct.get());
   // if the cast succeeds the factory works as expected we are done
   std::string errorMessage = std::string("testCreateProcessScalar failed for type ") + typeid(DOOCS_PRIMITIVE_T).name();
   BOOST_CHECK_MESSAGE(doocsScalarType, errorMessage);
@@ -158,7 +157,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateSpectrum, T, simple_test_types) {
     boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
     // get the raw pointer and dynamic cast it to the expected type
-    DoocsSpectrum* doocsSpectrum = dynamic_cast<DoocsSpectrum*>(doocsVariableAsDFct.get());
+    auto* doocsSpectrum = dynamic_cast<DoocsSpectrum*>(doocsVariableAsDFct.get());
 
     // if the cast succeeds the factory works as expected we are done
     BOOST_REQUIRE(doocsSpectrum);
@@ -169,12 +168,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateSpectrum, T, simple_test_types) {
 
 template<class DOOCS_T>
 void testArrayIsCorrectType(
-    DoocsPVFactory& factory, AutoPropertyDescription::DataType dataType, std::string name = "fromDeviceArray1") {
+    DoocsPVFactory& factory, AutoPropertyDescription::DataType dataType, const std::string& name = "fromDeviceArray1") {
   auto description = std::make_shared<AutoPropertyDescription>("A/" + name, "A", name, dataType);
   boost::shared_ptr<D_fct> doocsVariableAsDFct = factory.create(description);
 
   // get the raw pointer and dynamic cast it to the expected type
-  DOOCS_T* doocsArray = dynamic_cast<DOOCS_T*>(doocsVariableAsDFct.get());
+  auto* doocsArray = dynamic_cast<DOOCS_T*>(doocsVariableAsDFct.get());
 
   // if the cast succeeds the factory works as expected we are done
   BOOST_REQUIRE(doocsArray);

@@ -28,7 +28,7 @@ namespace ChimeraTK {
     // properties. This needs to be done after all locations have been created but before the properties get their
     // initial values from the config file. DOOCS seems not to provide any hook at that point... This function will only
     // perform an action when called for the first time.
-    void before_auto_init();
+    void beforeAutoInit();
 
     // An atomic bool which is set true in post_init_epilog to indicate that doocs
     // is ready. Only used in testing.
@@ -45,20 +45,20 @@ namespace ChimeraTK {
     std::map<std::string, std::set<boost::weak_ptr<PropertyBase>>> writeableVariablesWithMultipleProperties;
 
     // create the doocs::Server object
-    std::unique_ptr<doocs::Server> createServer();
+    static std::unique_ptr<doocs::Server> createServer();
 
     boost::shared_ptr<ControlSystemPVManager> getControlSystemPVManager() { return _controlSystemPVManager; }
 
-    void eq_init_prolog();
-    void post_init_epilog();
-    void eq_cancel();
+    static void eqInitProlog();
+    static void postInitEpilog();
+    static void eqCancel();
 
    protected:
     boost::shared_ptr<DevicePVManager> _devicePVManager;
     boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
 
     // flag whether before_auto_init() has already been called.
-    bool before_auto_init_called{false};
+    bool _before_auto_init_called{false};
   };
 
 } // namespace ChimeraTK

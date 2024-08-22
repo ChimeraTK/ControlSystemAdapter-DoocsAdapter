@@ -28,18 +28,16 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE
 
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
-  for(auto const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
-    for(auto const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
+  for(const auto* const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
+    for(const auto* const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
       // if this throws the property does not exist. we should always be able to
       // read"
-      BOOST_CHECK_NO_THROW(
-          DoocsServerTestHelper::doocsGetArray<int>((std::string("//") + location + "/" + property).c_str()));
+      BOOST_CHECK_NO_THROW(DoocsServerTestHelper::doocsGetArray<int>(std::string("//") + location + "/" + property));
     }
-    for(auto const property : {"DATA_TYPE_CONSTANT", "FROM_DEVICE_SCALAR", "TO_DEVICE_SCALAR"}) {
+    for(const auto* const property : {"DATA_TYPE_CONSTANT", "FROM_DEVICE_SCALAR", "TO_DEVICE_SCALAR"}) {
       // if this throws the property does not exist. we should always be able to
       // read"
-      BOOST_CHECK_NO_THROW(
-          DoocsServerTestHelper::doocsGet<int>((std::string("//") + location + "/" + property).c_str()));
+      BOOST_CHECK_NO_THROW(DoocsServerTestHelper::doocsGet<int>(std::string("//") + location + "/" + property));
     }
   }
 }

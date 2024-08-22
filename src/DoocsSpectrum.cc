@@ -10,16 +10,17 @@
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 
 #include <iostream>
+#include <utility>
 
 namespace ChimeraTK {
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor)
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor)
   : D_spectrum(doocsPropertyName, processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
-    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
-    _incrementAccessor(incrementAccessor), nBuffers(1) {
+    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(std::move(startAccessor)),
+    _incrementAccessor(std::move(incrementAccessor)), _nBuffers(1) {
     setupOutputVar(processArray);
 
     addParameterAccessors();
@@ -27,12 +28,12 @@ namespace ChimeraTK {
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor, size_t numberOfBuffers)
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor, size_t numberOfBuffers)
   : D_spectrum(doocsPropertyName, processArray->getNumberOfSamples(), eqFct, numberOfBuffers, DATA_A_FLOAT),
-    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(startAccessor),
-    _incrementAccessor(incrementAccessor), nBuffers(numberOfBuffers) {
-    if(nBuffers > 1 && !processArray->isReadable()) {
+    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(std::move(startAccessor)),
+    _incrementAccessor(std::move(incrementAccessor)), _nBuffers(numberOfBuffers) {
+    if(_nBuffers > 1 && !processArray->isReadable()) {
       throw ChimeraTK::logic_error(
           "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but is not readable.");
     }
@@ -53,10 +54,10 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::auto_init() {
-    doocsAdapter.before_auto_init();
+    doocsAdapter.beforeAutoInit();
 
     // check if the macro pulse number source has been set if the spectrum is buffered
-    if(nBuffers > 1) {
+    if(_nBuffers > 1) {
       if(_macroPulseNumberSource == nullptr) {
         throw ChimeraTK::logic_error(
             "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but not macro pulse number source.");
@@ -82,7 +83,9 @@ namespace ChimeraTK {
     get_eqfct()->unlock();
     usleep(1000);
     get_eqfct()->lock();
-    if(!modified || _processArray->isReadOnly()) return;
+    if(!modified || _processArray->isReadOnly()) {
+      return;
+    }
     modified = false;
     D_spectrum::write(s);
   }
@@ -117,7 +120,7 @@ namespace ChimeraTK {
     // set macro pulse number, buffer number and time stamp
     size_t ibuf = 0;
     if(_macroPulseNumberSource != nullptr) {
-      ibuf = _macroPulseNumberSource->accessData(0) % nBuffers;
+      ibuf = _macroPulseNumberSource->accessData(0) % _nBuffers;
       macro_pulse(_macroPulseNumberSource->accessData(0), ibuf);
     }
     set_tmstmp(seconds, microseconds, ibuf);
@@ -133,7 +136,7 @@ namespace ChimeraTK {
 
     // fill the spectrum
     std::vector<float>& processVector = _processArray->accessChannel(0);
-    if(nBuffers == 1) {
+    if(_nBuffers == 1) {
       // We have to fill the spectrum differently if it is unbuffered, as the internal data structures seem to be
       // completely different.
       memcpy(spectrum()->d_spect_array.d_spect_array_val, processVector.data(), processVector.size() * sizeof(float));

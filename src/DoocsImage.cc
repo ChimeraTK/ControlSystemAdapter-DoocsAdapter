@@ -85,7 +85,7 @@ namespace ChimeraTK {
 
     ChimeraTK::OneDRegisterAccessor<uint8_t> pA(_processArray);
     MappedDoocsImg img(pA, MappedDoocsImg::InitData::No);
-    auto* dataPtr = img.asDoocsImg(&_imh);
+    auto* dataPtr = img.asDoocsImg(&imh);
     if(!dataPtr) {
       throw logic_error("data provided to DoocsImage._processArray was not recognized as image");
     }
@@ -101,11 +101,11 @@ namespace ChimeraTK {
 
     if(_macroPulseNumberSource) {
       this->set_mpnum(_macroPulseNumberSource->accessData(0));
-      _imh.event = _macroPulseNumberSource->accessData(0);
+      imh.event = _macroPulseNumberSource->accessData(0);
     }
 
     // this copies header and data contents to DOOCS-internal buffer
-    dfct->set_value(&_imh, dataPtr);
+    dfct->set_value(&imh, dataPtr);
 
     auto ts = timestamp.get_seconds_and_microseconds_since_epoch();
     // this is needed in addition to usual dfct call, in order to set time in img meta data

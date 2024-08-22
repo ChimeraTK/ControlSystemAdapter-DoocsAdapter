@@ -38,8 +38,8 @@ namespace ChimeraTK {
     DoocsImage(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater);
 
-    IMH _imh;
-    IMH* getIMH() { return &_imh; }
+    IMH imh{};
+    IMH* getIMH() { return &imh; }
 
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;

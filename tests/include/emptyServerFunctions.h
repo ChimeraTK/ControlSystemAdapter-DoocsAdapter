@@ -14,19 +14,19 @@
 
 // LCOV_EXCL_START
 
-EqFct* eq_create(int /*eq_code*/, void*) {
-  return NULL;
+inline EqFct* eqCreate(int /*eq_code*/, void*) {
+  return nullptr;
 }
-void eq_init_epilog() {}
-void eq_init_prolog() {}
-void refresh_epilog() {}
-void refresh_prolog() {}
-void interrupt_usr1_prolog(int) {}
-void interrupt_usr1_epilog(int) {}
-void interrupt_usr2_prolog() {}
-void interrupt_usr2_epilog() {}
-void post_init_prolog() {}
-void post_init_epilog() {}
-void eq_cancel() {}
+inline void eqInitEpilog() {}
+inline void eqInitProlog() {}
+inline void refreshEpilog() {}
+inline void refreshProlog() {}
+inline void interruptUsr1Prolog(int) {}
+inline void interruptUsr1Epilog(int) {}
+inline void interruptUsr2Prolog() {}
+inline void interruptUsr2Epilog() {}
+inline void postInitProlog() {}
+inline void postInitEpilog() {}
+inline void eqCancel() {}
 
 // LCOV_EXCL_STOP

@@ -27,12 +27,13 @@ namespace ChimeraTK {
   class VariableMapper {
    public:
     static VariableMapper& getInstance();
-    void prepareOutput(std::string xmlFile, std::set<std::string> inputVariables);
+    void prepareOutput(const std::string& xmlFile, std::set<std::string> inputVariables);
 
-    std::list<std::shared_ptr<PropertyDescription>> getPropertiesInLocation(std::string location) const;
-    std::list<std::shared_ptr<PropertyDescription>> const& getAllProperties() const;
-    std::unordered_set<std::string> getAllLocations() const;
-    std::map<std::string, int> getLocationAndCode() const { return _inputLocationAndCode; }
+    [[nodiscard]] std::list<std::shared_ptr<PropertyDescription>> getPropertiesInLocation(
+        const std::string& location) const;
+    [[nodiscard]] std::list<std::shared_ptr<PropertyDescription>> const& getAllProperties() const;
+    [[nodiscard]] std::unordered_set<std::string> getAllLocations() const;
+    [[nodiscard]] std::map<std::string, int> getLocationAndCode() const { return _inputLocationAndCode; }
 
     VariableMapper(VariableMapper&) = delete;
     void operator=(VariableMapper const&) = delete;
@@ -55,11 +56,11 @@ namespace ChimeraTK {
     static std::string getContentString(xmlpp::Node const* node);
 
     /// Functiont o convert a string into a DataConsistencyGroup::MatchingMode enum value
-    static DataConsistencyGroup::MatchingMode evaluateDataMatching(std::string txt);
+    static DataConsistencyGroup::MatchingMode evaluateDataMatching(const std::string& txt);
 
-    const std::set<std::string>& getUsedVariables() const { return _usedInputVariables; }
+    [[nodiscard]] const std::set<std::string>& getUsedVariables() const { return _usedInputVariables; }
 
-    const std::list<ErrorReportingInfo>& getErrorReportingInfos() const { return _errorReportingInfos; }
+    [[nodiscard]] const std::list<ErrorReportingInfo>& getErrorReportingInfos() const { return _errorReportingInfos; }
 
    protected:
     VariableMapper() = default;
@@ -72,16 +73,16 @@ namespace ChimeraTK {
     std::list<ErrorReportingInfo> _errorReportingInfos;
 
     void processLocationNode(xmlpp::Node const* locationNode);
-    void processNode(xmlpp::Node const* propertyNode, std::string locationName);
-    void processSpectrumNode(xmlpp::Node const* node, std::string locationName);
-    void processImageNode(xmlpp::Node const* node, std::string locationName);
+    void processNode(xmlpp::Node const* propertyNode, const std::string& locationName);
+    void processSpectrumNode(xmlpp::Node const* node, const std::string& locationName);
+    void processImageNode(xmlpp::Node const* node, const std::string& locationName);
     void processXyNode(xmlpp::Node const* node, std::string& locationName);
     void processIfffNode(xmlpp::Node const* node, std::string& locationName);
     void processSetErrorNode(xmlpp::Node const* node, std::string& locationName);
-    void processImportNode(xmlpp::Node const* importNode, std::string importLocationName = std::string());
-    void processCode(xmlpp::Element const* location, std::string locationName);
+    void processImportNode(xmlpp::Node const* importNode, const std::string& importLocationName = std::string());
+    void processCode(xmlpp::Element const* location, const std::string& locationName);
 
-    void import(std::string importSource, std::string importLocationName, std::string directory = "");
+    void import(std::string importSource, const std::string& importLocationName, const std::string& directory = "");
     bool getHasHistoryDefault(std::string const& locationName);
     bool getIsWriteableDefault(std::string const& locationName);
     PersistConfig getPersistDefault(std::string const& locationName);
@@ -96,17 +97,17 @@ namespace ChimeraTK {
     std::list<std::shared_ptr<PropertyDescription>> _descriptions;
 
     /// An internal helper function to abbreviate the syntax
-    bool nodeIsWhitespace(const xmlpp::Node* node);
+    static bool nodeIsWhitespace(const xmlpp::Node* node);
 
     // Check if the attribute exists (throw if not) and get it's content
-    std::string getAttributeValue(const xmlpp::Element* node, std::string const& attributeName);
+    static std::string getAttributeValue(const xmlpp::Element* node, std::string const& attributeName);
 
     template<class PROPERTY_DESCRIPTION_TYPE>
     void processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,
-        const xmlpp::Element* propertyXmlElement, std::string locationName);
+        const xmlpp::Element* propertyXmlElement, const std::string& locationName);
 
     void addDescription(
-        std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSoures);
+        std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSources);
   };
 
 } // namespace ChimeraTK

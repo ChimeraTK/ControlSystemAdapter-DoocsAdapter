@@ -25,7 +25,7 @@ using namespace ChimeraTK;
 
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type
-typedef boost::mpl::list<int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t> integer_test_types;
+using integer_test_types = boost::mpl::list<int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t>;
 
 doocs::EqFctTest myLocation;
 
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceIntegerTypeTest, T, integer_test_types) {
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<T, D_int> doocsScalar(&myLocation, "TO_DEVICE_VARIABLE", controlSystemVariable, updater);
 
-  BOOST_CHECK(set_doocs_value(doocsScalar, 42) == 0);
+  BOOST_CHECK(setDoocsValue(doocsScalar, 42) == 0);
   BOOST_CHECK(controlSystemVariable->accessData(0) == 42);
 
   // receive on the device side and check that the value has arrived
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceIntegerTypeTest, T, integer_test_types) {
   // check that the set() overloading is working by calling the function of the
   // base class (note: cast to a reference, otherwise inheritance/ virtual
   // functions calls do not work)
-  BOOST_CHECK(set_doocs_value(static_cast<D_int&>(doocsScalar), -13.) == 0);
+  BOOST_CHECK(setDoocsValue(static_cast<D_int&>(doocsScalar), -13.) == 0);
   BOOST_CHECK(controlSystemVariable->accessData(0) == static_cast<T>(-13));
 
   // receive on the device side and check that the value has arrived
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest) {
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<float, D_float> doocsScalar(&myLocation, "TO_DEVICE_FLOAT", controlSystemFloat, updater);
 
-  BOOST_CHECK(set_doocs_value(doocsScalar, 12.125) == 0);
+  BOOST_CHECK(setDoocsValue(doocsScalar, 12.125) == 0);
   BOOST_CHECK_CLOSE(controlSystemFloat->accessData(0), 12.125, 0.00001);
 
   // receive on the device side and check that the value has arrived
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest) {
   // check that the value() overloading is working by calling the function of
   // the base class (note: cast to a reference, otherwise inheritance/ virtual
   // functions calls do not work)
-  BOOST_CHECK(set_doocs_value(static_cast<D_float&>(doocsScalar), -13.) == 0);
+  BOOST_CHECK(setDoocsValue(static_cast<D_float&>(doocsScalar), -13.) == 0);
   BOOST_CHECK_CLOSE(controlSystemFloat->accessData(0), -13., 0.00001);
 
   // receive on the device side and check that the value has arrived
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<double, D_double> doocsScalar(&myLocation, "TO_DEVICE_DOUBLE", controlSystemDouble, updater);
 
-  BOOST_CHECK(set_doocs_value(doocsScalar, 12.125) == 0);
+  BOOST_CHECK(setDoocsValue(doocsScalar, 12.125) == 0);
   BOOST_CHECK(controlSystemDouble->accessData(0) == 12.125);
 
   // receive on the device side and check that the value has arrived
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
   // check that the value() overloading is working by calling the function of
   // the base class (note: cast to a reference, otherwise inheritance/ virtual
   // functions calls do not work)
-  BOOST_CHECK(set_doocs_value(static_cast<D_double&>(doocsScalar), -13.) == 0);
+  BOOST_CHECK(setDoocsValue(static_cast<D_double&>(doocsScalar), -13.) == 0);
   BOOST_CHECK_CLOSE(controlSystemDouble->accessData(0), -13., 0.00001);
 
   // receive on the device side and check that the value has arrived
@@ -198,10 +198,10 @@ BOOST_AUTO_TEST_CASE(toDeviceStringTest) {
   controlSystemFloat->accessData(0) = "null";
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<std::string, D_textUnifier> doocsScalar(
+  DoocsProcessScalar<std::string, DTextUnifier> doocsScalar(
       &myLocation, "TO_DEVICE_STRING", controlSystemFloat, updater);
 
-  BOOST_CHECK(set_doocs_value(doocsScalar, "twelvepointonetwofive") == 0);
+  BOOST_CHECK(setDoocsValue(doocsScalar, "twelvepointonetwofive") == 0);
   BOOST_CHECK(controlSystemFloat->accessData(0) == "twelvepointonetwofive");
 
   // receive on the device side and check that the value has arrived
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(toDeviceStringTest) {
   // check that the value() overloading is working by calling the function of
   // the base class (note: cast to a reference, otherwise inheritance/ virtual
   // functions calls do not work)
-  BOOST_CHECK(set_doocs_value(static_cast<D_textUnifier&>(doocsScalar), "minusthirteen") == 0);
+  BOOST_CHECK(setDoocsValue(static_cast<DTextUnifier&>(doocsScalar), "minusthirteen") == 0);
   BOOST_CHECK(controlSystemFloat->accessData(0) == "minusthirteen");
 
   // receive on the device side and check that the value has arrived
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceStringTest) {
   controlSystemVariable->accessData(0) = "null";
 
   // initialise the doocs scalar
-  DoocsProcessScalar<std::string, D_textUnifier> doocsScalar(
+  DoocsProcessScalar<std::string, DTextUnifier> doocsScalar(
       nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
 
   deviceVariable->accessData(0) = "twelvepointonetwofive";

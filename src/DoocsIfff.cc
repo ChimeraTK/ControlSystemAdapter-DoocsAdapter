@@ -12,27 +12,26 @@
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 
 #include <functional>
+#include <utility>
 
 namespace ChimeraTK {
   DoocsIfff::DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
-      boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
-      boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
-      boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
-      boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
-  : D_ifff(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _i1Value(i1Value), _f1Value(f1Value),
-    _f2Value(f2Value), _f3Value(f3Value) {
+      boost::shared_ptr<NDRegisterAccessor<int>> i1Value, boost::shared_ptr<NDRegisterAccessor<float>> f1Value,
+      boost::shared_ptr<NDRegisterAccessor<float>> f2Value, boost::shared_ptr<NDRegisterAccessor<float>> f3Value,
+      DoocsUpdater& updater)
+  : D_ifff(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _i1Value(std::move(i1Value)),
+    _f1Value(std::move(f1Value)), _f2Value(std::move(f2Value)), _f3Value(std::move(f3Value)) {
     checkSourceConsistency();
     registerIfffSources();
   }
 
   // Constructor without history
   DoocsIfff::DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct,
-      boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
-      boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
-      boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
-      boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater)
-  : D_ifff(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _i1Value(i1Value), _f1Value(f1Value),
-    _f2Value(f2Value), _f3Value(f3Value) {
+      boost::shared_ptr<NDRegisterAccessor<int>> i1Value, boost::shared_ptr<NDRegisterAccessor<float>> f1Value,
+      boost::shared_ptr<NDRegisterAccessor<float>> f2Value, boost::shared_ptr<NDRegisterAccessor<float>> f3Value,
+      DoocsUpdater& updater)
+  : D_ifff(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _i1Value(std::move(i1Value)),
+    _f1Value(std::move(f1Value)), _f2Value(std::move(f2Value)), _f3Value(std::move(f3Value)) {
     checkSourceConsistency();
     registerIfffSources();
   }
@@ -124,7 +123,7 @@ namespace ChimeraTK {
   }
 
   void DoocsIfff::auto_init() {
-    doocsAdapter.before_auto_init();
+    doocsAdapter.beforeAutoInit();
 
     D_ifff::auto_init(); // inherited functionality fill the local doocs buffer
     if(_isWriteable) {

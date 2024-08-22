@@ -62,27 +62,27 @@ void checkHistory(DOOCS_T* property, bool expected_has_history) {
 }
 
 template<>
-void checkHistory(D_spectrum* /*property*/, bool) {
+inline void checkHistory(D_spectrum* /*property*/, bool) {
   /// @todo FIXME implement check on D_spectrum history/ ring buffer
 }
 // there are no histories for arrays. Do nothing
 template<>
-void checkHistory(D_bytearray* /*property*/, bool) {}
+inline void checkHistory(D_bytearray* /*property*/, bool) {}
 template<>
-void checkHistory(D_shortarray* /*property*/, bool) {}
+inline void checkHistory(D_shortarray* /*property*/, bool) {}
 template<>
-void checkHistory(D_intarray* /*property*/, bool) {}
+inline void checkHistory(D_intarray* /*property*/, bool) {}
 template<>
-void checkHistory(D_longarray* /*property*/, bool) {}
+inline void checkHistory(D_longarray* /*property*/, bool) {}
 template<>
-void checkHistory(D_floatarray* /*property*/, bool) {}
+inline void checkHistory(D_floatarray* /*property*/, bool) {}
 template<>
-void checkHistory(D_doublearray* /*property*/, bool) {}
+inline void checkHistory(D_doublearray* /*property*/, bool) {}
 
-EqFct* getLocationFromPropertyAddress(std::string const& propertyAddress) {
+inline EqFct* getLocationFromPropertyAddress(std::string const& propertyAddress) {
   EqAdr ad;
   // obtain location pointer
-  ad.adr(propertyAddress.c_str());
+  ad.adr(propertyAddress);
   EqFct* eqFct = eq_get(&ad);
   BOOST_REQUIRE_MESSAGE(eqFct, "Could not get location for property " + propertyAddress);
 
@@ -94,9 +94,9 @@ EqFct* getLocationFromPropertyAddress(std::string const& propertyAddress) {
 /// PROPERTY!
 template<class DOOCS_T>
 DOOCS_T* getDoocsProperty(std::string const& propertyAddress) {
-  auto eqFct = getLocationFromPropertyAddress(propertyAddress);
+  auto* eqFct = getLocationFromPropertyAddress(propertyAddress);
   auto propertyName = ChimeraTK::basenameFromAddress(propertyAddress);
-  auto rawProperty = eqFct->find_property(propertyName);
+  auto* rawProperty = eqFct->find_property(propertyName);
 
   BOOST_REQUIRE_MESSAGE(rawProperty, "Could not find property address" << propertyAddress);
   auto property = dynamic_cast<DOOCS_T*>(rawProperty);
@@ -111,7 +111,7 @@ DOOCS_T* getDoocsProperty(std::string const& propertyAddress) {
 template<class DOOCS_T>
 void checkDoocsProperty(
     std::string const& propertyAddress, bool expected_has_history = true, bool expected_is_writeable = true) {
-  auto location = getLocationFromPropertyAddress(propertyAddress);
+  auto* location = getLocationFromPropertyAddress(propertyAddress);
   location->lock();
 
   auto property = getDoocsProperty<DOOCS_T>(propertyAddress);
@@ -133,11 +133,11 @@ void checkDoocsProperty(
 
 // this function does the locking so it can be used in a loop and frees the lock
 // in between.
-float readSpectrumStart(std::string const& propertyAddress) {
-  auto location = getLocationFromPropertyAddress(propertyAddress);
+inline float readSpectrumStart(std::string const& propertyAddress) {
+  auto* location = getLocationFromPropertyAddress(propertyAddress);
   location->lock();
 
-  auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
+  auto* spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
 
   float start = spectrum->spec_start();
   location->unlock();
@@ -147,11 +147,11 @@ float readSpectrumStart(std::string const& propertyAddress) {
 
 // sorry for copying the code. It really sucks to wrap 10 lines of bloat around
 // 1 line of content.
-float readSpectrumIncrement(std::string const& propertyAddress) {
-  auto location = getLocationFromPropertyAddress(propertyAddress);
+inline float readSpectrumIncrement(std::string const& propertyAddress) {
+  auto* location = getLocationFromPropertyAddress(propertyAddress);
   location->lock();
 
-  auto spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
+  auto* spectrum = getDoocsProperty<D_spectrum>(propertyAddress);
 
   float increment = spectrum->spec_inc();
   location->unlock();
@@ -173,12 +173,12 @@ float readSpectrumIncrement(std::string const& propertyAddress) {
 //
 //
 
-void checkDataType(std::string const& propertyAddress, int dataType) {
-  auto location = getLocationFromPropertyAddress(propertyAddress);
+inline void checkDataType(std::string const& propertyAddress, int dataType) {
+  auto* location = getLocationFromPropertyAddress(propertyAddress);
   BOOST_REQUIRE_MESSAGE(location, "could not find location for " + propertyAddress);
   location->lock();
 
-  auto property = getDoocsProperty<D_fct>(propertyAddress);
+  auto* property = getDoocsProperty<D_fct>(propertyAddress);
   BOOST_REQUIRE_MESSAGE(property, "could not find property for " + propertyAddress);
   BOOST_CHECK(property->data_type() == dataType);
 
@@ -230,7 +230,7 @@ void checkWithTimeout(std::function<T()> accessorFunction, T referenceValue, siz
   BOOST_ERROR(errorMessage.str());
 }
 
-void checkSpectrum(std::string const& propertyAddress, bool expected_has_history = true,
+inline void checkSpectrum(std::string const& propertyAddress, bool expected_has_history = true,
     bool expected_is_writeable = true, float expected_start = 0.0, float expected_increment = 1.0) {
   checkDoocsProperty<D_spectrum>(propertyAddress, expected_has_history, expected_is_writeable);
 

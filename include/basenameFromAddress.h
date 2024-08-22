@@ -10,7 +10,7 @@ namespace ChimeraTK {
    */
   inline std::string basenameFromAddress(std::string const& doocsAddress) {
     // find first slash
-    auto slashPosition = doocsAddress.rfind("/");
+    auto slashPosition = doocsAddress.rfind('/');
     // no slash found: return the whole string
     if(slashPosition == std::string::npos) {
       return doocsAddress;

@@ -39,7 +39,7 @@ namespace ChimeraTK {
     // specified. The lock is held while the updaterFunction is called, so it must
     // neither obtained nor freed within the updaterFunction.
     void addVariable(
-        ChimeraTK::TransferElementAbstractor variable, EqFct* eq_fct, std::function<void()> updaterFunction);
+        ChimeraTK::TransferElementAbstractor variable, EqFct* eq_fct, const std::function<void()>& updaterFunction);
 
     const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
 

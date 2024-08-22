@@ -55,8 +55,8 @@ namespace ChimeraTK {
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::DoocsProcessArray(EqFct* eqFct, const std::string& doocsPropertyName,
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>& processArray, DoocsUpdater& updater)
-  : DOOCS_T(doocsPropertyName.c_str(), processArray->getNumberOfSamples(), eqFct),
-    PropertyBase(doocsPropertyName, updater), _processArray(processArray) {
+  : DOOCS_T(doocsPropertyName, processArray->getNumberOfSamples(), eqFct), PropertyBase(doocsPropertyName, updater),
+    _processArray(processArray) {
     // Check if the array length exceeds the maximum allowed length by DOOCS.
     // DOOCS does not report this as an error and instead silently truncates the
     // array length.
@@ -86,7 +86,7 @@ namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::auto_init() {
-    doocsAdapter.before_auto_init();
+    doocsAdapter.beforeAutoInit();
 
     DOOCS_T::auto_init();
     modified = false;

@@ -9,7 +9,7 @@ ChimeraTK::DoocsAdapter doocsAdapter;
 /*********************************************************************************************************************/
 
 int main(int argc, char* argv[]) {
-  doocsAdapter.createServer()->run(argc, argv);
+  ChimeraTK::DoocsAdapter::createServer()->run(argc, argv);
   return 0;
 }
 

@@ -26,7 +26,7 @@ namespace ChimeraTK {
      * inside the EqFct, so the 'this' pointer will be given. As it is not
      * copyable this is ok.
      */
-    DoocsPVFactory(EqFct* eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> const& csPVManager);
+    DoocsPVFactory(EqFct* eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> csPVManager);
 
     boost::shared_ptr<D_fct> create(std::shared_ptr<PropertyDescription> const& propertyDescription);
 
@@ -48,7 +48,7 @@ namespace ChimeraTK {
     boost::shared_ptr<D_fct> createXy(XyDescription const& xyDescription);
     boost::shared_ptr<D_fct> createIfff(IfffDescription const& ifffDescription);
 
-    boost::shared_ptr<D_fct> createDoocsArray(std::shared_ptr<AutoPropertyDescription> const& spectrumDescription);
+    boost::shared_ptr<D_fct> createDoocsArray(std::shared_ptr<AutoPropertyDescription> const& propertyDescription);
 
     template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
     boost::shared_ptr<D_fct> typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription);

@@ -24,7 +24,7 @@ std::string lastErrString = "(unset)";
 // basic check for error code handling, without associated message source
 BOOST_AUTO_TEST_CASE(testErrorNoMessageSource) {
   auto check = [] {
-    auto location = getLocationFromPropertyAddress("//INT/FROM_DEVICE_SCALAR");
+    auto* location = getLocationFromPropertyAddress("//INT/FROM_DEVICE_SCALAR");
     location->lock();
     int code = location->get_error();
     lastErrString = location->get_errorstr();
@@ -54,8 +54,7 @@ BOOST_AUTO_TEST_CASE(setErrorSourceMarkedAsUsed) {
   // (set_error source was thrown away in optimization step since it was not marked as used)
   // - do not explicitly map statusCodeSource of set_error
   // - check that statusCodeSource goes into set of used variables
-  bool setErrorSourceMarkedAsUsed =
-      GlobalFixture::referenceTestApplication._unmappedVariables.find("/INT/FROM_DEVICE_SCALAR") ==
-      GlobalFixture::referenceTestApplication._unmappedVariables.end();
-  BOOST_TEST(setErrorSourceMarkedAsUsed);
+  bool res = GlobalFixture::referenceTestApplication.unmappedVariables.find("/INT/FROM_DEVICE_SCALAR") ==
+      GlobalFixture::referenceTestApplication.unmappedVariables.end();
+  BOOST_TEST(res);
 }

@@ -10,7 +10,7 @@
 namespace ChimeraTK {
 
   void DoocsUpdater::addVariable(
-      TransferElementAbstractor variable, EqFct* eq_fct, std::function<void()> updaterFunction) {
+      TransferElementAbstractor variable, EqFct* eq_fct, const std::function<void()>& updaterFunction) {
     // Don't add the transfer element twice into the list of elements to read (i.e. later into the ReadAnyGroup).
     // To check if there is such an element we use the map with the lookup table
     // which has a search function, instead of manually looking at the elements in
@@ -56,7 +56,7 @@ namespace ChimeraTK {
     // ReadAnyGroup. Unnecessary calls to preRead() are anyway ignored and merely pose a performance issue. For large
     // servers, the performance impact is significant, hence we keep track of the TEs which need to be called.
     for(auto& pair : _toDoocsDescriptorMap) {
-      for(auto& elem : pair.second.additionalTransferElements) {
+      for(const auto& elem : pair.second.additionalTransferElements) {
         elem->preRead(ChimeraTK::TransferType::read);
       }
     }
@@ -69,25 +69,31 @@ namespace ChimeraTK {
 
       // Gather all involved locations in a unique set
       for(auto& location : descriptor.locations) {
-        if(locationsToLock.insert(location).second) location->lock();
+        if(locationsToLock.insert(location).second) {
+          location->lock();
+        }
       }
       // Complete the read transfer of the process variable
       notification.accept();
 
       // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-      for(auto& elem : descriptor.additionalTransferElements) {
+      for(const auto& elem : descriptor.additionalTransferElements) {
         elem->postRead(ChimeraTK::TransferType::read, true);
       }
 
       // Call all updater functions
-      for(auto& updaterFunction : descriptor.updateFunctions) updaterFunction();
+      for(auto& updaterFunction : descriptor.updateFunctions) {
+        updaterFunction();
+      }
 
       // Unlock all involved locations
-      for(auto& location : locationsToLock) location->unlock();
+      for(const auto& location : locationsToLock) {
+        location->unlock();
+      }
       locationsToLock.clear();
 
       // Call preRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-      for(auto& elem : descriptor.additionalTransferElements) {
+      for(const auto& elem : descriptor.additionalTransferElements) {
         elem->preRead(ChimeraTK::TransferType::read);
       }
 
@@ -97,7 +103,7 @@ namespace ChimeraTK {
   }
 
   void DoocsUpdater::run() {
-    _syncThread = boost::thread(boost::bind(&DoocsUpdater::updateLoop, this));
+    _syncThread = boost::thread([this] { updateLoop(); });
   }
 
   void DoocsUpdater::stop() {

@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
   DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
 
   unsigned int expectedUnsignedInt = 42U;
-  float expectedFloat = 42.42f;
+  float expectedFloat = 42.42F;
   DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", expectedUnsignedInt);
   DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
 
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   auto lastExpectedUnsignedInt = expectedUnsignedInt;
   expectedUnsignedInt = 2U;
-  expectedFloat = 2.42f;
+  expectedFloat = 2.42F;
   DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", expectedUnsignedInt);
   DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
 
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   ++macroPulseNumber;
   DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
-  expectedFloat = 12.42f;
+  expectedFloat = 12.42F;
   DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
   CHECK_WITH_TIMEOUT(

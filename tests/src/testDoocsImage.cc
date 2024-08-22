@@ -104,7 +104,7 @@ BOOST_FIXTURE_TEST_CASE(fromDeviceTest, DeviceFixture) {
     BOOST_CHECK(csVector[i] == 0);
   }
   // image data not yet set
-  BOOST_CHECK(doocsImage.value() == 0);
+  BOOST_CHECK(doocsImage.value() == nullptr);
 
   updater.update();
 

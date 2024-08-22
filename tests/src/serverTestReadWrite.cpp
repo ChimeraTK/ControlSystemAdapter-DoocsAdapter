@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
 
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//INT/FROM_DEVICE_SCALAR") == 0);
   CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<int>("//CHAR/FROM_DEVICE_SCALAR") == 0);
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<std::string>("//STRING/FROM_DEVICE_SCALAR") == "");
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<std::string>("//STRING/FROM_DEVICE_SCALAR").empty());
 
   // run the application loop. Still no changes until we run the doocs server
   // update
@@ -64,18 +64,16 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
                            (-4 * i * i)) < 0.001); // float check to compensate binary roundings errors
   }
 
-  for(auto const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
-    for(auto const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
+  for(const auto* const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
+    for(const auto* const property : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
       // if this throws the property does not exist. we should always be able to
       // read"
-      BOOST_CHECK_NO_THROW(
-          DoocsServerTestHelper::doocsGetArray<int>((std::string("//") + location + "/" + property).c_str()));
+      BOOST_CHECK_NO_THROW(DoocsServerTestHelper::doocsGetArray<int>(std::string("//") + location + "/" + property));
     }
-    for(auto const property : {"DATA_TYPE_CONSTANT", "FROM_DEVICE_SCALAR", "TO_DEVICE_SCALAR"}) {
+    for(const auto* const property : {"DATA_TYPE_CONSTANT", "FROM_DEVICE_SCALAR", "TO_DEVICE_SCALAR"}) {
       // if this throws the property does not exist. we should always be able to
       // read"
-      BOOST_CHECK_NO_THROW(
-          DoocsServerTestHelper::doocsGet<int>((std::string("//") + location + "/" + property).c_str()));
+      BOOST_CHECK_NO_THROW(DoocsServerTestHelper::doocsGet<int>(std::string("//") + location + "/" + property));
     }
   }
 }

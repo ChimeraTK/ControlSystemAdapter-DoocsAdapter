@@ -63,26 +63,40 @@ namespace ChimeraTK {
 
   bool DoocsAdapter::checkPrintDataLossWarning(size_t counter) {
     // print first time at counter == 10 to suppress the messages spamming at startup
-    if(counter < 1) return false;
-    if(counter < 100) return counter % 10 == 0;
-    if(counter < 1000) return counter % 100 == 0;
-    if(counter < 10000) return counter % 1000 == 0;
-    if(counter < 100000) return counter % 10000 == 0;
-    if(counter < 1000000) return counter % 100000 == 0;
+    if(counter < 1) {
+      return false;
+    }
+    if(counter < 100) {
+      return counter % 10 == 0;
+    }
+    if(counter < 1000) {
+      return counter % 100 == 0;
+    }
+    if(counter < 10000) {
+      return counter % 1000 == 0;
+    }
+    if(counter < 100000) {
+      return counter % 10000 == 0;
+    }
+    if(counter < 1000000) {
+      return counter % 100000 == 0;
+    }
     return counter % 1000000 == 0; // if the rate is 10Hz, this is roughly once per day
   }
 
   /*******************************************************************************************************************/
 
-  void DoocsAdapter::before_auto_init() {
+  void DoocsAdapter::beforeAutoInit() {
     // prevent concurrent execution. It is unclear whether DOOCS may call auto_init in parallel in some situations, so
     // better implement a lock.
     static std::mutex mx;
     std::unique_lock<std::mutex> lk(mx);
 
     // execute actions only once
-    if(before_auto_init_called) return;
-    before_auto_init_called = true;
+    if(_before_auto_init_called) {
+      return;
+    }
+    _before_auto_init_called = true;
 
     // connect properties which use the same writable PV to keep the property values consistent
     for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
@@ -100,9 +114,9 @@ namespace ChimeraTK {
   std::unique_ptr<doocs::Server> DoocsAdapter::createServer() {
     auto server = std::make_unique<doocs::Server>(ChimeraTK::ApplicationBase::getInstance().getName().c_str());
 
-    server->set_init_prolog([&] { this->eq_init_prolog(); });
-    server->set_post_init_epilog([&] { this->post_init_epilog(); });
-    server->set_cancel_epilog([&] { this->eq_cancel(); });
+    server->set_init_prolog([&] { ChimeraTK::DoocsAdapter::eqInitProlog(); });
+    server->set_post_init_epilog([&] { ChimeraTK::DoocsAdapter::postInitEpilog(); });
+    server->set_cancel_epilog([&] { ChimeraTK::DoocsAdapter::eqCancel(); });
 
     // This is a work-around for not being able to create the same location type for any arbitrary location code
     // found in the conf file. It works as long as the largest code is below 10000. The registration here takes
@@ -128,7 +142,7 @@ namespace ChimeraTK {
   /* eq_init_prolog is called before the locations are created, i.e. before the
    * first call to eq_create. We initialise the application, i.e. all process
    * variables are created in this function. */
-  void DoocsAdapter::eq_init_prolog() {
+  void DoocsAdapter::eqInitProlog() {
     // set the DOOCS server name to the application name
     // Create static instances for all applications cores. They must not have
     // overlapping process variable names ("location/protery" must be unique).
@@ -149,7 +163,7 @@ namespace ChimeraTK {
     }
 
     // prepare list of unmapped read variables and pass it to the Application for optimisation
-    for(auto& p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
+    for(const auto& p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
       auto it = pvNames.find(p);
       if(it != pvNames.end()) {
         pvNames.erase(it);
@@ -178,7 +192,9 @@ namespace ChimeraTK {
         size_t writeableCount = 0;
         for(const auto& d : p.second) {
           auto attr = std::dynamic_pointer_cast<ChimeraTK::PropertyAttributes>(d);
-          if(attr->isWriteable) ++writeableCount;
+          if(attr->isWriteable) {
+            ++writeableCount;
+          }
         }
         if(writeableCount == 0) {
           continue;
@@ -201,10 +217,10 @@ namespace ChimeraTK {
   /* post_init_epilog is called after all DOOCS properties are fully intialised,
    * including any value intialisation from the config file. We start the
    * application here. It will be launched in a separate thread. */
-  void DoocsAdapter::post_init_epilog() {
+  void DoocsAdapter::postInitEpilog() {
     // check for locations not yet created (due to missing entries in the .conf file) and create them now
     std::map<std::string, int> locMap = ChimeraTK::VariableMapper::getInstance().getLocationAndCode();
-    for(auto& loc : ChimeraTK::VariableMapper::getInstance().getAllLocations()) {
+    for(const auto& loc : ChimeraTK::VariableMapper::getInstance().getAllLocations()) {
       int codeToSet = 10;
       bool defaultUsed = true;
       // if no code is set in xml file, 10 is default
@@ -213,7 +229,7 @@ namespace ChimeraTK {
         defaultUsed = false;
       }
 
-      auto eq = find_device(loc);
+      auto* eq = find_device(loc);
       if(eq == nullptr) {
         add_location(codeToSet, loc);
       }
@@ -227,7 +243,9 @@ namespace ChimeraTK {
     // check for variables not yet initialised - we must guarantee that all to-application variables are written exactly
     // once at server start.
     for(auto& pv : doocsAdapter.getControlSystemPVManager()->getAllProcessVariables()) {
-      if(!pv->isWriteable()) continue;
+      if(!pv->isWriteable()) {
+        continue;
+      }
       if(pv->getVersionNumber() == ChimeraTK::VersionNumber(nullptr)) {
         // The variable has not yet been written. Do it now, even if we just send a 0.
         pv->write();
@@ -242,7 +260,7 @@ namespace ChimeraTK {
 
   /*******************************************************************************************************************/
 
-  void DoocsAdapter::eq_cancel() {
+  void DoocsAdapter::eqCancel() {
     ChimeraTK::DoocsAdapter::isInitialised = false;
   }
 
