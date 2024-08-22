@@ -10,10 +10,10 @@ namespace ChimeraTK {
    *  @todo TODO rename this function! */
   inline std::pair<std::string, std::string> splitStringAtFirstSlash(std::string input) {
     // find first slash
-    auto slashPosition = input.find_first_of("/");
+    auto slashPosition = input.find_first_of('/');
     if(slashPosition == 0) { // ignore leading slash
       input = input.substr(1);
-      slashPosition = input.find_first_of("/");
+      slashPosition = input.find_first_of('/');
     }
     // no slash found: return empty location name
     if(slashPosition == std::string::npos) {
@@ -23,7 +23,7 @@ namespace ChimeraTK {
     auto locationName = input.substr(0, slashPosition);
     auto propertyName = input.substr(slashPosition + 1);
     // replace any remaining slashes in property name with dots
-    while((slashPosition = propertyName.find_first_of("/")) != std::string::npos) {
+    while((slashPosition = propertyName.find_first_of('/')) != std::string::npos) {
       propertyName[slashPosition] = '.';
     }
     return std::make_pair(locationName, propertyName);

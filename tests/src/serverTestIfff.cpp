@@ -31,8 +31,8 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   std::cout << "testIfffUpdate" << std::endl;
 
   auto extractValue = []() -> IFFF {
-    auto d_ifff = getDoocsProperty<D_ifff>(PROPERTY_NAME);
-    auto location = getLocationFromPropertyAddress(PROPERTY_NAME);
+    auto* d_ifff = getDoocsProperty<D_ifff>(PROPERTY_NAME);
+    auto* location = getLocationFromPropertyAddress(PROPERTY_NAME);
     IFFF value; // a copy of the value. We don't want to hold the location lock longer than needed
 
     location->lock();
@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   // franctional numbers
   IFFF referenceIfff;
   referenceIfff.i1_data = 123;
-  referenceIfff.f1_data = 0.123f;
-  referenceIfff.f2_data = 12.3f;
+  referenceIfff.f1_data = 0.123F;
+  referenceIfff.f2_data = 12.3F;
   referenceIfff.f3_data = -123;
 
   writeIfff(referenceIfff);
@@ -76,8 +76,8 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
 
   // change the values
   referenceIfff.i1_data = 234;
-  referenceIfff.f1_data = 0.234f;
-  referenceIfff.f2_data = 2.34f;
+  referenceIfff.f1_data = 0.234F;
+  referenceIfff.f2_data = 2.34F;
   referenceIfff.f3_data = -234;
 
   writeIfff(referenceIfff);
@@ -95,8 +95,8 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   // change the values
   IFFF newReferenceIfff;
   newReferenceIfff.i1_data = 345;
-  newReferenceIfff.f1_data = 0.345f;
-  newReferenceIfff.f2_data = 3.454f;
+  newReferenceIfff.f1_data = 0.345F;
+  newReferenceIfff.f2_data = 3.454F;
   newReferenceIfff.f3_data = -345;
 
   // check data consistency implementation

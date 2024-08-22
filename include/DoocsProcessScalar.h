@@ -52,14 +52,14 @@ namespace ChimeraTK {
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
       boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater)
-  : DOOCS_T(eqFct, doocsPropertyName.c_str()), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
+  : DOOCS_T(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
     setupOutputVar(processScalar);
   }
 
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(std::string doocsPropertyName, EqFct* eqFct,
       boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater)
-  : DOOCS_T(doocsPropertyName.c_str(), eqFct), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
+  : DOOCS_T(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
     setupOutputVar(processScalar);
   }
 
@@ -90,7 +90,7 @@ namespace ChimeraTK {
 
   template<typename T, typename DOOCS_T>
   void DoocsProcessScalar<T, DOOCS_T>::auto_init() {
-    doocsAdapter.before_auto_init();
+    doocsAdapter.beforeAutoInit();
 
     DOOCS_T::auto_init();
     // send the current value to the device
@@ -128,7 +128,9 @@ namespace ChimeraTK {
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
     doocs::EventId eventId;
-    if(_macroPulseNumberSource) eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource) {
+      eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
+    }
     this->set_value(data, timestamp, eventId, archiverStatus);
     sendZMQ(timestamp);
   }

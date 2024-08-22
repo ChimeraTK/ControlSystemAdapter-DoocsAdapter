@@ -128,7 +128,7 @@ namespace ChimeraTK {
   }
 
   void PropertyBase::setMacroPulseNumberSource(
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource) {
+      const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
     _macroPulseNumberSource = macroPulseNumberSource;
     if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
       _consistencyGroup.add(macroPulseNumberSource);

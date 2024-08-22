@@ -16,16 +16,16 @@ BOOST_AUTO_TEST_SUITE(SplitTestSuite)
 
 BOOST_AUTO_TEST_CASE(testSpitting) {
   auto splitResult = splitStringAtFirstSlash("stringWithout.a.slash");
-  BOOST_CHECK(splitResult.first == "");
+  BOOST_CHECK(splitResult.first.empty());
   BOOST_CHECK(splitResult.second == "stringWithout.a.slash");
 
   splitResult = splitStringAtFirstSlash("/stringStartingWith.slash");
-  BOOST_CHECK(splitResult.first == "");
+  BOOST_CHECK(splitResult.first.empty());
   BOOST_CHECK(splitResult.second == "stringStartingWith.slash");
 
   splitResult = splitStringAtFirstSlash("stringEndingWith.slash/");
   BOOST_CHECK(splitResult.first == "stringEndingWith.slash");
-  BOOST_CHECK(splitResult.second == "");
+  BOOST_CHECK(splitResult.second.empty());
 
   splitResult = splitStringAtFirstSlash("string/With.slash");
   BOOST_CHECK(splitResult.first == "string");

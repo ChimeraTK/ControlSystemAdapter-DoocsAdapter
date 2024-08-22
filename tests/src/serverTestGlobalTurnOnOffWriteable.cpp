@@ -26,13 +26,13 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
   // the stuff with default. We are lazy and put the integer types as we have to
   // list D_double and D_float separately anyway if we don't want to do
   // meta-programming
-  for(auto& location : {"SHORT", "USHORT", "CHAR", "UCHAR", "INT", "UINT"}) {
+  for(const auto& location : {"SHORT", "USHORT", "CHAR", "UCHAR", "INT", "UINT"}) {
     std::cout << "testing " << location << std::endl;
     checkDoocsProperty<D_int>(std::string("//") + location + "/DATA_TYPE_CONSTANT", true, false);
     checkDoocsProperty<D_int>(std::string("//") + location + "/FROM_DEVICE_SCALAR", true, false);
     checkDoocsProperty<D_int>(std::string("//") + location + "/TO_DEVICE_SCALAR", true, false);
   }
-  for(auto& name : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
+  for(const auto& name : {"CONSTANT_ARRAY", "FROM_DEVICE_ARRAY", "TO_DEVICE_ARRAY"}) {
     checkDoocsProperty<D_intarray>(std::string("//INT/") + name, true, false);
     checkDoocsProperty<D_intarray>(std::string("//UINT/") + name, true, false);
     checkDoocsProperty<D_bytearray>(std::string("//CHAR/") + name, true, false);

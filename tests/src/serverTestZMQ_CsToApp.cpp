@@ -42,7 +42,9 @@ BOOST_AUTO_TEST_CASE(test_cs_to_app_doocs_scalar) {
   size_t counter = 0;
   while(eq.get(&ea, &s, &d) != fixme::comp_code::ok) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    if(++counter > 30) BOOST_FAIL("Timeout in waiting for server");
+    if(++counter > 30) {
+      BOOST_FAIL("Timeout in waiting for server");
+    }
   }
 
   using Channel = std::promise<ZmqData>;

@@ -31,7 +31,7 @@ const std::string PROPERTY_NAME{"//FLOAT/TEST_XY"};
 BOOST_AUTO_TEST_CASE(testXyMetadata) {
   std::cout << "testXyMetadata" << std::endl;
 
-  auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
+  auto* xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
   BOOST_CHECK_EQUAL(xy->description(), "Some XY test");
   BOOST_CHECK_EQUAL(xy->max_length(), 10);
   float f1, f2;
@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE(testXyUpdates) {
   std::cout << "testXy" << std::endl;
 
   auto check = []() -> double {
-    auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
-    auto location = getLocationFromPropertyAddress(PROPERTY_NAME);
+    auto* xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
+    auto* location = getLocationFromPropertyAddress(PROPERTY_NAME);
     double value;
 
     location->lock();
@@ -63,9 +63,9 @@ BOOST_AUTO_TEST_CASE(testXyUpdates) {
   };
 
   // Send values with inconsistent versions
-  std::vector<float> xArrayValues = {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f};
+  std::vector<float> xArrayValues = {0.0F, 1.0F, 2.0F, 3.0F, 4.0F, 5.0F, 6.0F, 7.0F, 8.0F, 9.0F};
   DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_ARRAY", xArrayValues);
-  std::vector<double> yArrayValues = {-10.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0f};
+  std::vector<double> yArrayValues = {-10.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0F};
   DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_ARRAY", yArrayValues);
 
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
@@ -75,11 +75,11 @@ BOOST_AUTO_TEST_CASE(testXyUpdates) {
 
   // Nothing should have happened
   {
-    auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
+    auto* xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
     for(int i = 0; i < xy->max_length(); i++) {
-      auto val = xy->value(i);
-      BOOST_CHECK_CLOSE(val->x_data, 0.0f, 1e-6f);
-      BOOST_CHECK_CLOSE(val->y_data, 0.0f, 1e-6f);
+      auto* val = xy->value(i);
+      BOOST_CHECK_CLOSE(val->x_data, 0.0F, 1e-6F);
+      BOOST_CHECK_CLOSE(val->y_data, 0.0F, 1e-6F);
     }
   }
 
@@ -92,11 +92,11 @@ BOOST_AUTO_TEST_CASE(testXyUpdates) {
 
   // Nothing should have happened
   {
-    auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
+    auto* xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
     for(int i = 0; i < xy->max_length(); i++) {
-      auto val = xy->value(i);
-      BOOST_CHECK_CLOSE(val->x_data, xArrayValues[i], 1e-6f);
-      BOOST_CHECK_CLOSE(val->y_data, yArrayValues[i], 1e-6f);
+      auto* val = xy->value(i);
+      BOOST_CHECK_CLOSE(val->x_data, xArrayValues[i], 1e-6F);
+      BOOST_CHECK_CLOSE(val->y_data, yArrayValues[i], 1e-6F);
     }
   }
 
@@ -108,11 +108,11 @@ BOOST_AUTO_TEST_CASE(testXyUpdates) {
   checkWithTimeout<double>(check, -10.0 * 10.0);
   // Nothing should have happened
   {
-    auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
+    auto* xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
     for(int i = 0; i < xy->max_length(); i++) {
-      auto val = xy->value(i);
-      BOOST_CHECK_CLOSE(val->x_data, xArrayValues[i], 1e-6f);
-      BOOST_CHECK_CLOSE(val->y_data, yArrayValues[i], 1e-6f);
+      auto* val = xy->value(i);
+      BOOST_CHECK_CLOSE(val->x_data, xArrayValues[i], 1e-6F);
+      BOOST_CHECK_CLOSE(val->y_data, yArrayValues[i], 1e-6F);
     }
   }
 
@@ -127,11 +127,11 @@ BOOST_AUTO_TEST_CASE(testXyUpdates) {
 
   // Nothing should have happened
   {
-    auto xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
+    auto* xy = getDoocsProperty<D_xy>(PROPERTY_NAME);
     for(int i = 0; i < xy->max_length(); i++) {
-      auto val = xy->value(i);
-      BOOST_CHECK_CLOSE(val->x_data, xArrayValues[i], 1e-6f);
-      BOOST_CHECK_CLOSE(val->y_data, yArrayValues[i] / 10.0, 1e-6f);
+      auto* val = xy->value(i);
+      BOOST_CHECK_CLOSE(val->x_data, xArrayValues[i], 1e-6F);
+      BOOST_CHECK_CLOSE(val->y_data, yArrayValues[i] / 10.0, 1e-6F);
     }
   }
 }

@@ -22,7 +22,7 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 template<typename DOOCS_TYPE>
 static eq_errors checkErrorFlag(const std::string& property) {
-  auto location = getLocationFromPropertyAddress(property);
+  auto* location = getLocationFromPropertyAddress(property);
   location->lock();
   auto p = getDoocsProperty<DOOCS_TYPE>(property);
   auto value = static_cast<eq_errors>(p->d_error());
@@ -32,7 +32,7 @@ static eq_errors checkErrorFlag(const std::string& property) {
 }
 
 BOOST_AUTO_TEST_CASE(testScalar) {
-  auto check = std::bind(checkErrorFlag<D_int>, "//INT/FROM_DEVICE_SCALAR");
+  auto check = [] { return checkErrorFlag<D_int>("//INT/FROM_DEVICE_SCALAR"); };
   // Testing initial state
   GlobalFixture::referenceTestApplication.dataValidity = DataValidity::ok;
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 12);
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(testScalar) {
 }
 
 BOOST_AUTO_TEST_CASE(testArray) {
-  auto check = std::bind(checkErrorFlag<D_intarray>, "//INT/FROM_DEVICE_ARRAY");
+  auto check = [] { return checkErrorFlag<D_intarray>("//INT/FROM_DEVICE_ARRAY"); };
 
   // Testing initial state
   GlobalFixture::referenceTestApplication.dataValidity = DataValidity::ok;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
 }
 
 BOOST_AUTO_TEST_CASE(testSpectrum) {
-  auto check = std::bind(checkErrorFlag<D_spectrum>, "//SPECTRUM/TEST");
+  auto check = [] { return checkErrorFlag<D_spectrum>("//SPECTRUM/TEST"); };
 
   // Testing initial state
   GlobalFixture::referenceTestApplication.dataValidity = DataValidity::ok;
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 }
 
 BOOST_AUTO_TEST_CASE(testXY) {
-  auto check = std::bind(checkErrorFlag<D_xy>, "//XY/TEST");
+  auto check = [] { return checkErrorFlag<D_xy>("//XY/TEST"); };
 
   // Testing initial state
   GlobalFixture::referenceTestApplication.dataValidity = DataValidity::ok;

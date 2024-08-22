@@ -12,6 +12,7 @@
 #include <iostream>
 #include <locale>
 #include <regex>
+#include <utility>
 
 namespace ChimeraTK {
 
@@ -25,7 +26,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   bool VariableMapper::nodeIsWhitespace(const xmlpp::Node* node) {
-    const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
+    const auto* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
     if(nodeAsText) {
       return nodeAsText->is_white_space();
     }
@@ -35,7 +36,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void VariableMapper::processLocationNode(xmlpp::Node const* locationNode) {
-    const xmlpp::Element* location = dynamic_cast<const xmlpp::Element*>(locationNode);
+    const auto* location = dynamic_cast<const xmlpp::Element*>(locationNode);
     if(!location) {
       throw std::invalid_argument("Error parsing xml file in location node.");
     }
@@ -44,8 +45,12 @@ namespace ChimeraTK {
     processCode(location, locationName);
 
     for(auto const& node : location->get_children()) {
-      if(nodeIsWhitespace(node)) continue;
-      if(dynamic_cast<xmlpp::CommentNode const*>(node)) continue;
+      if(nodeIsWhitespace(node)) {
+        continue;
+      }
+      if(dynamic_cast<xmlpp::CommentNode const*>(node)) {
+        continue;
+      }
 
       if(node->get_name() == "property") {
         processNode(node, locationName);
@@ -111,36 +116,33 @@ namespace ChimeraTK {
     if(nameAttribute) {
       return nameAttribute->get_value();
     }
-    else { // auto-determine the name from the source
-      ///@todo FIXME: use register path to do the slash and replace fiddeling
-      std::string name;
-      if(source[0] == '/') {
-        name = source.substr(1);
-      }
-      else {
-        name = source;
-      }
-      // replace / with . in name
-      return std::regex_replace(name, std::regex("/"), ".");
+    // auto-determine the name from the source
+    ///@todo FIXME: use register path to do the slash and replace fiddeling
+    std::string name;
+    if(source[0] == '/') {
+      name = source.substr(1);
     }
+    else {
+      name = source;
+    }
+    // replace / with . in name
+    return std::regex_replace(name, std::regex("/"), ".");
   }
 
   /********************************************************************************************************************/
 
-  std::string getAbsoluteSource(std::string source, std::string locationName) {
+  std::string getAbsoluteSource(std::string source, const std::string& locationName) {
     if(source[0] == '/') {
       return source;
     }
-    else {
-      return std::string("/") + locationName + "/" + source;
-    }
+    return std::string("/") + locationName + "/" + source;
   }
 
   /********************************************************************************************************************/
 
   template<class PROPERTY_DESCRIPTION_TYPE>
   void VariableMapper::processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,
-      const xmlpp::Element* propertyXmlElement, std::string locationName) {
+      const xmlpp::Element* propertyXmlElement, const std::string& locationName) {
     auto hasHistoryNodes = propertyXmlElement->get_children("has_history");
     if(!hasHistoryNodes.empty()) {
       propertyDescription->hasHistory = evaluateBool(getContentString(hasHistoryNodes.front()));
@@ -195,7 +197,7 @@ namespace ChimeraTK {
   void VariableMapper::addDescription(
       std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSources) {
     _descriptions.push_back(propertyDescription);
-    for(auto& source : absoluteSources) {
+    for(const auto& source : absoluteSources) {
       _usedInputVariables.insert(source);
     }
   }
@@ -203,7 +205,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   xmlpp::Element const* asXmlElement(xmlpp::Node const* node) {
-    const xmlpp::Element* element = dynamic_cast<const xmlpp::Element*>(node);
+    const auto* element = dynamic_cast<const xmlpp::Element*>(node);
     if(!element) {
       throw std::invalid_argument("Error parsing xml file: Node is not an element node: " + node->get_name());
     }
@@ -212,8 +214,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processNode(xmlpp::Node const* propertyNode, std::string locationName) {
-    auto property = asXmlElement(propertyNode);
+  void VariableMapper::processNode(xmlpp::Node const* propertyNode, const std::string& locationName) {
+    const auto* property = asXmlElement(propertyNode);
 
     std::string source = getAttributeValue(property, "source");
     std::string name = determineName(property, source);
@@ -249,8 +251,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processSpectrumNode(xmlpp::Node const* node, std::string locationName) {
-    auto spectrumXml = asXmlElement(node);
+  void VariableMapper::processSpectrumNode(xmlpp::Node const* node, const std::string& locationName) {
+    const auto* spectrumXml = asXmlElement(node);
 
     // the "main source" of a spectum
     std::string source = getAttributeValue(spectrumXml, "source");
@@ -290,18 +292,23 @@ namespace ChimeraTK {
       usedVariables.push_back(numberOfBuffers);
     }
 
-    auto descriptionNode = spectrumXml->get_first_child("description");
-    if(descriptionNode != nullptr) spectrumDescription->description = getContentString(descriptionNode);
+    const auto* descriptionNode = spectrumXml->get_first_child("description");
+    if(descriptionNode != nullptr) {
+      spectrumDescription->description = getContentString(descriptionNode);
+    }
 
     auto unitNodes = spectrumXml->get_children("unit");
-    for(const auto unit : unitNodes) {
-      auto unitElement = asXmlElement(unit);
+    for(auto* const unit : unitNodes) {
+      const auto* unitElement = asXmlElement(unit);
       auto axis = getAttributeValue(unitElement, "axis");
-      if(axis != "x" && axis != "y")
-        throw std::invalid_argument("Unsupported axis in D_spectrum, must be \"x\" or \"y\": " + axis);
+      if(axis != "x" && axis != "y") {
+        throw std::invalid_argument(R"(Unsupported axis in D_spectrum, must be "x" or "y": )" + axis);
+      }
 
       std::string label;
-      if(not unit->get_children().empty()) label = getContentString(unit);
+      if(not unit->get_children().empty()) {
+        label = getContentString(unit);
+      }
 
       spectrumDescription->axis[axis].label = label;
       try {
@@ -327,8 +334,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processImageNode(xmlpp::Node const* node, std::string locationName) {
-    auto xmlEl = asXmlElement(node);
+  void VariableMapper::processImageNode(xmlpp::Node const* node, const std::string& locationName) {
+    const auto* xmlEl = asXmlElement(node);
 
     std::string source = getAttributeValue(xmlEl, "source");
     std::string name = determineName(xmlEl, source);
@@ -338,7 +345,7 @@ namespace ChimeraTK {
     auto imageDescription = std::make_shared<ImageDescription>(absoluteSource, locationName, name);
     processHistoryAndWritableAttributes(imageDescription, xmlEl, locationName);
 
-    auto descriptionNode = xmlEl->get_first_child("description");
+    const auto* descriptionNode = xmlEl->get_first_child("description");
     if(descriptionNode != nullptr) {
       imageDescription->description = getContentString(descriptionNode);
     }
@@ -349,7 +356,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void VariableMapper::processXyNode(xmlpp::Node const* node, std::string& locationName) {
-    auto xyXml = asXmlElement(node);
+    const auto* xyXml = asXmlElement(node);
 
     auto xSource = getAttributeValue(xyXml, "x_source");
     auto ySource = getAttributeValue(xyXml, "y_source");
@@ -360,18 +367,23 @@ namespace ChimeraTK {
     auto xyDescription = std::make_shared<XyDescription>(xAbsoluteSource, yAbsoluteSource, locationName, name, false);
     processHistoryAndWritableAttributes(xyDescription, xyXml, locationName);
 
-    auto descriptionNode = xyXml->get_first_child("description");
-    if(descriptionNode != nullptr) xyDescription->description = getContentString(descriptionNode);
+    const auto* descriptionNode = xyXml->get_first_child("description");
+    if(descriptionNode != nullptr) {
+      xyDescription->description = getContentString(descriptionNode);
+    }
 
     auto unitNodes = xyXml->get_children("unit");
-    for(const auto unit : unitNodes) {
-      auto unitElement = asXmlElement(unit);
+    for(auto* const unit : unitNodes) {
+      const auto* unitElement = asXmlElement(unit);
       auto axis = getAttributeValue(unitElement, "axis");
-      if(axis != "x" && axis != "y")
-        throw std::invalid_argument("Unsupported axis in D_xy, must be \"x\" or \"y\": " + axis);
+      if(axis != "x" && axis != "y") {
+        throw std::invalid_argument(R"(Unsupported axis in D_xy, must be "x" or "y": )" + axis);
+      }
 
       std::string label;
-      if(not unit->get_children().empty()) label = getContentString(unit);
+      if(not unit->get_children().empty()) {
+        label = getContentString(unit);
+      }
 
       xyDescription->axis[axis].label = label;
       try {
@@ -398,7 +410,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void VariableMapper::processIfffNode(xmlpp::Node const* node, std::string& locationName) {
-    auto ifffXml = asXmlElement(node);
+    const auto* ifffXml = asXmlElement(node);
 
     auto i1Source = getAttributeValue(ifffXml, "i1_source");
     auto f1Source = getAttributeValue(ifffXml, "f1_source");
@@ -421,14 +433,15 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
   void VariableMapper::processSetErrorNode(xmlpp::Node const* node, std::string& locationName) {
     for(auto const& errRepInfo : _errorReportingInfos) {
-      if(errRepInfo.targetLocation == locationName)
+      if(errRepInfo.targetLocation == locationName) {
         throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName +
             ": tag <set_error> is allowed only once per location.");
+      }
     }
     ErrorReportingInfo errInfo;
     errInfo.targetLocation = locationName;
 
-    auto setErrorXml = asXmlElement(node);
+    const auto* setErrorXml = asXmlElement(node);
     std::string s = getAttributeValue(setErrorXml, "statusCodeSource");
     errInfo.statusCodeSource = s;
     // matching status message source is found automatically by naming convention - if it exists
@@ -442,8 +455,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processImportNode(xmlpp::Node const* importNode, std::string importLocationName) {
-    const xmlpp::Element* importElement = dynamic_cast<const xmlpp::Element*>(importNode);
+  void VariableMapper::processImportNode(xmlpp::Node const* importNode, const std::string& importLocationName) {
+    const auto* importElement = dynamic_cast<const xmlpp::Element*>(importNode);
     std::string directory;
     if(importElement) {
       // look for a directory attribute
@@ -454,7 +467,7 @@ namespace ChimeraTK {
     }
 
     for(auto const& node : importNode->get_children()) {
-      const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
+      const auto* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(node);
       std::string importSource = nodeAsText->get_content();
       import(importSource, importLocationName, directory);
     }
@@ -462,7 +475,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::import(std::string importSource, std::string importLocationName, std::string directory) {
+  void VariableMapper::import(
+      std::string importSource, const std::string& importLocationName, const std::string& directory) {
     // a slash will be added after the source, so we make the source empty for an
     // import of everything
     if(importSource == "/") {
@@ -528,12 +542,12 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::processCode(xmlpp::Element const* location, std::string locationName) {
+  void VariableMapper::processCode(xmlpp::Element const* location, const std::string& locationName) {
     // If the the code is set in the location tag of the mapping xml file,
     // this function adds the location and fct_code to a map _inputLocationAndCode.
     // It throws an exeption if the code is not an integer. The code must be greater than 1,
     // because 1 is reserved for the server. And the code must be consistent.
-    auto locationCodeAttribute = location->get_attribute("code");
+    auto* locationCodeAttribute = location->get_attribute("code");
     if(locationCodeAttribute) {
       int locationCode = 0;
       try {
@@ -549,7 +563,7 @@ namespace ChimeraTK {
       }
 
       auto result = _inputLocationAndCode.insert(std::pair<std::string, int>(locationName, locationCode));
-      if(result.second == false) {                 // test if pair is already in map
+      if(!result.second) {                         // test if pair is already in map
         if(result.first->second != locationCode) { // and test if code is the same like before
           // maybe an exection is too much and a warning is enough?
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": code '" +
@@ -562,9 +576,9 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void VariableMapper::prepareOutput(std::string xmlFile, std::set<std::string> inputVariables) {
+  void VariableMapper::prepareOutput(const std::string& xmlFile, std::set<std::string> inputVariables) {
     clear();
-    _inputVariables = inputVariables;
+    _inputVariables = std::move(inputVariables);
 
     xmlpp::DomParser parser;
     //    parser.set_validate();
@@ -577,8 +591,12 @@ namespace ChimeraTK {
       const xmlpp::Node* rootNode = parser.get_document()->get_root_node(); // deleted by DomParser.
 
       for(auto const& mainNode : rootNode->get_children()) {
-        if(nodeIsWhitespace(mainNode)) continue;
-        if(dynamic_cast<xmlpp::CommentNode const*>(mainNode)) continue;
+        if(nodeIsWhitespace(mainNode)) {
+          continue;
+        }
+        if(dynamic_cast<xmlpp::CommentNode const*>(mainNode)) {
+          continue;
+        }
 
         if(mainNode->get_name() == "location") {
           processLocationNode(mainNode);
@@ -620,7 +638,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  std::list<std::shared_ptr<PropertyDescription>> VariableMapper::getPropertiesInLocation(std::string location) const {
+  std::list<std::shared_ptr<PropertyDescription>> VariableMapper::getPropertiesInLocation(
+      const std::string& location) const {
     std::list<std::shared_ptr<PropertyDescription>> output;
 
     for(auto const& variable : _descriptions) {
@@ -645,7 +664,7 @@ namespace ChimeraTK {
 
   void VariableMapper::directImport(std::set<std::string> inputVariables) {
     clear();
-    _inputVariables = inputVariables;
+    _inputVariables = std::move(inputVariables);
     import("/",
         ""); // import from /, create location names from first level of the tree
   }
@@ -665,7 +684,7 @@ namespace ChimeraTK {
   /// printing the map is useful for debugging
   void VariableMapper::print(std::ostream& os) const {
     os << "====== VariableMapper =====" << std::endl;
-    for(auto& description : _descriptions) {
+    for(const auto& description : _descriptions) {
       description->print(os);
     }
     os << "======= Mapping End =======" << std::endl;
@@ -678,17 +697,15 @@ namespace ChimeraTK {
     if(txt == "false" or txt == "0") {
       return false;
     }
-    else if(txt == "true" or txt == "1") {
+    if(txt == "true" or txt == "1") {
       return true;
     }
-    else {
-      throw std::invalid_argument(std::string("Error parsing xml file: could not convert to bool: ") + txt);
-    }
+    throw std::invalid_argument(std::string("Error parsing xml file: could not convert to bool: ") + txt);
   }
 
   /********************************************************************************************************************/
 
-  DataConsistencyGroup::MatchingMode VariableMapper::evaluateDataMatching(std::string txt) {
+  DataConsistencyGroup::MatchingMode VariableMapper::evaluateDataMatching(const std::string& txt) {
     DataConsistencyGroup::MatchingMode dataMatching;
     if(txt == "exact") {
       dataMatching = DataConsistencyGroup::MatchingMode::exact;
@@ -706,7 +723,7 @@ namespace ChimeraTK {
 
   std::string VariableMapper::getContentString(xmlpp::Node const* node) {
     for(auto const& subNode : node->get_children()) {
-      const xmlpp::TextNode* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(subNode);
+      const auto* nodeAsText = dynamic_cast<const xmlpp::TextNode*>(subNode);
       if(nodeAsText) {
         if(nodeAsText->is_white_space()) {
           continue;
@@ -728,9 +745,7 @@ namespace ChimeraTK {
     if(locationInfo.useHasHistoryDefault) {
       return locationInfo.hasHistory;
     }
-    else {
-      return _globalDefaults.hasHistory;
-    }
+    return _globalDefaults.hasHistory;
   }
 
   /********************************************************************************************************************/
@@ -743,9 +758,7 @@ namespace ChimeraTK {
     if(locationInfo.useIsWriteableDefault) {
       return locationInfo.isWriteable;
     }
-    else {
-      return _globalDefaults.isWriteable;
-    }
+    return _globalDefaults.isWriteable;
   }
 
   PersistConfig VariableMapper::getPersistDefault(std::string const& locationName) {
@@ -753,9 +766,7 @@ namespace ChimeraTK {
     if(locationInfo.usePersistDefault) {
       return locationInfo.persist;
     }
-    else {
-      return _globalDefaults.persist;
-    }
+    return _globalDefaults.persist;
   }
 
   /********************************************************************************************************************/
@@ -768,9 +779,7 @@ namespace ChimeraTK {
     if(locationInfo.useMacroPulseNumberSourceDefault) {
       return locationInfo.macroPulseNumberSource;
     }
-    else {
-      return _globalDefaults.macroPulseNumberSource;
-    }
+    return _globalDefaults.macroPulseNumberSource;
   }
   /********************************************************************************************************************/
 
@@ -782,15 +791,13 @@ namespace ChimeraTK {
     if(locationInfo.useDataMatchingDefault) {
       return locationInfo.dataMatching;
     }
-    else {
-      return _globalDefaults.dataMatching;
-    }
+    return _globalDefaults.dataMatching;
   }
 
   /********************************************************************************************************************/
 
   std::string VariableMapper::getAttributeValue(const xmlpp::Element* node, std::string const& attributeName) {
-    auto attribute = node->get_attribute(attributeName);
+    auto* attribute = node->get_attribute(attributeName);
     if(!attribute) {
       throw std::invalid_argument(
           "Error parsing xml file. Attribute '" + attributeName + "' not found in node '" + node->get_name() + "'.");

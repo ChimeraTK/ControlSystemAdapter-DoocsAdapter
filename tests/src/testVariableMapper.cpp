@@ -4,6 +4,8 @@
 #define BOOST_TEST_MODULE DoocsProcessArrayTest
 // Only after defining the name include the unit test header.
 #include <boost/test/included/unit_test.hpp>
+
+#include <utility>
 //#include <boost/test/test_case_template.hpp>
 
 #include "VariableMapper.h"
@@ -64,7 +66,7 @@ std::set<std::string> generateInputVariables() {
   return inputVariables;
 }
 
-void testXmlParsing(std::string xmlFile) {
+void testXmlParsing(const std::string& xmlFile) {
   VariableMapper& vm = VariableMapper::getInstance();
   vm.prepareOutput(xmlFile, generateInputVariables());
   // vm.print();

@@ -29,7 +29,8 @@ namespace ChimeraTK {
     D_fct* getDfct() { return dynamic_cast<D_fct*>(this); }
     /// turns on ZeroMQ publishing
     void publishZeroMQ() { _publishZMQ = true; }
-    void setMacroPulseNumberSource(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> macroPulseNumberSource);
+    void setMacroPulseNumberSource(
+        const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);
     void setMatchingMode(DataConsistencyGroup::MatchingMode newMode) { _consistencyGroup.setMatchingMode(newMode); }
 
     /// List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS

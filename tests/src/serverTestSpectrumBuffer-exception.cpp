@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#define BOOST_TEST_MODULE serverTestSpectrumBuffer - exception
+#define BOOST_TEST_MODULE serverTestSpectrumBuffer_exception
 
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
 
   // staring the server should cause the exception
   try {
-    doocsAdapter.createServer()->run(
+    ChimeraTK::DoocsAdapter::createServer()->run(
         boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
     BOOST_ERROR("Exception expected");
   }

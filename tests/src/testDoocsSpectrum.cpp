@@ -32,7 +32,7 @@ class TestableDoocsSpectrum : public DoocsSpectrum {
 
 // use boost meta-programming to use test case templates
 // The list of types is an mpl type
-typedef boost::mpl::list<int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t, float, double> simple_test_types;
+using simple_test_types = boost::mpl::list<int32_t, uint32_t, int16_t, uint16_t, int8_t, uint8_t, float, double>;
 
 BOOST_AUTO_TEST_SUITE(DoocsSpectrumTestSuite)
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceTest, T, simple_test_types) {
   // We use the 'testable' version which exposes sendToDevice, which otherwise
   // is protected.
   TestableDoocsSpectrum doocsSpectrum(
-      NULL, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater);
+      nullptr, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater);
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceTest, T, simple_test_types) {
 
   // initialise the doocs spectrum
   DoocsSpectrum doocsSpectrum(
-      NULL, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater, nullptr, nullptr);
+      nullptr, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater, nullptr, nullptr);
   for(size_t i = 0; i < arraySize; ++i) {
     doocsSpectrum.fill_spectrum(i, 0);
   }

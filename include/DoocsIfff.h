@@ -17,18 +17,14 @@ namespace ChimeraTK {
   class DoocsIfff : public D_ifff, public boost::noncopyable, public PropertyBase {
    public:
     /// Constructor with history enabled
-    DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
-        boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater);
+    DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName, boost::shared_ptr<NDRegisterAccessor<int>> i1Value,
+        boost::shared_ptr<NDRegisterAccessor<float>> f1Value, boost::shared_ptr<NDRegisterAccessor<float>> f2Value,
+        boost::shared_ptr<NDRegisterAccessor<float>> f3Value, DoocsUpdater& updater);
 
     /// Constructor without history
-    DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct,
-        boost::shared_ptr<NDRegisterAccessor<int>> const& i1Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& f1Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& f2Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& f3Value, DoocsUpdater& updater);
+    DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct, boost::shared_ptr<NDRegisterAccessor<int>> i1Value,
+        boost::shared_ptr<NDRegisterAccessor<float>> f1Value, boost::shared_ptr<NDRegisterAccessor<float>> f2Value,
+        boost::shared_ptr<NDRegisterAccessor<float>> f3Value, DoocsUpdater& updater);
 
     void set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) override;
     void auto_init() override;
@@ -44,6 +40,6 @@ namespace ChimeraTK {
     boost::shared_ptr<NDRegisterAccessor<float>> _f2Value;
     boost::shared_ptr<NDRegisterAccessor<float>> _f3Value;
 
-    bool _isWriteable;
+    bool _isWriteable{};
   };
 } // namespace ChimeraTK

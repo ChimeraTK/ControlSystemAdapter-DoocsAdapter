@@ -16,39 +16,41 @@ namespace ChimeraTK {
   bool CSAdapterEqFct::emptyLocationVariablesHandled = false;
 
   CSAdapterEqFct::CSAdapterEqFct(int code, const EqFctParameters& p)
-  : EqFct(p), controlSystemPVManager_(doocsAdapter.getControlSystemPVManager()), updater_(doocsAdapter.updater),
+  : EqFct(p), _controlSystemPVManager(doocsAdapter.getControlSystemPVManager()), _updater(doocsAdapter.updater),
     _code(code) {
     registerProcessVariablesInDoocs();
 
     // construct and populate the StatusHandler for this location
     for(const ErrorReportingInfo& errorReportingInfo :
         ChimeraTK::VariableMapper::getInstance().getErrorReportingInfos()) {
-      if(name_.get_value() != errorReportingInfo.targetLocation) continue;
+      if(name_.get_value() != errorReportingInfo.targetLocation) {
+        continue;
+      }
 
-      assert(!statusHandler_); // only single StatusHandler may be requested per location
-      auto statusCodeVariable = controlSystemPVManager_->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
+      assert(!_statusHandler); // only single StatusHandler may be requested per location
+      auto statusCodeVariable = _controlSystemPVManager->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
       if(!statusCodeVariable) {
         throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
       }
       // this one is optional
       ProcessArray<std::string>::SharedPtr statusStringVariable;
-      if(controlSystemPVManager_->hasProcessVariable(errorReportingInfo.statusStringSource)) {
+      if(_controlSystemPVManager->hasProcessVariable(errorReportingInfo.statusStringSource)) {
         statusStringVariable =
-            controlSystemPVManager_->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
+            _controlSystemPVManager->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
       }
-      statusHandler_.reset(new StatusHandler(this, updater_, statusCodeVariable, statusStringVariable));
+      _statusHandler.reset(new StatusHandler(this, _updater, statusCodeVariable, statusStringVariable));
     }
   }
 
   CSAdapterEqFct::~CSAdapterEqFct() {
     // stop the updater thread before any of the process variables go out of scope
-    updater_->stop();
+    _updater->stop();
   }
 
   void CSAdapterEqFct::init() {}
 
   void CSAdapterEqFct::post_init() {
-    for(auto& pair : doocsProperties_) {
+    for(auto& pair : _doocsProperties) {
       auto attrs = std::dynamic_pointer_cast<PropertyAttributes>(pair.first);
       assert(attrs != nullptr);
       if(attrs->publishZMQ) {
@@ -68,7 +70,7 @@ namespace ChimeraTK {
      * if it should be persisted and it's not by default due to the restricting length MAX_CONF_LENGTH,
      * persist it in a separate file, but only if writable.
      */
-    for(auto& pair : this->doocsProperties_) {
+    for(auto& pair : this->_doocsProperties) {
       // try a side-cast to get property attributes
       auto attrs = std::dynamic_pointer_cast<PropertyAttributes>(pair.first);
       if(attrs && attrs->persist == PersistConfig::ON) {
@@ -121,13 +123,13 @@ namespace ChimeraTK {
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs() {
     // We only need the factory inside this function
-    DoocsPVFactory factory(this, *updater_, controlSystemPVManager_);
+    DoocsPVFactory factory(this, *_updater, _controlSystemPVManager);
 
     auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(name());
 
     for(auto& propertyDescription : mappingForThisLocation) {
       try {
-        doocsProperties_[propertyDescription] = factory.create(propertyDescription);
+        _doocsProperties[propertyDescription] = factory.create(propertyDescription);
 
         // if one of the PVs used by the property is among the keys of the writeableVariablesWithMultipleProperties map,
         // add the property to the list of properties to update (value of the beforementioned map).
@@ -135,7 +137,7 @@ namespace ChimeraTK {
         for(const auto& pvNameUsedByProperty : propertyDescription->getSources()) {
           if(theMap.find(pvNameUsedByProperty) != theMap.end()) {
             // the PV name has been found in the map keys -> add the property to the list to update
-            auto p = boost::dynamic_pointer_cast<ChimeraTK::PropertyBase>(doocsProperties_.at(propertyDescription));
+            auto p = boost::dynamic_pointer_cast<ChimeraTK::PropertyBase>(_doocsProperties.at(propertyDescription));
             auto& listOfPropertiesToUpdate = theMap.at(pvNameUsedByProperty);
             listOfPropertiesToUpdate.insert(p);
           }

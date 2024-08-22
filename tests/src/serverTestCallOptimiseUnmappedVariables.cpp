@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE(testListOfUnmappedVariables) {
   }
 
   std::cout << "=== Actual list: " << std::endl;
-  auto& actualList = GlobalFixture::referenceTestApplication._unmappedVariables;
-  for(auto& name : actualList) {
+  auto& actualList = GlobalFixture::referenceTestApplication.unmappedVariables;
+  for(const auto& name : actualList) {
     std::cout << name << std::endl;
   }
 
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testListOfUnmappedVariables) {
   std::set<std::string> missing;
   std::set_difference(expectedList.begin(), expectedList.end(), actualList.begin(), actualList.end(),
       std::inserter(missing, missing.begin()));
-  for(auto& name : missing) {
+  for(const auto& name : missing) {
     std::cout << name << std::endl;
   }
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testListOfUnmappedVariables) {
   std::set<std::string> additional;
   std::set_difference(actualList.begin(), actualList.end(), expectedList.begin(), expectedList.end(),
       std::inserter(additional, additional.begin()));
-  for(auto& name : additional) {
+  for(const auto& name : additional) {
     std::cout << name << std::endl;
   }
 

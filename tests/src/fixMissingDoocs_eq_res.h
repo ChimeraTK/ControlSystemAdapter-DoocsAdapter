@@ -12,4 +12,4 @@ namespace fixme {
     ok = 0,
     data_error = 1, // d_error set in source  };
   };
-}
+} // namespace fixme

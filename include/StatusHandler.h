@@ -29,12 +29,12 @@ namespace ChimeraTK {
 
     /// statusScalar and statusString are the variables to monitor. statusScalar is mandatory, statusString not.
     /// If both are set, updates must come in consistently
-    StatusHandler(EqFct* eqFct, boost::shared_ptr<DoocsUpdater> const& updater,
+    StatusHandler(EqFct* eqFct, boost::shared_ptr<DoocsUpdater> updater,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> const& statusScalar,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<std::string>> const& statusString = nullptr);
 
     /// mapping function from Device.status/StatusOutput to DOOCS error codes
-    int statusCodeMapping(int x);
+    static int statusCodeMapping(int x);
   };
 
 } // namespace ChimeraTK

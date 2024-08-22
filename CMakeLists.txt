@@ -15,6 +15,7 @@ include(cmake/format_options.cmake)
 
 include(cmake/enable_code_coverage_report.cmake)
 include(cmake/enable_code_style_check.cmake)
+include(cmake/add_linter_target.cmake)
 
 FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.06 REQUIRED)
 

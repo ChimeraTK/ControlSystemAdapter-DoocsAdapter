@@ -32,8 +32,8 @@ namespace ChimeraTK {
      */
     DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor);
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor);
 
     /** The constructor expects an NDRegisterAccessor of float, which usually will
      * be a decorator to the implementation type. The decorator cannot be
@@ -48,8 +48,8 @@ namespace ChimeraTK {
      */
     DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& startAccessor,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& incrementAccessor, size_t numberOfBuffers);
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor, size_t numberOfBuffers);
 
     /**
      * Overload the set function which is called by DOOCS to inject sending to the
@@ -85,7 +85,7 @@ namespace ChimeraTK {
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
-    size_t nBuffers;
+    size_t _nBuffers;
   };
 
 } // namespace ChimeraTK

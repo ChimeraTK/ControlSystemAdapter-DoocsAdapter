@@ -16,19 +16,19 @@ namespace ChimeraTK {
   class DoocsProcessArray;
   class StatusHandler;
   class DoocsUpdater;
-  class PropertyDescription;
+  struct PropertyDescription;
 
   class CSAdapterEqFct : public EqFct, boost::noncopyable {
    protected:
-    boost::shared_ptr<ControlSystemPVManager> controlSystemPVManager_;
-    std::map<std::shared_ptr<ChimeraTK::PropertyDescription>, boost::shared_ptr<D_fct>> doocsProperties_;
+    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
+    std::map<std::shared_ptr<ChimeraTK::PropertyDescription>, boost::shared_ptr<D_fct>> _doocsProperties;
     void registerProcessVariablesInDoocs();
     std::vector<ChimeraTK::ProcessVariable::SharedPtr> getProcessVariablesInThisLocation();
 
     static bool emptyLocationVariablesHandled;
-    boost::shared_ptr<DoocsUpdater> updater_;
+    boost::shared_ptr<DoocsUpdater> _updater;
 
-    boost::shared_ptr<StatusHandler> statusHandler_;
+    boost::shared_ptr<StatusHandler> _statusHandler;
 
    public:
     CSAdapterEqFct(int code, const EqFctParameters& p);

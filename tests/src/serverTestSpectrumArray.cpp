@@ -106,13 +106,13 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
   //  }
 }
 
-static void testPropertyDoesNotExist(std::string addressString) {
+static void testPropertyDoesNotExist(const std::string& addressString) {
   EqAdr ad;
   doocs::EqData ed, res;
   // obtain location pointer
-  ad.adr(addressString.c_str());
+  ad.adr(addressString);
   EqFct* eqFct = eq_get(&ad);
-  BOOST_REQUIRE_MESSAGE(eqFct != NULL, "Could not get location for property.");
+  BOOST_REQUIRE_MESSAGE(eqFct != nullptr, "Could not get location for property.");
   // obtain value
   eqFct->lock();
   eqFct->get(&ad, &ed, &res);
