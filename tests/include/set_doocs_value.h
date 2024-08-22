@@ -11,6 +11,8 @@ int set_doocs_value(DOOCS_T& property, T value) {
   EqAdr adr;
   doocs::EqData src, dest;
   src.set(value);
+  property.get_eqfct()->lock();
   property.set(&adr, &src, &dest, nullptr);
+  property.get_eqfct()->unlock();
   return dest.error();
 }
