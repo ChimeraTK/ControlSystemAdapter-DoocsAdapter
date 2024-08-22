@@ -13,7 +13,7 @@ extern const char* object_name;
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 #include <random>
 #include <thread>

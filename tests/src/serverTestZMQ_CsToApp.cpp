@@ -11,8 +11,7 @@
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
-#include <eq_data.h>
+#include <doocs/EqCall.h>
 #include <eq_fct.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>

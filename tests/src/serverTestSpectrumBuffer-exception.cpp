@@ -8,7 +8,7 @@
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 

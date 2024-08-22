@@ -16,7 +16,7 @@ extern const char* object_name;
 
 #include "fixMissingDoocs_eq_res.h"
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 using namespace boost::unit_test_framework;
 using namespace boost::unit_test;
