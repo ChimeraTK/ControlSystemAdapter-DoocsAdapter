@@ -11,7 +11,6 @@
 #include "DoocsProcessScalar.h"
 #include "DoocsPVFactory.h"
 #include "DoocsSpectrum.h"
-#include "emptyServerFunctions.h"
 #include "getAllVariableNames.h"
 #include "PropertyDescription.h"
 #include <doocs/EqFctTest.h>

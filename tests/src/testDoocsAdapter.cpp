@@ -8,7 +8,6 @@
 // boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
-#include "emptyServerFunctions.h"
 
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/SynchronizationDirection.h>
