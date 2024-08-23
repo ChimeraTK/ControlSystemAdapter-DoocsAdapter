@@ -6,7 +6,6 @@
 // Only after defining the name include the unit test header.
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
-#include "emptyServerFunctions.h"
 #include "splitStringAtFirstSlash.h"
 
 using namespace boost::unit_test_framework;

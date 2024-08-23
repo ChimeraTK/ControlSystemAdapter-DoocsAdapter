@@ -6,7 +6,6 @@
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
 #include "DoocsSpectrum.h"
-#include "emptyServerFunctions.h"
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>

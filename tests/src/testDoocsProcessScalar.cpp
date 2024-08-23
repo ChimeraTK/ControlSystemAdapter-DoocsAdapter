@@ -9,7 +9,6 @@
 #include "D_textUnifier.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsUpdater.h"
-#include "emptyServerFunctions.h"
 #include "set_doocs_value.h"
 #include <d_fct.h>
 #include <doocs/EqFctTest.h>
