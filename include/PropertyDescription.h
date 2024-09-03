@@ -254,6 +254,24 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  struct IiiiDescription : public PropertyDescription, public PropertyAttributes {
+    ChimeraTK::RegisterPath iiiiSource;
+
+    IiiiDescription(ChimeraTK::RegisterPath const& iiiiSource_ = "", std::string const& location_ = "",
+        std::string const& name_ = "")
+    : PropertyDescription(location_, name_), iiiiSource(iiiiSource_){};
+
+    const std::type_info& type() const override { return typeid(IiiiDescription); }
+
+    void print(std::ostream& os = std::cout) const override {
+      os << "iiii: " << iiiiSource << " -> " << location << " / " << name << std::endl;
+    }
+
+    std::set<std::string> getSources() override { return {iiiiSource}; };
+  };
+
+  /********************************************************************************************************************/
+
   // This is the per location information which are used as default for the
   // properties in this location
   struct LocationInfo : public PropertyAttributes {
