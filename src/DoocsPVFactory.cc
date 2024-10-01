@@ -5,6 +5,7 @@
 
 #include "D_textUnifier.h"
 #include "DoocsIfff.h"
+#include "DoocsIiii.h"
 #include "DoocsImage.h"
 #include "DoocsProcessArray.h"
 #include "DoocsProcessScalar.h"
@@ -90,8 +91,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -145,8 +145,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -236,8 +235,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -273,8 +271,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -344,8 +341,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -360,6 +356,42 @@ namespace ChimeraTK {
     }
 
     if(not ifffDescription.isWriteable) {
+      doocsPV->set_ro_access();
+    }
+    return doocsPV;
+  }
+
+  boost::shared_ptr<D_fct> DoocsPVFactory::createIiii(IiiiDescription const& iiiiDescription) {
+    auto iiiiProcessVariable = _controlSystemPVManager->getProcessVariable(iiiiDescription.iiiiSource);
+
+    boost::shared_ptr<DoocsIiii> doocsPV;
+    doocsPV.reset(new DoocsIiii(_eqFct, iiiiDescription.name,
+        getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater));
+
+    // set specified data_matching mode
+    doocsPV->setMatchingMode(iiiiDescription.dataMatching);
+
+    // set macro pulse number source, if configured
+    if(iiiiDescription.macroPulseNumberSource.size() > 0) {
+      auto mpnSource = _controlSystemPVManager->getProcessVariable(iiiiDescription.macroPulseNumberSource);
+      auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
+      if(mpnDecorated->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+            "' is used as a macro pulse number source, but it has an array length of " +
+            std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
+      }
+      if(!mpnDecorated->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
+            "' is used as a macro pulse number source, but it is not readable.");
+      }
+      doocsPV->setMacroPulseNumberSource(mpnDecorated);
+    }
+
+    if(iiiiDescription.publishZMQ) {
+      doocsPV->publishZeroMQ();
+    }
+
+    if(not iiiiDescription.isWriteable) {
       doocsPV->set_ro_access();
     }
     return doocsPV;
@@ -484,8 +516,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -509,7 +540,7 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(
       std::shared_ptr<AutoPropertyDescription> const& propertyDescription) {
     if(propertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
-      // leave the desision which array to produce to the auto creation algorithm.
+      // leave the decision which array to produce to the auto creation algorithm.
       // We need it there anyway
       // FIXME: This does not produce arrays of length 1 because it will produce a
       // scalar
@@ -540,7 +571,8 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
-    const auto& requestedType = propertyDescription->type();
+    auto& plainDescription = *propertyDescription;
+    const auto& requestedType = typeid(plainDescription);
     if(requestedType == typeid(AutoPropertyDescription)) {
       return autoCreate(propertyDescription);
     }
@@ -555,6 +587,9 @@ namespace ChimeraTK {
     }
     if(requestedType == typeid(IfffDescription)) {
       return createIfff(*std::static_pointer_cast<IfffDescription>(propertyDescription));
+    }
+    if(requestedType == typeid(IiiiDescription)) {
+      return createIiii(*std::static_pointer_cast<IiiiDescription>(propertyDescription));
     }
     if(requestedType == typeid(AutoPropertyDescription)) {
       return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));

@@ -98,6 +98,9 @@ namespace ChimeraTK {
       else if(node->get_name() == "D_ifff") {
         processIfffNode(node, locationName);
       }
+      else if(node->get_name() == "D_iiii") {
+        processIiiiNode(node, locationName);
+      }
       else if(node->get_name() == "set_error") {
         processSetErrorNode(node, locationName);
       }
@@ -431,6 +434,23 @@ namespace ChimeraTK {
   }
 
   /********************************************************************************************************************/
+
+  void VariableMapper::processIiiiNode(xmlpp::Node const* node, std::string& locationName) {
+    const auto* iiiiXml = asXmlElement(node);
+
+    auto source = getAttributeValue(iiiiXml, "source");
+    auto name = getAttributeValue(iiiiXml, "name");
+    std::list<std::string> absoluteSources;
+    absoluteSources.push_back(getAbsoluteSource(source, locationName));
+
+    auto iiiiDescription = std::make_shared<IiiiDescription>(source, locationName, name);
+    processHistoryAndWritableAttributes(iiiiDescription, iiiiXml, locationName);
+
+    addDescription(iiiiDescription, absoluteSources);
+  }
+
+  /********************************************************************************************************************/
+
   void VariableMapper::processSetErrorNode(xmlpp::Node const* node, std::string& locationName) {
     for(auto const& errRepInfo : _errorReportingInfos) {
       if(errRepInfo.targetLocation == locationName) {

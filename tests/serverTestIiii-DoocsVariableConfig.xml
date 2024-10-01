@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+
+  <location name="CUSTOM">
+      <D_iiii name="IIII"
+          source="/IIII/FROM_DEVICE">
+      </D_iiii>
+  </location>
+
+  <import>/</import>
+
+</device_server>
