@@ -91,8 +91,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -146,8 +145,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -237,8 +235,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -274,8 +271,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -345,8 +341,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -382,8 +377,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -522,8 +516,7 @@ namespace ChimeraTK {
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
-            "' is used as a macro pulse number source, but it has an array "
-            "length of " +
+            "' is used as a macro pulse number source, but it has an array length of " +
             std::to_string(mpnDecorated->getNumberOfSamples()) + ". Length must be exactly 1");
       }
       if(!mpnDecorated->isReadable()) {
@@ -547,7 +540,7 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(
       std::shared_ptr<AutoPropertyDescription> const& propertyDescription) {
     if(propertyDescription->dataType == AutoPropertyDescription::DataType::Auto) {
-      // leave the desision which array to produce to the auto creation algorithm.
+      // leave the decision which array to produce to the auto creation algorithm.
       // We need it there anyway
       // FIXME: This does not produce arrays of length 1 because it will produce a
       // scalar
