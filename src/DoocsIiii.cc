@@ -112,8 +112,6 @@ namespace ChimeraTK {
   void DoocsIiii::sendToApplication(bool getLock) {
     IIII* iiii = value();
 
-    std::cout << iiii->i1_data << " " << iiii->i2_data << " " << iiii->i3_data << " " << iiii->i4_data << std::endl;
-
     _iiiiValue->accessData(0) = iiii->i1_data;
     _iiiiValue->accessData(1) = iiii->i2_data;
     _iiiiValue->accessData(2) = iiii->i3_data;
