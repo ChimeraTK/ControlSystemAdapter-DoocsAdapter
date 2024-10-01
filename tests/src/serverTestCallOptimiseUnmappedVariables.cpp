@@ -47,6 +47,9 @@ BOOST_AUTO_TEST_CASE(testListOfUnmappedVariables) {
     }
   }
 
+  expectedList.insert("/IIII/FROM_DEVICE");
+  expectedList.insert("/IIII/TO_DEVICE");
+
   std::cout << "=== Actual list: " << std::endl;
   auto& actualList = GlobalFixture::referenceTestApplication.unmappedVariables;
   for(const auto& name : actualList) {
