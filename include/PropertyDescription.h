@@ -76,7 +76,6 @@ namespace ChimeraTK {
     virtual bool operator==(PropertyDescription const& other) const {
       return location == other.location && name == other.name;
     }
-    [[nodiscard]] virtual const std::type_info& type() const { return typeid(PropertyDescription); }
     virtual void print(std::ostream& os = std::cout) const { os << location << " / " << name << std::endl; }
     virtual std::set<std::string> getSources() = 0;
   };
@@ -93,14 +92,13 @@ namespace ChimeraTK {
     : PropertyDescription(std::move(location_), std::move(name_)), PropertyAttributes(hasHistory_, isWriteable_),
       source(source_), dataType(dataType_) {}
     bool operator==(PropertyDescription const& other) const override {
-      if(other.type() == typeid(AutoPropertyDescription)) {
+      if(typeid(other) == typeid(AutoPropertyDescription)) {
         auto casted_other = dynamic_cast<AutoPropertyDescription const&>(other);
         return dataType == casted_other.dataType && source == casted_other.source && location == other.location &&
             name == other.name && static_cast<const PropertyAttributes*>(this)->operator==(casted_other);
       }
       return false;
     }
-    [[nodiscard]] const std::type_info& type() const override { return typeid(AutoPropertyDescription); }
     void print(std::ostream& os = std::cout) const override {
       os << source << " -> " << location << " / " << name << std::endl;
     }
@@ -148,7 +146,6 @@ namespace ChimeraTK {
     : PropertyDescription(std::move(location_), std::move(name_)), PropertyAttributes(hasHistory_, isWriteable_),
       source(source_) {}
 
-    [[nodiscard]] const std::type_info& type() const override { return typeid(ImageDescription); }
     void print(std::ostream& os = std::cout) const override {
       os << source << " -> " << location << " / " << name << std::endl;
     }
@@ -183,7 +180,6 @@ namespace ChimeraTK {
     : PropertyDescription(std::move(location_), std::move(name_)), PropertyAttributes(hasHistory_, isWriteable_),
       source(source_) {}
 
-    [[nodiscard]] const std::type_info& type() const override { return typeid(SpectrumDescription); }
     void print(std::ostream& os = std::cout) const override {
       os << source << " -> " << location << " / " << name << " (startSource = " << startSource
          << ", incrementSource = " << incrementSource << ", numberOfBuffers = " << numberOfBuffers << ")" << std::endl;
@@ -221,8 +217,6 @@ namespace ChimeraTK {
     : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, false), xSource(xSource_),
       ySource(ySource_) {}
 
-    [[nodiscard]] const std::type_info& type() const override { return typeid(XyDescription); }
-
     void print(std::ostream& os = std::cout) const override {
       os << "x: " << xSource << " y: " << ySource << " -> " << location << " / " << name << std::endl;
     }
@@ -242,8 +236,6 @@ namespace ChimeraTK {
     : PropertyDescription(location_, name_), i1Source(i1Source_), f1Source(f1Source_), f2Source(f2Source_),
       f3Source(f3Source_) {}
 
-    [[nodiscard]] const std::type_info& type() const override { return typeid(IfffDescription); }
-
     void print(std::ostream& os = std::cout) const override {
       os << "i1: " << i1Source << ", f1: " << f1Source << ", f2: " << f2Source << ", f3: " << f3Source << " -> "
          << location << " / " << name << std::endl;
@@ -260,8 +252,6 @@ namespace ChimeraTK {
     IiiiDescription(ChimeraTK::RegisterPath const& iiiiSource_ = "", std::string const& location_ = "",
         std::string const& name_ = "")
     : PropertyDescription(location_, name_), iiiiSource(iiiiSource_){};
-
-    const std::type_info& type() const override { return typeid(IiiiDescription); }
 
     void print(std::ostream& os = std::cout) const override {
       os << "iiii: " << iiiiSource << " -> " << location << " / " << name << std::endl;
