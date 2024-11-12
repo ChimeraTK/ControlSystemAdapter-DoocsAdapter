@@ -3,6 +3,7 @@
 #pragma once
 
 #include "basenameFromAddress.h"
+#include "ExtendedTestApplication.h"
 #include <eq_fct.h>
 
 #include <boost/version.hpp>
@@ -16,13 +17,13 @@ static const int ACCESS_RW = 1; // read/write
   struct GlobalFixture {                                                                                               \
     GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
                                                                                                                        \
-    static ReferenceTestApplication referenceTestApplication;                                                          \
+    static ExtendedTestApplication referenceTestApplication;                                                           \
     ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
         boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv,  \
         doocsAdapter.createServer()};                                                                                  \
   };                                                                                                                   \
                                                                                                                        \
-  ReferenceTestApplication GlobalFixture::referenceTestApplication{                                                    \
+  ExtendedTestApplication GlobalFixture::referenceTestApplication{                                                     \
       boost::unit_test::framework::master_test_suite().p_name.value};                                                  \
                                                                                                                        \
   BOOST_GLOBAL_FIXTURE(GlobalFixture);
@@ -39,7 +40,7 @@ static const int ACCESS_RW = 1; // read/write
                                                                                                                        \
     ~GlobalFixture() { GlobalFixture::referenceTestApplication.releaseManualLoopControl(); }                           \
                                                                                                                        \
-    static ReferenceTestApplication referenceTestApplication;                                                          \
+    static ExtendedTestApplication referenceTestApplication;                                                           \
     static std::string rpcNo;                                                                                          \
     static std::string bpn;                                                                                            \
     ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
@@ -47,7 +48,7 @@ static const int ACCESS_RW = 1; // read/write
         doocsAdapter.createServer()};                                                                                  \
   };                                                                                                                   \
                                                                                                                        \
-  ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                \
+  ExtendedTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE)};                 \
   std::string GlobalFixture::rpcNo;                                                                                    \
   std::string GlobalFixture::bpn;                                                                                      \
   BOOST_GLOBAL_FIXTURE(GlobalFixture);

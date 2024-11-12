@@ -7,6 +7,7 @@
 // boost unit_test needs to be included before serverBasedTestTools.h
 
 #include "DoocsAdapter.h"
+#include "ExtendedTestApplication.h"
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 
@@ -69,7 +70,7 @@ struct GlobalFixture {
 
   ~GlobalFixture() { GlobalFixture::referenceTestApplication.releaseManualLoopControl(); }
 
-  static ReferenceTestApplication referenceTestApplication;
+  static ExtendedTestApplication referenceTestApplication;
   static std::string rpcNo;
   static std::string bpn;
   ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",
@@ -77,7 +78,7 @@ struct GlobalFixture {
       ChimeraTK::DoocsAdapter::createServer()};
 };
 
-ReferenceTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE), alen};
+ExtendedTestApplication GlobalFixture::referenceTestApplication{BOOST_STRINGIZE(BOOST_TEST_MODULE), alen};
 std::string GlobalFixture::rpcNo;
 std::string GlobalFixture::bpn;
 

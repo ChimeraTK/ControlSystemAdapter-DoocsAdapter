@@ -78,6 +78,7 @@ namespace ChimeraTK {
     void processImageNode(xmlpp::Node const* node, const std::string& locationName);
     void processXyNode(xmlpp::Node const* node, std::string& locationName);
     void processIfffNode(xmlpp::Node const* node, std::string& locationName);
+    void processIiiiNode(const xmlpp::Node* node, std::string& locationName);
     void processSetErrorNode(xmlpp::Node const* node, std::string& locationName);
     void processImportNode(xmlpp::Node const* importNode, const std::string& importLocationName = std::string());
     void processCode(xmlpp::Element const* location, const std::string& locationName);
