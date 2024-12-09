@@ -91,7 +91,12 @@ namespace ChimeraTK {
     DOOCS_T::auto_init();
     modified = false;
     // send the current value to the device
-    if(this->get_access() == 1) { // property is writeable
+    // property is writeable OR the target accessor is writable and the only one connected to this property
+    // The second case is to have bi-directional variables that are used to persist settings into the config file
+    // and need that value back on start-up but are not supposed to be written by the control system and mapped
+    // read-only in the configuration file.
+    if(this->get_access() == 1 ||
+        (_processArray->isWriteable() && otherPropertiesToUpdate.empty())) { // property is writeable
       sendToDevice(false);
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
