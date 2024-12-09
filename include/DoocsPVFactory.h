@@ -47,6 +47,7 @@ namespace ChimeraTK {
 
     boost::shared_ptr<D_fct> createXy(XyDescription const& xyDescription);
     boost::shared_ptr<D_fct> createIfff(IfffDescription const& ifffDescription);
+    boost::shared_ptr<D_fct> createIiii(const IiiiDescription& iiiiDescription);
 
     boost::shared_ptr<D_fct> createDoocsArray(std::shared_ptr<AutoPropertyDescription> const& propertyDescription);
 
