@@ -326,11 +326,21 @@ namespace ChimeraTK {
     auto f3ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f3Source);
 
     boost::shared_ptr<DoocsIfff> doocsPV;
-    doocsPV.reset(new DoocsIfff(_eqFct, ifffDescription.name,
-        getTypeChangingDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
-        getTypeChangingDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
-        getTypeChangingDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
-        getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
+
+    if(ifffDescription.hasHistory) {
+      doocsPV.reset(new DoocsIfff(_eqFct, ifffDescription.name,
+          getTypeChangingDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
+          getTypeChangingDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
+          getTypeChangingDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
+          getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
+    }
+    else {
+      doocsPV.reset(new DoocsIfff(ifffDescription.name, _eqFct,
+          getTypeChangingDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
+          getTypeChangingDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
+          getTypeChangingDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
+          getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
+    }
 
     // set specified data_matching mode
     doocsPV->setMatchingMode(ifffDescription.dataMatching);
@@ -365,8 +375,14 @@ namespace ChimeraTK {
     auto iiiiProcessVariable = _controlSystemPVManager->getProcessVariable(iiiiDescription.iiiiSource);
 
     boost::shared_ptr<DoocsIiii> doocsPV;
-    doocsPV.reset(new DoocsIiii(_eqFct, iiiiDescription.name,
-        getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater));
+    if(iiiiDescription.hasHistory) {
+      doocsPV.reset(new DoocsIiii(_eqFct, iiiiDescription.name,
+          getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater));
+    }
+    else {
+      doocsPV.reset(new DoocsIiii(iiiiDescription.name, _eqFct,
+          getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater));
+    }
 
     // set specified data_matching mode
     doocsPV->setMatchingMode(iiiiDescription.dataMatching);
