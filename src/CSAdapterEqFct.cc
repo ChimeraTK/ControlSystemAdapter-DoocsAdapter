@@ -23,7 +23,7 @@ namespace ChimeraTK {
     // construct and populate the StatusHandler for this location
     for(const ErrorReportingInfo& errorReportingInfo :
         ChimeraTK::VariableMapper::getInstance().getErrorReportingInfos()) {
-      if(name_.get_value() != errorReportingInfo.targetLocation) {
+      if(name() != errorReportingInfo.targetLocation) {
         continue;
       }
 

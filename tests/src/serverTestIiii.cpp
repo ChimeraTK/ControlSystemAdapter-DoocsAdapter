@@ -13,7 +13,6 @@ extern const char* object_name;
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
 
 #include <algorithm>
 #include <random>
@@ -36,8 +35,7 @@ BOOST_AUTO_TEST_CASE(testIiiiUpdate) {
     IIII value; // a copy of the value. We don't want to hold the location lock longer than needed
 
     location->lock();
-    value = *(
-        d_iiii
+    value = *(d_iiii
             ->value()); // value returs a pointer which we only must dereference while holding the lock. So we make a copy
     location->unlock();
     return value;
@@ -88,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testIiiiUpdate) {
   BOOST_TEST(resultIiii.i4_data == referenceIiii.i4_data);
 
   // change the values
-  IIII newReferenceIiii;
+  [[maybe_unused]] IIII newReferenceIiii;
   newReferenceIiii.i1_data = 345;
   newReferenceIiii.i2_data = 34;
   newReferenceIiii.i3_data = -34;
