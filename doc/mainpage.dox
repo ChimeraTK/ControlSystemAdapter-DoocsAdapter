@@ -28,11 +28,8 @@ define them. Hence, you need to provide a second configuration file which define
 by your application should be mapped to the DOOCS structure.
 
 All locations have the same `eq_fct_type` 10. As DOOCS will add the properties inside the locations automatically, you
-do not have to specify them here.
-
-Missing locations will also be added automatically by the adapter, so it is perfectly fine to just have the server
-location in the config file. Deflaut `eq_fct_type` is 10, but you can set a new `code` corresponding to `eq_fct_type`,
-see \ref specifie_code.
+do not have to specify them here. Missing locations will also be added automatically by the adapter, so it is perfectly fine to just have the server
+location in the config file.
 
 \subsection mapping_file DOOCS adapter mapping file
 
@@ -49,9 +46,6 @@ An example for the mapping file is:
 
 Each location is specified with a `location` tag.The `location` tag must have one XML attribute:
 - `name`: Specifies the name of the location
-
-It is possible to specify the `eq_fct_code` which must match `eq_fct_type` in the configuration file, see \ref specifie_code.
-- `code`: Optional, specifies `eq_fct_code`
 
 Properties can be specified in each location with the property tag, or in case of special properties like a `D_spectrum`
 with the respective tag. A list of special properties is found in the next section. Each `property` tag has the
@@ -205,29 +199,4 @@ sets the properties ERROR, ERROR.STR, STS.ERROR, STS.NEWERROR, and also logs int
 Compare DOOCS documentation for error properties and propagation to the overall error counting per server, SVR.ERROR_COUNT.
 
           
-\subsection specifie_code Specify `eq_fct_code` in the mapping file
-
-It is possible to specify the `eq_fct_code` which must match `eq_fct_type` in the configuration file with `code` in 
-the \<location\> tag of the mapping file.
-
-If `eq_fct_type` is set in the configuration file, `code` must have the same number in the mapping file. If the location
-in the configuration file is missing, you can set your own new `code` in the mapping file. But if no code is set,
-the default code is 10. You can set `code` multiple times, but `code` must always be consistent.
-The `code` must be integer and > 1, since 1 is reserved for server.          
-          
-An example configuration file and mapping file with the code specified:
-
-\include tests/serverTestVariableMapperWithLocationAndCode.conf
-
-\include tests/serverTestVariableMapperWithLocationAndCode-DoocsVariableConfig.xml
-
-The location `DOUBLE` has already the `code` 10 specified in the configuration file.
-If you set the `code` in the mapping file, it must have 10 as well.
-
-The location `CREATED` will be created new with the default `code` of 10.
-
-The location `NEW` will be created new with `code` of 12.
-
-The location `FLOAT` is only specifed in the configuration file but will be also created with `code` 11.
-
 */
