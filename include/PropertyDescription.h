@@ -251,7 +251,7 @@ namespace ChimeraTK {
 
     IiiiDescription(ChimeraTK::RegisterPath const& iiiiSource_ = "", std::string const& location_ = "",
         std::string const& name_ = "")
-    : PropertyDescription(location_, name_), iiiiSource(iiiiSource_){};
+    : PropertyDescription(location_, name_), iiiiSource(iiiiSource_) {};
 
     void print(std::ostream& os = std::cout) const override {
       os << "iiii: " << iiiiSource << " -> " << location << " / " << name << std::endl;

@@ -15,7 +15,9 @@ static const int ACCESS_RW = 1; // read/write
 
 #define DOOCS_ADAPTER_DEFAULT_FIXTURE                                                                                  \
   struct GlobalFixture {                                                                                               \
-    GlobalFixture() { ChimeraTK::DoocsAdapter::waitUntilInitialised(); }                                               \
+    GlobalFixture() {                                                                                                  \
+      ChimeraTK::DoocsAdapter::waitUntilInitialised();                                                                 \
+    }                                                                                                                  \
                                                                                                                        \
     static ExtendedTestApplication referenceTestApplication;                                                           \
     ThreadedDoocsServer server{boost::unit_test::framework::master_test_suite().p_name.value + ".conf",                \
@@ -38,7 +40,9 @@ static const int ACCESS_RW = 1; // read/write
       codeBlockStartUp                                                                                                 \
     }                                                                                                                  \
                                                                                                                        \
-    ~GlobalFixture() { GlobalFixture::referenceTestApplication.releaseManualLoopControl(); }                           \
+    ~GlobalFixture() {                                                                                                 \
+      GlobalFixture::referenceTestApplication.releaseManualLoopControl();                                              \
+    }                                                                                                                  \
                                                                                                                        \
     static ExtendedTestApplication referenceTestApplication;                                                           \
     static std::string rpcNo;                                                                                          \
