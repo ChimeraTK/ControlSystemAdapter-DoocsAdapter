@@ -36,8 +36,7 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
     IFFF value; // a copy of the value. We don't want to hold the location lock longer than needed
 
     location->lock();
-    value = *(
-        d_ifff
+    value = *(d_ifff
             ->value()); // value returs a pointer which we only must dereference while holding the lock. So we make a copy
     location->unlock();
     return value;
