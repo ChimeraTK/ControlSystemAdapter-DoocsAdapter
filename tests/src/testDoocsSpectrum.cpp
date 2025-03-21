@@ -23,8 +23,9 @@ using namespace ChimeraTK;
 class TestableDoocsSpectrum : public DoocsSpectrum {
  public:
   TestableDoocsSpectrum(EqFct* const eqFct, std::string const& doocsPropertyName,
-      boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater)
-  : DoocsSpectrum(eqFct, doocsPropertyName, processArray, updater, nullptr, nullptr) {}
+      boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : DoocsSpectrum(eqFct, doocsPropertyName, processArray, updater, matchingMode, nullptr, nullptr) {}
 
   using DoocsSpectrum::sendToDevice;
 };
@@ -52,8 +53,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceTest, T, simple_test_types) {
   // Write to the doocs spectrum and send it.
   // We use the 'testable' version which exposes sendToDevice, which otherwise
   // is protected.
-  TestableDoocsSpectrum doocsSpectrum(
-      nullptr, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater);
+  TestableDoocsSpectrum doocsSpectrum(nullptr, "someName", getTypeChangingDecorator<float>(controlSystemVariable),
+      updater, DataConsistencyGroup::MatchingMode::exact);
 
   // create unique signature for each template parameter
   // negative factor for signed values
@@ -93,8 +94,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceTest, T, simple_test_types) {
   DoocsUpdater updater;
 
   // initialise the doocs spectrum
-  DoocsSpectrum doocsSpectrum(
-      nullptr, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater, nullptr, nullptr);
+  DoocsSpectrum doocsSpectrum(nullptr, "someName", getTypeChangingDecorator<float>(controlSystemVariable), updater,
+      DataConsistencyGroup::MatchingMode::exact, nullptr, nullptr);
   for(size_t i = 0; i < arraySize; ++i) {
     doocsSpectrum.fill_spectrum(i, 0);
   }

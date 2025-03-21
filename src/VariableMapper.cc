@@ -734,6 +734,9 @@ namespace ChimeraTK {
     else if(txt == "none") {
       dataMatching = DataConsistencyGroup::MatchingMode::none;
     }
+    else if(txt == "historized") {
+      dataMatching = DataConsistencyGroup::MatchingMode::historized;
+    }
     else {
       throw std::invalid_argument("Unknown data matching mode specified in xml file: " + txt);
     }

@@ -205,7 +205,7 @@ struct ZMQFixture {
       CHECK_WITH_TIMEOUT(dataReceived > 0);
       usleep(10000);
       BOOST_CHECK_EQUAL(dataReceived, 1);
-      dataReceived--;
+      dataReceived = 0;
       {
         std::lock_guard<std::mutex> lock(mutex);
         BOOST_CHECK_EQUAL(received.error() != 0, isError);

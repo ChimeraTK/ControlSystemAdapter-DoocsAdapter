@@ -19,11 +19,13 @@ namespace ChimeraTK {
    public:
     /// Constructor with history enabled
     DoocsIiii(EqFct* eqFct, std::string const& doocsPropertyName,
-        boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater);
+        boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     /// Constructor without history
     DoocsIiii(std::string const& doocsPropertyName, EqFct* eqFct,
-        boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater);
+        boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     void set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) override;
     void auto_init() override;

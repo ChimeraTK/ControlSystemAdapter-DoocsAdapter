@@ -20,12 +20,14 @@ namespace ChimeraTK {
     /// Constructor with history enabled
     DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName, boost::shared_ptr<NDRegisterAccessor<int>> i1Value,
         boost::shared_ptr<NDRegisterAccessor<float>> f1Value, boost::shared_ptr<NDRegisterAccessor<float>> f2Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> f3Value, DoocsUpdater& updater);
+        boost::shared_ptr<NDRegisterAccessor<float>> f3Value, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     /// Constructor without history
     DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct, boost::shared_ptr<NDRegisterAccessor<int>> i1Value,
         boost::shared_ptr<NDRegisterAccessor<float>> f1Value, boost::shared_ptr<NDRegisterAccessor<float>> f2Value,
-        boost::shared_ptr<NDRegisterAccessor<float>> f3Value, DoocsUpdater& updater);
+        boost::shared_ptr<NDRegisterAccessor<float>> f3Value, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     void set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) override;
     void auto_init() override;

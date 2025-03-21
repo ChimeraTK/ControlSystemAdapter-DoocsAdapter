@@ -16,15 +16,17 @@
 
 namespace ChimeraTK {
   DoocsIiii::DoocsIiii(EqFct* eqFct, std::string const& doocsPropertyName,
-      boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater)
-  : D_iiii(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _iiiiValue(iiiiValue) {
+      boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : D_iiii(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater, matchingMode), _iiiiValue(iiiiValue) {
     registerIiiiSources();
   }
 
   // Constructor without history
   DoocsIiii::DoocsIiii(std::string const& doocsPropertyName, EqFct* eqFct,
-      boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater)
-  : D_iiii(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _iiiiValue(iiiiValue) {
+      boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : D_iiii(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode), _iiiiValue(iiiiValue) {
     registerIiiiSources();
   }
 
@@ -37,7 +39,7 @@ namespace ChimeraTK {
     if(_iiiiValue->isReadOnly()) {
       this->set_ro_access();
     }
-    registerVariable(OneDRegisterAccessor<int>(_iiiiValue));
+    registerVariable(_iiiiValue);
     _outputVarForVersionNum = _iiiiValue;
   }
 

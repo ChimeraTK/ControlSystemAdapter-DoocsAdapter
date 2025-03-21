@@ -56,19 +56,19 @@ namespace ChimeraTK {
     // "._HIST", which also has to fit into the 64 characters
     if(propertyDescription.name.length() > 64 - 6) {
       std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
-      doocsPV.reset(
-          new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(propertyDescription.name, _eqFct, processArray, _updater));
+      doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
+          propertyDescription.name, _eqFct, processArray, _updater, propertyDescription.dataMatching);
     }
     else {
       if(propertyDescription.hasHistory) {
         // version with history: EqFtc first
-        doocsPV.reset(new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(
-            _eqFct, propertyDescription.name, processArray, _updater));
+        doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
+            _eqFct, propertyDescription.name, processArray, _updater, propertyDescription.dataMatching);
       }
       else {
         // version without history: name first
-        doocsPV.reset(new DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>(
-            propertyDescription.name, _eqFct, processArray, _updater));
+        doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
+            propertyDescription.name, _eqFct, processArray, _updater, propertyDescription.dataMatching);
       }
     } // if name too long
 
@@ -81,10 +81,6 @@ namespace ChimeraTK {
     if(propertyDescription.publishZMQ) {
       boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->publishZeroMQ();
     }
-
-    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    boost::dynamic_pointer_cast<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(doocsPV)->setMatchingMode(
-        propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(!propertyDescription.macroPulseNumberSource.empty()) {
@@ -124,8 +120,8 @@ namespace ChimeraTK {
 
     assert(processArray->getNumberOfChannels() == 1);
     assert(processArray->getNumberOfSamples() == 1); // array of strings is not supported
-    boost::shared_ptr<DoocsProcessScalar<std::string, DTextUnifier>> doocsPV(
-        new DoocsProcessScalar<std::string, DTextUnifier>(_eqFct, propertyDescription.name, processArray, _updater));
+    auto doocsPV = boost::make_shared<DoocsProcessScalar<std::string, DTextUnifier>>(
+        _eqFct, propertyDescription.name, processArray, _updater, propertyDescription.dataMatching);
 
     // set read only mode if configures in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
@@ -136,9 +132,6 @@ namespace ChimeraTK {
     if(propertyDescription.publishZMQ) {
       doocsPV->publishZeroMQ();
     }
-
-    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    doocsPV->setMatchingMode(propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(!propertyDescription.macroPulseNumberSource.empty()) {
@@ -187,14 +180,14 @@ namespace ChimeraTK {
     //    assert(processArray->getNumberOfChannels() == 1);
     boost::shared_ptr<DoocsSpectrum> doocsPV;
     if(spectrumDescription.numberOfBuffers == 1) {
-      doocsPV.reset(new DoocsSpectrum(_eqFct, spectrumDescription.name,
-          getTypeChangingDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor,
-          incrementAccessor));
+      doocsPV = boost::make_shared<DoocsSpectrum>(_eqFct, spectrumDescription.name,
+          getTypeChangingDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater,
+          spectrumDescription.dataMatching, startAccessor, incrementAccessor);
     }
     else {
-      doocsPV.reset(new DoocsSpectrum(_eqFct, spectrumDescription.name,
-          getTypeChangingDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater, startAccessor,
-          incrementAccessor, spectrumDescription.numberOfBuffers));
+      doocsPV = boost::make_shared<DoocsSpectrum>(_eqFct, spectrumDescription.name,
+          getTypeChangingDecorator<float>(processVariable, DecoratorType::C_style_conversion), _updater,
+          spectrumDescription.dataMatching, startAccessor, incrementAccessor, spectrumDescription.numberOfBuffers);
     }
 
     // set read only mode if configures in the xml file or for output variables
@@ -227,9 +220,6 @@ namespace ChimeraTK {
       spectrum->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
     }
 
-    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    doocsPV->setMatchingMode(spectrumDescription.dataMatching);
-
     // set macro pulse number source, if configured
     if(!spectrumDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(spectrumDescription.macroPulseNumberSource);
@@ -251,7 +241,8 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsImage(ImageDescription const& imageDescription) {
     auto processVariable = _controlSystemPVManager->getProcessVariable(imageDescription.source);
     boost::shared_ptr<DoocsImage> doocsPV = boost::make_shared<DoocsImage>(_eqFct, imageDescription.name,
-        getTypeChangingDecorator<unsigned char>(processVariable, DecoratorType::C_style_conversion), _updater);
+        getTypeChangingDecorator<unsigned char>(processVariable, DecoratorType::C_style_conversion), _updater,
+        imageDescription.dataMatching);
 
     if(not imageDescription.description.empty()) {
       doocsPV->set_descr_value(imageDescription.description);
@@ -264,8 +255,6 @@ namespace ChimeraTK {
       doocsPV->publishZeroMQ();
     }
 
-    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    doocsPV->setMatchingMode(imageDescription.dataMatching);
     // set macro pulse number source, if configured
     if(!imageDescription.macroPulseNumberSource.empty()) {
       auto mpnSource = _controlSystemPVManager->getProcessVariable(imageDescription.macroPulseNumberSource);
@@ -288,10 +277,10 @@ namespace ChimeraTK {
     auto xProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.xSource);
     auto yProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.ySource);
 
-    boost::shared_ptr<DoocsXy> doocsPV;
-    doocsPV.reset(new DoocsXy(_eqFct, xyDescription.name,
+    auto doocsPV = boost::make_shared<DoocsXy>(_eqFct, xyDescription.name,
         getTypeChangingDecorator<float>(xProcessVariable, DecoratorType::C_style_conversion),
-        getTypeChangingDecorator<float>(yProcessVariable, DecoratorType::C_style_conversion), _updater));
+        getTypeChangingDecorator<float>(yProcessVariable, DecoratorType::C_style_conversion), _updater,
+        xyDescription.dataMatching);
 
     auto xy = boost::static_pointer_cast<DoocsXy>(doocsPV);
 
@@ -329,22 +318,21 @@ namespace ChimeraTK {
     boost::shared_ptr<DoocsIfff> doocsPV;
 
     if(ifffDescription.hasHistory) {
-      doocsPV.reset(new DoocsIfff(_eqFct, ifffDescription.name,
+      doocsPV = boost::make_shared<DoocsIfff>(_eqFct, ifffDescription.name,
           getTypeChangingDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
           getTypeChangingDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
           getTypeChangingDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
-          getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
+          getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater,
+          ifffDescription.dataMatching);
     }
     else {
-      doocsPV.reset(new DoocsIfff(ifffDescription.name, _eqFct,
+      doocsPV = boost::make_shared<DoocsIfff>(ifffDescription.name, _eqFct,
           getTypeChangingDecorator<int>(i1ProcessVariable, DecoratorType::C_style_conversion),
           getTypeChangingDecorator<float>(f1ProcessVariable, DecoratorType::C_style_conversion),
           getTypeChangingDecorator<float>(f2ProcessVariable, DecoratorType::C_style_conversion),
-          getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater));
+          getTypeChangingDecorator<float>(f3ProcessVariable, DecoratorType::C_style_conversion), _updater,
+          ifffDescription.dataMatching);
     }
-
-    // set specified data_matching mode
-    doocsPV->setMatchingMode(ifffDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(!ifffDescription.macroPulseNumberSource.empty()) {
@@ -377,16 +365,15 @@ namespace ChimeraTK {
 
     boost::shared_ptr<DoocsIiii> doocsPV;
     if(iiiiDescription.hasHistory) {
-      doocsPV.reset(new DoocsIiii(_eqFct, iiiiDescription.name,
-          getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater));
+      doocsPV = boost::make_shared<DoocsIiii>(_eqFct, iiiiDescription.name,
+          getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater,
+          iiiiDescription.dataMatching);
     }
     else {
-      doocsPV.reset(new DoocsIiii(iiiiDescription.name, _eqFct,
-          getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater));
+      doocsPV = boost::make_shared<DoocsIiii>(iiiiDescription.name, _eqFct,
+          getTypeChangingDecorator<int>(iiiiProcessVariable, DecoratorType::C_style_conversion), _updater,
+          iiiiDescription.dataMatching);
     }
-
-    // set specified data_matching mode
-    doocsPV->setMatchingMode(iiiiDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(iiiiDescription.macroPulseNumberSource.size() > 0) {
@@ -511,8 +498,8 @@ namespace ChimeraTK {
 
     ///@todo FIXME Add the decorator type as option  to the array description, and
     /// only use C_style_conversion as default
-    boost::shared_ptr<PropertyBase> doocsPV(
-        new DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>(_eqFct, propertyDescription.name, processArray, _updater));
+    auto doocsPV = boost::make_shared<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(
+        _eqFct, propertyDescription.name, processArray, _updater, propertyDescription.dataMatching);
 
     // set read only mode if configures in the xml file or for output variables
     if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
@@ -523,9 +510,6 @@ namespace ChimeraTK {
     if(propertyDescription.publishZMQ) {
       doocsPV->publishZeroMQ();
     }
-
-    // set data matching mode (need to call before setMacroPulseNumberSource, as the mode is checked there)
-    doocsPV->setMatchingMode(propertyDescription.dataMatching);
 
     // set macro pulse number source, if configured
     if(!propertyDescription.macroPulseNumberSource.empty()) {
