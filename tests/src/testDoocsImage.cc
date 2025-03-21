@@ -91,7 +91,7 @@ BOOST_FIXTURE_TEST_CASE(fromDeviceTest, DeviceFixture) {
   DoocsUpdater updater;
 
   // EqFct = NULL, not required for our purpose
-  DoocsImage doocsImage(nullptr, "someName", controlSystemVariable, updater);
+  DoocsImage doocsImage(nullptr, "someName", controlSystemVariable, updater, DataConsistencyGroup::MatchingMode::exact);
 
   // generate an image and send it via the device side
   ChimeraTK::OneDRegisterAccessor acc(deviceVariable);

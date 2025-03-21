@@ -65,14 +65,16 @@ namespace ChimeraTK {
   /************************* DoocsImage ************************************************************************/
 
   DoocsImage::DoocsImage(EqFct* eqFct, std::string const& doocsPropertyName,
-      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater)
-  : D_imagec(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _processArray(processArray) {
+      boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : D_imagec(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode),
+    _processArray(processArray) {
     if(_processArray->isWriteable()) {
       // It could only be writable if the application implements it as an output with back-channel.
       // Then consider this application to have a logical bug.
       throw logic_error("writable images not supported by DoocsImage");
     }
-    setupOutputVar(processArray);
+    setupOutputVar(_processArray);
   }
 
   void DoocsImage::updateDoocsBuffer(const TransferElementID& transferElementId) {
