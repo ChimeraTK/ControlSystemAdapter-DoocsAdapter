@@ -19,8 +19,8 @@ namespace ChimeraTK {
    */
   class PropertyBase : public boost::enable_shared_from_this<PropertyBase> {
    public:
-    PropertyBase(std::string doocsPropertyName, DoocsUpdater& updater)
-    : _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+    PropertyBase(std::string doocsPropertyName, DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
+    : _consistencyGroup(matchingMode), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
     virtual ~PropertyBase() = default;
 
     /// returns associated DOOCS location
@@ -31,7 +31,6 @@ namespace ChimeraTK {
     void publishZeroMQ() { _publishZMQ = true; }
     void setMacroPulseNumberSource(
         const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);
-    void setMatchingMode(DataConsistencyGroup::MatchingMode newMode) { _consistencyGroup.setMatchingMode(newMode); }
 
     /// List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS
     /// side. This is used to synchronise multi-mapped PVs.
@@ -46,10 +45,18 @@ namespace ChimeraTK {
     /// should be called for output vars mapped to doocs
     /// registers processVar in data consistency group, initializes DOOCS error state and keeps a reference as _mainOutputVar
     template<typename T>
-    void setupOutputVar(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar);
+    void setupOutputVar(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>>& processVar);
 
     /// register a variable in consistency group
-    void registerVariable(const ChimeraTK::TransferElementAbstractor& var);
+    void registerVariable(TransferElementAbstractor& var);
+    template<typename T>
+    void registerVariable(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>>& var) {
+      TransferElementAbstractor a{var};
+      registerVariable(a);
+      // since registerVariable can change its arguments, propagate changed state
+      var = boost::dynamic_pointer_cast<NDRegisterAccessor<T>>(a.getHighLevelImplElement());
+      assert(var);
+    }
     /// update for data consistency group
     bool updateConsistency(const TransferElementID& updatedId);
     /// default implementation returns timestamp of _outputVarForVersionNum
@@ -83,8 +90,8 @@ namespace ChimeraTK {
   /*****************************************************************************/
 
   template<typename T>
-  void PropertyBase::setupOutputVar(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processVar) {
-    registerVariable(TransferElementAbstractor{processVar});
+  void PropertyBase::setupOutputVar(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>>& processVar) {
+    registerVariable(processVar);
     _outputVarForVersionNum = processVar;
 
     if(processVar->isReadable() && !processVar->isWriteable()) {
