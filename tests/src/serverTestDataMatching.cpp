@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
   float expectedFloat = 42.42F;
   DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", expectedUnsignedInt);
   DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
+  DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_SCALAR", expectedFloat);
 
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
@@ -51,6 +52,7 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
       DoocsServerTestHelper::doocsGet<unsigned int>("//UINT/FROM_DEVICE_SCALAR") - expectedUnsignedInt < 1e-6);
   CHECK_WITH_TIMEOUT(
       DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedFloat < 1e-6);
+  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<double>("//DOUBLE/FROM_DEVICE_SCALAR") - expectedFloat < 1e-6);
 
   // Send MPN and values with different version numbers
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
@@ -58,10 +60,12 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
 
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   auto lastExpectedUnsignedInt = expectedUnsignedInt;
+  auto lastExpectedDouble = expectedFloat;
   expectedUnsignedInt = 2U;
   expectedFloat = 2.42F;
   DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", expectedUnsignedInt);
   DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
+  DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_SCALAR", expectedFloat);
 
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
@@ -70,6 +74,8 @@ BOOST_AUTO_TEST_CASE(testProcessScalar) {
   usleep(1000000);
   BOOST_CHECK_EQUAL(
       DoocsServerTestHelper::doocsGet<unsigned int>("//UINT/FROM_DEVICE_SCALAR"), lastExpectedUnsignedInt);
+  // double value must also not be updated because data matching = historized
+  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<double>("//DOUBLE/FROM_DEVICE_SCALAR"), lastExpectedDouble);
 
   // Float value has to get the update even with version number mismatch
   // because data matching is none
