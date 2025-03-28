@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(testEvaluateBool) {
     VariableMapper::evaluateBool("fale");
     BOOST_ERROR("testEvaluateBool did not throw as expected"); // LCOV_EXCL_LINE
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for invalid "
                  "bool syntax:\n      "
               << e.what() << std::endl;
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(testWrongGlobalDirectory) {
     testXmlParsing("variableTreeXml/wrongGlobalDirectory.xml");
     BOOST_ERROR("testWrongGlobalDirectory did not throw as expected."); // LCOV_EXCL_LINE
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
                  "directory in global import:\n      "
               << e.what() << std::endl;
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(testImportTooShort) {
     testXmlParsing("variableTreeXml/globalImportPartTooShort.xml");
     BOOST_ERROR("testImportTooShort did not throw as expected."); // LCOV_EXCL_LINE
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for too "
                  "short tree depth:\n      "
               << e.what() << std::endl;
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(testUnknownMainNode) {
     testXmlParsing("variableTreeXml/unknownMainNode.xml");
     BOOST_ERROR("testUnknownMainNode did not throw as expected"); // LCOV_EXCL_LINE
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for unknown "
                  "main node:\n      "
               << e.what() << std::endl;
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testUnkownLocationNode) {
     testXmlParsing("variableTreeXml/unknownLocationNode.xml");
     BOOST_ERROR("testUnknownLocationNode did not throw as expected"); // LCOV_EXCL_LINE
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for unknown "
                  "location node:\n      "
               << e.what() << std::endl;
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(testCodeIsNotInt) {
     testXmlParsing("variableTreeXml/codeIsNotInt.xml");
     BOOST_ERROR("testCodeIsNotInt did not throw as expected.");
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
                  "code is not an integer:\n      "
               << e.what() << std::endl;
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testCodeIsTooSmall) {
     testXmlParsing("variableTreeXml/codeIsTooSmall.xml");
     BOOST_ERROR("testCodeIsTooSmall did not throw as expected.");
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
                  "code must be > 1:\n      "
               << e.what() << std::endl;
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(testCodeIsInconsisten) {
     testXmlParsing("variableTreeXml/codeIsInconsistent.xml");
     BOOST_ERROR("testCodeIsInconsisten did not throw as expected.");
   }
-  catch(std::logic_error& e) {
+  catch(ChimeraTK::logic_error& e) {
     std::cout << " -- For manually checking the exception message for "
                  "code can not be different:\n      "
               << e.what() << std::endl;

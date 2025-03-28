@@ -474,11 +474,11 @@ namespace ChimeraTK {
           return typedCreateScalarOrArray<DTextUnifier, std::string, std::nullptr_t, std::nullptr_t>(
               valueType, *processVariable, *autoPropertyDescription, DecoratorType::limiting);
         }
-        throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
+        throw ChimeraTK::logic_error("DoocsPVFactory does not implement a data type it should!");
     }
 
     // Make compiler happy
-    throw std::logic_error("Should not be reached");
+    throw ChimeraTK::logic_error("Should not be reached");
   }
 
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
@@ -567,7 +567,7 @@ namespace ChimeraTK {
     if(propertyDescription->dataType == AutoPropertyDescription::DataType::Bool) {
       return typedCreateDoocsArray<int32_t, doocs::D_array<int32_t>>(*propertyDescription);
     }
-    throw std::logic_error("DoocsPVFactory does not implement a data type it should!");
+    throw ChimeraTK::logic_error("DoocsPVFactory does not implement a data type it should!");
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
