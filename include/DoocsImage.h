@@ -36,7 +36,8 @@ namespace ChimeraTK {
   class DoocsImage : public D_imagec, public PropertyBase {
    public:
     DoocsImage(EqFct* eqFct, std::string const& doocsPropertyName,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater);
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     IMH imh{};
     IMH* getIMH() { return &imh; }

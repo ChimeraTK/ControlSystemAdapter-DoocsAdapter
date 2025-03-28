@@ -32,6 +32,7 @@ namespace ChimeraTK {
      */
     DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor);
 
@@ -48,6 +49,7 @@ namespace ChimeraTK {
      */
     DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
         boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor, size_t numberOfBuffers);
 

@@ -47,7 +47,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(toDeviceIntegerTypeTest, T, integer_test_types) {
   controlSystemVariable->accessData(0) = 0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<T, D_int> doocsScalar(&myLocation, "TO_DEVICE_VARIABLE", controlSystemVariable, updater);
+  DoocsProcessScalar<T, D_int> doocsScalar(
+      &myLocation, "TO_DEVICE_VARIABLE", controlSystemVariable, updater, DataConsistencyGroup::MatchingMode::exact);
 
   BOOST_CHECK(setDoocsValue(doocsScalar, 42) == 0);
   BOOST_CHECK(controlSystemVariable->accessData(0) == 42);
@@ -88,7 +89,8 @@ BOOST_AUTO_TEST_CASE(toDeviceFloatTest) {
   controlSystemFloat->accessData(0) = 0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<float, D_float> doocsScalar(&myLocation, "TO_DEVICE_FLOAT", controlSystemFloat, updater);
+  DoocsProcessScalar<float, D_float> doocsScalar(
+      &myLocation, "TO_DEVICE_FLOAT", controlSystemFloat, updater, DataConsistencyGroup::MatchingMode::exact);
 
   BOOST_CHECK(setDoocsValue(doocsScalar, 12.125) == 0);
   BOOST_CHECK_CLOSE(controlSystemFloat->accessData(0), 12.125, 0.00001);
@@ -124,7 +126,8 @@ BOOST_AUTO_TEST_CASE(toDeviceDoubleTest) {
   controlSystemDouble->accessData(0) = 0;
 
   // just write to the doocs scalar, it is automatically sending
-  DoocsProcessScalar<double, D_double> doocsScalar(&myLocation, "TO_DEVICE_DOUBLE", controlSystemDouble, updater);
+  DoocsProcessScalar<double, D_double> doocsScalar(
+      &myLocation, "TO_DEVICE_DOUBLE", controlSystemDouble, updater, DataConsistencyGroup::MatchingMode::exact);
 
   BOOST_CHECK(setDoocsValue(doocsScalar, 12.125) == 0);
   BOOST_CHECK(controlSystemDouble->accessData(0) == 12.125);
@@ -161,7 +164,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(fromDeviceIntegerTypeTest, T, integer_test_types) 
   controlSystemVariable->accessData(0) = 0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<T, D_int> doocsScalar(&myLocation, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
+  DoocsProcessScalar<T, D_int> doocsScalar(
+      &myLocation, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater, DataConsistencyGroup::MatchingMode::exact);
 
   deviceVariable->accessData(0) = 42;
   deviceVariable->write();
@@ -198,7 +202,7 @@ BOOST_AUTO_TEST_CASE(toDeviceStringTest) {
 
   // just write to the doocs scalar, it is automatically sending
   DoocsProcessScalar<std::string, DTextUnifier> doocsScalar(
-      &myLocation, "TO_DEVICE_STRING", controlSystemFloat, updater);
+      &myLocation, "TO_DEVICE_STRING", controlSystemFloat, updater, DataConsistencyGroup::MatchingMode::exact);
 
   BOOST_CHECK(setDoocsValue(doocsScalar, "twelvepointonetwofive") == 0);
   BOOST_CHECK(controlSystemFloat->accessData(0) == "twelvepointonetwofive");
@@ -236,7 +240,7 @@ BOOST_AUTO_TEST_CASE(fromDeviceStringTest) {
 
   // initialise the doocs scalar
   DoocsProcessScalar<std::string, DTextUnifier> doocsScalar(
-      nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
+      nullptr, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater, DataConsistencyGroup::MatchingMode::exact);
 
   deviceVariable->accessData(0) = "twelvepointonetwofive";
   deviceVariable->write();
@@ -265,7 +269,8 @@ BOOST_AUTO_TEST_CASE(fromDeviceFloatTest) {
   controlSystemVariable->accessData(0) = 0.0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<float, D_float> doocsScalar(&myLocation, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
+  DoocsProcessScalar<float, D_float> doocsScalar(
+      &myLocation, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater, DataConsistencyGroup::MatchingMode::exact);
 
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();
@@ -294,7 +299,8 @@ BOOST_AUTO_TEST_CASE(fromDeviceDoubleTest) {
   controlSystemVariable->accessData(0) = 0;
 
   // initialise the doocs scalar
-  DoocsProcessScalar<double, D_double> doocsScalar(&myLocation, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater);
+  DoocsProcessScalar<double, D_double> doocsScalar(
+      &myLocation, "FROM_DEVICE_VARIABLE", controlSystemVariable, updater, DataConsistencyGroup::MatchingMode::exact);
 
   deviceVariable->accessData(0) = 12.125;
   deviceVariable->write();

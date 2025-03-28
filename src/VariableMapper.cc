@@ -522,7 +522,7 @@ namespace ChimeraTK {
           locationName = locationAndPropertyName.first;
           propertyName = locationAndPropertyName.second;
           if(locationName.empty()) {
-            throw std::logic_error(std::string("Invalid XML content in global import of ") +
+            throw ChimeraTK::logic_error(std::string("Invalid XML content in global import of ") +
                 (importSource.empty() ? "/" : importSource) + ":  Cannot create location name from '" + nameSource +
                 "', one hirarchy level is missing.");
           }
@@ -530,7 +530,7 @@ namespace ChimeraTK {
           // global import with directory (in case you did not validate your xml
           // against the schema).
           if(!directory.empty()) {
-            throw std::logic_error(std::string("Invalid XML content in global import of ") +
+            throw ChimeraTK::logic_error(std::string("Invalid XML content in global import of ") +
                 (importSource.empty() ? "/" : importSource) + ":  You cannot have a directory in a global import.");
           }
         }
@@ -732,6 +732,9 @@ namespace ChimeraTK {
     }
     else if(txt == "none") {
       dataMatching = DataConsistencyGroup::MatchingMode::none;
+    }
+    else if(txt == "historized") {
+      dataMatching = DataConsistencyGroup::MatchingMode::historized;
     }
     else {
       throw std::invalid_argument("Unknown data matching mode specified in xml file: " + txt);
