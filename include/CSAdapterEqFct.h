@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include <eq_fct.h>
-
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/ProcessVariable.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
+
+#include <eq_fct.h>
 
 namespace ChimeraTK {
 

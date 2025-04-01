@@ -13,10 +13,11 @@
 #include "DoocsSpectrum.h"
 #include "getAllVariableNames.h"
 #include "PropertyDescription.h"
-#include <doocs/EqFctTest.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
+
+#include <doocs/EqFctTest.h>
 
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>

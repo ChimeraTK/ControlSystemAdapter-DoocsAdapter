@@ -4,12 +4,13 @@
 
 #include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
-#include <D_spectrum.h>
-#include <eq_fct.h>
 
 #include <ChimeraTK/OneDRegisterAccessor.h>
 
 #include <boost/noncopyable.hpp>
+
+#include <D_spectrum.h>
+#include <eq_fct.h>
 
 namespace ChimeraTK {
 

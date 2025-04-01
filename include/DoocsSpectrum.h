@@ -4,11 +4,12 @@
 
 #include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
-#include <D_spectrum.h>
 
 #include <ChimeraTK/NDRegisterAccessor.h>
 
 #include <boost/noncopyable.hpp>
+
+#include <D_spectrum.h>
 
 #include <iostream>
 

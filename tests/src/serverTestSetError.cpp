@@ -10,8 +10,10 @@
 extern const char* object_name;
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
+
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
+
 #include <eq_fct.h>
 
 using namespace boost::unit_test_framework;

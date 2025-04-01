@@ -5,11 +5,12 @@
 
 #include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
-#include <doocs/EventId.h>
 
 #include <ChimeraTK/Exception.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
+
+#include <doocs/EventId.h>
 
 #include <functional>
 #include <utility>

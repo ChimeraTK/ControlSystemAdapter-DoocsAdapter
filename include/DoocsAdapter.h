@@ -3,13 +3,15 @@
 #pragma once
 
 #include "PropertyBase.h"
-#include <doocs/Server.h>
-#include <eq_fct.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
+
+#include <doocs/Server.h>
+
+#include <eq_fct.h>
 
 namespace ChimeraTK {
 

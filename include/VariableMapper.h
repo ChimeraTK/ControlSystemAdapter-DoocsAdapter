@@ -3,7 +3,6 @@
 #pragma once
 
 #include "PropertyDescription.h"
-#include <unordered_set>
 
 #include <ChimeraTK/RegisterPath.h>
 
@@ -15,6 +14,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_set>
 
 namespace xmlpp {
   class Node;

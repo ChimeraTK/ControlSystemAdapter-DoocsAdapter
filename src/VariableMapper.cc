@@ -4,9 +4,10 @@
 #include "VariableMapper.h"
 
 #include "splitStringAtFirstSlash.h"
-#include <libxml++/libxml++.h>
 
 #include <ChimeraTK/RegisterPath.h>
+
+#include <libxml++/libxml++.h>
 
 #include <algorithm>
 #include <iostream>

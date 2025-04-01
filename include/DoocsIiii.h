@@ -3,11 +3,12 @@
 #pragma once
 
 #include "DoocsAdapter.h"
-#include <D_xy.h>
 
 #include <ChimeraTK/NDRegisterAccessor.h>
 
 #include <boost/noncopyable.hpp>
+
+#include <D_xy.h>
 
 class EqFct;
 

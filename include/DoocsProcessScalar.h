@@ -4,12 +4,13 @@
 
 #include "DoocsAdapter.h"
 #include "DoocsUpdater.h"
-#include <d_fct.h>
-#include <eq_fct.h>
 
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 
 #include <boost/shared_ptr.hpp>
+
+#include <d_fct.h>
+#include <eq_fct.h>
 
 #include <chrono>
 #include <string>

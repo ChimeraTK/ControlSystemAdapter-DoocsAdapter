@@ -12,11 +12,12 @@
 #include "DoocsSpectrum.h"
 #include "DoocsXY.h"
 #include "splitStringAtFirstSlash.h"
-#include <d_fct.h>
 
 #include <ChimeraTK/TypeChangingDecorator.h>
 
 #include <boost/make_shared.hpp>
+
+#include <d_fct.h>
 
 #include <utility>
 

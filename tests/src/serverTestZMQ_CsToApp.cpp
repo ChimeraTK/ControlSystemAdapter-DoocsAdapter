@@ -9,12 +9,14 @@
 #include "DoocsAdapter.h"
 #include "fixMissingDoocs_eq_res.h"
 #include "serverBasedTestTools.h"
+
+#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs/EqCall.h>
-#include <eq_fct.h>
 
-#include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+#include <eq_fct.h>
 
 struct ZmqData {
   doocs::EqData data;
