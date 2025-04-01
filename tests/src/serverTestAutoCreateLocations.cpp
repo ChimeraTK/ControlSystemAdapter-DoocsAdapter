@@ -8,9 +8,10 @@
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/version.hpp>

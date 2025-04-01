@@ -8,13 +8,15 @@
 
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 extern const char* object_name;
 
 #include "fixMissingDoocs_eq_res.h"
+
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs/EqCall.h>
 

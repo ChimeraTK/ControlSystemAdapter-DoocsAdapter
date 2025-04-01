@@ -3,9 +3,9 @@
 
 #include "DoocsUpdater.h"
 
-#include <unordered_set>
-
 #include <ChimeraTK/ReadAnyGroup.h>
+
+#include <unordered_set>
 
 namespace ChimeraTK {
 

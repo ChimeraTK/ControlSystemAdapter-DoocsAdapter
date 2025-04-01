@@ -4,9 +4,10 @@
 
 #include "DoocsUpdater.h"
 #include "PropertyBase.h"
-#include <eq_fct.h>
 
 #include <ChimeraTK/MappedImage.h>
+
+#include <eq_fct.h>
 
 namespace ChimeraTK {
 

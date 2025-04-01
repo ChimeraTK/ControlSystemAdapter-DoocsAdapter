@@ -4,9 +4,10 @@
 
 #include "basenameFromAddress.h"
 #include "ExtendedTestApplication.h"
-#include <eq_fct.h>
 
 #include <boost/version.hpp>
+
+#include <eq_fct.h>
 
 // these constants don't exist in DOOCS, although they should. We define them
 // here for better code readability

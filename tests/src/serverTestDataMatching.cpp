@@ -7,9 +7,10 @@
 // boost unit_test needs to be included before serverBasedTestTools.h
 #include "DoocsAdapter.h"
 #include "serverBasedTestTools.h"
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
+
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
 
 extern const char* object_name;
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>

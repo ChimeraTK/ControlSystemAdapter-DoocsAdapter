@@ -4,10 +4,11 @@
 #include "DoocsSpectrum.h"
 
 #include "DoocsAdapter.h"
-#include <eq_fct.h>
 
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
+
+#include <eq_fct.h>
 
 #include <iostream>
 #include <utility>

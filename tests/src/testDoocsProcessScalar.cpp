@@ -10,14 +10,16 @@
 #include "DoocsProcessScalar.h"
 #include "DoocsUpdater.h"
 #include "set_doocs_value.h"
-#include <d_fct.h>
-#include <doocs/EqFctTest.h>
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/ControlSystemAdapter/DevicePVManager.h>
 
+#include <doocs/EqFctTest.h>
+
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include <d_fct.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
