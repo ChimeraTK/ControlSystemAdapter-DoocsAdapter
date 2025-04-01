@@ -39,6 +39,8 @@ namespace ChimeraTK {
 
     int fct_code() override { return _code; }
 
+    void get(EqAdr* addr, EqData* data_in, EqData* result) override;
+
    private:
     int _code; // EqFct code
    public:

@@ -154,4 +154,12 @@ namespace ChimeraTK {
     }
   }
 
+  void CSAdapterEqFct::get(EqAdr* addr, EqData* data_in, EqData* result) {
+    if(!ChimeraTK::DoocsAdapter::isInitialised) {
+      result->error(eq_errors::device_offline, "Server still starting up...");
+      return;
+    }
+    return EqFct::get(addr, data_in, result);
+  }
+
 } // namespace ChimeraTK
