@@ -17,28 +17,31 @@ namespace ChimeraTK {
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor)
   : D_spectrum(doocsPropertyName, processArray->getNumberOfSamples(), eqFct, processArray->isWriteable()),
-    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(std::move(startAccessor)),
-    _incrementAccessor(std::move(incrementAccessor)), _nBuffers(1) {
-    setupOutputVar(processArray);
+    PropertyBase(doocsPropertyName, updater, matchingMode), _processArray(processArray),
+    _startAccessor(std::move(startAccessor)), _incrementAccessor(std::move(incrementAccessor)), _nBuffers(1) {
+    setupOutputVar(_processArray);
 
     addParameterAccessors();
   }
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> startAccessor,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor, size_t numberOfBuffers)
   : D_spectrum(doocsPropertyName, processArray->getNumberOfSamples(), eqFct, numberOfBuffers, DATA_A_FLOAT),
-    PropertyBase(doocsPropertyName, updater), _processArray(processArray), _startAccessor(std::move(startAccessor)),
-    _incrementAccessor(std::move(incrementAccessor)), _nBuffers(numberOfBuffers) {
+    PropertyBase(doocsPropertyName, updater, matchingMode), _processArray(processArray),
+    _startAccessor(std::move(startAccessor)), _incrementAccessor(std::move(incrementAccessor)),
+    _nBuffers(numberOfBuffers) {
     if(_nBuffers > 1 && !processArray->isReadable()) {
       throw ChimeraTK::logic_error(
           "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but is not readable.");
     }
-    setupOutputVar(processArray);
+    setupOutputVar(_processArray);
 
     addParameterAccessors();
   }

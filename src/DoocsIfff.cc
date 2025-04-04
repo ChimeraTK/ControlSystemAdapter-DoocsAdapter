@@ -19,9 +19,10 @@ namespace ChimeraTK {
   DoocsIfff::DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<NDRegisterAccessor<int>> i1Value, boost::shared_ptr<NDRegisterAccessor<float>> f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> f2Value, boost::shared_ptr<NDRegisterAccessor<float>> f3Value,
-      DoocsUpdater& updater)
-  : D_ifff(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _i1Value(std::move(i1Value)),
-    _f1Value(std::move(f1Value)), _f2Value(std::move(f2Value)), _f3Value(std::move(f3Value)) {
+      DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
+  : D_ifff(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater, matchingMode),
+    _i1Value(std::move(i1Value)), _f1Value(std::move(f1Value)), _f2Value(std::move(f2Value)),
+    _f3Value(std::move(f3Value)) {
     checkSourceConsistency();
     registerIfffSources();
   }
@@ -30,9 +31,10 @@ namespace ChimeraTK {
   DoocsIfff::DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct,
       boost::shared_ptr<NDRegisterAccessor<int>> i1Value, boost::shared_ptr<NDRegisterAccessor<float>> f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> f2Value, boost::shared_ptr<NDRegisterAccessor<float>> f3Value,
-      DoocsUpdater& updater)
-  : D_ifff(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _i1Value(std::move(i1Value)),
-    _f1Value(std::move(f1Value)), _f2Value(std::move(f2Value)), _f3Value(std::move(f3Value)) {
+      DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
+  : D_ifff(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode),
+    _i1Value(std::move(i1Value)), _f1Value(std::move(f1Value)), _f2Value(std::move(f2Value)),
+    _f3Value(std::move(f3Value)) {
     checkSourceConsistency();
     registerIfffSources();
   }
@@ -53,10 +55,10 @@ namespace ChimeraTK {
   }
 
   void DoocsIfff::registerIfffSources() {
-    registerVariable(OneDRegisterAccessor<int>(_i1Value));
-    registerVariable(OneDRegisterAccessor<float>(_f1Value));
-    registerVariable(OneDRegisterAccessor<float>(_f2Value));
-    registerVariable(OneDRegisterAccessor<float>(_f3Value));
+    registerVariable(_i1Value);
+    registerVariable(_f1Value);
+    registerVariable(_f2Value);
+    registerVariable(_f3Value);
     _outputVarForVersionNum = _i1Value;
   }
 

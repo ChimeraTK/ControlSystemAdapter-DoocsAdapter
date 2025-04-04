@@ -8,11 +8,11 @@
 
 namespace ChimeraTK {
 
-  void PropertyBase::registerVariable(const TransferElementAbstractor& var) {
+  void PropertyBase::registerVariable(TransferElementAbstractor& var) {
     if(var.isReadable()) {
       auto id = var.getId();
-      _doocsUpdater.addVariable(var, getEqFct(), [this, id] { return updateDoocsBuffer(id); });
       _consistencyGroup.add(var);
+      _doocsUpdater.addVariable(var, getEqFct(), [this, id] { return updateDoocsBuffer(id); });
     }
   }
 
@@ -131,10 +131,7 @@ namespace ChimeraTK {
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
     _macroPulseNumberSource = macroPulseNumberSource;
     if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
-      _consistencyGroup.add(macroPulseNumberSource);
-      auto id = macroPulseNumberSource->getId();
-      _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), getEqFct(),
-          [this, id] { return updateDoocsBuffer(id); });
+      registerVariable(_macroPulseNumberSource);
     }
     else {
       // We don't need to match up anything with it when it changes, but we have to register this at least once

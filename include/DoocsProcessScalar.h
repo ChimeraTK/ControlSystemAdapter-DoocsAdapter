@@ -26,10 +26,12 @@ namespace ChimeraTK {
    public:
     /// constructor with history: EqFtc first
     DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
-        boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater);
+        boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
     /// constructor without history: name first
     DoocsProcessScalar(std::string doocsPropertyName, EqFct* eqFct,
-        boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater);
+        boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     /**
      * Override the Doocs set method which is triggered by the RPC calls.
@@ -52,16 +54,20 @@ namespace ChimeraTK {
 
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
-      boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater)
-  : DOOCS_T(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
-    setupOutputVar(processScalar);
+      boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : DOOCS_T(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater, matchingMode),
+    _processScalar(processScalar) {
+    setupOutputVar(_processScalar);
   }
 
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(std::string doocsPropertyName, EqFct* eqFct,
-      boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater)
-  : DOOCS_T(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater), _processScalar(processScalar) {
-    setupOutputVar(processScalar);
+      boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : DOOCS_T(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode),
+    _processScalar(processScalar) {
+    setupOutputVar(_processScalar);
   }
 
   template<typename T, typename DOOCS_T>

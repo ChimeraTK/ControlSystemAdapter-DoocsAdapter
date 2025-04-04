@@ -19,7 +19,8 @@ namespace ChimeraTK {
    public:
     DoocsXy(EqFct* eqFct, std::string const& doocsPropertyName,
         boost::shared_ptr<NDRegisterAccessor<float>> const& xValues,
-        boost::shared_ptr<NDRegisterAccessor<float>> const& yValues, DoocsUpdater& updater);
+        boost::shared_ptr<NDRegisterAccessor<float>> const& yValues, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;

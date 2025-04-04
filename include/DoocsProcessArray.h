@@ -22,7 +22,8 @@ namespace ChimeraTK {
     using THE_DOOCS_TYPE = typename std::result_of<decltype (&DOOCS_T::value)(DOOCS_T, int)>::type;
 
     DoocsProcessArray(EqFct* eqFct, std::string const& doocsPropertyName,
-        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> const& processArray, DoocsUpdater& updater);
+        boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> const& processArray, DoocsUpdater& updater,
+        DataConsistencyGroup::MatchingMode matchingMode);
 
     /**
      * Overload the set function which is called by DOOCS to inject sending to the
@@ -55,9 +56,10 @@ namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::DoocsProcessArray(EqFct* eqFct, const std::string& doocsPropertyName,
-      const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>& processArray, DoocsUpdater& updater)
-  : DOOCS_T(doocsPropertyName, processArray->getNumberOfSamples(), eqFct), PropertyBase(doocsPropertyName, updater),
-    _processArray(processArray) {
+      const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>>& processArray, DoocsUpdater& updater,
+      DataConsistencyGroup::MatchingMode matchingMode)
+  : DOOCS_T(doocsPropertyName, processArray->getNumberOfSamples(), eqFct),
+    PropertyBase(doocsPropertyName, updater, matchingMode), _processArray(processArray) {
     // Check if the array length exceeds the maximum allowed length by DOOCS.
     // DOOCS does not report this as an error and instead silently truncates the
     // array length.
@@ -70,7 +72,7 @@ namespace ChimeraTK {
         << ". Try selecting a different DOOCS type in the mappng XML file, e.g. a D_spectrum!";
       throw ChimeraTK::logic_error(s.str());
     }
-    setupOutputVar(processArray);
+    setupOutputVar(_processArray);
   }
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
