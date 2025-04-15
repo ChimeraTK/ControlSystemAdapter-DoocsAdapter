@@ -129,7 +129,7 @@ namespace ChimeraTK {
 
   void PropertyBase::setMacroPulseNumberSource(
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
-    _macroPulseNumberSource = macroPulseNumberSource;
+    _macroPulseNumberSource = _doocsUpdater.copyOfMacroPulseSource(macroPulseNumberSource);
     if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
       registerVariable(_macroPulseNumberSource);
     }
@@ -138,7 +138,7 @@ namespace ChimeraTK {
       // so the macropulse number will be included in the readAnyGroup in the updater if
       // <data_matching> is none everywhere
       _doocsUpdater.addVariable(
-          ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), getEqFct(), []() {});
+          ChimeraTK::ScalarRegisterAccessor<int64_t>(_macroPulseNumberSource), getEqFct(), []() {});
     }
   }
 

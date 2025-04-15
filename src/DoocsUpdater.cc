@@ -3,6 +3,8 @@
 
 #include "DoocsUpdater.h"
 
+#include "ChimeraTK/ControlSystemAdapter/UnidirectionalProcessArray.h"
+
 #include <ChimeraTK/ReadAnyGroup.h>
 
 #include <unordered_set>
@@ -35,6 +37,18 @@ namespace ChimeraTK {
 
     _toDoocsDescriptorMap[variable.getId()].updateFunctions.push_back(updaterFunction);
     _toDoocsDescriptorMap[variable.getId()].locations.push_back(eq_fct);
+  }
+
+  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> DoocsUpdater::copyOfMacroPulseSource(
+      const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
+    // TODO fix:
+    // we are facing the problem that macroPulse source can be used from several DataConsistencyGroups and
+    // MatchingMode::historized. This is not allowed. As a workaround, we need a kind of fan-out to separate
+    // TransferElements for each macroPulse source instance. The fan-out can be realized by a thread listening on the
+    // macroPulse source and writing to the needed copies. The needed copies should be inserted into _elementsToRead and
+    // be used as macroPulse sources.
+
+    return _macroPulseFanOut.map(macroPulseNumberSource);
   }
 
   void DoocsUpdater::update() {
@@ -114,6 +128,7 @@ namespace ChimeraTK {
   }
 
   void DoocsUpdater::run() {
+    _macroPulseFanOut.run();
     _syncThread = boost::thread([this] {
       setThreadName("DoocsUpdater");
       updateLoop();
@@ -130,6 +145,51 @@ namespace ChimeraTK {
 
   DoocsUpdater::~DoocsUpdater() {
     stop();
+  }
+
+  DoocsUpdater::MacroPulseFanOut::MPAcc DoocsUpdater::MacroPulseFanOut::map(const MPAcc& source) {
+    // TODO fix several problems
+    // - we must generalize the fan-out to handle not just macro pulses. also relevant e.g. for spectrum inputs
+    // - currently we have a problem if source is mapped to DOOCS; then it appears already in ReadAnyGroup there,
+    //   and cannot be put into another ReadAnyGroup
+    // => we must use our mapping/fan-out on all process vars (whether mapped directly or used in DataConsistencyGroup)
+    // - We should also try to get rid of the thread and the fan-out in cases where there is a 1-to-1 mapping;
+    //   unclear how to find out about this in advance.
+    //   An idea (martin) would be to put a Decorator around all used process vars and change Decorator target
+    //   later, depending on requirements: either, target is set directly to process var, or to fan-out output.
+    // - Discussion about thread or not:
+    //   We could try to eliminate fan-out thread altogether, idea would be to put only sources into ReadAnyGroup,
+    //   and handle updates for them by fanOut.read() which would write to sender and then (non-blocking)read
+    //   receivers, or more precisely, Decorators put around receivers.
+
+    auto [sender, receiver] = createSynchronizedProcessArray<int64_t>(1);
+    _macroPulseSources[source->getId()] = source;
+    _macroPulseCopies[source->getId()].emplace_back(sender);
+    return receiver;
+  }
+
+  void DoocsUpdater::MacroPulseFanOut::run() {
+    if(_macroPulseSources.empty()) {
+      return;
+    }
+    auto macroPulseFanOut = boost::thread([&] {
+      ReadAnyGroup rag;
+      for(const auto& e : _macroPulseSources) {
+        rag.add(e.second);
+      }
+      rag.finalise();
+      while(true) {
+        boost::this_thread::interruption_point();
+        auto updatedId = rag.readAny();
+        auto& source = _macroPulseSources.at(updatedId);
+        auto vn = source->getVersionNumber();
+
+        for(auto& dest : _macroPulseCopies[updatedId]) {
+          dest->accessData(0) = source->accessData(0);
+          dest->write(vn);
+        }
+      }
+    });
   }
 
 } // namespace ChimeraTK
