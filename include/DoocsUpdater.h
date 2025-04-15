@@ -43,6 +43,21 @@ namespace ChimeraTK {
 
     const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
 
+    struct MacroPulseFanOut {
+      using MPAcc = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>;
+      std::map<TransferElementID, MPAcc> _macroPulseSources;
+      std::map<TransferElementID, std::list<MPAcc>> _macroPulseCopies;
+
+      MPAcc map(const MPAcc& source);
+
+      void run();
+    };
+
+    MacroPulseFanOut _macroPulseFanOut;
+
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> copyOfMacroPulseSource(
+        const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);
+
    protected:
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
     boost::thread _syncThread; // we have to use boost thread to use interruption points
