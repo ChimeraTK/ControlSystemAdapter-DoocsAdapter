@@ -4,6 +4,7 @@
 #include "DoocsUpdater.h"
 
 #include "ChimeraTK/ControlSystemAdapter/UnidirectionalProcessArray.h"
+#include "ChimeraTK/NDRegisterAccessorDecorator.h"
 
 #include <ChimeraTK/ReadAnyGroup.h>
 
@@ -152,6 +153,44 @@ namespace ChimeraTK {
     _macroPulseSources[source->getId()] = source;
     _macroPulseCopies[source->getId()].emplace_back(sender);
     return receiver;
+  }
+
+  struct ReRoutingDecorator : public NDRegisterAccessorDecorator<int, int> {
+    using NDRegisterAccessorDecorator<int, int>::_target;
+  };
+
+  struct FanOut {
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> input;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> output1;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> output2;
+    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> output3;
+  };
+
+  void setRoutes() {
+    // this should be moved to DoocsUpdater
+
+    std::map<TransferElementID, boost::shared_ptr<ReRoutingDecorator>> elementsToRead;
+    // FanOuts identified by source transferElementId
+    std::map<TransferElementID, FanOut> fanOuts;
+
+    auto addElementToRead = [&](boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> acc) {
+      auto id = acc->getId();
+      if(elementsToRead.contains(id)) {
+        // replace the target
+        // by a FanOut-output, input of FanOut is the original target.
+        // TODO we also must check whether a FanOut already exists.
+        if(fanOuts.contains(id)) {
+          FanOut f = fanOuts[id];
+          f.output3 = elementsToRead[id]->_target;
+        }
+        else {
+          FanOut f;
+          f.input = elementsToRead[id]->_target;
+          elementsToRead[id]->_target = f.output2;
+          fanOuts[id] = f;
+        }
+      }
+    };
   }
 
   void DoocsUpdater::MacroPulseFanOut::run() {
