@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "ChimeraTK/ControlSystemAdapter/UnidirectionalProcessArray.h"
+#include "ChimeraTK/NDRegisterAccessorDecorator.h"
+
 #include <ChimeraTK/TransferElement.h>
 #include <ChimeraTK/TransferElementAbstractor.h>
 
@@ -43,17 +46,36 @@ namespace ChimeraTK {
 
     const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
 
-    struct MacroPulseFanOut {
-      using MPAcc = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>;
-      std::map<TransferElementID, MPAcc> _macroPulseSources;
-      std::map<TransferElementID, std::list<MPAcc>> _macroPulseCopies;
+    // TODO replace this by template argument, in order to generalize
+    using MPUserType = int64_t;
+    using MPAcc = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<MPUserType>>;
+    /**
+     * A RoutingDecorator will be placed around all source process variables.
+     * It implements either a direct pass-through of the value or a fan-out to the required number of copies.
+     */
+    class RoutingDecorator : public NDRegisterAccessorDecorator<MPUserType, MPUserType> {
+     public:
+      using NDRegisterAccessorDecorator<MPUserType, MPUserType>::NDRegisterAccessorDecorator;
+      using NDRegisterAccessorDecorator<MPUserType, MPUserType>::_target;
+      bool isFan() const { return _isFan; }
+      void setupFan() {
+        std::cout << "setupFan for " << getName() << std::endl;
+        auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
+        _source = _target;
+        _copies.emplace_back(sender);
+        _target = receiver;
+        _isFan = true;
+      }
+      auto& getSource() { return _source; }
+      auto& getCopies() { return _copies; }
 
-      MPAcc map(const MPAcc& source);
-
-      void run();
+     protected:
+      bool _isFan = false;
+      MPAcc _source;
+      std::list<MPAcc> _copies;
     };
-
-    MacroPulseFanOut _macroPulseFanOut;
+    std::map<TransferElementID, boost::shared_ptr<RoutingDecorator>> _sourceMasters;
+    MPAcc map(const MPAcc& source);
 
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> copyOfMacroPulseSource(
         const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);

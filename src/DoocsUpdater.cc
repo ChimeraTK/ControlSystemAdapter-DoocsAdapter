@@ -38,7 +38,7 @@ namespace ChimeraTK {
     // macroPulse source and writing to the needed copies. The needed copies should be inserted into _elementsToRead and
     // be used as macroPulse sources.
 
-    return _macroPulseFanOut.map(macroPulseNumberSource);
+    return map(macroPulseNumberSource);
   }
 
   void DoocsUpdater::update() {
@@ -91,6 +91,21 @@ namespace ChimeraTK {
       // Complete the read transfer of the process variable
       notification.accept();
 
+      // if updated process var is source for a fan-out, generate the copies
+      // We assume that all elements (source and copies) are in our ReadAnyGroup
+      auto it = _sourceMasters.find(updatedElement);
+      if(it != _sourceMasters.end() && it->second->isFan()) {
+        // TODO refactor -> member function
+        RoutingDecorator& dec = *it->second;
+        auto& source = dec.getSource();
+        auto vn = source->getVersionNumber();
+
+        for(auto& dest : dec.getCopies()) {
+          dest->accessData(0) = source->accessData(0);
+          dest->write(vn);
+        }
+      }
+
       // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
       for(const auto& elem : descriptor.additionalTransferElements) {
         elem->postRead(ChimeraTK::TransferType::read, true);
@@ -118,7 +133,6 @@ namespace ChimeraTK {
   }
 
   void DoocsUpdater::run() {
-    _macroPulseFanOut.run();
     _syncThread = boost::thread([this] { updateLoop(); });
   }
 
@@ -134,7 +148,7 @@ namespace ChimeraTK {
     stop();
   }
 
-  DoocsUpdater::MacroPulseFanOut::MPAcc DoocsUpdater::MacroPulseFanOut::map(const MPAcc& source) {
+  DoocsUpdater::MPAcc DoocsUpdater::map(const DoocsUpdater::MPAcc& source) {
     // TODO fix several problems
     // - we must generalize the fan-out to handle not just macro pulses. also relevant e.g. for spectrum inputs
     // - currently we have a problem if source is mapped to DOOCS; then it appears already in ReadAnyGroup there,
@@ -149,72 +163,24 @@ namespace ChimeraTK {
     //   and handle updates for them by fanOut.read() which would write to sender and then (non-blocking)read
     //   receivers, or more precisely, Decorators put around receivers.
 
-    auto [sender, receiver] = createSynchronizedProcessArray<int64_t>(1);
-    _macroPulseSources[source->getId()] = source;
-    _macroPulseCopies[source->getId()].emplace_back(sender);
-    return receiver;
-  }
-
-  struct ReRoutingDecorator : public NDRegisterAccessorDecorator<int, int> {
-    using NDRegisterAccessorDecorator<int, int>::_target;
-  };
-
-  struct FanOut {
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> input;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> output1;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> output2;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> output3;
-  };
-
-  void setRoutes() {
-    // this should be moved to DoocsUpdater
-
-    std::map<TransferElementID, boost::shared_ptr<ReRoutingDecorator>> elementsToRead;
-    // FanOuts identified by source transferElementId
-    std::map<TransferElementID, FanOut> fanOuts;
-
-    auto addElementToRead = [&](boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int>> acc) {
-      auto id = acc->getId();
-      if(elementsToRead.contains(id)) {
-        // replace the target
-        // by a FanOut-output, input of FanOut is the original target.
-        // TODO we also must check whether a FanOut already exists.
-        if(fanOuts.contains(id)) {
-          FanOut f = fanOuts[id];
-          f.output3 = elementsToRead[id]->_target;
-        }
-        else {
-          FanOut f;
-          f.input = elementsToRead[id]->_target;
-          elementsToRead[id]->_target = f.output2;
-          fanOuts[id] = f;
-        }
-      }
-    };
-  }
-
-  void DoocsUpdater::MacroPulseFanOut::run() {
-    if(_macroPulseSources.empty()) {
-      return;
+    // we add source to elementsToRead but we don't need a doocsUpdater function yet
+    // TODO check correctness - we need it for RoutingDecorator and id is same!
+    if(_toDoocsDescriptorMap.find(source->getId()) == _toDoocsDescriptorMap.end()) {
+      _elementsToRead.emplace_back(source);
     }
-    auto macroPulseFanOut = boost::thread([&] {
-      ReadAnyGroup rag;
-      for(const auto& e : _macroPulseSources) {
-        rag.add(e.second);
-      }
-      rag.finalise();
-      while(true) {
-        boost::this_thread::interruption_point();
-        auto updatedId = rag.readAny();
-        auto& source = _macroPulseSources.at(updatedId);
-        auto vn = source->getVersionNumber();
 
-        for(auto& dest : _macroPulseCopies[updatedId]) {
-          dest->accessData(0) = source->accessData(0);
-          dest->write(vn);
-        }
-      }
-    });
+    if(!_sourceMasters.contains(source->getId())) {
+      auto decorator = boost::make_shared<RoutingDecorator>(source);
+      _sourceMasters[source->getId()] = decorator;
+      return decorator;
+    }
+    // only first time we get here, we must modify sourceMaster to point to newly created receiver
+    if(!_sourceMasters[source->getId()]->isFan()) {
+      _sourceMasters[source->getId()]->setupFan();
+    }
+    auto decorator = boost::make_shared<RoutingDecorator>(source);
+    decorator->setupFan();
+    return decorator;
   }
 
 } // namespace ChimeraTK
