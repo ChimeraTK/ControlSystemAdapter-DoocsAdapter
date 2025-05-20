@@ -100,7 +100,25 @@ namespace ChimeraTK {
         }
       }
       // Complete the read transfer of the process variable
-      notification.accept();
+      if(!notification.accept()) {
+        // discard void notification (e.g. because of inconsistent data)
+        // Unlock all involved locations
+        for(const auto& location : locationsToLock) {
+          location->unlock();
+        }
+        locationsToLock.clear();
+        continue;
+      }
+
+      // TODO debug: with var /DOUBLE/CONSTANT_ARRAY we get an update
+      // with VersionNumber=0, Validity=false. Why, what does it mean?
+      // Also, why is it accepted by HistorizedMatcher as a match?
+      // Anyway, we get failed assertion about update with VersionNumber=0!
+      {
+        auto te = notification.getTransferElement();
+        std::cout << "update: " << te.getName() << " " << te.getVersionNumber() << std::endl;
+        assert(te.getVersionNumber() > VersionNumber{0});
+      }
 
       // if updated process var is source for a fan-out, generate the copies
       // We assume that all elements (source and copies) are in our ReadAnyGroup
@@ -110,8 +128,10 @@ namespace ChimeraTK {
         RoutingDecorator& dec = *it->second;
         auto& source = dec.getSource();
         auto vn = source->getVersionNumber();
+        assert(vn > VersionNumber{0});
 
         for(auto& dest : dec.getCopies()) {
+          // TODO optimize in order to use swap for last copy
           dest->accessData(0) = source->accessData(0);
           dest->write(vn);
         }
@@ -121,6 +141,11 @@ namespace ChimeraTK {
       for(const auto& elem : descriptor.additionalTransferElements) {
         elem->postRead(ChimeraTK::TransferType::read, true);
       }
+
+      // TODO fix - I think I missed a problem here:
+      // the DataConsistencyGroup of updatedElement as source, does not imply that updates for the copies are
+      // already present. But updaterFunction must only be called when corresponding updates are there.
+      // What about ids of source and copies, I guess they are different?
 
       // Call all updater functions
       for(auto& updaterFunction : descriptor.updateFunctions) {
@@ -177,23 +202,24 @@ namespace ChimeraTK {
     //   and handle updates for them by fanOut.read() which would write to sender and then (non-blocking)read
     //   receivers, or more precisely, Decorators put around receivers.
 
-    // we add source to elementsToRead but we don't need a doocsUpdater function yet
-    // TODO check correctness - we need it for RoutingDecorator and id is same!
-    if(_toDoocsDescriptorMap.find(source->getId()) == _toDoocsDescriptorMap.end()) {
-      _elementsToRead.emplace_back(source);
-    }
-
     if(!_sourceMasters.contains(source->getId())) {
       auto decorator = boost::make_shared<RoutingDecorator>(source);
       _sourceMasters[source->getId()] = decorator;
       return decorator;
     }
+    auto& sourceMaster = _sourceMasters[source->getId()];
     // only first time we get here, we must modify sourceMaster to point to newly created receiver
-    if(!_sourceMasters[source->getId()]->isFan()) {
-      _sourceMasters[source->getId()]->setupFan();
+    if(!sourceMaster->isFan()) {
+      sourceMaster->setupFan();
+      // We add source to elementsToRead only if fan acually needed - check docu future_queue::when_any.
+      // We don't need a doocsUpdater function for the source.
+      if(!_toDoocsDescriptorMap.contains(source->getId())) {
+        _elementsToRead.emplace_back(source);
+        _toDoocsDescriptorMap[source->getId()];
+      }
     }
     auto decorator = boost::make_shared<RoutingDecorator>(source);
-    decorator->setupFan();
+    decorator->addToFan(*sourceMaster);
     return decorator;
   }
 
