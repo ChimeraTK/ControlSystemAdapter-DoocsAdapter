@@ -55,25 +55,61 @@ namespace ChimeraTK {
      */
     class RoutingDecorator : public NDRegisterAccessorDecorator<MPUserType, MPUserType> {
      public:
-      using NDRegisterAccessorDecorator<MPUserType, MPUserType>::NDRegisterAccessorDecorator;
+      explicit RoutingDecorator(const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<MPUserType>>& target)
+      : NDRegisterAccessorDecorator<MPUserType, MPUserType>::NDRegisterAccessorDecorator(target) {
+        // We need unique and stable TransferElementId (differently from usual decorator behavior).
+        // This is required to distinguish between updates for source and updates for copies (from ReadAnyGroup).
+        this->_id = TransferElementID();
+        this->makeUniqueId();
+        std::cout << "RoutingDecorator for " << getName() << " id=" << getId() << ", targetid=" << _target->getId()
+                  << std::endl;
+      }
+
       using NDRegisterAccessorDecorator<MPUserType, MPUserType>::_target;
       bool isFan() const { return _isFan; }
       void setupFan() {
-        std::cout << "setupFan for " << getName() << std::endl;
+        // TODO generalize scalar->array
         auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
         _source = _target;
         _copies.emplace_back(sender);
-        _target = receiver;
+        // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
+        auto id = getId();
+        this->initFromTarget(receiver);
+        this->_id = id;
+        std::cout << "setupFan for " << getName() << " id=" << id << ", targetid=" << _target->getId()
+                  << " , senderId=" << sender->getId() << std::endl;
         _isFan = true;
+      }
+      void addToFan(RoutingDecorator& fan) {
+        assert(fan._isFan);
+        // TODO generalize scalar->array
+        auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
+        fan._copies.emplace_back(sender);
+        // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
+        auto id = getId();
+        initFromTarget(receiver);
+        _id = id;
+        std::cout << "addToFan for " << getName() << " , senderId=" << sender->getId()
+                  << ", targetid=" << _target->getId() << std::endl;
+        // TODO check ownership: we are modifying asCopy but not taking over ownership:
+        // when it is deleted, sender remains existing but becomes useless - is that fine?
       }
       auto& getSource() { return _source; }
       auto& getCopies() { return _copies; }
+
+      [[nodiscard]] boost::shared_ptr<NDRegisterAccessor<MPUserType>> decorateDeepInside(
+          [[maybe_unused]] std::function<boost::shared_ptr<NDRegisterAccessor<MPUserType>>(
+              const boost::shared_ptr<NDRegisterAccessor<MPUserType>>&)> factory) override {
+        // disallow that DataConsistencyDecorator would be placed inside of RoutingDecorator
+        return {};
+      }
 
      protected:
       bool _isFan = false;
       MPAcc _source;
       std::list<MPAcc> _copies;
     };
+    // TODO encapsulate this in a kind of domain object e.g. RoutingDecoratorDomain
     std::map<TransferElementID, boost::shared_ptr<RoutingDecorator>> _sourceMasters;
     MPAcc map(const MPAcc& source);
 
