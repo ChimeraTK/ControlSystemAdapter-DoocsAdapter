@@ -75,6 +75,11 @@ namespace ChimeraTK {
         // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
         auto id = getId();
         this->initFromTarget(receiver);
+        // TODO fix - we have a conceptual problem here:
+        // DoocsAdapter first creates the DataConsistencyDecorator, by adding things to DataConsistencyGroup,
+        // and then creates more variables, requiring this setupFan method.
+        // But DataConsistencyDecorator relies on previously set readQueue, it uses it as basis for continuation!
+        // So by exchanging the target and readQueue here, we come to late!
         this->_id = id;
         std::cout << "setupFan for " << getName() << " id=" << id << ", targetid=" << _target->getId()
                   << " , senderId=" << sender->getId() << std::endl;
