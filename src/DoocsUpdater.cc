@@ -65,6 +65,10 @@ namespace ChimeraTK {
     }
     locationsToLock.reserve(nMaxLocationsToLock);
 
+    // TODO debug:with serverTestDataMatching.cpp, _elementsToRead[1] is
+    // DataConsistencyDecorator_historized(RoutingDecorator_isFan(UniDirProcessVariable_receiving(macroPulseId='/INT/FROM_DEVICE_SCALAR')
+    // and it has already here, before its sending side was written to, notifyerQueue_previousData>0 set!
+    // Thats strange, who caused that/pushed to future_queue?
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
 
     // Call preRead for all TEs on additional transfer elements. waitAny() is doing this for all elements in the
