@@ -54,10 +54,10 @@ namespace ChimeraTK {
   }
 
   void DoocsIfff::registerIfffSources() {
-    prepareRegisterVariable(_i1Value);
-    prepareRegisterVariable(_f1Value);
-    prepareRegisterVariable(_f2Value);
-    prepareRegisterVariable(_f3Value);
+    registerVariable(_i1Value);
+    registerVariable(_f1Value);
+    registerVariable(_f2Value);
+    registerVariable(_f3Value);
     _outputVarForVersionNum = &_i1Value;
   }
 

@@ -48,22 +48,6 @@ namespace ChimeraTK {
 
     /// register a variable in consistency group
     void registerVariable(TransferElementAbstractor& var);
-    template<typename T>
-    void registerVariable(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>>& var) {
-      TransferElementAbstractor a{var};
-      registerVariable(a);
-      // since registerVariable can change its arguments, propagate changed state
-      var = boost::dynamic_pointer_cast<NDRegisterAccessor<T>>(a.getHighLevelImplElement());
-      assert(var);
-    }
-    /// save var to list which is later registered
-    void prepareRegisterVariable(TransferElementAbstractor& var) { toBeRegisteredVars.push_back(&var); }
-    void registerPreparedVars() {
-      for(auto* te : toBeRegisteredVars) {
-        registerVariable(*te);
-      }
-    }
-    std::list<TransferElementAbstractor*> toBeRegisteredVars;
     /// update for data consistency group
     bool updateConsistency(const TransferElementID& updatedId);
     /// default implementation returns timestamp of _outputVarForVersionNum
