@@ -253,11 +253,6 @@ namespace ChimeraTK {
          << location << " / " << name << std::endl;
     }
 
-    // TODO (a) add mpsource if non-empty
-    // TODO (b) build reverse mapping also for non-writeables
-    // TODO (c) Inherit PropertyDescription from PropertyAttributes
-    // TODO (d) use reverse mapping to find out where we need a fan-out for a source
-
     std::set<std::string> getSources() override {
       auto baseSet = PropertyDescription::getSources();
       baseSet.insert({i1Source, f1Source, f2Source, f3Source});

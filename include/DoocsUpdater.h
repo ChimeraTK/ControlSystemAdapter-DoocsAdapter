@@ -4,6 +4,7 @@
 
 #include "ChimeraTK/ControlSystemAdapter/UnidirectionalProcessArray.h"
 #include "ChimeraTK/NDRegisterAccessorDecorator.h"
+#include "DoocsAdapter.h"
 
 #include <ChimeraTK/TransferElement.h>
 #include <ChimeraTK/TransferElementAbstractor.h>
@@ -67,7 +68,14 @@ namespace ChimeraTK {
 
       using NDRegisterAccessorDecorator<MPUserType, MPUserType>::_target;
       bool isFan() const { return _isFan; }
+      /// this exchanges the target by a newly created process variable; also the readQueue is exchanged.
       void setupFan() {
+        assert(!_isFan);
+        // assert that we do decoration with DataConsistencyDecorator only after setupFan.
+        // DataConsistencyDecorator implements a continuation of the readQueue, so the latter must not be
+        // exchanged later.
+        assert(!_thisIsDecorated);
+
         // TODO generalize scalar->array
         auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
         _source = _target;
@@ -102,6 +110,7 @@ namespace ChimeraTK {
       }
       void addToFan(RoutingDecorator& fan) {
         assert(fan._isFan);
+
         // TODO generalize scalar->array
         auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
         fan._copies.emplace_back(sender);
@@ -120,33 +129,29 @@ namespace ChimeraTK {
       [[nodiscard]] boost::shared_ptr<NDRegisterAccessor<MPUserType>> decorateDeepInside(
           [[maybe_unused]] std::function<boost::shared_ptr<NDRegisterAccessor<MPUserType>>(
               const boost::shared_ptr<NDRegisterAccessor<MPUserType>>&)> factory) override {
+        _thisIsDecorated = true;
         // disallow that DataConsistencyDecorator would be placed inside of RoutingDecorator
         return {};
       }
 
      protected:
       bool _isFan = false;
+      // keep track of usage: decorator was placed around this object! Note, this flag only tracks decorateDeepInside
+      // mechanism.
+      bool _thisIsDecorated = false;
       MPAcc _source;
       std::list<MPAcc> _copies;
     };
     struct RoutingDecoratorDomain {
-      void completeFanSetup() {
-        // TODO
-      }
-      // e.g. as safety measure, turn off ability to create new fans!
-      void disallowFanCreation() {
-        // TODO
-      }
       // if updated process var is source for a fan-out, generate the copies
       // We assume that all elements (source and copies) are in our ReadAnyGroup
       void send(TransferElementID updatedElement) {
         auto it = _sourceMasters.find(updatedElement);
         if(it != _sourceMasters.end() && it->second->isFan()) {
-          // TODO refactor -> member function
           RoutingDecorator& dec = *it->second;
           auto& source = dec.getSource();
           auto vn = source->getVersionNumber();
-          assert(vn > VersionNumber{0});
+          assert(vn > VersionNumber{nullptr});
 
           for(auto& dest : dec.getCopies()) {
             // TODO optimize in order to use swap for last copy
@@ -155,7 +160,6 @@ namespace ChimeraTK {
           }
         }
       }
-      // TODO encapsulate this in a kind of domain object e.g. RoutingDecoratorDomain
       std::map<TransferElementID, boost::shared_ptr<RoutingDecorator>> _sourceMasters;
     };
     RoutingDecoratorDomain routing;
