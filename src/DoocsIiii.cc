@@ -39,7 +39,7 @@ namespace ChimeraTK {
     if(_iiiiValue.isReadOnly()) {
       this->set_ro_access();
     }
-    prepareRegisterVariable(_iiiiValue);
+    registerVariable(_iiiiValue);
     _outputVarForVersionNum = &_iiiiValue;
   }
 
