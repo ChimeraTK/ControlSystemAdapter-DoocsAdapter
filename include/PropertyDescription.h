@@ -67,29 +67,37 @@ namespace ChimeraTK {
 
   // Common for all properties, the base class to be stored.
   // FIXME: should sort by name to put it into a set?
-  struct PropertyDescription {
+  struct PropertyDescription : public PropertyAttributes {
     std::string location;
     std::string name;
-    explicit PropertyDescription(std::string location_ = "", std::string name_ = "")
-    : location(std::move(location_)), name(std::move(name_)) {}
+    explicit PropertyDescription(
+        std::string location_ = "", std::string name_ = "", const PropertyAttributes& propAttr = {})
+    : PropertyAttributes(propAttr), location(std::move(location_)), name(std::move(name_)) {}
     virtual ~PropertyDescription() = default;
     virtual bool operator==(PropertyDescription const& other) const {
       return location == other.location && name == other.name;
     }
     virtual void print(std::ostream& os = std::cout) const { os << location << " / " << name << std::endl; }
-    virtual std::set<std::string> getSources() = 0;
+    virtual std::set<std::string> getSources() {
+      if(macroPulseNumberSource.empty()) {
+        return {};
+      }
+      else {
+        return {macroPulseNumberSource};
+      }
+    }
   };
 
   /********************************************************************************************************************/
 
   // Combines property attributes and the base description
   // FIXME: should sort by name to put it into a set?
-  struct AutoPropertyDescription : public PropertyDescription, public PropertyAttributes {
+  struct AutoPropertyDescription : public PropertyDescription {
     enum class DataType { Byte, Short, Int, Long, Float, Double, Bool, Void, Auto };
     ChimeraTK::RegisterPath source;
     explicit AutoPropertyDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
-    : PropertyDescription(std::move(location_), std::move(name_)), PropertyAttributes(hasHistory_, isWriteable_),
+    : PropertyDescription(std::move(location_), std::move(name_), PropertyAttributes(hasHistory_, isWriteable_)),
       source(source_), dataType(dataType_) {}
     bool operator==(PropertyDescription const& other) const override {
       if(typeid(other) == typeid(AutoPropertyDescription)) {
@@ -130,20 +138,24 @@ namespace ChimeraTK {
       }
     }
 
-    std::set<std::string> getSources() override { return {source}; };
+    std::set<std::string> getSources() override {
+      auto baseSet = PropertyDescription::getSources();
+      baseSet.insert({source});
+      return baseSet;
+    };
 
     DataType dataType;
   };
 
   /********************************************************************************************************************/
 
-  struct ImageDescription : public PropertyDescription, public PropertyAttributes {
+  struct ImageDescription : public PropertyDescription {
     ChimeraTK::RegisterPath source;
     std::string description;
 
     explicit ImageDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", bool hasHistory_ = false, bool isWriteable_ = false)
-    : PropertyDescription(std::move(location_), std::move(name_)), PropertyAttributes(hasHistory_, isWriteable_),
+    : PropertyDescription(std::move(location_), std::move(name_), PropertyAttributes(hasHistory_, isWriteable_)),
       source(source_) {}
 
     void print(std::ostream& os = std::cout) const override {
@@ -158,7 +170,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  struct SpectrumDescription : public PropertyDescription, public PropertyAttributes {
+  struct SpectrumDescription : public PropertyDescription {
     struct Axis {
       std::string label;
       int logarithmic{};
@@ -177,7 +189,7 @@ namespace ChimeraTK {
 
     explicit SpectrumDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", bool hasHistory_ = true, bool isWriteable_ = true)
-    : PropertyDescription(std::move(location_), std::move(name_)), PropertyAttributes(hasHistory_, isWriteable_),
+    : PropertyDescription(std::move(location_), std::move(name_), PropertyAttributes(hasHistory_, isWriteable_)),
       source(source_) {}
 
     void print(std::ostream& os = std::cout) const override {
@@ -199,7 +211,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  struct XyDescription : public PropertyDescription, public PropertyAttributes {
+  struct XyDescription : public PropertyDescription {
     struct Axis {
       std::string label;
       int logarithmic{};
@@ -214,7 +226,7 @@ namespace ChimeraTK {
 
     explicit XyDescription(ChimeraTK::RegisterPath const& xSource_ = "", ChimeraTK::RegisterPath const& ySource_ = "",
         std::string const& location_ = "", std::string const& name_ = "", bool hasHistory_ = true)
-    : PropertyDescription(location_, name_), PropertyAttributes(hasHistory_, false), xSource(xSource_),
+    : PropertyDescription(location_, name_, PropertyAttributes(hasHistory_, false)), xSource(xSource_),
       ySource(ySource_) {}
 
     void print(std::ostream& os = std::cout) const override {
@@ -226,7 +238,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  struct IfffDescription : public PropertyDescription, public PropertyAttributes {
+  struct IfffDescription : public PropertyDescription {
     ChimeraTK::RegisterPath i1Source;
     ChimeraTK::RegisterPath f1Source, f2Source, f3Source;
 
@@ -241,12 +253,21 @@ namespace ChimeraTK {
          << location << " / " << name << std::endl;
     }
 
-    std::set<std::string> getSources() override { return {i1Source, f1Source, f2Source, f3Source}; };
+    // TODO (a) add mpsource if non-empty
+    // TODO (b) build reverse mapping also for non-writeables
+    // TODO (c) Inherit PropertyDescription from PropertyAttributes
+    // TODO (d) use reverse mapping to find out where we need a fan-out for a source
+
+    std::set<std::string> getSources() override {
+      auto baseSet = PropertyDescription::getSources();
+      baseSet.insert({i1Source, f1Source, f2Source, f3Source});
+      return baseSet;
+    };
   };
 
   /********************************************************************************************************************/
 
-  struct IiiiDescription : public PropertyDescription, public PropertyAttributes {
+  struct IiiiDescription : public PropertyDescription {
     ChimeraTK::RegisterPath iiiiSource;
 
     IiiiDescription(ChimeraTK::RegisterPath const& iiiiSource_ = "", std::string const& location_ = "",
@@ -257,7 +278,11 @@ namespace ChimeraTK {
       os << "iiii: " << iiiiSource << " -> " << location << " / " << name << std::endl;
     }
 
-    std::set<std::string> getSources() override { return {iiiiSource}; };
+    std::set<std::string> getSources() override {
+      auto baseSet = PropertyDescription::getSources();
+      baseSet.insert({iiiiSource});
+      return baseSet;
+    };
   };
 
   /********************************************************************************************************************/

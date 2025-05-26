@@ -85,9 +85,9 @@ namespace ChimeraTK {
     bool modified{false};
 
    protected:
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _processArray;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _startAccessor;
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> _incrementAccessor;
+    OneDRegisterAccessor<float> _processArray;
+    ScalarRegisterAccessor<float> _startAccessor;
+    ScalarRegisterAccessor<float> _incrementAccessor;
     size_t _nBuffers;
   };
 

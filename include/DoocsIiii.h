@@ -36,7 +36,7 @@ namespace ChimeraTK {
     void registerIiiiSources();
     void checkSourceConsistency();
 
-    boost::shared_ptr<NDRegisterAccessor<int>> _iiiiValue;
+    OneDRegisterAccessor<int> _iiiiValue;
 
     bool _isWriteable;
   };
