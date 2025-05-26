@@ -99,14 +99,16 @@ namespace ChimeraTK {
     _before_auto_init_called = true;
 
     // connect properties which use the same writable PV to keep the property values consistent
-    for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
+    for(auto& group : writeableVariablesWithMultipleProperties) {
       for(const auto& weakProperty : group.second) {
         auto property = weakProperty.lock(); // cannot fail, DoocsAdapter has ownership via PV manager
         property->otherPropertiesToUpdate = group.second;
         property->otherPropertiesToUpdate.erase(property); // the property should not be in its own list
       }
     }
-    doocsAdapter.writeableVariablesWithMultipleProperties.clear(); // save memory (information no longer needed)
+    writeableVariablesWithMultipleProperties.clear(); // save memory (information no longer needed)
+
+    reverseMapping.clear();
   }
 
   /********************************************************************************************************************/
@@ -162,15 +164,6 @@ namespace ChimeraTK {
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
 
-    // TODO add second run going over imported variables.
-    // at this point, the variable network should be known, so no new fan-outs in RoutingDecorator are created.
-    // - DoocsUpdater should know already created fans, complete their setup
-    doocsAdapter.updater->routing.completeFanSetup();
-    // - maybe as safety measure, turn off ability to create new fans!
-    doocsAdapter.updater->routing.disallowFanCreation();
-    // - how do we find the variables? either via PV list or doocs property list!
-    // - for each of them, complete setup via required PropertyBase::registerVariable
-
     // prepare list of unmapped read variables and pass it to the Application for optimisation
     for(const auto& p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
       auto it = pvNames.find(p);
@@ -180,48 +173,48 @@ namespace ChimeraTK {
     }
     ChimeraTK::ApplicationBase::getInstance().optimiseUnmappedVariables(pvNames);
 
-    // prepare list of properties connected to the same writable PV
-    {
-      // create map of PV name to properties using the PV (only for writable PVs)
-      std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
-      for(const auto& descr : ChimeraTK::VariableMapper::getInstance().getAllProperties()) {
-        for(const auto& source : descr->getSources()) {
-          if(!doocsAdapter.getControlSystemPVManager()->getProcessVariable(source)->isWriteable()) {
-            // to not add PVs to the mapping which are not writeable
-            continue;
-          }
-          reverseMapping[source].insert(descr);
-        }
-      }
-      // filter the map to contain only PVs being used at least twice with at least one writable property
-      for(const auto& p : reverseMapping) {
-        if(p.second.size() < 2) {
-          continue;
-        }
-        size_t writeableCount = 0;
-        for(const auto& d : p.second) {
-          auto attr = std::dynamic_pointer_cast<ChimeraTK::PropertyAttributes>(d);
-          if(attr->isWriteable) {
-            ++writeableCount;
-          }
-        }
-        if(writeableCount == 0) {
-          continue;
-        }
-        if(writeableCount > 1) {
-          // This case is not (yet) covered. It would require some synchronisation mechanism between writeable
-          // properties, which is not trivial as inconsistencies and dead locks must be avoided.
-          std::cout << "**** WARNING: Variable '" + p.first +
-                  "' mapped to more than one writeable property. Expect inconsistencies!\n";
-        }
-
-        // Add PVs which are used at least twice with at least one writable property to list
-        doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
-      }
-    }
+    // TODO use reverse mapping to find out where we need a fan-out for a source
+    doocsAdapter.findReverseMapping();
   }
 
   /********************************************************************************************************************/
+
+  void DoocsAdapter::findReverseMapping() {
+    for(const auto& descr : ChimeraTK::VariableMapper::getInstance().getAllProperties()) {
+      for(const auto& source : descr->getSources()) {
+        reverseMapping[source].insert(descr);
+      }
+    }
+    // filter the map to contain only PVs being used at least twice with at least one writable property
+    for(const auto& p : reverseMapping) {
+      if(!doocsAdapter.getControlSystemPVManager()->getProcessVariable(p.first)->isWriteable()) {
+        // do not add PVs to the mapping which are not writeable
+        continue;
+      }
+      if(p.second.size() < 2) {
+        continue;
+      }
+      size_t writeableCount = 0;
+      for(const auto& d : p.second) {
+        auto attr = std::dynamic_pointer_cast<ChimeraTK::PropertyAttributes>(d);
+        if(attr->isWriteable) {
+          ++writeableCount;
+        }
+      }
+      if(writeableCount == 0) {
+        continue;
+      }
+      if(writeableCount > 1) {
+        // This case is not (yet) covered. It would require some synchronisation mechanism between writeable
+        // properties, which is not trivial as inconsistencies and dead locks must be avoided.
+        std::cout << "**** WARNING: Variable '" + p.first +
+                "' mapped to more than one writeable property. Expect inconsistencies!\n";
+      }
+
+      // Add PVs which are used at least twice with at least one writable property to list
+      doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
+    }
+  }
 
   /* post_init_epilog is called after all DOOCS properties are fully intialised,
    * including any value intialisation from the config file. We start the

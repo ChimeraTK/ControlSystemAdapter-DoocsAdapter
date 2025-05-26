@@ -3,6 +3,7 @@
 #pragma once
 
 #include "PropertyBase.h"
+#include "PropertyDescription.h"
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
@@ -41,6 +42,12 @@ namespace ChimeraTK {
 
     // Function used by the property implementations to decide whether to print a "data loss" warning
     static bool checkPrintDataLossWarning(size_t counter);
+
+    /// prepare list of properties connected to the same PV
+    void findReverseMapping();
+    // map of PV name to properties using the PV
+    // Note: this is cleared in post_init_epilog() to save memory.
+    std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
 
     // stores list of writable PVs which are mapped to multiple properties
     // Note: this is cleared in post_init_epilog() to save memory.

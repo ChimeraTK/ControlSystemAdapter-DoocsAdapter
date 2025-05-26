@@ -188,29 +188,25 @@ namespace ChimeraTK {
     //   unclear how to find out about this in advance.
     //   An idea (martin) would be to put a Decorator around all used process vars and change Decorator target
     //   later, depending on requirements: either, target is set directly to process var, or to fan-out output.
-    // - Discussion about thread or not:
-    //   We could try to eliminate fan-out thread altogether, idea would be to put only sources into ReadAnyGroup,
-    //   and handle updates for them by fanOut.read() which would write to sender and then (non-blocking)read
-    //   receivers, or more precisely, Decorators put around receivers.
 
-    if(!routing._sourceMasters.contains(source->getId())) {
-      auto decorator = boost::make_shared<RoutingDecorator>(source);
-      routing._sourceMasters[source->getId()] = decorator;
-      return decorator;
-    }
-    auto& sourceMaster = routing._sourceMasters[source->getId()];
-    // only first time we get here, we must modify sourceMaster to point to newly created receiver
-    if(!sourceMaster->isFan()) {
-      sourceMaster->setupFan();
+    auto decorator = boost::make_shared<RoutingDecorator>(source);
+    bool sourceRequiresFan = doocsAdapter.reverseMapping.at(source->getName()).size() > 1;
+    if(sourceRequiresFan) {
       // We add source to elementsToRead only if fan acually needed - check docu future_queue::when_any.
       // We don't need a doocsUpdater function for the source.
       if(!_toDoocsDescriptorMap.contains(source->getId())) {
         _elementsToRead.emplace_back(source);
         _toDoocsDescriptorMap[source->getId()];
       }
+      if(!routing._sourceMasters.contains(source->getId())) {
+        decorator->setupFan();
+        routing._sourceMasters[source->getId()] = decorator;
+      }
+      else {
+        auto& sourceMaster = routing._sourceMasters[source->getId()];
+        decorator->addToFan(*sourceMaster);
+      }
     }
-    auto decorator = boost::make_shared<RoutingDecorator>(source);
-    decorator->addToFan(*sourceMaster);
     return decorator;
   }
 
