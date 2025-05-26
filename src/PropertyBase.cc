@@ -90,8 +90,8 @@ namespace ChimeraTK {
       auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
       info.sec = sinceEpoch.seconds;
       info.usec = sinceEpoch.microseconds;
-      if(_macroPulseNumberSource != nullptr) {
-        info.ident = _macroPulseNumberSource->accessData(0);
+      if(_macroPulseNumberSource.isInitialised()) {
+        info.ident = _macroPulseNumberSource;
       }
       else {
         info.ident = 0;
@@ -129,17 +129,9 @@ namespace ChimeraTK {
 
   void PropertyBase::setMacroPulseNumberSource(
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
-    _macroPulseNumberSource = _doocsUpdater.copyOfMacroPulseSource(macroPulseNumberSource);
-    if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
-      registerVariable(_macroPulseNumberSource);
-    }
-    else {
-      // We don't need to match up anything with it when it changes, but we have to register this at least once
-      // so the macropulse number will be included in the readAnyGroup in the updater if
-      // <data_matching> is none everywhere
-      _doocsUpdater.addVariable(
-          ChimeraTK::ScalarRegisterAccessor<int64_t>(_macroPulseNumberSource), getEqFct(), []() {});
-    }
+    _macroPulseNumberSource.replace(_doocsUpdater.copyOfMacroPulseSource(macroPulseNumberSource));
+
+    prepareRegisterVariable(_macroPulseNumberSource);
   }
 
 } // namespace ChimeraTK

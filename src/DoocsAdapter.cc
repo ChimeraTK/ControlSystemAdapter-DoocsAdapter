@@ -162,6 +162,15 @@ namespace ChimeraTK {
       ChimeraTK::VariableMapper::getInstance().directImport(pvNames);
     }
 
+    // TODO add second run going over imported variables.
+    // at this point, the variable network should be known, so no new fan-outs in RoutingDecorator are created.
+    // - DoocsUpdater should know already created fans, complete their setup
+    doocsAdapter.updater->routing.completeFanSetup();
+    // - maybe as safety measure, turn off ability to create new fans!
+    doocsAdapter.updater->routing.disallowFanCreation();
+    // - how do we find the variables? either via PV list or doocs property list!
+    // - for each of them, complete setup via required PropertyBase::registerVariable
+
     // prepare list of unmapped read variables and pass it to the Application for optimisation
     for(const auto& p : ChimeraTK::VariableMapper::getInstance().getUsedVariables()) {
       auto it = pvNames.find(p);

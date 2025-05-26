@@ -44,8 +44,7 @@ namespace ChimeraTK {
 
     /// should be called for output vars mapped to doocs
     /// registers processVar in data consistency group, initializes DOOCS error state and keeps a reference as _mainOutputVar
-    template<typename T>
-    void setupOutputVar(boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>>& processVar);
+    void setupOutputVar(TransferElementAbstractor& processVar);
 
     /// register a variable in consistency group
     void registerVariable(TransferElementAbstractor& var);
@@ -57,6 +56,14 @@ namespace ChimeraTK {
       var = boost::dynamic_pointer_cast<NDRegisterAccessor<T>>(a.getHighLevelImplElement());
       assert(var);
     }
+    /// save var to list which is later registered
+    void prepareRegisterVariable(TransferElementAbstractor& var) { toBeRegisteredVars.push_back(&var); }
+    void registerPreparedVars() {
+      for(auto* te : toBeRegisteredVars) {
+        registerVariable(*te);
+      }
+    }
+    std::list<TransferElementAbstractor*> toBeRegisteredVars;
     /// update for data consistency group
     bool updateConsistency(const TransferElementID& updatedId);
     /// default implementation returns timestamp of _outputVarForVersionNum
@@ -72,16 +79,16 @@ namespace ChimeraTK {
 
     /// a helper which unifies data->device for DOOCS_T = one of D_array<DOOCS_PRIMITIVE_T> or D_spectrum
     template<typename SELF, typename UserType>
-    void sendArrayToDevice(SELF* dfct, const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>& processArray);
+    void sendArrayToDevice(SELF* dfct, OneDRegisterAccessor<UserType>& processArray);
 
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> _macroPulseNumberSource;
+    ScalarRegisterAccessor<int64_t> _macroPulseNumberSource;
     DataConsistencyGroup _consistencyGroup;
 
     std::string _doocsPropertyName;
     DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
     bool _publishZMQ{false};
     // we keep a pointer to the main output var in order to access meta info like VersionNumbers
-    boost::shared_ptr<ChimeraTK::TransferElement> _outputVarForVersionNum;
+    TransferElementAbstractor* _outputVarForVersionNum{nullptr};
     bool _doocsSuccessfullyUpdated{true}; // to detect data losses
     // counter used to reduce amount of data loss warnings printed at console
     size_t _nDataLossWarnings{0};
@@ -89,25 +96,23 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  template<typename T>
-  void PropertyBase::setupOutputVar(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>>& processVar) {
+  inline void PropertyBase::setupOutputVar(TransferElementAbstractor& processVar) {
     registerVariable(processVar);
-    _outputVarForVersionNum = processVar;
+    _outputVarForVersionNum = &processVar;
 
-    if(processVar->isReadable() && !processVar->isWriteable()) {
+    if(processVar.isReadable() && !processVar.isWriteable()) {
       // put variable into error state, until a valid value has been received
       getDfct()->d_error(stale_data);
     }
   }
 
   template<typename SELF, typename UserType>
-  void PropertyBase::sendArrayToDevice(
-      SELF* dfct, const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>& processArray) {
+  void PropertyBase::sendArrayToDevice(SELF* dfct, OneDRegisterAccessor<UserType>& processArray) {
     constexpr bool isSpectrum = std::is_base_of<D_spectrum, SELF>::value;
 
     // always get a fresh reference
-    auto& processVector = processArray->accessChannel(0);
-    size_t arraySize = processVector.size();
+    auto processVector = processArray.data();
+    size_t arraySize = processArray.getNElements();
     auto doocsLen = static_cast<size_t>(dfct->length());
     if(doocsLen != arraySize) {
       std::cout << "Warning: Array length mismatch in property " << this->getEqFct()->name() << "/" << dfct->basename()
@@ -128,17 +133,17 @@ namespace ChimeraTK {
       }
     }
     auto timestamp = dfct->get_timestamp().to_time_point();
-    processArray->write(VersionNumber(timestamp));
+    processArray.write(VersionNumber(timestamp));
 
     // Correct property length in case of a mismatch.
-    if(doocsLen != processVector.size()) {
+    if(doocsLen != arraySize) {
       if constexpr(isSpectrum) {
-        dfct->length(processVector.size());
+        dfct->length(arraySize);
         // FIXME - do we need to restore values like for arrays?
         // it's more difficult with D_spectrum because of the buffered/unbuffered feature
       }
       else {
-        dfct->set_length(processVector.size());
+        dfct->set_length(arraySize);
         // restore value from ProcessArray, as it may have been destroyed in set_length().
         for(size_t i = 0; i < arraySize; ++i) {
           dfct->set_value(processVector[i], i);

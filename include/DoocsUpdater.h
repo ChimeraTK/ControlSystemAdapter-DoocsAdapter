@@ -80,6 +80,21 @@ namespace ChimeraTK {
         // and then creates more variables, requiring this setupFan method.
         // But DataConsistencyDecorator relies on previously set readQueue, it uses it as basis for continuation!
         // So by exchanging the target and readQueue here, we come to late!
+
+        // one idea how to fix it:
+        // do not yet set up DataConsistencyGroups, or more generally, do not yet call
+        // PropertyBase::registerVariable or similars
+        // Instead, just collect the information here (in particular, that we need a fan-out)
+        // Go back later and set up things via PropertyBase::registerVariable or similar.
+        // TODOs
+        // (a) what do we need to collect, precisely?
+        // (b) from where can we go back?
+        // might want to use CSAdapterEqFct::_doocsProperties, maybe extend CSAdapterEqFct::post_init
+        // or DoocsAdapter::postInitEpilog jsut before doocsAdapter.updater->run();
+        // alternative idea:
+        // we already have some information about network created after parse; see
+        // registerProcessVariablesInDoocs using propertyDescription->getSources, might be sufficient!
+
         this->_id = id;
         std::cout << "setupFan for " << getName() << " id=" << id << ", targetid=" << _target->getId()
                   << " , senderId=" << sender->getId() << std::endl;
@@ -114,8 +129,36 @@ namespace ChimeraTK {
       MPAcc _source;
       std::list<MPAcc> _copies;
     };
-    // TODO encapsulate this in a kind of domain object e.g. RoutingDecoratorDomain
-    std::map<TransferElementID, boost::shared_ptr<RoutingDecorator>> _sourceMasters;
+    struct RoutingDecoratorDomain {
+      void completeFanSetup() {
+        // TODO
+      }
+      // e.g. as safety measure, turn off ability to create new fans!
+      void disallowFanCreation() {
+        // TODO
+      }
+      // if updated process var is source for a fan-out, generate the copies
+      // We assume that all elements (source and copies) are in our ReadAnyGroup
+      void send(TransferElementID updatedElement) {
+        auto it = _sourceMasters.find(updatedElement);
+        if(it != _sourceMasters.end() && it->second->isFan()) {
+          // TODO refactor -> member function
+          RoutingDecorator& dec = *it->second;
+          auto& source = dec.getSource();
+          auto vn = source->getVersionNumber();
+          assert(vn > VersionNumber{0});
+
+          for(auto& dest : dec.getCopies()) {
+            // TODO optimize in order to use swap for last copy
+            dest->accessData(0) = source->accessData(0);
+            dest->write(vn);
+          }
+        }
+      }
+      // TODO encapsulate this in a kind of domain object e.g. RoutingDecoratorDomain
+      std::map<TransferElementID, boost::shared_ptr<RoutingDecorator>> _sourceMasters;
+    };
+    RoutingDecoratorDomain routing;
     MPAcc map(const MPAcc& source);
 
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> copyOfMacroPulseSource(

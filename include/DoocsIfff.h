@@ -38,10 +38,10 @@ namespace ChimeraTK {
     void registerIfffSources();
     void checkSourceConsistency();
 
-    boost::shared_ptr<NDRegisterAccessor<int>> _i1Value;
-    boost::shared_ptr<NDRegisterAccessor<float>> _f1Value;
-    boost::shared_ptr<NDRegisterAccessor<float>> _f2Value;
-    boost::shared_ptr<NDRegisterAccessor<float>> _f3Value;
+    ScalarRegisterAccessor<int> _i1Value;
+    ScalarRegisterAccessor<float> _f1Value;
+    ScalarRegisterAccessor<float> _f2Value;
+    ScalarRegisterAccessor<float> _f3Value;
 
     bool _isWriteable{};
   };
