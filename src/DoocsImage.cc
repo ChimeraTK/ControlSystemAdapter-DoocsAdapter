@@ -69,7 +69,7 @@ namespace ChimeraTK {
       DataConsistencyGroup::MatchingMode matchingMode)
   : D_imagec(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode),
     _processArray(processArray) {
-    if(_processArray->isWriteable()) {
+    if(_processArray.isWriteable()) {
       // It could only be writable if the application implements it as an output with back-channel.
       // Then consider this application to have a logical bug.
       throw logic_error("writable images not supported by DoocsImage");
@@ -85,14 +85,13 @@ namespace ChimeraTK {
     D_imagec* dfct = this;
     //  Note: we already own the location lock by specification of the DoocsUpdater
 
-    ChimeraTK::OneDRegisterAccessor<uint8_t> pA(_processArray);
-    MappedDoocsImg img(pA, MappedDoocsImg::InitData::No);
+    MappedDoocsImg img(_processArray, MappedDoocsImg::InitData::No);
     auto* dataPtr = img.asDoocsImg(&imh);
     if(!dataPtr) {
       throw logic_error("data provided to DoocsImage._processArray was not recognized as image");
     }
 
-    if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_processArray.dataValidity() != ChimeraTK::DataValidity::ok) {
       this->d_error(stale_data);
     }
     else {
@@ -101,9 +100,9 @@ namespace ChimeraTK {
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
-    if(_macroPulseNumberSource) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
-      imh.event = _macroPulseNumberSource->accessData(0);
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
+      imh.event = _macroPulseNumberSource;
     }
 
     // this copies header and data contents to DOOCS-internal buffer

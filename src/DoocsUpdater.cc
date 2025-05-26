@@ -115,20 +115,7 @@ namespace ChimeraTK {
 
       // if updated process var is source for a fan-out, generate the copies
       // We assume that all elements (source and copies) are in our ReadAnyGroup
-      auto it = _sourceMasters.find(updatedElement);
-      if(it != _sourceMasters.end() && it->second->isFan()) {
-        // TODO refactor -> member function
-        RoutingDecorator& dec = *it->second;
-        auto& source = dec.getSource();
-        auto vn = source->getVersionNumber();
-        assert(vn > VersionNumber{0});
-
-        for(auto& dest : dec.getCopies()) {
-          // TODO optimize in order to use swap for last copy
-          dest->accessData(0) = source->accessData(0);
-          dest->write(vn);
-        }
-      }
+      routing.send(updatedElement);
 
       // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
       for(const auto& elem : descriptor.additionalTransferElements) {
@@ -192,12 +179,12 @@ namespace ChimeraTK {
     //   and handle updates for them by fanOut.read() which would write to sender and then (non-blocking)read
     //   receivers, or more precisely, Decorators put around receivers.
 
-    if(!_sourceMasters.contains(source->getId())) {
+    if(!routing._sourceMasters.contains(source->getId())) {
       auto decorator = boost::make_shared<RoutingDecorator>(source);
-      _sourceMasters[source->getId()] = decorator;
+      routing._sourceMasters[source->getId()] = decorator;
       return decorator;
     }
-    auto& sourceMaster = _sourceMasters[source->getId()];
+    auto& sourceMaster = routing._sourceMasters[source->getId()];
     // only first time we get here, we must modify sourceMaster to point to newly created receiver
     if(!sourceMaster->isFan()) {
       sourceMaster->setupFan();
