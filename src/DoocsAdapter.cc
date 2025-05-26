@@ -107,8 +107,6 @@ namespace ChimeraTK {
       }
     }
     writeableVariablesWithMultipleProperties.clear(); // save memory (information no longer needed)
-
-    reverseMapping.clear();
   }
 
   /********************************************************************************************************************/
@@ -173,7 +171,7 @@ namespace ChimeraTK {
     }
     ChimeraTK::ApplicationBase::getInstance().optimiseUnmappedVariables(pvNames);
 
-    // TODO use reverse mapping to find out where we need a fan-out for a source
+    // reverse mapping will be used to find out where we need a fan-out for a source process variable
     doocsAdapter.findReverseMapping();
   }
 
@@ -241,6 +239,8 @@ namespace ChimeraTK {
             std::to_string(codeToSet) + "' from xml file");
       }
     }
+
+    doocsAdapter.reverseMapping.clear(); // no longer needed since variable network will not change
 
     // check for variables not yet initialised - we must guarantee that all to-application variables are written exactly
     // once at server start.
