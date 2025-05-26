@@ -142,7 +142,7 @@ namespace ChimeraTK {
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
-    if(_macroPulseNumberSource) {
+    if(_macroPulseNumberSource.isInitialised()) {
       this->set_mpnum(_macroPulseNumberSource);
     }
 

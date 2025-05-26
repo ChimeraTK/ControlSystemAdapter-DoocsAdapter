@@ -71,7 +71,7 @@ namespace ChimeraTK {
     std::string location;
     std::string name;
     explicit PropertyDescription(
-        std::string location_ = "", std::string name_ = "", const PropertyAttributes& propAttr = {})
+        std::string location_ = "", std::string name_ = "", const PropertyAttributes& propAttr = PropertyAttributes{})
     : PropertyAttributes(propAttr), location(std::move(location_)), name(std::move(name_)) {}
     virtual ~PropertyDescription() = default;
     virtual bool operator==(PropertyDescription const& other) const {
@@ -198,7 +198,8 @@ namespace ChimeraTK {
     }
 
     std::set<std::string> getSources() override {
-      std::set<std::string> ret{source};
+      std::set<std::string> ret = PropertyDescription::getSources();
+      ret.insert({source});
       if(startSource.length() > 1) {
         ret.insert(startSource);
       }

@@ -62,7 +62,7 @@ namespace ChimeraTK {
 
     // check if the macro pulse number source has been set if the spectrum is buffered
     if(_nBuffers > 1) {
-      if(_macroPulseNumberSource.isInitialised()) {
+      if(!_macroPulseNumberSource.isInitialised()) {
         throw ChimeraTK::logic_error(
             "D_spectrum '" + _processArray.getName() + "' has numberOfBuffers > 1 but not macro pulse number source.");
       }
