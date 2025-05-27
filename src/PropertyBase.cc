@@ -129,7 +129,7 @@ namespace ChimeraTK {
 
   void PropertyBase::setMacroPulseNumberSource(
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
-    _macroPulseNumberSource.replace(_doocsUpdater.copyOfMacroPulseSource(macroPulseNumberSource));
+    _macroPulseNumberSource.replace(macroPulseNumberSource);
 
     registerVariable(_macroPulseNumberSource);
   }

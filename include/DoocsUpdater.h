@@ -47,26 +47,25 @@ namespace ChimeraTK {
 
     const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
 
-    // TODO replace this by template argument, in order to generalize
-    using MPUserType = int64_t;
-    using MPAcc = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<MPUserType>>;
     /**
      * A RoutingDecorator will be placed around all source process variables.
      * It implements either a direct pass-through of the value or a fan-out to the required number of copies.
      */
-    class RoutingDecorator : public NDRegisterAccessorDecorator<MPUserType, MPUserType> {
+    template<typename UserType>
+    class RoutingDecorator : public NDRegisterAccessorDecorator<UserType, UserType> {
      public:
-      explicit RoutingDecorator(const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<MPUserType>>& target)
-      : NDRegisterAccessorDecorator<MPUserType, MPUserType>::NDRegisterAccessorDecorator(target) {
+      using Acc = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>;
+      explicit RoutingDecorator(const Acc& target)
+      : NDRegisterAccessorDecorator<UserType, UserType>::NDRegisterAccessorDecorator(target) {
         // We need unique and stable TransferElementId (differently from usual decorator behavior).
         // This is required to distinguish between updates for source and updates for copies (from ReadAnyGroup).
         this->_id = TransferElementID();
         this->makeUniqueId();
-        std::cout << "RoutingDecorator for " << getName() << " id=" << getId() << ", targetid=" << _target->getId()
-                  << std::endl;
+        std::cout << "RoutingDecorator for " << this->getName() << " id=" << this->getId()
+                  << ", targetid=" << _target->getId() << std::endl;
       }
 
-      using NDRegisterAccessorDecorator<MPUserType, MPUserType>::_target;
+      using NDRegisterAccessorDecorator<UserType, UserType>::_target;
       bool isFan() const { return _isFan; }
       /// this exchanges the target by a newly created process variable; also the readQueue is exchanged.
       void setupFan() {
@@ -77,11 +76,12 @@ namespace ChimeraTK {
         assert(!_thisIsDecorated);
 
         // TODO generalize scalar->array
-        auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
+        std::size_t size = _target->getNumberOfSamples();
+        auto [sender, receiver] = createSynchronizedProcessArray<UserType>(size);
         _source = _target;
         _copies.emplace_back(sender);
         // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
-        auto id = getId();
+        auto id = this->getId();
         this->initFromTarget(receiver);
         // TODO fix - we have a conceptual problem here:
         // DoocsAdapter first creates the DataConsistencyDecorator, by adding things to DataConsistencyGroup,
@@ -104,7 +104,7 @@ namespace ChimeraTK {
         // registerProcessVariablesInDoocs using propertyDescription->getSources, might be sufficient!
 
         this->_id = id;
-        std::cout << "setupFan for " << getName() << " id=" << id << ", targetid=" << _target->getId()
+        std::cout << "setupFan for " << this->getName() << " id=" << id << ", targetid=" << _target->getId()
                   << " , senderId=" << sender->getId() << std::endl;
         _isFan = true;
       }
@@ -112,13 +112,13 @@ namespace ChimeraTK {
         assert(fan._isFan);
 
         // TODO generalize scalar->array
-        auto [sender, receiver] = createSynchronizedProcessArray<MPUserType>(1);
+        auto [sender, receiver] = createSynchronizedProcessArray<UserType>(1);
         fan._copies.emplace_back(sender);
         // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
-        auto id = getId();
-        initFromTarget(receiver);
-        _id = id;
-        std::cout << "addToFan for " << getName() << " , senderId=" << sender->getId()
+        auto id = this->getId();
+        this->initFromTarget(receiver);
+        this->_id = id;
+        std::cout << "addToFan for " << this->getName() << " , senderId=" << sender->getId()
                   << ", targetid=" << _target->getId() << std::endl;
         // TODO check ownership: we are modifying asCopy but not taking over ownership:
         // when it is deleted, sender remains existing but becomes useless - is that fine?
@@ -126,9 +126,9 @@ namespace ChimeraTK {
       auto& getSource() { return _source; }
       auto& getCopies() { return _copies; }
 
-      [[nodiscard]] boost::shared_ptr<NDRegisterAccessor<MPUserType>> decorateDeepInside(
-          [[maybe_unused]] std::function<boost::shared_ptr<NDRegisterAccessor<MPUserType>>(
-              const boost::shared_ptr<NDRegisterAccessor<MPUserType>>&)> factory) override {
+      [[nodiscard]] boost::shared_ptr<NDRegisterAccessor<UserType>> decorateDeepInside(
+          [[maybe_unused]] std::function<boost::shared_ptr<NDRegisterAccessor<UserType>>(
+              const boost::shared_ptr<NDRegisterAccessor<UserType>>&)> factory) override {
         _thisIsDecorated = true;
         // disallow that DataConsistencyDecorator would be placed inside of RoutingDecorator
         return {};
@@ -139,34 +139,22 @@ namespace ChimeraTK {
       // keep track of usage: decorator was placed around this object! Note, this flag only tracks decorateDeepInside
       // mechanism.
       bool _thisIsDecorated = false;
-      MPAcc _source;
-      std::list<MPAcc> _copies;
+      Acc _source;
+      std::list<Acc> _copies;
     };
     struct RoutingDecoratorDomain {
       // if updated process var is source for a fan-out, generate the copies
       // We assume that all elements (source and copies) are in our ReadAnyGroup
-      void send(TransferElementID updatedElement) {
-        auto it = _sourceMasters.find(updatedElement);
-        if(it != _sourceMasters.end() && it->second->isFan()) {
-          RoutingDecorator& dec = *it->second;
-          auto& source = dec.getSource();
-          auto vn = source->getVersionNumber();
-          assert(vn > VersionNumber{nullptr});
+      bool send(TransferElementID updatedElement);
 
-          for(auto& dest : dec.getCopies()) {
-            // TODO optimize in order to use swap for last copy
-            dest->accessData(0) = source->accessData(0);
-            dest->write(vn);
-          }
-        }
-      }
-      std::map<TransferElementID, boost::shared_ptr<RoutingDecorator>> _sourceMasters;
+      // maps sourceId -> FanOut
+      std::map<TransferElementID, boost::shared_ptr<TransferElement>> _sourceMasters;
     };
     RoutingDecoratorDomain routing;
-    MPAcc map(const MPAcc& source);
 
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> copyOfMacroPulseSource(
-        const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);
+    // for readable process variables, checks if fan-out is required and returns mapped output
+    // write-only process variables are handed through
+    ProcessVariable::SharedPtr getMappedProcessVariable(const ChimeraTK::RegisterPath& processVariableName);
 
    protected:
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
