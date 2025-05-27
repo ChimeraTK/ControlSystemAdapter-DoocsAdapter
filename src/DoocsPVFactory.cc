@@ -34,7 +34,7 @@ namespace ChimeraTK {
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar(
       AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
+    auto processVariable = _updater.getMappedProcessVariable(propertyDescription.source);
 
     // the DoocsProcessScalar needs the real ProcessScalar type, not just
     // ProcessVariable
@@ -84,7 +84,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(!propertyDescription.macroPulseNumberSource.empty()) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -105,7 +105,7 @@ namespace ChimeraTK {
   template<>
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, DTextUnifier>(
       AutoPropertyDescription const& propertyDescription, DecoratorType /*decoratorType*/) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
+    auto processVariable = _updater.getMappedProcessVariable(propertyDescription.source);
 
     // FIXME: Use a decorator, but this has to be tested and implemented for
     // strings first the DoocsProcessArray needs the real ProcessScalar type, not
@@ -135,7 +135,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(!propertyDescription.macroPulseNumberSource.empty()) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -153,7 +153,7 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(SpectrumDescription const& spectrumDescription) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(spectrumDescription.source);
+    auto processVariable = _updater.getMappedProcessVariable(spectrumDescription.source);
 
     float start = spectrumDescription.start;
     float increment = spectrumDescription.increment;
@@ -165,15 +165,13 @@ namespace ChimeraTK {
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> incrementAccessor;
 
     if(spectrumDescription.startSource != "") {
-      startAccessor =
-          getTypeChangingDecorator<float>(_controlSystemPVManager->getProcessVariable(spectrumDescription.startSource),
-              DecoratorType::C_style_conversion);
+      startAccessor = getTypeChangingDecorator<float>(
+          _updater.getMappedProcessVariable(spectrumDescription.startSource), DecoratorType::C_style_conversion);
       start = startAccessor->accessData(0);
     }
     if(spectrumDescription.incrementSource != "") {
       incrementAccessor = getTypeChangingDecorator<float>(
-          _controlSystemPVManager->getProcessVariable(spectrumDescription.incrementSource),
-          DecoratorType::C_style_conversion);
+          _updater.getMappedProcessVariable(spectrumDescription.incrementSource), DecoratorType::C_style_conversion);
       increment = incrementAccessor->accessData(0);
     }
 
@@ -222,7 +220,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(!spectrumDescription.macroPulseNumberSource.empty()) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(spectrumDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(spectrumDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -239,7 +237,7 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsImage(ImageDescription const& imageDescription) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(imageDescription.source);
+    auto processVariable = _updater.getMappedProcessVariable(imageDescription.source);
     boost::shared_ptr<DoocsImage> doocsPV = boost::make_shared<DoocsImage>(_eqFct, imageDescription.name,
         getTypeChangingDecorator<unsigned char>(processVariable, DecoratorType::C_style_conversion), _updater,
         imageDescription.dataMatching);
@@ -257,7 +255,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(!imageDescription.macroPulseNumberSource.empty()) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(imageDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(imageDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -274,8 +272,8 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createXy(XyDescription const& xyDescription) {
-    auto xProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.xSource);
-    auto yProcessVariable = _controlSystemPVManager->getProcessVariable(xyDescription.ySource);
+    auto xProcessVariable = _updater.getMappedProcessVariable(xyDescription.xSource);
+    auto yProcessVariable = _updater.getMappedProcessVariable(xyDescription.ySource);
 
     auto doocsPV = boost::make_shared<DoocsXy>(_eqFct, xyDescription.name,
         getTypeChangingDecorator<float>(xProcessVariable, DecoratorType::C_style_conversion),
@@ -310,10 +308,10 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createIfff(IfffDescription const& ifffDescription) {
-    auto i1ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.i1Source);
-    auto f1ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f1Source);
-    auto f2ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f2Source);
-    auto f3ProcessVariable = _controlSystemPVManager->getProcessVariable(ifffDescription.f3Source);
+    auto i1ProcessVariable = _updater.getMappedProcessVariable(ifffDescription.i1Source);
+    auto f1ProcessVariable = _updater.getMappedProcessVariable(ifffDescription.f1Source);
+    auto f2ProcessVariable = _updater.getMappedProcessVariable(ifffDescription.f2Source);
+    auto f3ProcessVariable = _updater.getMappedProcessVariable(ifffDescription.f3Source);
 
     boost::shared_ptr<DoocsIfff> doocsPV;
 
@@ -336,7 +334,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(!ifffDescription.macroPulseNumberSource.empty()) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(ifffDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(ifffDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -361,7 +359,7 @@ namespace ChimeraTK {
   }
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createIiii(IiiiDescription const& iiiiDescription) {
-    auto iiiiProcessVariable = _controlSystemPVManager->getProcessVariable(iiiiDescription.iiiiSource);
+    auto iiiiProcessVariable = _updater.getMappedProcessVariable(iiiiDescription.iiiiSource);
 
     boost::shared_ptr<DoocsIiii> doocsPV;
     if(iiiiDescription.hasHistory) {
@@ -377,7 +375,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(iiiiDescription.macroPulseNumberSource.size() > 0) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(iiiiDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(iiiiDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
@@ -430,7 +428,7 @@ namespace ChimeraTK {
     auto autoPropertyDescription = std::static_pointer_cast<AutoPropertyDescription>(propertyDescription);
 
     auto pvName = autoPropertyDescription->source;
-    auto processVariable = _controlSystemPVManager->getProcessVariable(pvName);
+    auto processVariable = _updater.getMappedProcessVariable(pvName);
 
     std::type_info const& valueType = processVariable->getValueType();
     /*  TODO:
@@ -484,7 +482,7 @@ namespace ChimeraTK {
 
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription) {
-    auto processVariable = _controlSystemPVManager->getProcessVariable(propertyDescription.source);
+    auto processVariable = _updater.getMappedProcessVariable(propertyDescription.source);
 
     // the DoocsProcessScalar needs the real ProcessScalar type, not just
     // ProcessVariable
@@ -513,7 +511,7 @@ namespace ChimeraTK {
 
     // set macro pulse number source, if configured
     if(!propertyDescription.macroPulseNumberSource.empty()) {
-      auto mpnSource = _controlSystemPVManager->getProcessVariable(propertyDescription.macroPulseNumberSource);
+      auto mpnSource = _updater.getMappedProcessVariable(propertyDescription.macroPulseNumberSource);
       auto mpnDecorated = getTypeChangingDecorator<int64_t>(mpnSource, DecoratorType::C_style_conversion);
       if(mpnDecorated->getNumberOfSamples() != 1) {
         throw ChimeraTK::logic_error("The property '" + mpnDecorated->getName() +
