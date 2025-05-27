@@ -29,18 +29,6 @@ namespace ChimeraTK {
     _toDoocsDescriptorMap[variable.getId()].locations.push_back(eq_fct);
   }
 
-  boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>> DoocsUpdater::copyOfMacroPulseSource(
-      const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
-    // TODO fix:
-    // we are facing the problem that macroPulse source can be used from several DataConsistencyGroups and
-    // MatchingMode::historized. This is not allowed. As a workaround, we need a kind of fan-out to separate
-    // TransferElements for each macroPulse source instance. The fan-out can be realized by a thread listening on the
-    // macroPulse source and writing to the needed copies. The needed copies should be inserted into _elementsToRead and
-    // be used as macroPulse sources.
-
-    return map(macroPulseNumberSource);
-  }
-
   void DoocsUpdater::update() {
     for(auto& transferElem : _elementsToRead) {
       if(transferElem.readLatest()) {
@@ -164,36 +152,87 @@ namespace ChimeraTK {
     stop();
   }
 
-  DoocsUpdater::MPAcc DoocsUpdater::map(const DoocsUpdater::MPAcc& source) {
-    // TODO fix several problems
-    // - we must generalize the fan-out to handle not just macro pulses. also relevant e.g. for spectrum inputs
-    // - currently we have a problem if source is mapped to DOOCS; then it appears already in ReadAnyGroup there,
-    //   and cannot be put into another ReadAnyGroup
-    // => we must use our mapping/fan-out on all process vars (whether mapped directly or used in DataConsistencyGroup)
-    // - We should also try to get rid of the thread and the fan-out in cases where there is a 1-to-1 mapping;
-    //   unclear how to find out about this in advance.
-    //   An idea (martin) would be to put a Decorator around all used process vars and change Decorator target
-    //   later, depending on requirements: either, target is set directly to process var, or to fan-out output.
+  ProcessVariable::SharedPtr DoocsUpdater::getMappedProcessVariable(
+      const ChimeraTK::RegisterPath& processVariableName) {
+    auto controlSystemPVManager = doocsAdapter.getControlSystemPVManager();
+    auto pv = controlSystemPVManager->getProcessVariable(processVariableName);
 
-    auto decorator = boost::make_shared<RoutingDecorator>(source);
-    bool sourceRequiresFan = doocsAdapter.reverseMapping.at(source->getName()).size() > 1;
-    if(sourceRequiresFan) {
+    if(!pv->isReadable()) {
+      return pv;
+    }
+    bool sourceRequiresFan = doocsAdapter.reverseMapping.at(pv->getName()).size() > 1;
+    if(!sourceRequiresFan) {
+      return pv;
+    }
+    ProcessVariable::SharedPtr ret;
+    callForType(pv->getValueType(), [&](auto t) {
+      using UserType = decltype(t);
+
+      auto source = boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<UserType>>(pv);
+      assert(source);
+      TransferElementID sourceId = source->getId();
+      auto decorator = boost::make_shared<RoutingDecorator<UserType>>(source);
+
       // We add source to elementsToRead only if fan acually needed - check docu future_queue::when_any.
       // We don't need a doocsUpdater function for the source.
-      if(!_toDoocsDescriptorMap.contains(source->getId())) {
+      if(!_toDoocsDescriptorMap.contains(sourceId)) {
         _elementsToRead.emplace_back(source);
-        _toDoocsDescriptorMap[source->getId()];
+        _toDoocsDescriptorMap[sourceId];
       }
-      if(!routing._sourceMasters.contains(source->getId())) {
+
+      if(!routing._sourceMasters.contains(sourceId)) {
         decorator->setupFan();
-        routing._sourceMasters[source->getId()] = decorator;
+        routing._sourceMasters[sourceId] = decorator;
       }
+
       else {
-        auto& sourceMaster = routing._sourceMasters[source->getId()];
-        decorator->addToFan(*sourceMaster);
+        auto sourceMaster = boost::dynamic_pointer_cast<RoutingDecorator<UserType>>(routing._sourceMasters[sourceId]);
+        assert(sourceMaster);
+        decorator->template addToFan(*sourceMaster);
       }
+      ret = decorator;
+    });
+    return ret;
+  }
+
+  bool DoocsUpdater::RoutingDecoratorDomain::send(TransferElementID updatedElement) {
+    auto it = _sourceMasters.find(updatedElement);
+    if(it == _sourceMasters.end()) {
+      return false;
     }
-    return decorator;
+
+    bool ret;
+    callForType(it->second->getValueType(), [&](auto t) {
+      using UserType = decltype(t);
+
+      auto dec = boost::dynamic_pointer_cast<RoutingDecorator<UserType>>(it->second);
+      assert(dec);
+      if(!dec->isFan()) {
+        ret = false;
+      }
+
+      auto& source = dec->getSource();
+      auto vn = source->getVersionNumber();
+      assert(vn > VersionNumber{nullptr});
+
+      unsigned nCopies = dec->getCopies().size();
+      auto jt = dec->getCopies().begin();
+      for(unsigned j = 0; j < nCopies - 1; ++j, ++jt) {
+        auto dest = *jt;
+        for(unsigned i = 0; i < dest->getNumberOfChannels(); i++) {
+          dest->accessChannel(i) = source->accessChannel(i);
+        }
+        dest->write(vn);
+      }
+      // use swap for last copy
+      auto dest = *jt;
+      for(unsigned i = 0; i < dest->getNumberOfChannels(); i++) {
+        dest->accessChannel(i).swap(source->accessChannel(i));
+      }
+      dest->write(vn);
+      ret = true;
+    });
+    return ret;
   }
 
 } // namespace ChimeraTK
