@@ -31,6 +31,8 @@ static std::mutex mutex;
 
 /**********************************************************************************************************************/
 
+BOOST_AUTO_TEST_SUITE(serverTestRegression_noMatchingMPNumber)
+
 BOOST_AUTO_TEST_CASE(testScalar) {
   std::cout << "testScalar " << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
@@ -299,3 +301,5 @@ retry:
 
   dmsg_detach(&ea, tag);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
