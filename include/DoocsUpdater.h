@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include "ChimeraTK/ControlSystemAdapter/UnidirectionalProcessArray.h"
-#include "ChimeraTK/NDRegisterAccessorDecorator.h"
-#include "DoocsAdapter.h"
+#include "RoutingDecorator.h"
 
 #include <ChimeraTK/TransferElement.h>
 #include <ChimeraTK/TransferElementAbstractor.h>
@@ -14,7 +12,6 @@
 #include <eq_fct.h>
 
 #include <map>
-#include <unordered_map>
 
 namespace ChimeraTK {
 
@@ -47,114 +44,11 @@ namespace ChimeraTK {
 
     const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
 
-    /**
-     * A RoutingDecorator will be placed around all source process variables.
-     * It implements either a direct pass-through of the value or a fan-out to the required number of copies.
-     */
-    template<typename UserType>
-    class RoutingDecorator : public NDRegisterAccessorDecorator<UserType, UserType> {
-     public:
-      using Acc = boost::shared_ptr<ChimeraTK::NDRegisterAccessor<UserType>>;
-      explicit RoutingDecorator(const Acc& target)
-      : NDRegisterAccessorDecorator<UserType, UserType>::NDRegisterAccessorDecorator(target) {
-        // We need unique and stable TransferElementId (differently from usual decorator behavior).
-        // This is required to distinguish between updates for source and updates for copies (from ReadAnyGroup).
-        this->_id = TransferElementID();
-        this->makeUniqueId();
-        std::cout << "RoutingDecorator for " << this->getName() << " id=" << this->getId()
-                  << ", targetid=" << _target->getId() << std::endl;
-      }
-
-      using NDRegisterAccessorDecorator<UserType, UserType>::_target;
-      bool isFan() const { return _isFan; }
-      /// this exchanges the target by a newly created process variable; also the readQueue is exchanged.
-      void setupFan() {
-        assert(!_isFan);
-        // assert that we do decoration with DataConsistencyDecorator only after setupFan.
-        // DataConsistencyDecorator implements a continuation of the readQueue, so the latter must not be
-        // exchanged later.
-        assert(!_thisIsDecorated);
-
-        // TODO generalize scalar->array
-        std::size_t size = _target->getNumberOfSamples();
-        auto [sender, receiver] = createSynchronizedProcessArray<UserType>(size);
-        _source = _target;
-        _copies.emplace_back(sender);
-        // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
-        auto id = this->getId();
-        this->initFromTarget(receiver);
-        // TODO fix - we have a conceptual problem here:
-        // DoocsAdapter first creates the DataConsistencyDecorator, by adding things to DataConsistencyGroup,
-        // and then creates more variables, requiring this setupFan method.
-        // But DataConsistencyDecorator relies on previously set readQueue, it uses it as basis for continuation!
-        // So by exchanging the target and readQueue here, we come to late!
-
-        // one idea how to fix it:
-        // do not yet set up DataConsistencyGroups, or more generally, do not yet call
-        // PropertyBase::registerVariable or similars
-        // Instead, just collect the information here (in particular, that we need a fan-out)
-        // Go back later and set up things via PropertyBase::registerVariable or similar.
-        // TODOs
-        // (a) what do we need to collect, precisely?
-        // (b) from where can we go back?
-        // might want to use CSAdapterEqFct::_doocsProperties, maybe extend CSAdapterEqFct::post_init
-        // or DoocsAdapter::postInitEpilog jsut before doocsAdapter.updater->run();
-        // alternative idea:
-        // we already have some information about network created after parse; see
-        // registerProcessVariablesInDoocs using propertyDescription->getSources, might be sufficient!
-
-        this->_id = id;
-        std::cout << "setupFan for " << this->getName() << " id=" << id << ", targetid=" << _target->getId()
-                  << " , senderId=" << sender->getId() << std::endl;
-        _isFan = true;
-      }
-      void addToFan(RoutingDecorator& fan) {
-        assert(fan._isFan);
-
-        // TODO generalize scalar->array
-        auto [sender, receiver] = createSynchronizedProcessArray<UserType>(1);
-        fan._copies.emplace_back(sender);
-        // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
-        auto id = this->getId();
-        this->initFromTarget(receiver);
-        this->_id = id;
-        std::cout << "addToFan for " << this->getName() << " , senderId=" << sender->getId()
-                  << ", targetid=" << _target->getId() << std::endl;
-        // TODO check ownership: we are modifying asCopy but not taking over ownership:
-        // when it is deleted, sender remains existing but becomes useless - is that fine?
-      }
-      auto& getSource() { return _source; }
-      auto& getCopies() { return _copies; }
-
-      [[nodiscard]] boost::shared_ptr<NDRegisterAccessor<UserType>> decorateDeepInside(
-          [[maybe_unused]] std::function<boost::shared_ptr<NDRegisterAccessor<UserType>>(
-              const boost::shared_ptr<NDRegisterAccessor<UserType>>&)> factory) override {
-        _thisIsDecorated = true;
-        // disallow that DataConsistencyDecorator would be placed inside of RoutingDecorator
-        return {};
-      }
-
-     protected:
-      bool _isFan = false;
-      // keep track of usage: decorator was placed around this object! Note, this flag only tracks decorateDeepInside
-      // mechanism.
-      bool _thisIsDecorated = false;
-      Acc _source;
-      std::list<Acc> _copies;
-    };
-    struct RoutingDecoratorDomain {
-      // if updated process var is source for a fan-out, generate the copies
-      // We assume that all elements (source and copies) are in our ReadAnyGroup
-      bool send(TransferElementID updatedElement);
-
-      // maps sourceId -> FanOut
-      std::map<TransferElementID, boost::shared_ptr<TransferElement>> _sourceMasters;
-    };
     RoutingDecoratorDomain routing;
 
     // for readable process variables, checks if fan-out is required and returns mapped output
     // write-only process variables are handed through
-    ProcessVariable::SharedPtr getMappedProcessVariable(const ChimeraTK::RegisterPath& processVariableName);
+    TransferElement::SharedPtr getMappedProcessVariable(const ChimeraTK::RegisterPath& processVariableName);
 
    protected:
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
