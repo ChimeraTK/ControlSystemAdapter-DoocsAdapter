@@ -3,8 +3,7 @@
 
 #include "DoocsUpdater.h"
 
-#include "ChimeraTK/ControlSystemAdapter/UnidirectionalProcessArray.h"
-#include "ChimeraTK/NDRegisterAccessorDecorator.h"
+#include "DoocsAdapter.h"
 
 #include <ChimeraTK/ReadAnyGroup.h>
 
@@ -91,14 +90,10 @@ namespace ChimeraTK {
         continue;
       }
 
-      // TODO debug: with var /DOUBLE/CONSTANT_ARRAY we get an update
-      // with VersionNumber=0, Validity=false. Why, what does it mean?
-      // Also, why is it accepted by HistorizedMatcher as a match?
-      // Anyway, we get failed assertion about update with VersionNumber=0!
       {
         auto te = notification.getTransferElement();
         std::cout << "update: " << te.getName() << " " << te.getVersionNumber() << std::endl;
-        assert(te.getVersionNumber() > VersionNumber{0});
+        assert(te.getVersionNumber() > VersionNumber{nullptr});
       }
 
       // if updated process var is source for a fan-out, generate the copies
@@ -109,11 +104,6 @@ namespace ChimeraTK {
       for(const auto& elem : descriptor.additionalTransferElements) {
         elem->postRead(ChimeraTK::TransferType::read, true);
       }
-
-      // TODO fix - I think I missed a problem here:
-      // the DataConsistencyGroup of updatedElement as source, does not imply that updates for the copies are
-      // already present. But updaterFunction must only be called when corresponding updates are there.
-      // What about ids of source and copies, I guess they are different?
 
       // Call all updater functions
       for(auto& updaterFunction : descriptor.updateFunctions) {
@@ -152,7 +142,7 @@ namespace ChimeraTK {
     stop();
   }
 
-  ProcessVariable::SharedPtr DoocsUpdater::getMappedProcessVariable(
+  TransferElement::SharedPtr DoocsUpdater::getMappedProcessVariable(
       const ChimeraTK::RegisterPath& processVariableName) {
     auto controlSystemPVManager = doocsAdapter.getControlSystemPVManager();
     auto pv = controlSystemPVManager->getProcessVariable(processVariableName);
@@ -164,75 +154,16 @@ namespace ChimeraTK {
     if(!sourceRequiresFan) {
       return pv;
     }
-    ProcessVariable::SharedPtr ret;
-    callForType(pv->getValueType(), [&](auto t) {
-      using UserType = decltype(t);
 
-      auto source = boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<UserType>>(pv);
-      assert(source);
-      TransferElementID sourceId = source->getId();
-      auto decorator = boost::make_shared<RoutingDecorator<UserType>>(source);
-
-      // We add source to elementsToRead only if fan acually needed - check docu future_queue::when_any.
-      // We don't need a doocsUpdater function for the source.
-      if(!_toDoocsDescriptorMap.contains(sourceId)) {
-        _elementsToRead.emplace_back(source);
-        _toDoocsDescriptorMap[sourceId];
-      }
-
-      if(!routing._sourceMasters.contains(sourceId)) {
-        decorator->setupFan();
-        routing._sourceMasters[sourceId] = decorator;
-      }
-
-      else {
-        auto sourceMaster = boost::dynamic_pointer_cast<RoutingDecorator<UserType>>(routing._sourceMasters[sourceId]);
-        assert(sourceMaster);
-        decorator->template addToFan(*sourceMaster);
-      }
-      ret = decorator;
-    });
-    return ret;
-  }
-
-  bool DoocsUpdater::RoutingDecoratorDomain::send(TransferElementID updatedElement) {
-    auto it = _sourceMasters.find(updatedElement);
-    if(it == _sourceMasters.end()) {
-      return false;
+    // We add the source for the fan to elementsToRead.
+    // We don't need a doocsUpdater function for the source.
+    TransferElementID sourceId = pv->getId();
+    if(!_toDoocsDescriptorMap.contains(sourceId)) {
+      _elementsToRead.emplace_back(pv);
+      _toDoocsDescriptorMap[sourceId];
     }
 
-    bool ret;
-    callForType(it->second->getValueType(), [&](auto t) {
-      using UserType = decltype(t);
-
-      auto dec = boost::dynamic_pointer_cast<RoutingDecorator<UserType>>(it->second);
-      assert(dec);
-      if(!dec->isFan()) {
-        ret = false;
-      }
-
-      auto& source = dec->getSource();
-      auto vn = source->getVersionNumber();
-      assert(vn > VersionNumber{nullptr});
-
-      unsigned nCopies = dec->getCopies().size();
-      auto jt = dec->getCopies().begin();
-      for(unsigned j = 0; j < nCopies - 1; ++j, ++jt) {
-        auto dest = *jt;
-        for(unsigned i = 0; i < dest->getNumberOfChannels(); i++) {
-          dest->accessChannel(i) = source->accessChannel(i);
-        }
-        dest->write(vn);
-      }
-      // use swap for last copy
-      auto dest = *jt;
-      for(unsigned i = 0; i < dest->getNumberOfChannels(); i++) {
-        dest->accessChannel(i).swap(source->accessChannel(i));
-      }
-      dest->write(vn);
-      ret = true;
-    });
-    return ret;
+    return routing.add(pv);
   }
 
 } // namespace ChimeraTK
