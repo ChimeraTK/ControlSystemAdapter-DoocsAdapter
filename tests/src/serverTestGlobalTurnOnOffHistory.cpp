@@ -21,6 +21,8 @@ using namespace ChimeraTK;
 
 DOOCS_ADAPTER_DEFAULT_FIXTURE
 
+BOOST_AUTO_TEST_SUITE(serverTestGlobalTurnOnOffHistory)
+
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
   usleep(100000);
@@ -60,3 +62,5 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
   checkDoocsProperty<D_float>("//FLOAT/FROM_DEVICE_SCALAR", false, false);
   checkDoocsProperty<D_float>("//FLOAT/TO_DEVICE_SCALAR", true, true);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
