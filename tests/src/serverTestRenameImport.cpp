@@ -21,6 +21,8 @@ using namespace ChimeraTK;
 
 DOOCS_ADAPTER_DEFAULT_FIXTURE
 
+BOOST_AUTO_TEST_SUITE(serverTestRenameImport)
+
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
   checkDoocsProperty<D_intarray>("//MY_RENAMED_INTEGER_LOCATION/RENAMED.CONST_ARRAY", true, false);
@@ -90,3 +92,5 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
   checkDoocsProperty<D_int>("//CHAR/FROM_DEVICE_SCALAR", true, false);
   checkDoocsProperty<D_int>("//CHAR/TO_DEVICE_SCALAR");
 }
+
+BOOST_AUTO_TEST_SUITE_END()
