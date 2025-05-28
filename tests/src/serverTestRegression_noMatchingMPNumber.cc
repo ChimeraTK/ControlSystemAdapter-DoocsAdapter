@@ -217,7 +217,7 @@ retry:
   dmsg_detach(&ea, tag);
 }
 
-BOOST_AUTO_TEST_CASE(testIff) {
+BOOST_AUTO_TEST_CASE(testIFFF) {
   std::cout << "testIFFF" << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
   auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();

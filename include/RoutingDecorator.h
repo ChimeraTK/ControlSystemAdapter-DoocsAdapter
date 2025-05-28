@@ -53,6 +53,7 @@ namespace ChimeraTK {
     /// For updatedElement = source of a fan-out belonging to RoutingDecoratorDomain, send out the copies and return
     /// true. If updatedElement is not source of a known fan-out do nothing and return false.
     bool send(TransferElementID updatedElement);
+    bool isFanSource(TransferElementID updatedElement) { return _sourceMasters.contains(updatedElement); }
 
    protected:
     // maps sourceId -> FanOut
@@ -81,7 +82,8 @@ namespace ChimeraTK {
     assert(!_thisIsDecorated);
 
     std::size_t size = this->getNumberOfSamples();
-    auto [sender, receiver] = createSynchronizedProcessArray<UserType>(size);
+    auto pvName = this->getName() + "_fanOut_0"; // set a name just for debugging purpose
+    auto [sender, receiver] = createSynchronizedProcessArray<UserType>(size, pvName);
     _source = _target;
     _copies.emplace_back(sender);
     // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
@@ -98,7 +100,9 @@ namespace ChimeraTK {
     assert(fan._isFan);
     std::size_t size = this->getNumberOfSamples();
     assert(fan.getNumberOfSamples() == size);
-    auto [sender, receiver] = createSynchronizedProcessArray<UserType>(size);
+    // a name just for debugging purpose
+    auto pvName = this->getName() + "_fanOut_" + std::to_string(fan._copies.size());
+    auto [sender, receiver] = createSynchronizedProcessArray<UserType>(size, pvName);
     fan._copies.emplace_back(sender);
     // set receiver as our new target. this also exchanges our future_queue. But make sure to keep our id.
     auto id = this->getId();
