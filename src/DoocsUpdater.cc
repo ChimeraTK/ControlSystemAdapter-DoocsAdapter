@@ -92,7 +92,8 @@ namespace ChimeraTK {
 
       {
         auto te = notification.getTransferElement();
-        std::cout << "update: " << te.getName() << " " << te.getVersionNumber() << std::endl;
+        std::cout << "update: " << te.getName() << " id=" << updatedElement << " " << te.getVersionNumber()
+                  << std::endl;
         assert(te.getVersionNumber() > VersionNumber{nullptr});
       }
 
@@ -144,13 +145,12 @@ namespace ChimeraTK {
 
   TransferElement::SharedPtr DoocsUpdater::getMappedProcessVariable(
       const ChimeraTK::RegisterPath& processVariableName) {
-    auto controlSystemPVManager = doocsAdapter.getControlSystemPVManager();
-    auto pv = controlSystemPVManager->getProcessVariable(processVariableName);
+    auto pv = _controlSystemPVManager->getProcessVariable(processVariableName);
 
     if(!pv->isReadable()) {
       return pv;
     }
-    bool sourceRequiresFan = doocsAdapter.reverseMapping.at(pv->getName()).size() > 1;
+    bool sourceRequiresFan = _pvNamesWithFan.contains(pv->getName());
     if(!sourceRequiresFan) {
       return pv;
     }

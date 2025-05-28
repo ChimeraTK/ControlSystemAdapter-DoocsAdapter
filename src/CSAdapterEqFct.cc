@@ -123,7 +123,7 @@ namespace ChimeraTK {
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs() {
     // We only need the factory inside this function
-    DoocsPVFactory factory(this, *_updater, _controlSystemPVManager);
+    DoocsPVFactory factory(this, *_updater);
 
     auto mappingForThisLocation = VariableMapper::getInstance().getPropertiesInLocation(name());
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "DoocsAdapter.h"
 #include "RoutingDecorator.h"
 
 #include <ChimeraTK/TransferElement.h>
@@ -12,6 +13,7 @@
 #include <eq_fct.h>
 
 #include <map>
+#include <utility>
 
 namespace ChimeraTK {
 
@@ -24,6 +26,10 @@ namespace ChimeraTK {
    */
   class DoocsUpdater : public boost::noncopyable {
    public:
+    // depends on global doocsAdapter instance only via default parameter value (so unit tests can be independent of
+    // the doocsAdapter instance)
+    DoocsUpdater(boost::shared_ptr<ControlSystemPVManager> csManager = doocsAdapter.getControlSystemPVManager())
+    : _controlSystemPVManager(std::move(csManager)) {}
     ~DoocsUpdater();
     void update(); // Update all variables once. This is a convenience function
                    // for testing.
@@ -49,8 +55,11 @@ namespace ChimeraTK {
     // for readable process variables, checks if fan-out is required and returns mapped output
     // write-only process variables are handed through
     TransferElement::SharedPtr getMappedProcessVariable(const ChimeraTK::RegisterPath& processVariableName);
+    void setPvNamesWithFan(std::set<std::string> pvNamesWithFan) { _pvNamesWithFan = std::move(pvNamesWithFan); }
 
    protected:
+    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
+    std::set<std::string> _pvNamesWithFan;
     std::list<ChimeraTK::TransferElementAbstractor> _elementsToRead;
     boost::thread _syncThread; // we have to use boost thread to use interruption points
 
