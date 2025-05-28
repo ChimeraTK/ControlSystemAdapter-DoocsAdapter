@@ -27,7 +27,7 @@ namespace ChimeraTK {
      * inside the EqFct, so the 'this' pointer will be given. As it is not
      * copyable this is ok.
      */
-    DoocsPVFactory(EqFct* eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> csPVManager);
+    DoocsPVFactory(EqFct* eqFct, DoocsUpdater& updater);
 
     boost::shared_ptr<D_fct> create(std::shared_ptr<PropertyDescription> const& propertyDescription);
 
@@ -35,7 +35,6 @@ namespace ChimeraTK {
     EqFct* _eqFct; //< The EqFct which is holding the factory. Needed in the
                    // constructor of the doocs properties.
     DoocsUpdater& _updater;
-    boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager; //< The pv manager, needed to get the instances
 
     // create the DOOCS property. Note: DOOCS_T is only used for scalar
     // properties, not for arrays!

@@ -7,7 +7,6 @@
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
 
-#include "DoocsProcessArray.h"
 #include "DoocsProcessScalar.h"
 #include "DoocsPVFactory.h"
 #include "DoocsSpectrum.h"
@@ -22,7 +21,6 @@
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <sstream>
 #include <typeinfo>
 
 using namespace boost::unit_test_framework;
@@ -67,9 +65,9 @@ BOOST_AUTO_TEST_CASE(testAutoCreateScalars) {
   devManager->createProcessArray<float>(SynchronizationDirection::controlSystemToDevice, "/FP/float", 1);
   devManager->createProcessArray<double>(SynchronizationDirection::controlSystemToDevice, "/FP/double", 1);
 
-  DoocsUpdater updater;
+  DoocsUpdater updater(csManager);
 
-  DoocsPVFactory factory(&myEqFct, updater, csManager);
+  DoocsPVFactory factory(&myEqFct, updater);
 
   // We insert check points with integers so we know where the algorithm kicks
   // out in case of an error. These checkpoints are always true.
@@ -145,9 +143,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateSpectrum, T, simple_test_types) {
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames(csManager);
 
-  DoocsUpdater updater;
+  DoocsUpdater updater(csManager);
 
-  DoocsPVFactory factory(&myEqFct, updater, csManager);
+  DoocsPVFactory factory(&myEqFct, updater);
 
   auto propertyDescriptions = {std::make_shared<SpectrumDescription>("A/fromDeviceArray1", "A", "fromDeviceArray1"),
       std::make_shared<SpectrumDescription>("A/fromDeviceArray2", "A", "fromDeviceArray2")};
@@ -198,9 +196,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(testCreateArray, T, simple_test_types) {
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames(csManager);
 
-  DoocsUpdater updater;
+  DoocsUpdater updater(csManager);
 
-  DoocsPVFactory factory(&myEqFct, updater, csManager);
+  DoocsPVFactory factory(&myEqFct, updater);
 
   testArrayIsCorrectType<D_bytearray>(factory, AutoPropertyDescription::DataType::Byte, "fromDeviceArray1");
   testArrayIsCorrectType<D_shortarray>(factory, AutoPropertyDescription::DataType::Short, "fromDeviceArray2");
@@ -240,9 +238,9 @@ BOOST_AUTO_TEST_CASE(testAutoCreateArray) {
   // we need this later anyway, do we make a temporary variable
   auto pvNames = ChimeraTK::getAllVariableNames(csManager);
 
-  DoocsUpdater updater;
+  DoocsUpdater updater(csManager);
 
-  DoocsPVFactory factory(&myEqFct, updater, csManager);
+  DoocsPVFactory factory(&myEqFct, updater);
 
   testArrayIsCorrectType<D_bytearray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceCharArray");
   testArrayIsCorrectType<D_bytearray>(factory, AutoPropertyDescription::DataType::Auto, "toDeviceUCharArray");
@@ -263,9 +261,9 @@ BOOST_AUTO_TEST_CASE(testInt64Scalar) {
 
   devManager->createProcessArray<int64_t>(SynchronizationDirection::controlSystemToDevice, "I/toDeviceInt", 1);
 
-  DoocsUpdater updater;
+  DoocsUpdater updater(csManager);
 
-  DoocsPVFactory factory(&myEqFct, updater, csManager);
+  DoocsPVFactory factory(&myEqFct, updater);
 
   ProcessVariable::SharedPtr processScalar = csManager->getProcessArray<int64_t>("I/toDeviceInt");
 

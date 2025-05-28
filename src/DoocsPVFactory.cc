@@ -23,9 +23,7 @@
 
 namespace ChimeraTK {
 
-  DoocsPVFactory::DoocsPVFactory(
-      EqFct* const eqFct, DoocsUpdater& updater, boost::shared_ptr<ControlSystemPVManager> csPVManager)
-  : _eqFct(eqFct), _updater(updater), _controlSystemPVManager(std::move(csPVManager)) {
+  DoocsPVFactory::DoocsPVFactory(EqFct* const eqFct, DoocsUpdater& updater) : _eqFct(eqFct), _updater(updater) {
     assert(eqFct != nullptr);
   }
 
