@@ -54,16 +54,13 @@ namespace ChimeraTK {
       auto jt = dec->getCopies().begin();
       for(unsigned j = 0; j < nCopies - 1; ++j, ++jt) {
         auto dest = *jt;
-        for(unsigned i = 0; i < dest->getNumberOfChannels(); i++) {
-          dest->accessChannel(i) = source->accessChannel(i);
-        }
+        // currently we support only 1 channel
+        dest->accessChannel(0) = source->accessChannel(0);
         dest->write(vn);
       }
       // use swap for last copy
       auto dest = *jt;
-      for(unsigned i = 0; i < dest->getNumberOfChannels(); i++) {
-        dest->accessChannel(i).swap(source->accessChannel(i));
-      }
+      dest->accessChannel(0).swap(source->accessChannel(0));
       dest->write(vn);
       ret = true;
     });

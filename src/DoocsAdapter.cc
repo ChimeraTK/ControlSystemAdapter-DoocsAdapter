@@ -212,6 +212,14 @@ namespace ChimeraTK {
       // Add PVs which are used at least twice with at least one writable property to list
       doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
     }
+
+    std::set<std::string> fanNamesFromDoocsAdapter;
+    for(const auto& el : doocsAdapter.reverseMapping) {
+      if(el.second.size() > 1) {
+        fanNamesFromDoocsAdapter.insert(el.first);
+      }
+    }
+    updater->setPvNamesWithFan(fanNamesFromDoocsAdapter);
   }
 
   /* post_init_epilog is called after all DOOCS properties are fully intialised,
