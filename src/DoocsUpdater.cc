@@ -73,54 +73,58 @@ namespace ChimeraTK {
       auto updatedElement = notification.getId();
       auto& descriptor = _toDoocsDescriptorMap[updatedElement];
 
-      // Gather all involved locations in a unique set
-      for(auto& location : descriptor.locations) {
-        if(locationsToLock.insert(location).second) {
-          location->lock();
+      bool isFanSource = routing.isFanSource(updatedElement);
+      if(!isFanSource) {
+        // Gather all involved locations in a unique set
+        for(auto& location : descriptor.locations) {
+          if(locationsToLock.insert(location).second) {
+            location->lock();
+          }
         }
       }
-      // Complete the read transfer of the process variable
-      if(!notification.accept()) {
-        // discard void notification (e.g. because of inconsistent data)
-        // Unlock all involved locations
-        for(const auto& location : locationsToLock) {
-          location->unlock();
-        }
-        locationsToLock.clear();
-        continue;
-      }
-
-      {
+      // Complete the read transfer of the process variable.
+      // Discard void notification (e.g. because of inconsistent data).
+      // Do not send out updates via DOOCS if the update is for source of a fan-out.
+      if(notification.accept()) {
         auto te = notification.getTransferElement();
         std::cout << "update: " << te.getName() << " id=" << updatedElement << " " << te.getVersionNumber()
                   << std::endl;
-        assert(te.getVersionNumber() > VersionNumber{nullptr});
+        assert(notification.getTransferElement().getVersionNumber() > VersionNumber{nullptr});
+        if(isFanSource) {
+          // if updated process var is source for a fan-out, generate the copies
+          // We assume that all elements (source and copies) are in our ReadAnyGroup
+          assert(descriptor.additionalTransferElements.empty());
+          assert(descriptor.updateFunctions.empty());
+          routing.send(updatedElement);
+        }
+        else {
+          // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
+          for(const auto& elem : descriptor.additionalTransferElements) {
+            elem->postRead(ChimeraTK::TransferType::read, true);
+          }
+
+          // Call all updater functions
+          for(auto& updaterFunction : descriptor.updateFunctions) {
+            updaterFunction();
+          }
+
+          // Unlock all involved locations
+          for(const auto& location : locationsToLock) {
+            location->unlock();
+          }
+          locationsToLock.clear();
+
+          // Call preRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
+          for(const auto& elem : descriptor.additionalTransferElements) {
+            elem->preRead(ChimeraTK::TransferType::read);
+          }
+        }
       }
-
-      // if updated process var is source for a fan-out, generate the copies
-      // We assume that all elements (source and copies) are in our ReadAnyGroup
-      routing.send(updatedElement);
-
-      // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-      for(const auto& elem : descriptor.additionalTransferElements) {
-        elem->postRead(ChimeraTK::TransferType::read, true);
-      }
-
-      // Call all updater functions
-      for(auto& updaterFunction : descriptor.updateFunctions) {
-        updaterFunction();
-      }
-
-      // Unlock all involved locations
+      // Unlock all involved locations in case not already done
       for(const auto& location : locationsToLock) {
         location->unlock();
       }
       locationsToLock.clear();
-
-      // Call preRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-      for(const auto& elem : descriptor.additionalTransferElements) {
-        elem->preRead(ChimeraTK::TransferType::read);
-      }
 
       // Allow shutting down this thread...
       boost::this_thread::interruption_point();
