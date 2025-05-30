@@ -50,7 +50,7 @@ namespace ChimeraTK {
     boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> _processScalar;
   };
 
-  /*******************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,

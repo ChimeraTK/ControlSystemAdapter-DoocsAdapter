@@ -743,7 +743,7 @@ namespace ChimeraTK {
     return dataMatching;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   std::string VariableMapper::getContentString(xmlpp::Node const* node) {
     for(auto const& subNode : node->get_children()) {

@@ -13,13 +13,13 @@
 
 namespace ChimeraTK {
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   std::atomic<bool> DoocsAdapter::isInitialised(false);
 
   static char const* XML_CONFIG_SUFFIX = "-DoocsVariableConfig.xml";
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   DoocsAdapter::DoocsAdapter() {
     // Create the managers. We need both
@@ -32,19 +32,19 @@ namespace ChimeraTK {
     updater = boost::make_shared<DoocsUpdater>();
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   boost::shared_ptr<DevicePVManager> const& DoocsAdapter::getDevicePVManager() const {
     return _devicePVManager;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   boost::shared_ptr<ControlSystemPVManager> const& DoocsAdapter::getControlSystemPVManager() const {
     return _controlSystemPVManager;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void DoocsAdapter::waitUntilInitialised() {
     int i = 0;
@@ -59,7 +59,7 @@ namespace ChimeraTK {
     }
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   bool DoocsAdapter::checkPrintDataLossWarning(size_t counter) {
     // print first time at counter == 10 to suppress the messages spamming at startup
@@ -84,7 +84,7 @@ namespace ChimeraTK {
     return counter % 1000000 == 0; // if the rate is 10Hz, this is roughly once per day
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void DoocsAdapter::beforeAutoInit() {
     // prevent concurrent execution. It is unclear whether DOOCS may call auto_init in parallel in some situations, so
@@ -109,7 +109,7 @@ namespace ChimeraTK {
     doocsAdapter.writeableVariablesWithMultipleProperties.clear(); // save memory (information no longer needed)
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   std::unique_ptr<doocs::Server> DoocsAdapter::createServer() {
     auto server = std::make_unique<doocs::Server>(ChimeraTK::ApplicationBase::getInstance().getName().c_str());
@@ -137,7 +137,7 @@ namespace ChimeraTK {
     return server;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   /* eq_init_prolog is called before the locations are created, i.e. before the
    * first call to eq_create. We initialise the application, i.e. all process
@@ -212,7 +212,7 @@ namespace ChimeraTK {
     }
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   /* post_init_epilog is called after all DOOCS properties are fully intialised,
    * including any value intialisation from the config file. We start the
@@ -258,12 +258,12 @@ namespace ChimeraTK {
     ChimeraTK::DoocsAdapter::isInitialised = true;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
   void DoocsAdapter::eqCancel() {
     ChimeraTK::DoocsAdapter::isInitialised = false;
   }
 
-  /*******************************************************************************************************************/
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

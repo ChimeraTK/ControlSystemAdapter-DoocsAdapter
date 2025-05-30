@@ -52,7 +52,7 @@ namespace ChimeraTK {
     void sendToDevice(bool getLocks);
   };
 
-  /*********************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::DoocsProcessArray(EqFct* eqFct, const std::string& doocsPropertyName,

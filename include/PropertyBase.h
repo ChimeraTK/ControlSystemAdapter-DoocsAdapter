@@ -87,7 +87,7 @@ namespace ChimeraTK {
     size_t _nDataLossWarnings{0};
   };
 
-  /*****************************************************************************/
+  /********************************************************************************************************************/
 
   template<typename T>
   void PropertyBase::setupOutputVar(boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>>& processVar) {
