@@ -32,6 +32,17 @@ namespace ChimeraTK {
       _elementsToRead.push_back(variable);
     }
     else {
+      // TODO discuss - Do we still need additionalTransferElements?
+      // There are two use cases:
+      // (A) adding same transferelement, but using different decorators.
+      //     This might by chance work, but is unclean and we should remove code doing that.
+      //     It will be wrong if a decorator swaps data.
+      // (B) Provide different doocs update functions for same TransferElement
+      //     we should still support this use case
+      // Actually we can replace both use-cases by our RoutingDecorator  /fan-out concept.
+      // But it might be that we want to keep the concept as optimization opportunity, for variable reuse.
+      assert(false);
+
       _toDoocsDescriptorMap[variable.getId()].additionalTransferElements.insert(variable.getHighLevelImplElement());
     }
 
@@ -63,10 +74,6 @@ namespace ChimeraTK {
     }
     locationsToLock.reserve(nMaxLocationsToLock);
 
-    // TODO debug:with serverTestDataMatching.cpp, _elementsToRead[1] is
-    // DataConsistencyDecorator_historized(RoutingDecorator_isFan(UniDirProcessVariable_receiving(macroPulseId='/INT/FROM_DEVICE_SCALAR')
-    // and it has already here, before its sending side was written to, notifyerQueue_previousData>0 set!
-    // Thats strange, who caused that/pushed to future_queue?
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
 
     // Call preRead for all TEs on additional transfer elements. waitAny() is doing this for all elements in the
