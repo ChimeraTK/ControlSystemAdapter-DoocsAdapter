@@ -98,7 +98,9 @@ namespace ChimeraTK {
     }
     _before_auto_init_called = true;
 
-    // connect properties which use the same writable PV to keep the property values consistent
+    // Connect properties which use the same writable PV to keep the property values consistent.
+    // Assert that writeableVariablesWithMultipleProperties is no longer modified.
+    writeableVariablesWithMultipleProperties_isFinal = true;
     for(auto& group : writeableVariablesWithMultipleProperties) {
       for(const auto& weakProperty : group.second) {
         auto property = weakProperty.lock(); // cannot fail, DoocsAdapter has ownership via PV manager
@@ -210,6 +212,7 @@ namespace ChimeraTK {
       }
 
       // Add PVs which are used at least twice with at least one writable property to list
+      assert(!doocsAdapter.writeableVariablesWithMultipleProperties_isFinal);
       doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
     }
 

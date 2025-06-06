@@ -228,6 +228,10 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
 
   // set initial values
   int macroPulseNumber = 12347;
+
+  // TODO debug - I was expecting to see update of IFFF as consequence of this one, via updateOther mechanism;
+  // however otherpropertiesToUpdate empty here!!
+
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
@@ -243,6 +247,21 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
 
   int expectedValue = 0;
   DoocsServerTestHelper::doocsSet<IFFF>("//CUSTOM/IFFF", ifff);
+  // TODO check why we get more updates of IFFF than expected
+  // - we expect one update from write to INT/TO_DEVICE_SCALAR (via updateOthers) (dont see it currently, bug)
+  // - we expect another update from write to IFFF  (and we see it)
+  // - we expect another update with initial value for startup of ZMQ client, does it coincide with mentioned?
+  //    yes it may!
+  // Writing to INT/TO_DEVICE_SCALAR, even though mapped as IFFF, will change the macropulse value, so
+  // we should expect value=1 in the end, current test buggy!
+  // After writing to IFFF, we expect two updates if we wait long enough:
+  //  (1) the one directly sent out from set()
+  //  (2) the one from macroPulse propagating back through Application, since IFFF DataConsistencyGroup counts
+  //      as consistent an update should be sent.
+  // TODO improve test with regard to waiting on macroPulse value:
+  //    since this passes throug a fan-out, just watching one end of the fan-out does not imply anything about
+  //    current state of another fan-out end, unless all values are already processed!
+  // TODO refactor test or unify with serverTestZeroMQ.cpp, we already have a ticket for that.
 
   /// Note: The data is processed by the ReferenceTestApplication in the order
   /// of the types as listed in the HolderMap of the ReferenceTestApplication.
@@ -260,6 +279,13 @@ retry:
       [](void*, doocs::EqData* data, dmsg_info_t* info) {
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
+        IFFF val{};
+        bool ifffReceived = false;
+        if(received.get_ifff()) {
+          val = *received.get_ifff();
+          ifffReceived = true;
+          std::cout << "received IFFF: " << val.i1_data << "," << val.f1_data << std::endl;
+        }
         receivedInfo = *info;
         dataReceived++;
       },
@@ -268,7 +294,7 @@ retry:
 
   // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
   CHECK_WITH_TIMEOUT(dataReceived > 0);
-  usleep(10000);
+  usleep(100000);
   BOOST_CHECK_EQUAL(dataReceived, 1);
   dataReceived = 0;
 
@@ -282,7 +308,7 @@ retry:
     // FIXME: This timeout is essential so everything has been received and the next
     // dataReceived really is false. It is a potential source of timing problems /
     // race conditions in this test.
-    usleep(10000);
+    usleep(100000);
     if(++counter > 1000) {
       dmsg_detach(&ea, tag);
       std::cout << "RETRY!" << std::endl;

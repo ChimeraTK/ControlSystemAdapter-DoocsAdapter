@@ -133,6 +133,7 @@ namespace ChimeraTK {
 
         // if one of the PVs used by the property is among the keys of the writeableVariablesWithMultipleProperties map,
         // add the property to the list of properties to update (value of the beforementioned map).
+        assert(!doocsAdapter.writeableVariablesWithMultipleProperties_isFinal);
         auto& theMap = doocsAdapter.writeableVariablesWithMultipleProperties;
         for(const auto& pvNameUsedByProperty : propertyDescription->getSources()) {
           if(theMap.find(pvNameUsedByProperty) != theMap.end()) {

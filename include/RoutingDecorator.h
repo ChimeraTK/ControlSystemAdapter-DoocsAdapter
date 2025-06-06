@@ -110,8 +110,11 @@ namespace ChimeraTK {
     this->_id = id;
     std::cout << "addToFan for " << this->getName() << " , senderId=" << sender->getId()
               << ", targetid=" << _target->getId() << std::endl;
-    // TODO check ownership: we are modifying asCopy but not taking over ownership:
-    // when it is deleted, sender remains existing but becomes useless - is that fine?
+    // TODO optimize: if MatchingMode!=historized, it will be fine to use an accessor from several
+    // DataConsistencyGroups - how can we acheive that? we could mark usage of data source as 'exclusive' or not.
+    // if uses>1 and at least 1 exclusive usage, create fan-out.
+    // fan-out outputs are either 'common' or 'exclusive' and need to be mapped accordingly.
+    // decorator used for e.g. mpsource is problematic: it becomes exclusive!
   }
 
 } // namespace ChimeraTK
