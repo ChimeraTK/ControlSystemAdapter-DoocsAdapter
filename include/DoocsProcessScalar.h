@@ -105,7 +105,7 @@ namespace ChimeraTK {
     // The second case is to have bi-directional variables that are used to persist settings into the config file
     // and need that value back on start-up but are not supposed to be written by the control system and mapped
     // read-only in the configuration file.
-    if(this->get_access() == 1 || (_processScalar.isWriteable() && otherPropertiesToUpdate.empty())) {
+    if(this->get_access() == 1 || (_processScalar.isWriteable() && !hasOtherPropertiesToUpdate())) {
       _processScalar = DOOCS_T::value();
       _processScalar.write();
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,

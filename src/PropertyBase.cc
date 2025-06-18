@@ -8,6 +8,10 @@
 
 namespace ChimeraTK {
 
+  PropertyBase::PropertyBase(
+      std::string doocsPropertyName, DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
+  : _consistencyGroup(matchingMode), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+
   void PropertyBase::registerVariable(TransferElementAbstractor& var) {
     if(var.isReadable()) {
       auto id = var.getId();
@@ -108,12 +112,16 @@ namespace ChimeraTK {
     if(handleLocking) {
       getEqFct()->unlock();
     }
-    for(const auto& weakProp : otherPropertiesToUpdate) {
+    for(const auto& weakProp : propertiesToUpdate()) {
       auto prop = weakProp.lock();
       if(!prop) {
         // property went away, could happen in shutdown phase
         continue;
       }
+      if(prop == shared_from_this()) {
+        continue;
+      }
+
       if(handleLocking) {
         prop->getEqFct()->lock();
       }
@@ -132,6 +140,24 @@ namespace ChimeraTK {
     _macroPulseNumberSource.replace(macroPulseNumberSource);
 
     registerVariable(_macroPulseNumberSource);
+  }
+
+  CommonlyUpdatedPropertySet& PropertyBase::propertiesToUpdate() {
+    if(_propertiesToUpdate_cacheIsFinal) {
+      return _propertiesToUpdate_cache;
+    }
+
+    // no need to clear _propertiesToUpdate_cache since Properties are never removed
+    for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
+      // search for group containing weak ptr to this, if found, insert whole group
+      if(group.second.contains(shared_from_this())) {
+        _propertiesToUpdate_cache.insert(group.second.begin(), group.second.end());
+      }
+    }
+    if(doocsAdapter.writeableVariablesWithMultipleProperties_isFinal) {
+      _propertiesToUpdate_cacheIsFinal = true;
+    }
+    return _propertiesToUpdate_cache;
   }
 
 } // namespace ChimeraTK

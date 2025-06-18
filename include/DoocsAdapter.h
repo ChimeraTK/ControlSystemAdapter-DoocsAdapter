@@ -50,9 +50,8 @@ namespace ChimeraTK {
     std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
 
     // stores list of writable PVs which are mapped to multiple properties
-    // Note: this is cleared during starup to save memory.
-    std::map<std::string, std::set<boost::weak_ptr<PropertyBase>>> writeableVariablesWithMultipleProperties;
-    // helper for assertion that modifications of map happen before final usage
+    std::map<std::string, CommonlyUpdatedPropertySet> writeableVariablesWithMultipleProperties;
+    // helper for optimization in evaluation of above map
     std::atomic<bool> writeableVariablesWithMultipleProperties_isFinal = false;
 
     // create the doocs::Server object

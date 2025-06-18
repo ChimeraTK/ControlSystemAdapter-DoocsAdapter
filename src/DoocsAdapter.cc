@@ -97,18 +97,6 @@ namespace ChimeraTK {
       return;
     }
     _before_auto_init_called = true;
-
-    // Connect properties which use the same writable PV to keep the property values consistent.
-    // Assert that writeableVariablesWithMultipleProperties is no longer modified.
-    writeableVariablesWithMultipleProperties_isFinal = true;
-    for(auto& group : writeableVariablesWithMultipleProperties) {
-      for(const auto& weakProperty : group.second) {
-        auto property = weakProperty.lock(); // cannot fail, DoocsAdapter has ownership via PV manager
-        property->otherPropertiesToUpdate = group.second;
-        property->otherPropertiesToUpdate.erase(property); // the property should not be in its own list
-      }
-    }
-    writeableVariablesWithMultipleProperties.clear(); // save memory (information no longer needed)
   }
 
   /********************************************************************************************************************/
@@ -251,7 +239,9 @@ namespace ChimeraTK {
       }
     }
 
-    doocsAdapter.reverseMapping.clear(); // no longer needed since variable network will not change
+    // reverseMapping content no longer needed since variable network will not change from this point on
+    doocsAdapter.reverseMapping.clear();
+    doocsAdapter.writeableVariablesWithMultipleProperties_isFinal = true;
 
     // check for variables not yet initialised - we must guarantee that all to-application variables are written exactly
     // once at server start.

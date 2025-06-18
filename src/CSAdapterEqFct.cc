@@ -5,6 +5,7 @@
 // include above first to avoid name clash with #define from DOOCS
 
 #include "CSAdapterEqFct.h"
+#include "DoocsAdapter.h"
 #include "DoocsProcessArray.h"
 #include "DoocsPVFactory.h"
 #include "DoocsUpdater.h"
@@ -139,7 +140,7 @@ namespace ChimeraTK {
           if(theMap.find(pvNameUsedByProperty) != theMap.end()) {
             // the PV name has been found in the map keys -> add the property to the list to update
             auto p = boost::dynamic_pointer_cast<ChimeraTK::PropertyBase>(_doocsProperties.at(propertyDescription));
-            auto& listOfPropertiesToUpdate = theMap.at(pvNameUsedByProperty);
+            CommonlyUpdatedPropertySet& listOfPropertiesToUpdate = theMap.at(pvNameUsedByProperty);
             listOfPropertiesToUpdate.insert(p);
           }
         }

@@ -217,6 +217,10 @@ retry:
   dmsg_detach(&ea, tag);
 }
 
+// TODO refactor test or unify with serverTestZeroMQ.cpp, we already have a ticket for that.
+// TODO improve test with regard to waiting on macroPulse value:
+//    since this passes throug a fan-out, just watching one end of the fan-out does not imply anything about
+//    current state of another fan-out end, unless all values are already processed!
 BOOST_AUTO_TEST_CASE(testIFFF) {
   std::cout << "testIFFF" << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
@@ -228,9 +232,6 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
 
   // set initial values
   int macroPulseNumber = 12347;
-
-  // TODO debug - I was expecting to see update of IFFF as consequence of this one, via updateOther mechanism;
-  // however otherpropertiesToUpdate empty here!!
 
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", macroPulseNumber);
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
@@ -247,21 +248,6 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
 
   int expectedValue = 0;
   DoocsServerTestHelper::doocsSet<IFFF>("//CUSTOM/IFFF", ifff);
-  // TODO check why we get more updates of IFFF than expected
-  // - we expect one update from write to INT/TO_DEVICE_SCALAR (via updateOthers) (dont see it currently, bug)
-  // - we expect another update from write to IFFF  (and we see it)
-  // - we expect another update with initial value for startup of ZMQ client, does it coincide with mentioned?
-  //    yes it may!
-  // Writing to INT/TO_DEVICE_SCALAR, even though mapped as IFFF, will change the macropulse value, so
-  // we should expect value=1 in the end, current test buggy!
-  // After writing to IFFF, we expect two updates if we wait long enough:
-  //  (1) the one directly sent out from set()
-  //  (2) the one from macroPulse propagating back through Application, since IFFF DataConsistencyGroup counts
-  //      as consistent an update should be sent.
-  // TODO improve test with regard to waiting on macroPulse value:
-  //    since this passes throug a fan-out, just watching one end of the fan-out does not imply anything about
-  //    current state of another fan-out end, unless all values are already processed!
-  // TODO refactor test or unify with serverTestZeroMQ.cpp, we already have a ticket for that.
 
   /// Note: The data is processed by the ReferenceTestApplication in the order
   /// of the types as listed in the HolderMap of the ReferenceTestApplication.
@@ -280,10 +266,8 @@ retry:
         std::lock_guard<std::mutex> lock(mutex);
         received.copy_from(data);
         IFFF val{};
-        bool ifffReceived = false;
         if(received.get_ifff()) {
           val = *received.get_ifff();
-          ifffReceived = true;
           std::cout << "received IFFF: " << val.i1_data << "," << val.f1_data << std::endl;
         }
         receivedInfo = *info;
@@ -294,8 +278,13 @@ retry:
 
   // Wait until initial value is received (which is polled via RPC by the DOOCS serverlib)
   CHECK_WITH_TIMEOUT(dataReceived > 0);
-  usleep(100000);
-  BOOST_CHECK_EQUAL(dataReceived, 1);
+  usleep(10000);
+  // Which updates of IFFF do we expect?
+  // - we expect one update from write to INT/TO_DEVICE_SCALAR (via updateOthers)
+  // - we expect another update from write to IFFF
+  // - in case initial value for startup of ZMQ client is polled before the obove, this is first value
+  //   But it may as well coincide with one of above. Since it's unclear how quickly ZMQ starts up, cannot check
+  //   for exact number of data received.
   dataReceived = 0;
 
   // The ZeroMQ system in DOOCS is setup in the background, hence we have to try in a loop until we receive the data.
@@ -317,12 +306,18 @@ retry:
       goto retry;
     }
   }
-  BOOST_CHECK(dataReceived > 0);
+  // After writing to IFFF, we expect two updates if we wait long enough:
+  //  (1) the one directly sent out from set()
+  //  (2) the one from macroPulse propagating back through Application, since IFFF DataConsistencyGroup counts
+  //      as consistent an update should be sent.
+  BOOST_TEST(dataReceived == 2);
   {
     std::lock_guard<std::mutex> lock(mutex);
     BOOST_CHECK_EQUAL(received.error(), 0);
     BOOST_CHECK_EQUAL(received.get_int(), expectedValue);
-    BOOST_CHECK_EQUAL(receivedInfo.ident, macroPulseNumber);
+    // Writing to INT/TO_DEVICE_SCALAR, even though mapped as IFFF, will change the macropulse value, so
+    // we should expect value=1
+    BOOST_CHECK_EQUAL(receivedInfo.ident, ifff.i1_data);
   }
 
   dmsg_detach(&ea, tag);

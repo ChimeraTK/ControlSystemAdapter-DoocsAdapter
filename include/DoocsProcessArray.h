@@ -99,7 +99,7 @@ namespace ChimeraTK {
     // and need that value back on start-up but are not supposed to be written by the control system and mapped
     // read-only in the configuration file.
     if(this->get_access() == 1 ||
-        (_processArray.isWriteable() && otherPropertiesToUpdate.empty())) { // property is writeable
+        (_processArray.isWriteable() && !hasOtherPropertiesToUpdate())) { // property is writeable
       sendToDevice(false);
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)

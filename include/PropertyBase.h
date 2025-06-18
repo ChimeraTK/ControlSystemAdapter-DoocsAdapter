@@ -11,6 +11,9 @@
 
 namespace ChimeraTK {
   class DoocsUpdater;
+  class PropertyBase;
+
+  using CommonlyUpdatedPropertySet = std::set<boost::weak_ptr<PropertyBase>>;
 
   /**
    * Base class used for all properties.
@@ -19,8 +22,7 @@ namespace ChimeraTK {
    */
   class PropertyBase : public boost::enable_shared_from_this<PropertyBase> {
    public:
-    PropertyBase(std::string doocsPropertyName, DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
-    : _consistencyGroup(matchingMode), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+    PropertyBase(std::string doocsPropertyName, DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode);
     virtual ~PropertyBase() = default;
 
     /// returns associated DOOCS location
@@ -32,9 +34,13 @@ namespace ChimeraTK {
     void setMacroPulseNumberSource(
         const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);
 
-    /// List of other properties which need to update their DOOCS buffers when this property is written from the DOOCS
-    /// side. This is used to synchronise multi-mapped PVs.
-    std::set<boost::weak_ptr<PropertyBase>> otherPropertiesToUpdate;
+    /// Returns list of properties which need to update their DOOCS buffers when any of them changes.
+    /// This is used to synchronise multi-mapped PVs.
+    CommonlyUpdatedPropertySet& propertiesToUpdate();
+    CommonlyUpdatedPropertySet _propertiesToUpdate_cache;
+    bool _propertiesToUpdate_cacheIsFinal = false;
+
+    bool hasOtherPropertiesToUpdate() { return propertiesToUpdate().size() > 1; }
 
    protected:
     /// Update DOOCS buffer from PVs. The given transferElementId shall be used only for checking consistency with the
