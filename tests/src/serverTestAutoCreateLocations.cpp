@@ -27,6 +27,8 @@ using namespace ChimeraTK;
 
 DOOCS_ADAPTER_DEFAULT_FIXTURE
 
+BOOST_AUTO_TEST_SUITE(serverTestAutoCreateLocations)
+
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
   for(const auto* const location : {"CHAR", "DOUBLE", "FLOAT", "INT", "SHORT", "UCHAR", "UINT", "USHORT"}) {
@@ -42,3 +44,5 @@ BOOST_AUTO_TEST_CASE(testVariableExistence) {
     }
   }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

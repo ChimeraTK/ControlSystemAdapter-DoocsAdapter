@@ -3,6 +3,7 @@
 
 #include "DoocsUpdater.h"
 
+#include <ChimeraTK/cppext/threadName.hpp>
 #include <ChimeraTK/ReadAnyGroup.h>
 
 #include <unordered_set>
@@ -11,20 +12,20 @@ namespace ChimeraTK {
 
   void DoocsUpdater::addVariable(
       TransferElementAbstractor variable, EqFct* eq_fct, const std::function<void()>& updaterFunction) {
-    // Don't add the transfer element twice into the list of elements to read (i.e. later into the ReadAnyGroup).
-    // To check if there is such an element we use the map with the lookup table
-    // which has a search function, instead of manually looking at the elements in
-    // the list and compare the ID.
+    // Don't add the transfer element twice into the list of elements to read (not allowed with ReadAnyGroup).
     if(_toDoocsDescriptorMap.find(variable.getId()) == _toDoocsDescriptorMap.end()) {
       _elementsToRead.push_back(variable);
     }
-    else {
-      _toDoocsDescriptorMap[variable.getId()].additionalTransferElements.insert(variable.getHighLevelImplElement());
-    }
 
-    _toDoocsDescriptorMap[variable.getId()].updateFunctions.push_back(updaterFunction);
-    _toDoocsDescriptorMap[variable.getId()].locations.push_back(eq_fct);
+    if(updaterFunction) {
+      _toDoocsDescriptorMap[variable.getId()].updateFunctions.push_back(updaterFunction);
+    }
+    if(eq_fct) {
+      _toDoocsDescriptorMap[variable.getId()].locations.push_back(eq_fct);
+    }
   }
+
+  /********************************************************************************************************************/
 
   void DoocsUpdater::update() {
     for(auto& transferElem : _elementsToRead) {
@@ -35,6 +36,8 @@ namespace ChimeraTK {
       }
     }
   }
+
+  /********************************************************************************************************************/
 
   void DoocsUpdater::updateLoop() {
     if(_elementsToRead.empty()) {
@@ -52,70 +55,100 @@ namespace ChimeraTK {
 
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
 
-    // Call preRead for all TEs on additional transfer elements. waitAny() is doing this for all elements in the
-    // ReadAnyGroup. Unnecessary calls to preRead() are anyway ignored and merely pose a performance issue. For large
-    // servers, the performance impact is significant, hence we keep track of the TEs which need to be called.
-    for(auto& pair : _toDoocsDescriptorMap) {
-      for(const auto& elem : pair.second.additionalTransferElements) {
-        elem->preRead(ChimeraTK::TransferType::read);
-      }
-    }
-
     while(true) {
       // Wait until any variable got an update
       auto notification = group.waitAny();
       auto updatedElement = notification.getId();
       auto& descriptor = _toDoocsDescriptorMap[updatedElement];
 
-      // Gather all involved locations in a unique set
-      for(auto& location : descriptor.locations) {
-        if(locationsToLock.insert(location).second) {
-          location->lock();
+      bool isFanSource = routing.isFanSource(updatedElement);
+      if(!isFanSource) {
+        // Gather all involved locations in a unique set
+        for(auto& location : descriptor.locations) {
+          if(locationsToLock.insert(location).second) {
+            location->lock();
+          }
         }
       }
-      // Complete the read transfer of the process variable
-      notification.accept();
-
-      // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-      for(const auto& elem : descriptor.additionalTransferElements) {
-        elem->postRead(ChimeraTK::TransferType::read, true);
+      // Complete the read transfer of the process variable.
+      if(notification.accept()) {
+        auto te = notification.getTransferElement();
+        assert(notification.getTransferElement().getVersionNumber() > VersionNumber{nullptr});
+        if(isFanSource) {
+          // if updated process var is source for a fan-out, generate the copies
+          // We assume that all elements (source and copies) are in our ReadAnyGroup
+          // Do not send out updates via DOOCS if the update is for source of a fan-out.
+          assert(descriptor.updateFunctions.empty());
+          routing.send(updatedElement);
+        }
+        else {
+          // Call all updater functions
+          for(auto& updaterFunction : descriptor.updateFunctions) {
+            updaterFunction();
+          }
+        }
       }
-
-      // Call all updater functions
-      for(auto& updaterFunction : descriptor.updateFunctions) {
-        updaterFunction();
-      }
-
       // Unlock all involved locations
       for(const auto& location : locationsToLock) {
         location->unlock();
       }
       locationsToLock.clear();
 
-      // Call preRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-      for(const auto& elem : descriptor.additionalTransferElements) {
-        elem->preRead(ChimeraTK::TransferType::read);
-      }
-
       // Allow shutting down this thread...
       boost::this_thread::interruption_point();
     }
   }
 
+  /********************************************************************************************************************/
+
   void DoocsUpdater::run() {
-    _syncThread = boost::thread([this] { updateLoop(); });
+    _syncThread = boost::thread([this] {
+      cppext::setThreadName("DoocsUpdater");
+      updateLoop();
+    });
   }
 
+  /********************************************************************************************************************/
+
   void DoocsUpdater::stop() {
-    _syncThread.interrupt();
-    for(auto& var : _elementsToRead) {
-      var.getHighLevelImplElement()->interrupt();
+    if(_syncThread.joinable()) {
+      _syncThread.interrupt();
+      for(auto& var : _elementsToRead) {
+        var.getHighLevelImplElement()->interrupt();
+      }
+      _syncThread.join();
     }
-    _syncThread.join();
   }
+
+  /********************************************************************************************************************/
 
   DoocsUpdater::~DoocsUpdater() {
     stop();
+  }
+
+  /********************************************************************************************************************/
+
+  TransferElement::SharedPtr DoocsUpdater::getMappedProcessVariableUnTyped(
+      const ChimeraTK::RegisterPath& processVariableName) {
+    auto pv = _controlSystemPVManager->getProcessVariable(processVariableName);
+
+    if(!pv->isReadable()) {
+      return pv;
+    }
+    bool sourceRequiresFan = _pvNamesWithFan.contains(pv->getName());
+    if(!sourceRequiresFan) {
+      return pv;
+    }
+
+    // We add the source for the fan to elementsToRead.
+    // We don't need a doocsUpdater function for the source.
+    TransferElementID sourceId = pv->getId();
+    if(!_toDoocsDescriptorMap.contains(sourceId)) {
+      _elementsToRead.emplace_back(pv);
+      _toDoocsDescriptorMap[sourceId];
+    }
+
+    return routing.add(pv);
   }
 
 } // namespace ChimeraTK

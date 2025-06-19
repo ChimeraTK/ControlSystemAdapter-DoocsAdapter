@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
-  <!-- We use a type which is processed by the ReferenceTestApplication before the data properties used by the test.
-       Otherwise the macro pulse number gets attachted to the next value. The order is determined by the order of types
-       in the HolderMap, as this map is iterated. -->
 
   <macro_pulse_number_source>/INT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
 

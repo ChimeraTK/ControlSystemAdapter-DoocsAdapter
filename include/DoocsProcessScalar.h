@@ -47,7 +47,7 @@ namespace ChimeraTK {
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;
 
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<T>> _processScalar;
+    ScalarRegisterAccessor<T> _processScalar;
   };
 
   /********************************************************************************************************************/
@@ -75,20 +75,20 @@ namespace ChimeraTK {
     // only assign the value if the variable is writeable
     // Otherwise the content displayed by Doocs and the value in the application
     // are inconsistent
-    if(!_processScalar->isWriteable()) {
+    if(!_processScalar.isWriteable()) {
       throw ChimeraTK::logic_error("Trying to write to a non-writable variable");
     }
     // note, current doocs implementation does not take error code, timestamp or event id from input data
     // it takes over data only if no error, and replaces timestamp and event id by global ones
     DOOCS_T::set(adr, data1, data2, eqfct);
-    if(_macroPulseNumberSource != nullptr) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     // let the DOOCS_T set function do all the dirty work and use the
     // get_value function afterwards to get the already assigned value
-    _processScalar->accessData(0) = this->value();
+    _processScalar = this->value();
     auto timestamp = DOOCS_T::get_timestamp().to_time_point();
-    _processScalar->write(VersionNumber(timestamp));
+    _processScalar.write(VersionNumber(timestamp));
 
     updateOthers(true);
 
@@ -105,9 +105,9 @@ namespace ChimeraTK {
     // The second case is to have bi-directional variables that are used to persist settings into the config file
     // and need that value back on start-up but are not supposed to be written by the control system and mapped
     // read-only in the configuration file.
-    if(this->get_access() == 1 || (_processScalar->isWriteable() && otherPropertiesToUpdate.empty())) {
-      _processScalar->accessData(0) = DOOCS_T::value();
-      _processScalar->write();
+    if(this->get_access() == 1 || (_processScalar.isWriteable() && !hasOtherPropertiesToUpdate())) {
+      _processScalar = DOOCS_T::value();
+      _processScalar.write();
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
       DOOCS_T::set_stamp();
@@ -124,10 +124,10 @@ namespace ChimeraTK {
 
     // Note: we already own the location lock by specification of the
     // DoocsUpdater
-    auto data = _processScalar->accessData(0);
+    T data = _processScalar;
 
     auto archiverStatus = ArchiveStatus::sts_ok;
-    if(_processScalar->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_processScalar.dataValidity() != ChimeraTK::DataValidity::ok) {
       archiverStatus = ArchiveStatus::sts_err;
       // set data invalid in DOOCS for current data
       this->d_error(stale_data);
@@ -139,8 +139,8 @@ namespace ChimeraTK {
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
     doocs::EventId eventId;
-    if(_macroPulseNumberSource) {
-      eventId = doocs::EventId(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      eventId = doocs::EventId(_macroPulseNumberSource);
     }
     this->set_value(data, timestamp, eventId, archiverStatus);
     sendZMQ(timestamp);

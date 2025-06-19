@@ -22,75 +22,109 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
 /**********************************************************************************************************************/
 
-/// Note: The data is processed by the ReferenceTestApplication in the order
-/// of the types as listed in the HolderMap of the ReferenceTestApplication.
-/// INT comes before UINT and FLOAT, so the macro pulse number is first
-/// written and then our values.
+struct DataMatchingFixture {
+  // start values for sending
+  int macroPulseNumber = 1000;
+  unsigned sendUnsigned = 40U;
+  float sendFloat = 40.1F;
+  double sendDouble = 40.2;
+  // the expectation whether sent updates should propagate back
+  bool expectUnsignedUpdated = true;
+  bool expectFloatUpdated = true;
+  bool expectDoubleUpdated = true;
+  // internal storage for next check
+  unsigned expectedUnsigned;
+  float expectedFloat;
+  double expectedDouble;
 
-BOOST_AUTO_TEST_CASE(testProcessScalar) {
+  void sendUpdate(bool updateMacroPulse = true, bool updateValues = true, ChimeraTK::VersionNumber vn = {}) {
+    // We need data consistency between macro pulse number and the data
+    // Everything from now on will get the same version number, until we manually set a new one.
+    GlobalFixture::referenceTestApplication.versionNumber = vn;
+
+    if(updateMacroPulse) {
+      macroPulseNumber++;
+      DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
+    }
+    if(updateValues) {
+      ++sendUnsigned;
+      ++sendFloat;
+      ++sendDouble;
+      DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", sendUnsigned);
+      DoocsServerTestHelper::doocsSet<float>("//FLOAT/TO_DEVICE_SCALAR", sendFloat);
+      DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_SCALAR", sendDouble);
+      // save values for next check, according to known expectation
+      if(expectUnsignedUpdated) {
+        expectedUnsigned = sendUnsigned;
+      }
+      if(expectFloatUpdated) {
+        expectedFloat = sendFloat;
+      }
+      if(expectDoubleUpdated) {
+        expectedDouble = sendDouble;
+      }
+    }
+  }
+
+  void checkReceivedValues() {
+    if(!expectUnsignedUpdated or !expectFloatUpdated or !expectDoubleUpdated) {
+      usleep(1000000);
+    }
+
+    TEST_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<unsigned int>("//UINT/FROM_DEVICE_SCALAR") == expectedUnsigned);
+    TEST_WITH_TIMEOUT(
+        std::abs(DoocsServerTestHelper::doocsGet<float>("//FLOAT/FROM_DEVICE_SCALAR") - expectedFloat) < 1e-6);
+    // note about precision: doocsGet uses get_float so test not stricter than for float
+    TEST_WITH_TIMEOUT(
+        std::abs(DoocsServerTestHelper::doocsGet<double>("//DOUBLE/FROM_DEVICE_SCALAR") - expectedDouble) < 1e-6);
+  }
+};
+
+BOOST_FIXTURE_TEST_CASE(testProcessScalar, DataMatchingFixture) {
   std::cout << "testProcessScalar" << std::endl;
 
-  auto appPVmanager = GlobalFixture::referenceTestApplication.getPVManager();
-
-  // We need data consistency between macro pulse number and the data
-  // Everything from now on will get the same version number, until we manually
-  // set a new one.
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-
-  int macroPulseNumber = 12345;
-  DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
-
-  unsigned int expectedUnsignedInt = 42U;
-  float expectedFloat = 42.42F;
-  DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", expectedUnsignedInt);
-  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
-  DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_SCALAR", expectedFloat);
-
-  GlobalFixture::referenceTestApplication.runMainLoopOnce();
-
-  CHECK_WITH_TIMEOUT(
-      DoocsServerTestHelper::doocsGet<unsigned int>("//UINT/FROM_DEVICE_SCALAR") - expectedUnsignedInt < 1e-6);
-  CHECK_WITH_TIMEOUT(
-      DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedFloat < 1e-6);
-  CHECK_WITH_TIMEOUT(DoocsServerTestHelper::doocsGet<double>("//DOUBLE/FROM_DEVICE_SCALAR") - expectedFloat < 1e-6);
+  sendUpdate();
+  ExtendedTestApplication::runMainLoopOnce();
+  checkReceivedValues();
 
   // Send MPN and values with different version numbers
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  GlobalFixture::referenceTestApplication.runMainLoopOnce();
-
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  auto lastExpectedUnsignedInt = expectedUnsignedInt;
-  auto lastExpectedDouble = expectedFloat;
-  expectedUnsignedInt = 2U;
-  expectedFloat = 2.42F;
-  DoocsServerTestHelper::doocsSet<unsigned int>("//UINT/TO_DEVICE_SCALAR", expectedUnsignedInt);
-  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
-  DoocsServerTestHelper::doocsSet<double>("//DOUBLE/TO_DEVICE_SCALAR", expectedFloat);
-
-  GlobalFixture::referenceTestApplication.runMainLoopOnce();
-
   // Unsigned int value must not be updated because it has data matching exact
-  // FIXME Better way to check this?
-  usleep(1000000);
-  BOOST_CHECK_EQUAL(
-      DoocsServerTestHelper::doocsGet<unsigned int>("//UINT/FROM_DEVICE_SCALAR"), lastExpectedUnsignedInt);
+  expectUnsignedUpdated = false;
+  // Float value has to get the update even with version number mismatch because data matching is none
+  expectFloatUpdated = true;
   // double value must also not be updated because data matching = historized
-  BOOST_CHECK_EQUAL(DoocsServerTestHelper::doocsGet<double>("//DOUBLE/FROM_DEVICE_SCALAR"), lastExpectedDouble);
+  expectDoubleUpdated = false;
 
-  // Float value has to get the update even with version number mismatch
-  // because data matching is none
-  CHECK_WITH_TIMEOUT(
-      DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedFloat < 1e-6);
+  sendUpdate(false);
+  ExtendedTestApplication::runMainLoopOnce();
+  checkReceivedValues();
 
   // Another iteration, now back to consistent version number
-  GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
-  ++macroPulseNumber;
-  DoocsServerTestHelper::doocsSet<int>("//UNMAPPED/INT.TO_DEVICE_SCALAR", macroPulseNumber);
-  expectedFloat = 12.42F;
-  DoocsServerTestHelper::doocsSet<float>("//UNMAPPED/FLOAT.TO_DEVICE_SCALAR", expectedFloat);
-  GlobalFixture::referenceTestApplication.runMainLoopOnce();
-  CHECK_WITH_TIMEOUT(
-      DoocsServerTestHelper::doocsGet<float>("//UNMAPPED/FLOAT.FROM_DEVICE_SCALAR") - expectedFloat < 1e-6);
+  expectUnsignedUpdated = true;
+  expectDoubleUpdated = true;
+
+  sendUpdate();
+  ExtendedTestApplication::runMainLoopOnce();
+  checkReceivedValues();
+
+  // check that after value only updates, historized update catches up when finally matching versionNo is available in
+  // macro pulse
+  unsigned uValOld = sendUnsigned;
+  ChimeraTK::VersionNumber vnFirst;
+  sendUpdate(false, true, vnFirst);
+  double dValFirst = sendDouble;
+  ExtendedTestApplication::runMainLoopOnce();
+  sendUpdate(false, true, {});
+  ExtendedTestApplication::runMainLoopOnce();
+  sendUpdate(true, false, vnFirst);
+  ExtendedTestApplication::runMainLoopOnce();
+  // we expect old non-updated value for unsigned (since was not matching exactly),
+  expectedUnsigned = uValOld;
+  // expect most recent float value,
+  expectedFloat = sendFloat;
+  // and expect first double val because macro pulse has catched up
+  expectedDouble = dValFirst;
+  checkReceivedValues();
 }
 
 /**********************************************************************************************************************/

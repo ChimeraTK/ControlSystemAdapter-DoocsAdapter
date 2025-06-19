@@ -12,7 +12,6 @@
 
 #include <doocs/EventId.h>
 
-#include <functional>
 #include <utility>
 
 namespace ChimeraTK {
@@ -41,10 +40,10 @@ namespace ChimeraTK {
 
   void DoocsIfff::checkSourceConsistency() {
     bool areAllSourcesWritable =
-        (_i1Value->isWriteable() && _f1Value->isWriteable() && _f2Value->isWriteable() && _f3Value->isWriteable());
+        (_i1Value.isWriteable() && _f1Value.isWriteable() && _f2Value.isWriteable() && _f3Value.isWriteable());
     _isWriteable = areAllSourcesWritable;
     bool areAllSourcesReadOnly =
-        (_i1Value->isReadOnly() && _f1Value->isReadOnly() && _f2Value->isReadOnly() && _f3Value->isReadOnly());
+        (_i1Value.isReadOnly() && _f1Value.isReadOnly() && _f2Value.isReadOnly() && _f3Value.isReadOnly());
 
     if(!areAllSourcesWritable && !areAllSourcesReadOnly) {
       throw ChimeraTK::logic_error("Doocs Adapter IFFF configuration Error: some IFFF sources are not writable");
@@ -59,7 +58,7 @@ namespace ChimeraTK {
     registerVariable(_f1Value);
     registerVariable(_f2Value);
     registerVariable(_f3Value);
-    _outputVarForVersionNum = _i1Value;
+    _outputVarForVersionNum = &_i1Value;
   }
 
   void DoocsIfff::updateDoocsBuffer(const TransferElementID& transferElementId) {
@@ -69,10 +68,10 @@ namespace ChimeraTK {
 
     bool storeInHistory = true;
     auto archiverStatus = ArchiveStatus::sts_ok;
-    if(_i1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
-        _f1Value->dataValidity() != ChimeraTK::DataValidity::ok ||
-        _f2Value->dataValidity() != ChimeraTK::DataValidity::ok ||
-        _f3Value->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_i1Value.dataValidity() != ChimeraTK::DataValidity::ok ||
+        _f1Value.dataValidity() != ChimeraTK::DataValidity::ok ||
+        _f2Value.dataValidity() != ChimeraTK::DataValidity::ok ||
+        _f3Value.dataValidity() != ChimeraTK::DataValidity::ok) {
       if(this->d_error()) {
         // data are already invalid, do not store in history
         storeInHistory = false;
@@ -86,14 +85,14 @@ namespace ChimeraTK {
     }
 
     IFFF ifff;
-    ifff.i1_data = _i1Value->accessData(0);
-    ifff.f1_data = _f1Value->accessData(0);
-    ifff.f2_data = _f2Value->accessData(0);
-    ifff.f3_data = _f3Value->accessData(0);
+    ifff.i1_data = _i1Value;
+    ifff.f1_data = _f1Value;
+    ifff.f2_data = _f2Value;
+    ifff.f3_data = _f3Value;
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
-    if(_macroPulseNumberSource) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except
     // first invalid data point. (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
@@ -117,8 +116,8 @@ namespace ChimeraTK {
 
   void DoocsIfff::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
-    if(_macroPulseNumberSource != nullptr) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     sendToApplication(true);
 
@@ -137,18 +136,18 @@ namespace ChimeraTK {
   void DoocsIfff::sendToApplication(bool getLock) {
     IFFF* ifff = value();
 
-    _i1Value->accessData(0) = ifff->i1_data;
-    _f1Value->accessData(0) = ifff->f1_data;
-    _f2Value->accessData(0) = ifff->f2_data;
-    _f3Value->accessData(0) = ifff->f3_data;
+    _i1Value = ifff->i1_data;
+    _f1Value = ifff->f1_data;
+    _f2Value = ifff->f2_data;
+    _f3Value = ifff->f3_data;
 
     // write all with the same version number
     auto timestamp = DoocsIfff::get_timestamp().to_time_point();
     VersionNumber v(timestamp);
-    _i1Value->write(v);
-    _f1Value->write(v);
-    _f2Value->write(v);
-    _f3Value->write(v);
+    _i1Value.write(v);
+    _f1Value.write(v);
+    _f2Value.write(v);
+    _f3Value.write(v);
 
     updateOthers(getLock);
   }

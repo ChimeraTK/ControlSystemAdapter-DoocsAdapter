@@ -88,7 +88,7 @@ namespace ChimeraTK {
     bool getIsWriteableDefault(std::string const& locationName);
     PersistConfig getPersistDefault(std::string const& locationName);
 
-    std::string getMacroPusleNumberSourceDefault(std::string const& locationName);
+    std::string getMacroPulseNumberSourceDefault(std::string const& locationName);
     DataConsistencyGroup::MatchingMode getDataMatchingDefault(std::string const& locationName);
 
     std::map<std::string, LocationInfo> _locationDefaults;
@@ -103,12 +103,10 @@ namespace ChimeraTK {
     // Check if the attribute exists (throw if not) and get it's content
     static std::string getAttributeValue(const xmlpp::Element* node, std::string const& attributeName);
 
-    template<class PROPERTY_DESCRIPTION_TYPE>
-    void processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,
-        const xmlpp::Element* propertyXmlElement, const std::string& locationName);
+    void processHistoryAndWritableAttributes(
+        PropertyDescription& propertyDescription, const xmlpp::Element* propertyXmlElement);
 
-    void addDescription(
-        std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSources);
+    void addDescription(std::shared_ptr<PropertyDescription> const& propertyDescription);
   };
 
 } // namespace ChimeraTK

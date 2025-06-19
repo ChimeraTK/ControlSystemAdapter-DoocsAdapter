@@ -3,6 +3,7 @@
 #pragma once
 
 #include "PropertyBase.h"
+#include "PropertyDescription.h"
 
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
@@ -42,9 +43,18 @@ namespace ChimeraTK {
     // Function used by the property implementations to decide whether to print a "data loss" warning
     static bool checkPrintDataLossWarning(size_t counter);
 
-    // stores list of writable PVs which are mapped to multiple properties
+    /// prepare list of properties connected to the same PV
+    void findReverseMapping();
+    // map of PV name to properties using the PV
     // Note: this is cleared in post_init_epilog() to save memory.
-    std::map<std::string, std::set<boost::weak_ptr<PropertyBase>>> writeableVariablesWithMultipleProperties;
+    std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
+
+    // stores list of writable PVs which are mapped to multiple properties
+    std::map<std::string, CommonlyUpdatedPropertySet> writeableVariablesWithMultipleProperties;
+    // helper for optimization in evaluation of above map
+    // we will not care about locking of writeableVariablesWithMultipleProperties, since only changed during server
+    // setup; last modification from postInitEpilog.
+    std::atomic<bool> writeableVariablesWithMultiplePropertiesIsFinal = false;
 
     // create the doocs::Server object
     static std::unique_ptr<doocs::Server> createServer();

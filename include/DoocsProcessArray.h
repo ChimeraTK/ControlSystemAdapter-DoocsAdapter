@@ -44,7 +44,7 @@ namespace ChimeraTK {
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;
 
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<DOOCS_PRIMITIVE_T>> _processArray;
+    OneDRegisterAccessor<DOOCS_PRIMITIVE_T> _processArray;
 
     // Internal function which copies the content from the DOOCS container into
     // the ChimeraTK ProcessArray and calls the send method. Factored out to allow
@@ -79,8 +79,8 @@ namespace ChimeraTK {
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::set(
       EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     DOOCS_T::set(eqAdr, data1, data2, eqFct);
-    if(_macroPulseNumberSource != nullptr) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     modified = true;
     sendToDevice(true);
@@ -99,7 +99,7 @@ namespace ChimeraTK {
     // and need that value back on start-up but are not supposed to be written by the control system and mapped
     // read-only in the configuration file.
     if(this->get_access() == 1 ||
-        (_processArray->isWriteable() && otherPropertiesToUpdate.empty())) { // property is writeable
+        (_processArray.isWriteable() && !hasOtherPropertiesToUpdate())) { // property is writeable
       sendToDevice(false);
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
@@ -115,37 +115,35 @@ namespace ChimeraTK {
 
     // Note: we already own the location lock by specification of the
     // DoocsUpdater
-    auto& processVector = _processArray->accessChannel(0);
-
     THE_DOOCS_TYPE* dataPtr;
     if constexpr(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value) {
       // No cast necessary if types are identical.
-      dataPtr = processVector.data();
+      dataPtr = _processArray.data();
     }
     else if constexpr(std::is_same<DOOCS_PRIMITIVE_T, ChimeraTK::Boolean>::value &&
         std::is_same<THE_DOOCS_TYPE, bool>::value) {
       // FIXME: Is it really ok to use reinterpret_cast here?
       static_assert(sizeof(ChimeraTK::Boolean) == sizeof(bool));
-      dataPtr = reinterpret_cast<bool*>(processVector.data());
+      dataPtr = reinterpret_cast<bool*>(_processArray.data());
     }
     else {
       static_assert(std::is_same<THE_DOOCS_TYPE, DOOCS_PRIMITIVE_T>::value, "Bad type casting.");
     }
 
-    if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_processArray.dataValidity() != ChimeraTK::DataValidity::ok) {
       this->d_error(stale_data);
     }
     else {
       this->d_error(no_error);
     }
 
-    this->fill_array(dataPtr, processVector.size());
+    this->fill_array(dataPtr, _processArray.getNElements());
     modified = true;
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
-    if(_macroPulseNumberSource) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
 
     sendZMQ(timestamp);

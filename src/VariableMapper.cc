@@ -144,65 +144,64 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  template<class PROPERTY_DESCRIPTION_TYPE>
-  void VariableMapper::processHistoryAndWritableAttributes(PROPERTY_DESCRIPTION_TYPE propertyDescription,
-      const xmlpp::Element* propertyXmlElement, const std::string& locationName) {
+  void VariableMapper::processHistoryAndWritableAttributes(
+      PropertyDescription& propertyDescription, const xmlpp::Element* propertyXmlElement) {
+    std::string& locationName = propertyDescription.location;
     auto hasHistoryNodes = propertyXmlElement->get_children("has_history");
     if(!hasHistoryNodes.empty()) {
-      propertyDescription->hasHistory = evaluateBool(getContentString(hasHistoryNodes.front()));
+      propertyDescription.hasHistory = evaluateBool(getContentString(hasHistoryNodes.front()));
     }
     else {
-      propertyDescription->hasHistory = getHasHistoryDefault(locationName);
+      propertyDescription.hasHistory = getHasHistoryDefault(locationName);
     }
 
     auto persistNodes = propertyXmlElement->get_children("persist");
     if(!persistNodes.empty()) {
-      propertyDescription->persist = PersistConfig(getContentString(persistNodes.front()));
+      propertyDescription.persist = PersistConfig(getContentString(persistNodes.front()));
     }
     else {
-      propertyDescription->persist = _locationDefaults[locationName].persist;
+      propertyDescription.persist = _locationDefaults[locationName].persist;
     }
 
     auto isWriteableNodes = propertyXmlElement->get_children("is_writeable");
     if(!isWriteableNodes.empty()) {
-      propertyDescription->isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
+      propertyDescription.isWriteable = evaluateBool(getContentString(isWriteableNodes.front()));
     }
     else {
-      propertyDescription->isWriteable = getIsWriteableDefault(locationName);
+      propertyDescription.isWriteable = getIsWriteableDefault(locationName);
     }
 
     auto publishZeroMQ = propertyXmlElement->get_children("publish_ZMQ");
     if(!publishZeroMQ.empty()) {
-      propertyDescription->publishZMQ = evaluateBool(getContentString(publishZeroMQ.front()));
+      propertyDescription.publishZMQ = evaluateBool(getContentString(publishZeroMQ.front()));
     }
     else {
-      propertyDescription->publishZMQ = false;
+      propertyDescription.publishZMQ = false;
     }
 
     auto macroPulseNumberSource = propertyXmlElement->get_children("macro_pulse_number_source");
     if(!macroPulseNumberSource.empty()) {
-      propertyDescription->macroPulseNumberSource = getContentString(macroPulseNumberSource.front());
+      propertyDescription.macroPulseNumberSource = getContentString(macroPulseNumberSource.front());
     }
     else {
-      propertyDescription->macroPulseNumberSource = getMacroPusleNumberSourceDefault(locationName);
+      propertyDescription.macroPulseNumberSource = getMacroPulseNumberSourceDefault(locationName);
     }
 
     auto dataMatching = propertyXmlElement->get_children("data_matching");
     if(!dataMatching.empty()) {
-      propertyDescription->dataMatching = evaluateDataMatching(getContentString(dataMatching.front()));
+      propertyDescription.dataMatching = evaluateDataMatching(getContentString(dataMatching.front()));
     }
     else {
-      propertyDescription->dataMatching = getDataMatchingDefault(locationName);
+      propertyDescription.dataMatching = getDataMatchingDefault(locationName);
     }
   }
 
   /********************************************************************************************************************/
 
-  void VariableMapper::addDescription(
-      std::shared_ptr<PropertyDescription> const& propertyDescription, std::list<std::string> const& absoluteSources) {
+  void VariableMapper::addDescription(std::shared_ptr<PropertyDescription> const& propertyDescription) {
     _descriptions.push_back(propertyDescription);
-    for(const auto& source : absoluteSources) {
-      _usedInputVariables.insert(source);
+    for(const auto& source : propertyDescription->getSources()) {
+      _usedInputVariables.insert(getAbsoluteSource(source, propertyDescription->location));
     }
   }
 
@@ -248,9 +247,9 @@ namespace ChimeraTK {
     // prepare the property description
     auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name, type);
 
-    processHistoryAndWritableAttributes(autoPropertyDescription, property, locationName);
+    processHistoryAndWritableAttributes(*autoPropertyDescription, property);
 
-    addDescription(autoPropertyDescription, {absoluteSource});
+    addDescription(autoPropertyDescription);
   }
 
   /********************************************************************************************************************/
@@ -266,13 +265,12 @@ namespace ChimeraTK {
     // prepare the property description
     auto spectrumDescription = std::make_shared<SpectrumDescription>(absoluteSource, locationName, name);
 
-    processHistoryAndWritableAttributes(spectrumDescription, spectrumXml, locationName);
+    processHistoryAndWritableAttributes(*spectrumDescription, spectrumXml);
 
     auto startNodes = spectrumXml->get_children("start");
     if(!startNodes.empty()) {
       spectrumDescription->start = std::stof(getContentString(startNodes.front()));
     }
-    std::list<std::string> usedVariables({absoluteSource});
     auto incrementNodes = spectrumXml->get_children("increment");
     if(!incrementNodes.empty()) {
       spectrumDescription->increment = std::stof(getContentString(incrementNodes.front()));
@@ -281,19 +279,16 @@ namespace ChimeraTK {
     if(!startSourceNodes.empty()) {
       auto startSource = getContentString(startSourceNodes.front());
       spectrumDescription->startSource = startSource;
-      usedVariables.push_back(startSource);
     }
     auto incrementSourceNodes = spectrumXml->get_children("incrementSource");
     if(!incrementSourceNodes.empty()) {
       auto incrementSource = getContentString(incrementSourceNodes.front());
       spectrumDescription->incrementSource = incrementSource;
-      usedVariables.push_back(incrementSource);
     }
     auto numberOfBuffersNodes = spectrumXml->get_children("numberOfBuffers");
     if(!numberOfBuffersNodes.empty()) {
       auto numberOfBuffers = getContentString(numberOfBuffersNodes.front());
       spectrumDescription->numberOfBuffers = std::stoi(numberOfBuffers);
-      usedVariables.push_back(numberOfBuffers);
     }
 
     const auto* descriptionNode = spectrumXml->get_first_child("description");
@@ -333,7 +328,7 @@ namespace ChimeraTK {
       catch(std::invalid_argument&) {
       }
     }
-    addDescription(spectrumDescription, usedVariables);
+    addDescription(spectrumDescription);
   }
 
   /********************************************************************************************************************/
@@ -347,14 +342,13 @@ namespace ChimeraTK {
 
     // prepare the property description
     auto imageDescription = std::make_shared<ImageDescription>(absoluteSource, locationName, name);
-    processHistoryAndWritableAttributes(imageDescription, xmlEl, locationName);
+    processHistoryAndWritableAttributes(*imageDescription, xmlEl);
 
     const auto* descriptionNode = xmlEl->get_first_child("description");
     if(descriptionNode != nullptr) {
       imageDescription->description = getContentString(descriptionNode);
     }
-    std::list<std::string> usedVariables({absoluteSource});
-    addDescription(imageDescription, usedVariables);
+    addDescription(imageDescription);
   }
 
   /********************************************************************************************************************/
@@ -369,7 +363,7 @@ namespace ChimeraTK {
     auto yAbsoluteSource = getAbsoluteSource(ySource, locationName);
 
     auto xyDescription = std::make_shared<XyDescription>(xAbsoluteSource, yAbsoluteSource, locationName, name, false);
-    processHistoryAndWritableAttributes(xyDescription, xyXml, locationName);
+    processHistoryAndWritableAttributes(*xyDescription, xyXml);
 
     const auto* descriptionNode = xyXml->get_first_child("description");
     if(descriptionNode != nullptr) {
@@ -409,7 +403,7 @@ namespace ChimeraTK {
       }
     }
 
-    addDescription(xyDescription, {xAbsoluteSource, yAbsoluteSource});
+    addDescription(xyDescription);
   }
   /********************************************************************************************************************/
 
@@ -421,17 +415,12 @@ namespace ChimeraTK {
     auto f2Source = getAttributeValue(ifffXml, "f2_source");
     auto f3Source = getAttributeValue(ifffXml, "f3_source");
     auto name = getAttributeValue(ifffXml, "name");
-    std::list<std::string> absoluteSources;
-    absoluteSources.push_back(getAbsoluteSource(i1Source, locationName));
-    absoluteSources.push_back(getAbsoluteSource(f1Source, locationName));
-    absoluteSources.push_back(getAbsoluteSource(f2Source, locationName));
-    absoluteSources.push_back(getAbsoluteSource(f3Source, locationName));
 
     auto ifffDescription =
         std::make_shared<IfffDescription>(i1Source, f1Source, f2Source, f3Source, locationName, name);
-    processHistoryAndWritableAttributes(ifffDescription, ifffXml, locationName);
+    processHistoryAndWritableAttributes(*ifffDescription, ifffXml);
 
-    addDescription(ifffDescription, absoluteSources);
+    addDescription(ifffDescription);
   }
 
   /********************************************************************************************************************/
@@ -441,13 +430,11 @@ namespace ChimeraTK {
 
     auto source = getAttributeValue(iiiiXml, "source");
     auto name = getAttributeValue(iiiiXml, "name");
-    std::list<std::string> absoluteSources;
-    absoluteSources.push_back(getAbsoluteSource(source, locationName));
 
     auto iiiiDescription = std::make_shared<IiiiDescription>(source, locationName, name);
-    processHistoryAndWritableAttributes(iiiiDescription, iiiiXml, locationName);
+    processHistoryAndWritableAttributes(*iiiiDescription, iiiiXml);
 
-    addDescription(iiiiDescription, absoluteSources);
+    addDescription(iiiiDescription);
   }
 
   /********************************************************************************************************************/
@@ -553,10 +540,10 @@ namespace ChimeraTK {
         autoPropertyDescription->hasHistory = getHasHistoryDefault(locationName);
         autoPropertyDescription->isWriteable = getIsWriteableDefault(locationName);
         autoPropertyDescription->persist = getPersistDefault(locationName);
-        autoPropertyDescription->macroPulseNumberSource = getMacroPusleNumberSourceDefault(locationName);
+        autoPropertyDescription->macroPulseNumberSource = getMacroPulseNumberSourceDefault(locationName);
         autoPropertyDescription->dataMatching = getDataMatchingDefault(locationName);
 
-        addDescription(autoPropertyDescription, {processVariable});
+        addDescription(autoPropertyDescription);
       }
     }
   }
@@ -795,7 +782,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  std::string VariableMapper::getMacroPusleNumberSourceDefault(std::string const& locationName) {
+  std::string VariableMapper::getMacroPulseNumberSourceDefault(std::string const& locationName) {
     // if there is no default setting for the location, we will get the "default
     // default" which has useMacroPulseNumberSourceDefault disabled which is
     // auto-generated by the [] operator

@@ -8,11 +8,20 @@
 
 namespace ChimeraTK {
 
-  void PropertyBase::registerVariable(TransferElementAbstractor& var) {
+  PropertyBase::PropertyBase(
+      std::string doocsPropertyName, DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
+  : _consistencyGroup(matchingMode), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+
+  void PropertyBase::registerVariable(TransferElementAbstractor& var, bool update) {
     if(var.isReadable()) {
       auto id = var.getId();
       _consistencyGroup.add(var);
-      _doocsUpdater.addVariable(var, getEqFct(), [this, id] { return updateDoocsBuffer(id); });
+      if(update) {
+        _doocsUpdater.addVariable(var, getEqFct(), [this, id] { return updateDoocsBuffer(id); });
+      }
+      else {
+        _doocsUpdater.addVariable(var);
+      }
     }
   }
 
@@ -90,8 +99,8 @@ namespace ChimeraTK {
       auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
       info.sec = sinceEpoch.seconds;
       info.usec = sinceEpoch.microseconds;
-      if(_macroPulseNumberSource != nullptr) {
-        info.ident = _macroPulseNumberSource->accessData(0);
+      if(_macroPulseNumberSource.isInitialised()) {
+        info.ident = _macroPulseNumberSource;
       }
       else {
         info.ident = 0;
@@ -108,12 +117,16 @@ namespace ChimeraTK {
     if(handleLocking) {
       getEqFct()->unlock();
     }
-    for(const auto& weakProp : otherPropertiesToUpdate) {
+    for(const auto& weakProp : propertiesToUpdate()) {
       auto prop = weakProp.lock();
       if(!prop) {
         // property went away, could happen in shutdown phase
         continue;
       }
+      if(prop == shared_from_this()) {
+        continue;
+      }
+
       if(handleLocking) {
         prop->getEqFct()->lock();
       }
@@ -127,19 +140,47 @@ namespace ChimeraTK {
     }
   }
 
+  void PropertyBase::setMacroPulseNumberSource(const std::string& sourcePath) {
+    if(!sourcePath.empty()) {
+      auto mpnSource = _doocsUpdater.getMappedProcessVariable<int64_t>(sourcePath);
+      if(mpnSource->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+            "' is used as a macro pulse number source, but it has an array length of " +
+            std::to_string(mpnSource->getNumberOfSamples()) + ". Length must be exactly 1");
+      }
+      if(!mpnSource->isReadable()) {
+        throw ChimeraTK::logic_error("The property '" + mpnSource->getName() +
+            "' is used as a macro pulse number source, but it is not readable.");
+      }
+      setMacroPulseNumberSource(mpnSource);
+    }
+  }
+
   void PropertyBase::setMacroPulseNumberSource(
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
-    _macroPulseNumberSource = macroPulseNumberSource;
-    if(_consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none) {
-      registerVariable(_macroPulseNumberSource);
+    _macroPulseNumberSource.replace(macroPulseNumberSource);
+
+    // we send out updates only when configured data_matching not equal 'none'
+    registerVariable(
+        _macroPulseNumberSource, _consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none);
+  }
+
+  CommonlyUpdatedPropertySet& PropertyBase::propertiesToUpdate() {
+    if(_propertiesToUpdate_cacheIsFinal) {
+      return _propertiesToUpdate_cache;
     }
-    else {
-      // We don't need to match up anything with it when it changes, but we have to register this at least once
-      // so the macropulse number will be included in the readAnyGroup in the updater if
-      // <data_matching> is none everywhere
-      _doocsUpdater.addVariable(
-          ChimeraTK::ScalarRegisterAccessor<int64_t>(macroPulseNumberSource), getEqFct(), []() {});
+
+    // no need to clear _propertiesToUpdate_cache since Properties are never removed
+    for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
+      // search for group containing weak ptr to this, if found, insert whole group
+      if(group.second.contains(shared_from_this())) {
+        _propertiesToUpdate_cache.insert(group.second.begin(), group.second.end());
+      }
     }
+    if(doocsAdapter.writeableVariablesWithMultiplePropertiesIsFinal) {
+      _propertiesToUpdate_cacheIsFinal = true;
+    }
+    return _propertiesToUpdate_cache;
   }
 
 } // namespace ChimeraTK
