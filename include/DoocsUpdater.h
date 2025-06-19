@@ -68,7 +68,6 @@ namespace ChimeraTK {
     struct ToDoocsUpdateDescriptor {
       std::vector<std::function<void()>> updateFunctions;
       std::vector<EqFct*> locations;
-      std::set<boost::shared_ptr<ChimeraTK::TransferElement>> additionalTransferElements;
     };
     std::map<ChimeraTK::TransferElementID, ToDoocsUpdateDescriptor> _toDoocsDescriptorMap;
   };

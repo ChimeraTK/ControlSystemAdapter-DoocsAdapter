@@ -3,8 +3,6 @@
 
 #include "DoocsUpdater.h"
 
-#include "DoocsAdapter.h"
-
 #include <ChimeraTK/ReadAnyGroup.h>
 
 #include <unordered_set>
@@ -24,29 +22,9 @@ namespace ChimeraTK {
 
   void DoocsUpdater::addVariable(
       TransferElementAbstractor variable, EqFct* eq_fct, const std::function<void()>& updaterFunction) {
-    // Don't add the transfer element twice into the list of elements to read (i.e. later into the ReadAnyGroup).
-    // To check if there is such an element we use the map with the lookup table
-    // which has a search function, instead of manually looking at the elements in
-    // the list and compare the ID.
+    // Don't add the transfer element twice into the list of elements to read (not allowed with ReadAnyGroup).
     if(_toDoocsDescriptorMap.find(variable.getId()) == _toDoocsDescriptorMap.end()) {
       _elementsToRead.push_back(variable);
-    }
-    else {
-      // TODO discuss - Do we still need additionalTransferElements?
-      // There are two use cases:
-      // (A) adding same transferelement, but using different decorators.
-      //     This might by chance work, but is unclean and we should remove code doing that.
-      //     It will be wrong if a decorator swaps data.
-      // (B) Provide different doocs update functions for same TransferElement
-      //     we should still support this use case
-      //     NO, actually additionalTransferElements not needed here!
-      // Actually we can replace both use-cases by our RoutingDecorator  /fan-out concept.
-      // But it might be that we want to keep the concept as optimization opportunity, for variable reuse.
-      // NO, even that makes little sense: it's enough to have extra upateFunctions & locations for that.
-      // TODO discuss : is it a good idea to optimize, allowing variable reuse?
-      assert(false);
-
-      _toDoocsDescriptorMap[variable.getId()].additionalTransferElements.insert(variable.getHighLevelImplElement());
     }
 
     _toDoocsDescriptorMap[variable.getId()].updateFunctions.push_back(updaterFunction);
@@ -79,15 +57,6 @@ namespace ChimeraTK {
 
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
 
-    // Call preRead for all TEs on additional transfer elements. waitAny() is doing this for all elements in the
-    // ReadAnyGroup. Unnecessary calls to preRead() are anyway ignored and merely pose a performance issue. For large
-    // servers, the performance impact is significant, hence we keep track of the TEs which need to be called.
-    for(auto& pair : _toDoocsDescriptorMap) {
-      for(const auto& elem : pair.second.additionalTransferElements) {
-        elem->preRead(ChimeraTK::TransferType::read);
-      }
-    }
-
     while(true) {
       // Wait until any variable got an update
       auto notification = group.waitAny();
@@ -114,34 +83,17 @@ namespace ChimeraTK {
         if(isFanSource) {
           // if updated process var is source for a fan-out, generate the copies
           // We assume that all elements (source and copies) are in our ReadAnyGroup
-          assert(descriptor.additionalTransferElements.empty());
           assert(descriptor.updateFunctions.empty());
           routing.send(updatedElement);
         }
         else {
-          // Call postRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-          for(const auto& elem : descriptor.additionalTransferElements) {
-            elem->postRead(ChimeraTK::TransferType::read, true);
-          }
-
           // Call all updater functions
           for(auto& updaterFunction : descriptor.updateFunctions) {
             updaterFunction();
           }
-
-          // Unlock all involved locations
-          for(const auto& location : locationsToLock) {
-            location->unlock();
-          }
-          locationsToLock.clear();
-
-          // Call preRead for all TEs on _toDoocsAdditionalTransferElementsMap for the updated ID
-          for(const auto& elem : descriptor.additionalTransferElements) {
-            elem->preRead(ChimeraTK::TransferType::read);
-          }
         }
       }
-      // Unlock all involved locations in case not already done
+      // Unlock all involved locations
       for(const auto& location : locationsToLock) {
         location->unlock();
       }
@@ -178,12 +130,6 @@ namespace ChimeraTK {
     if(!pv->isReadable()) {
       return pv;
     }
-    // TODO optimize: if MatchingMode!=historized, it will be fine to use an accessor from several
-    // DataConsistencyGroups - how can we acheive that? we could mark usage of data source as 'exclusive' or not.
-    // if uses>1 and at least 1 exclusive usage, create fan-out.
-    // fan-out outputs are either 'common' or 'exclusive' and need to be mapped accordingly.
-    // decorator used for e.g. mpsource is problematic: it becomes exclusive!
-    // but decorator could be taken as source of fan-out, solving the issue.
     bool sourceRequiresFan = _pvNamesWithFan.contains(pv->getName());
     if(!sourceRequiresFan) {
       return pv;
