@@ -7,6 +7,17 @@
 
 #include <unordered_set>
 
+// TODO discuss - this is code duplication, copied from ApplicationCore/Utilities.
+// maybe move to DeviceAccess/Utilities?
+// But function would also be useful for doocs-server-test-helper which does not depend on DeviceAccess!
+static void setThreadName(const std::string& name) {
+#if defined(__linux__)
+  pthread_setname_np(pthread_self(), name.substr(0, std::min<std::string::size_type>(name.length(), 15)).c_str());
+#elif defined(__APPLE__)
+  pthread_setname_np(name.substr(0, std::min<std::string::size_type>(name.length(), 15)).c_str());
+#endif
+}
+
 namespace ChimeraTK {
 
   void DoocsUpdater::addVariable(
@@ -103,7 +114,10 @@ namespace ChimeraTK {
   }
 
   void DoocsUpdater::run() {
-    _syncThread = boost::thread([this] { updateLoop(); });
+    _syncThread = boost::thread([this] {
+      setThreadName("DoocsUpdater");
+      updateLoop();
+    });
   }
 
   void DoocsUpdater::stop() {
