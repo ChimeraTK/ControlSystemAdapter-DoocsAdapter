@@ -472,7 +472,6 @@ namespace ChimeraTK {
       _usedInputVariables.insert(errInfo.statusStringSource);
     }
     _errorReportingInfos.push_back(errInfo);
-    // TODO we must specify data sources also for StatusHandler/set_error!
   }
 
   /********************************************************************************************************************/

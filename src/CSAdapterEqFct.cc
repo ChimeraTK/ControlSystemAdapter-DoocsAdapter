@@ -29,15 +29,20 @@ namespace ChimeraTK {
       }
 
       assert(!_statusHandler); // only single StatusHandler may be requested per location
-      auto statusCodeVariable = _controlSystemPVManager->getProcessArray<int32_t>(errorReportingInfo.statusCodeSource);
+      // we don't put a TypeChangingDecorator here, StatusOutput is int32 anyway
+      auto statusCodeVariable_ = _updater->getMappedProcessVariable(errorReportingInfo.statusCodeSource);
+      if(!statusCodeVariable_) {
+        throw ChimeraTK::logic_error("non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
+      }
+      auto statusCodeVariable = boost::dynamic_pointer_cast<NDRegisterAccessor<int32_t>>(statusCodeVariable_);
       if(!statusCodeVariable) {
-        throw ChimeraTK::logic_error("illegal/non-existing statusCodeSource: " + errorReportingInfo.statusCodeSource);
+        throw ChimeraTK::logic_error("illegal(of wrong type) statusCodeSource: " + errorReportingInfo.statusCodeSource);
       }
       // this one is optional
-      ProcessArray<std::string>::SharedPtr statusStringVariable;
+      boost::shared_ptr<NDRegisterAccessor<std::string>> statusStringVariable;
       if(_controlSystemPVManager->hasProcessVariable(errorReportingInfo.statusStringSource)) {
-        statusStringVariable =
-            _controlSystemPVManager->getProcessArray<std::string>(errorReportingInfo.statusStringSource);
+        statusStringVariable = boost::dynamic_pointer_cast<NDRegisterAccessor<std::string>>(
+            _updater->getMappedProcessVariable(errorReportingInfo.statusStringSource));
       }
       _statusHandler.reset(new StatusHandler(this, _updater, statusCodeVariable, statusStringVariable));
     }

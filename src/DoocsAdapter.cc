@@ -210,6 +210,13 @@ namespace ChimeraTK {
         fanNamesFromDoocsAdapter.insert(el.first);
       }
     }
+    // we simply request fans for set_error sources without knowledge whether actually required
+    for(const auto& errInfo : ChimeraTK::VariableMapper::getInstance().getErrorReportingInfos()) {
+      fanNamesFromDoocsAdapter.insert(errInfo.statusCodeSource);
+      if(errInfo.statusStringSource.length() > 1) {
+        fanNamesFromDoocsAdapter.insert(errInfo.statusStringSource);
+      }
+    }
     updater->setPvNamesWithFan(fanNamesFromDoocsAdapter);
   }
 
