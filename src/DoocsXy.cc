@@ -23,8 +23,8 @@ namespace ChimeraTK {
       return;
     }
 
-    if(_xValues->dataValidity() != ChimeraTK::DataValidity::ok ||
-        _yValues->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_xValues.dataValidity() != ChimeraTK::DataValidity::ok ||
+        _yValues.dataValidity() != ChimeraTK::DataValidity::ok) {
       this->d_error(stale_data);
     }
     else {
@@ -32,13 +32,13 @@ namespace ChimeraTK {
     }
 
     for(int i = 0; i < max_length(); i++) {
-      fill_xy(i, _xValues->accessData(i), _yValues->accessData(i));
+      fill_xy(i, _xValues[i], _yValues[i]);
     }
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
 
-    if(_macroPulseNumberSource) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     sendZMQ(timestamp);
   }

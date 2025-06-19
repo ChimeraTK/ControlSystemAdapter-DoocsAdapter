@@ -6,7 +6,6 @@
 #include <boost/test/included/unit_test.hpp>
 // boost unit_test needs to be included before serverBasedTestTools.h
 #include "DoocsAdapter.h"
-#include "serverBasedTestTools.h"
 
 #include <ChimeraTK/ControlSystemAdapter/Testing/ReferenceTestApplication.h>
 
@@ -14,7 +13,6 @@
 #include <doocs/EqCall.h>
 
 #include <random>
-#include <thread>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -23,7 +21,7 @@ static ReferenceTestApplication referenceTestApplication("serverTestSpectrumBuff
 
 /**********************************************************************************************************************/
 
-BOOST_AUTO_TEST_CASE(testSpectrum) {
+BOOST_AUTO_TEST_CASE(testSpectrumException) {
   // choose random RPC number
   std::random_device rd;
   std::uniform_int_distribution<int> dist(620000000, 999999999);

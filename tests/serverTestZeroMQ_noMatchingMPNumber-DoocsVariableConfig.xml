@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <macro_pulse_number_source>/UINT/FROM_DEVICE_SCALAR</macro_pulse_number_source>
+  <data_matching>none</data_matching>
+
+  <location name="UINT">
+    <property source="/UINT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR">
+    </property>
+  </location>
+
+  <location name="INT">
+    <property source="/INT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR">
+      <publish_ZMQ>true</publish_ZMQ>
+    </property>
+    <property source="/INT/TO_DEVICE_ARRAY" name="TO_DEVICE_ARRAY">
+      <publish_ZMQ>true</publish_ZMQ>
+    </property>
+    <!-- even when not used from the unit test, we map FROM_DEVICE variables because otherwise we get warnings
+       about Data loss in referenceTestApplication -->
+    <property source="/INT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR">
+      <publish_ZMQ>true</publish_ZMQ>
+    </property>
+    <property source="/INT/FROM_DEVICE_ARRAY" name="FROM_DEVICE_ARRAY">
+      <publish_ZMQ>true</publish_ZMQ>
+    </property>
+  </location>
+
+  <location name="SHORT">
+    <property source="/SHORT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR"/>
+    <property source="/SHORT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR"/>
+  </location>
+  <location name="DOUBLE">
+    <property source="/DOUBLE/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR" />
+    <property source="/DOUBLE/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR" />
+  </location>
+  <location name="FLOAT">
+    <property source="/FLOAT/TO_DEVICE_SCALAR" name="TO_DEVICE_SCALAR" />
+    <property source="/FLOAT/FROM_DEVICE_SCALAR" name="FROM_DEVICE_SCALAR" />
+  </location>
+
+  <location name="CUSTOM">
+      <D_ifff name="IFFF"
+          i1_source="/INT/TO_DEVICE_SCALAR"
+          f1_source="/FLOAT/TO_DEVICE_SCALAR"
+          f2_source="/DOUBLE/TO_DEVICE_SCALAR"
+          f3_source="/SHORT/TO_DEVICE_SCALAR">
+          <publish_ZMQ>true</publish_ZMQ>
+      </D_ifff>
+  </location>
+
+</device_server>

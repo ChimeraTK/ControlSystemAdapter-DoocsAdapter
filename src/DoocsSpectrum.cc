@@ -39,7 +39,7 @@ namespace ChimeraTK {
     _nBuffers(numberOfBuffers) {
     if(_nBuffers > 1 && !processArray->isReadable()) {
       throw ChimeraTK::logic_error(
-          "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but is not readable.");
+          "D_spectrum '" + _processArray.getName() + "' has numberOfBuffers > 1 but is not readable.");
     }
     setupOutputVar(_processArray);
 
@@ -48,8 +48,8 @@ namespace ChimeraTK {
 
   void DoocsSpectrum::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
-    if(_macroPulseNumberSource != nullptr) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     modified = true;
     sendToDevice(true);
@@ -62,9 +62,9 @@ namespace ChimeraTK {
 
     // check if the macro pulse number source has been set if the spectrum is buffered
     if(_nBuffers > 1) {
-      if(_macroPulseNumberSource == nullptr) {
+      if(!_macroPulseNumberSource.isInitialised()) {
         throw ChimeraTK::logic_error(
-            "D_spectrum '" + _processArray->getName() + "' has numberOfBuffers > 1 but not macro pulse number source.");
+            "D_spectrum '" + _processArray.getName() + "' has numberOfBuffers > 1 but not macro pulse number source.");
       }
     }
 
@@ -72,7 +72,7 @@ namespace ChimeraTK {
     D_spectrum::read();
     modified = false;
     if(this->get_access() == 1 ||
-        (_processArray->isWriteable() && otherPropertiesToUpdate.empty())) { // property is writeable
+        (_processArray.isWriteable() && !hasOtherPropertiesToUpdate())) { // property is writeable
       sendToDevice(false);
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
@@ -88,7 +88,7 @@ namespace ChimeraTK {
     get_eqfct()->unlock();
     usleep(1000);
     get_eqfct()->lock();
-    if(!modified || _processArray->isReadOnly()) {
+    if(!modified || _processArray.isReadOnly()) {
       return;
     }
     modified = false;
@@ -96,11 +96,11 @@ namespace ChimeraTK {
   }
 
   void DoocsSpectrum::addParameterAccessors() {
-    if(_startAccessor && _startAccessor->isReadable()) {
+    if(_startAccessor.isInitialised() && _startAccessor.isReadable()) {
       _doocsUpdater.addVariable(
           ChimeraTK::ScalarRegisterAccessor<float>(_startAccessor), getEqFct(), [this] { return updateParameters(); });
     }
-    if(_incrementAccessor && _incrementAccessor->isReadable()) {
+    if(_incrementAccessor.isInitialised() && _incrementAccessor.isReadable()) {
       _doocsUpdater.addVariable(ChimeraTK::ScalarRegisterAccessor<float>(_incrementAccessor), getEqFct(),
           [this] { return updateParameters(); });
     }
@@ -124,13 +124,13 @@ namespace ChimeraTK {
 
     // set macro pulse number, buffer number and time stamp
     size_t ibuf = 0;
-    if(_macroPulseNumberSource != nullptr) {
-      ibuf = _macroPulseNumberSource->accessData(0) % _nBuffers;
-      macro_pulse(_macroPulseNumberSource->accessData(0), ibuf);
+    if(_macroPulseNumberSource.isInitialised()) {
+      ibuf = _macroPulseNumberSource % _nBuffers;
+      macro_pulse(_macroPulseNumberSource, ibuf);
     }
     set_tmstmp(seconds, microseconds, ibuf);
 
-    if(_processArray->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_processArray.dataValidity() != ChimeraTK::DataValidity::ok) {
       // this will set error code correctly in given buffer _and_ in main property attribute, while
       // d_error() sets it only in latter
       this->error(stale_data, ibuf);
@@ -140,7 +140,7 @@ namespace ChimeraTK {
     }
 
     // fill the spectrum
-    std::vector<float>& processVector = _processArray->accessChannel(0);
+    const std::vector<float>& processVector = _processArray;
     if(_nBuffers == 1) {
       // We have to fill the spectrum differently if it is unbuffered, as the internal data structures seem to be
       // completely different.
@@ -160,14 +160,14 @@ namespace ChimeraTK {
   void DoocsSpectrum::updateParameters() {
     // Note: we already own the location lock by specification of the DoocsUpdater
     float start, increment;
-    if(_startAccessor) {
-      start = _startAccessor->accessData(0);
+    if(_startAccessor.isInitialised()) {
+      start = _startAccessor;
     }
     else {
       start = this->spec_start();
     }
-    if(_incrementAccessor) {
-      increment = _incrementAccessor->accessData(0);
+    if(_incrementAccessor.isInitialised()) {
+      increment = _incrementAccessor;
     }
     else {
       increment = this->spec_inc();

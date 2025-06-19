@@ -31,16 +31,16 @@ namespace ChimeraTK {
   }
 
   void DoocsIiii::registerIiiiSources() {
-    if(_iiiiValue->getNumberOfSamples() != 4) {
-      throw new ChimeraTK::logic_error(_iiiiValue->getName() + " does not have exactly 4 elements");
+    if(_iiiiValue.getNElements() != 4) {
+      throw new ChimeraTK::logic_error(_iiiiValue.getName() + " does not have exactly 4 elements");
     }
 
-    _isWriteable = _iiiiValue->isWriteable();
-    if(_iiiiValue->isReadOnly()) {
+    _isWriteable = _iiiiValue.isWriteable();
+    if(_iiiiValue.isReadOnly()) {
       this->set_ro_access();
     }
     registerVariable(_iiiiValue);
-    _outputVarForVersionNum = _iiiiValue;
+    _outputVarForVersionNum = &_iiiiValue;
   }
 
   void DoocsIiii::updateDoocsBuffer(const TransferElementID& transferElementId) {
@@ -50,7 +50,7 @@ namespace ChimeraTK {
 
     bool storeInHistory = true;
     auto archiverStatus = ArchiveStatus::sts_ok;
-    if(_iiiiValue->dataValidity() != ChimeraTK::DataValidity::ok) {
+    if(_iiiiValue.dataValidity() != ChimeraTK::DataValidity::ok) {
       if(this->d_error()) {
         // data are already invalid, do not store in history
         storeInHistory = false;
@@ -64,14 +64,14 @@ namespace ChimeraTK {
     }
 
     IIII iiii;
-    iiii.i1_data = _iiiiValue->accessData(0);
-    iiii.i2_data = _iiiiValue->accessData(1);
-    iiii.i3_data = _iiiiValue->accessData(2);
-    iiii.i4_data = _iiiiValue->accessData(3);
+    iiii.i1_data = _iiiiValue[0];
+    iiii.i2_data = _iiiiValue[1];
+    iiii.i3_data = _iiiiValue[2];
+    iiii.i4_data = _iiiiValue[3];
 
     doocs::Timestamp timestamp = correctDoocsTimestamp();
-    if(_macroPulseNumberSource) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     // We should also checked if data should be stored (flag storeInHistory). Invalid data should NOT be stored except
     // first invalid data point. (https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter/issues/40)
@@ -95,8 +95,8 @@ namespace ChimeraTK {
 
   void DoocsIiii::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_iiii::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
-    if(_macroPulseNumberSource != nullptr) {
-      this->set_mpnum(_macroPulseNumberSource->accessData(0));
+    if(_macroPulseNumberSource.isInitialised()) {
+      this->set_mpnum(_macroPulseNumberSource);
     }
     sendToApplication(true);
 
@@ -115,15 +115,15 @@ namespace ChimeraTK {
   void DoocsIiii::sendToApplication(bool getLock) {
     IIII* iiii = value();
 
-    _iiiiValue->accessData(0) = iiii->i1_data;
-    _iiiiValue->accessData(1) = iiii->i2_data;
-    _iiiiValue->accessData(2) = iiii->i3_data;
-    _iiiiValue->accessData(3) = iiii->i4_data;
+    _iiiiValue[0] = iiii->i1_data;
+    _iiiiValue[1] = iiii->i2_data;
+    _iiiiValue[2] = iiii->i3_data;
+    _iiiiValue[3] = iiii->i4_data;
 
     // write all with the same version number
     auto timestamp = DoocsIiii::get_timestamp().to_time_point();
     VersionNumber v(timestamp);
-    _iiiiValue->write(v);
+    _iiiiValue.write(v);
 
     updateOthers(getLock);
   }

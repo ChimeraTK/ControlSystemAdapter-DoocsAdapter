@@ -21,6 +21,8 @@ using namespace ChimeraTK;
 
 DOOCS_ADAPTER_DEFAULT_FIXTURE
 
+BOOST_AUTO_TEST_SUITE(serverTestRetypeProperties)
+
 /// Check that all expected variables are there.
 BOOST_AUTO_TEST_CASE(testVariableExistence) {
   checkDoocsProperty<D_int>("//TO_BYTE/DOUBLE.CONSTANT", true, false);
@@ -54,3 +56,5 @@ BOOST_AUTO_TEST_CASE(testVariableValues) {
   CHECK_WITH_TIMEOUT(std::abs(DoocsServerTestHelper::doocsGet<double>("//TO_DOUBLE/USHORT.CONSTANT") -
                          sizeof(unsigned short)) < 0.0001);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -46,7 +46,7 @@ namespace ChimeraTK {
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;
 
-    boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> _processArray;
+    OneDRegisterAccessor<uint8_t> _processArray;
   };
 
 } // namespace ChimeraTK

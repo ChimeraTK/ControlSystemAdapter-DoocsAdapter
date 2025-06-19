@@ -25,7 +25,7 @@ namespace ChimeraTK {
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;
 
-    boost::shared_ptr<NDRegisterAccessor<float>> _xValues;
-    boost::shared_ptr<NDRegisterAccessor<float>> _yValues;
+    OneDRegisterAccessor<float> _xValues;
+    OneDRegisterAccessor<float> _yValues;
   };
 } // namespace ChimeraTK
