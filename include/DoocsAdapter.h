@@ -52,6 +52,8 @@ namespace ChimeraTK {
     // stores list of writable PVs which are mapped to multiple properties
     std::map<std::string, CommonlyUpdatedPropertySet> writeableVariablesWithMultipleProperties;
     // helper for optimization in evaluation of above map
+    // we will not care about locking of writeableVariablesWithMultipleProperties, since only changed during server
+    // setup; last modification from postInitEpilog.
     std::atomic<bool> writeableVariablesWithMultipleProperties_isFinal = false;
 
     // create the doocs::Server object

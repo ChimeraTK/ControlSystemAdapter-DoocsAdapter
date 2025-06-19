@@ -39,8 +39,11 @@ namespace ChimeraTK {
       //     It will be wrong if a decorator swaps data.
       // (B) Provide different doocs update functions for same TransferElement
       //     we should still support this use case
+      //     NO, actually additionalTransferElements not needed here!
       // Actually we can replace both use-cases by our RoutingDecorator  /fan-out concept.
       // But it might be that we want to keep the concept as optimization opportunity, for variable reuse.
+      // NO, even that makes little sense: it's enough to have extra upateFunctions & locations for that.
+      // TODO discuss : is it a good idea to optimize, allowing variable reuse?
       assert(false);
 
       _toDoocsDescriptorMap[variable.getId()].additionalTransferElements.insert(variable.getHighLevelImplElement());
@@ -175,6 +178,12 @@ namespace ChimeraTK {
     if(!pv->isReadable()) {
       return pv;
     }
+    // TODO optimize: if MatchingMode!=historized, it will be fine to use an accessor from several
+    // DataConsistencyGroups - how can we acheive that? we could mark usage of data source as 'exclusive' or not.
+    // if uses>1 and at least 1 exclusive usage, create fan-out.
+    // fan-out outputs are either 'common' or 'exclusive' and need to be mapped accordingly.
+    // decorator used for e.g. mpsource is problematic: it becomes exclusive!
+    // but decorator could be taken as source of fan-out, solving the issue.
     bool sourceRequiresFan = _pvNamesWithFan.contains(pv->getName());
     if(!sourceRequiresFan) {
       return pv;
