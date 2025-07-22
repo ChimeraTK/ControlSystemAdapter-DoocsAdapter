@@ -132,7 +132,10 @@ namespace ChimeraTK {
       const ChimeraTK::RegisterPath& processVariableName) {
     auto pv = _controlSystemPVManager->getProcessVariable(processVariableName);
 
-    if(!pv->isReadable()) {
+    // Note about bi-directional PVs: they are not covered here, because the RoutingDecorator cannot handle them. This
+    // may be an issue if bi-directional PVs are mapped more than once to DOOCS (e.g. one writeable and one or more
+    // read-only copy) with different types, but this does also not work for write-only properties yet.
+    if(pv->isWriteable()) {
       return pv;
     }
     bool sourceRequiresFan = _pvNamesWithFan.contains(pv->getName());

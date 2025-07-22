@@ -21,8 +21,10 @@ using namespace ChimeraTK;
 
 DOOCS_ADAPTER_DEFAULT_FIXTURE_STATIC_APPLICATION
 
+/**********************************************************************************************************************/
+
 /// Check that all expected variables are there.
-BOOST_AUTO_TEST_CASE(testMultiMapped, *boost::unit_test::tolerance(0.0001)) {
+BOOST_AUTO_TEST_CASE(TestMultiMapped, *boost::unit_test::tolerance(0.0001)) {
   // Note: In the .conf file, SECOND/SCALAR_1 is initialised with 23.456, which must be ignored.
   BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//FIRST/SCALAR_1") == 12.345);
   BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//SECOND/SCALAR_1") == 12.345);
@@ -32,3 +34,19 @@ BOOST_AUTO_TEST_CASE(testMultiMapped, *boost::unit_test::tolerance(0.0001)) {
   BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//FIRST/SCALAR_1") == 42.42);
   BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//SECOND/SCALAR_1") == 42.42);
 }
+
+/**********************************************************************************************************************/
+
+/// Check that all expected variables are there.
+BOOST_AUTO_TEST_CASE(TestMultiMappedBidirectional, *boost::unit_test::tolerance(0.0001)) {
+  // Note: In the .conf file, SECOND/BIDIRECTIONAL is initialised with 23.456, which must be ignored.
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//FIRST/BIDIRECTIONAL") == 12.345);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//SECOND/BIDIRECTIONAL") == 12.345);
+
+  DoocsServerTestHelper::doocsSet<float>("//FIRST/BIDIRECTIONAL", 42.42);
+
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//FIRST/BIDIRECTIONAL") == 42.42);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<float>("//SECOND/BIDIRECTIONAL") == 42.42);
+}
+
+/**********************************************************************************************************************/
