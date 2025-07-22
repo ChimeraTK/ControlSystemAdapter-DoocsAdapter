@@ -3,11 +3,16 @@
 
   <location name="FIRST">
     <property name="SCALAR_1" source="/FLOAT/TO_DEVICE_SCALAR"/>
+    <property name="BIDIRECTIONAL" source="/FLOAT/BIDIRECTIONAL"/>
   </location>
 
   <location name="SECOND">
-    <is_writeable>false</is_writeable>
-    <property name="SCALAR_1" source="/FLOAT/TO_DEVICE_SCALAR"/>
+    <property name="SCALAR_1" source="/FLOAT/TO_DEVICE_SCALAR">
+      <is_writeable>false</is_writeable>
+    </property>
+    <property name="BIDIRECTIONAL" source="/FLOAT/BIDIRECTIONAL">
+      <is_writeable>false</is_writeable>
+    </property>
   </location>
 
 </device_server>
