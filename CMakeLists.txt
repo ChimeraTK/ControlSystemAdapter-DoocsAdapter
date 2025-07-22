@@ -17,7 +17,7 @@ include(cmake/enable_code_coverage_report.cmake)
 include(cmake/enable_code_style_check.cmake)
 include(cmake/add_linter_target.cmake)
 
-FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.06 REQUIRED)
+FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.13 REQUIRED)
 
 FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
 
