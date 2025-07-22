@@ -29,8 +29,8 @@ DOOCS_ADAPTER_DEFAULT_FIXTURE
 BOOST_AUTO_TEST_CASE(testListOfUnmappedVariables) {
   std::list<std::string> refAppModuleList = {"CHAR", "UCHAR", "SHORT", "USHORT", "INT", "UINT", "LONG", "ULONG",
       "FLOAT", "DOUBLE", "STRING", "BOOLEAN", "VOID"};
-  std::list<std::string> refAppVarPerModuleList = {"TO_DEVICE_SCALAR", "FROM_DEVICE_SCALAR", "TO_DEVICE_ARRAY",
-      "FROM_DEVICE_ARRAY", "DATA_TYPE_CONSTANT", "CONSTANT_ARRAY"};
+  std::list<std::string> refAppVarPerModuleList = {"TO_DEVICE_SCALAR", "FROM_DEVICE_SCALAR", "BIDIRECTIONAL",
+      "TO_DEVICE_ARRAY", "FROM_DEVICE_ARRAY", "DATA_TYPE_CONSTANT", "CONSTANT_ARRAY"};
   std::set<std::string> mappedVars = {"/DOUBLE/TO_DEVICE_ARRAY", "/FLOAT/TO_DEVICE_SCALAR", "/FLOAT/TO_DEVICE_SCALAR",
       "/DOUBLE/TO_DEVICE_SCALAR", "/DOUBLE/FROM_DEVICE_ARRAY", "/FLOAT/TO_DEVICE_SCALAR"};
   std::set<std::string> expectedList;
