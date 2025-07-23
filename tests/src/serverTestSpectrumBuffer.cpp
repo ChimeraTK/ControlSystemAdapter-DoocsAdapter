@@ -15,8 +15,6 @@
 
 extern const char* object_name;
 
-#include "fixMissingDoocs_eq_res.h"
-
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs/EqCall.h>
 
@@ -70,7 +68,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    if(rc != fixme::comp_code::ok) {
+    if(rc != doocs::TransactionResult::ok) {
       BOOST_FAIL("Error connecting to DOOCS server: " + dst.get_string());
       return;
     }
@@ -109,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, fixme::comp_code::ok);
+    BOOST_CHECK_EQUAL(rc, doocs::TransactionResult::ok);
     BOOST_CHECK_EQUAL(dst.error(), 0);
     expectedFloatArrayValue[1] = i + 10000;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {
@@ -130,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, fixme::comp_code::data_error);
+    BOOST_CHECK_EQUAL(rc, doocs::TransactionResult::data_error);
     BOOST_CHECK_EQUAL(dst.error(), scope_out_of_range);
   }
 
@@ -147,7 +145,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, fixme::comp_code::ok);
+    BOOST_CHECK_EQUAL(rc, doocs::TransactionResult::ok);
     BOOST_CHECK_EQUAL(dst.error(), 0);
     expectedFloatArrayValue[1] = i + 10000;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {
