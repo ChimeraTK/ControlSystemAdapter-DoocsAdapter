@@ -23,7 +23,7 @@ namespace ChimeraTK {
       else {
         auto sourceMaster = boost::dynamic_pointer_cast<RoutingDecorator<UserType>>(_sourceMasters[sourceId]);
         assert(sourceMaster);
-        decorator->template addToFan(*sourceMaster);
+        decorator->addToFan(*sourceMaster);
       }
       ret = decorator;
     });
