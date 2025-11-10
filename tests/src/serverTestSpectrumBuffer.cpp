@@ -99,7 +99,8 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     doocs::EqData src, dst;
     src.init();
     IIII par;
-    par.i1_data = int(firstMacroPulseNumber + i + 10);
+    auto mpnToRequest = int(firstMacroPulseNumber + i + 10);
+    par.i1_data = mpnToRequest;
     par.i2_data = 0;
     par.i3_data = 1;
     par.i4_data = 0;
@@ -112,6 +113,7 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     expectedFloatArrayValue[1] = i + 10000;
     for(size_t k = 0; k < expectedFloatArrayValue.size(); ++k) {
       BOOST_CHECK_CLOSE(dst.get_float(k), expectedFloatArrayValue[k], 1e-6);
+      BOOST_TEST(dst.mpnum() == mpnToRequest);
     }
   }
 
@@ -120,7 +122,8 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     doocs::EqData src, dst;
     src.init();
     IIII par;
-    par.i1_data = int(firstMacroPulseNumber + 9);
+    int mpnToRequest = firstMacroPulseNumber + 9;
+    par.i1_data = mpnToRequest;
     par.i2_data = 0;
     par.i3_data = 1;
     par.i4_data = 0;
@@ -128,8 +131,15 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
     src.set(&par);
     EqCall call;
     auto rc = call.get(&ea, &src, &dst);
-    BOOST_CHECK_EQUAL(rc, doocs::TransactionResult::data_error);
-    BOOST_CHECK_EQUAL(dst.error(), scope_out_of_range);
+    // depending on DOOCS behaviour (which changed over time), we may get a straight error or just the wrong MPN in the
+    // data
+    if(rc == doocs::TransactionResult::data_error) {
+      BOOST_CHECK_EQUAL(rc, doocs::TransactionResult::data_error);
+      BOOST_CHECK_EQUAL(dst.error(), scope_out_of_range);
+    }
+    else {
+      BOOST_TEST(dst.mpnum() != mpnToRequest);
+    }
   }
 
   // read out the 32 updates from the buffers again
