@@ -66,6 +66,17 @@ namespace ChimeraTK {
     if(counter < 1) {
       return false;
     }
+
+    static std::atomic<bool> suppressDataLossWarningCached{false};
+    static std::atomic<bool> suppressDataLossWarningCacheValid{false};
+    if(!suppressDataLossWarningCacheValid) {
+      suppressDataLossWarningCached = std::getenv("SUPPRESS_DATA_LOSS_WARNING") != nullptr;
+      suppressDataLossWarningCacheValid = true;
+    }
+    if(suppressDataLossWarningCached) {
+      return false;
+    }
+
     if(counter < 100) {
       return counter % 10 == 0;
     }
