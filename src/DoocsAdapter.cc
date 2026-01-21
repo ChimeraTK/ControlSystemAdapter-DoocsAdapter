@@ -47,14 +47,11 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void DoocsAdapter::waitUntilInitialised() {
-    int i = 0;
     while(true) {
       if(isInitialised) {
         return;
       }
-      // just sleep a bit. Use the "cheap" usleep, we don't care about precision
-      // here
-      ++i;
+      // just sleep a bit. Use the "cheap" usleep, we don't care about precision here
       usleep(100);
     }
   }
