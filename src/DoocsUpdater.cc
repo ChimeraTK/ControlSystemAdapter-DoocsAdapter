@@ -11,7 +11,7 @@
 namespace ChimeraTK {
 
   void DoocsUpdater::addVariable(
-      TransferElementAbstractor variable, EqFct* eq_fct, const std::function<void()>& updaterFunction) {
+      const TransferElementAbstractor& variable, EqFct* eq_fct, const std::function<void()>& updaterFunction) {
     // Don't add the transfer element twice into the list of elements to read (not allowed with ReadAnyGroup).
     if(_toDoocsDescriptorMap.find(variable.getId()) == _toDoocsDescriptorMap.end()) {
       _elementsToRead.push_back(variable);

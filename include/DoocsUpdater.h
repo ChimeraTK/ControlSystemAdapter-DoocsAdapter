@@ -42,14 +42,13 @@ namespace ChimeraTK {
     void stop();
 
     /**
-     *  Add a variable to be updated. Together with the TransferElementAbstractor
-     *  pointing to the ChimeraTK::ProcessArray, the EqFct* to obtain the lock for
-     *  and a function to be called which executes the actual update should be
-     *  specified. The lock is held while the updaterFunction is called, so it must
-     *  neither obtained nor freed within the updaterFunction.
-     *  eq_fct and updateFunction can be empty, in case the variable is used by only by other updaterFunctions.
+     * Add a variable to be updated. Together with the TransferElementAbstractor pointing to the
+     * ChimeraTK::ProcessArray, the EqFct* to obtain the lock for and a function to be called which executes the actual
+     * update should be specified. The lock is held while read operations are executed on the accessor and while the
+     * updaterFunction is called, so it must neither obtained nor released within the updaterFunction.
+     * updateFunction can be empty, in case the variable is used by only by other updaterFunctions.
      */
-    void addVariable(ChimeraTK::TransferElementAbstractor variable, EqFct* eq_fct = nullptr,
+    void addVariable(const ChimeraTK::TransferElementAbstractor& variable, EqFct* eq_fct,
         const std::function<void()>& updaterFunction = {});
 
     const std::list<ChimeraTK::TransferElementAbstractor>& getElementsToRead() { return _elementsToRead; }
