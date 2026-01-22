@@ -20,7 +20,7 @@ namespace ChimeraTK {
         _doocsUpdater.addVariable(var, getEqFct(), [this, id] { return updateDoocsBuffer(id); });
       }
       else {
-        _doocsUpdater.addVariable(var);
+        _doocsUpdater.addVariable(var, getEqFct());
       }
     }
   }
