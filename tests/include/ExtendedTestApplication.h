@@ -7,6 +7,14 @@
 struct ExtendedTestApplication : public ReferenceTestApplication {
   using ReferenceTestApplication::ReferenceTestApplication;
 
+  ~ExtendedTestApplication() override {
+    // need to shutdown thread calling our mainBody() before the "Extended" portion of the object goes away...
+    if(_deviceThread) {
+      _deviceThread->interrupt();
+      _deviceThread->join();
+    }
+  }
+
   void initialise() override {
     in["IIII"] = _processVariableManager->createProcessArray<int>(
         ChimeraTK::SynchronizationDirection::controlSystemToDevice, "IIII/TO_DEVICE", 4);
