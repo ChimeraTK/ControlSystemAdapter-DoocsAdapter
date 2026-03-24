@@ -55,6 +55,26 @@ namespace ChimeraTK {
 
     ReadAnyGroup group(_elementsToRead.begin(), _elementsToRead.end());
 
+    // Execute preRead() on all _elementsToRead while having the location lock. This prevents a data race for
+    // bidirectional PVs, if a write operation happens concurrently (in the RPC thread). waitAny() will issue preRead()
+    // again, but we cannot have the location lock during waitAny() any more, since it will block until the next change
+    // arrives. The extra preRead does not hurt, since multiple consecutive preReads are ignored by the TransferElement
+    // base class.
+    for(auto& pair : _toDoocsDescriptorMap) {
+      for(auto& location : pair.second.locations) {
+        if(locationsToLock.insert(location).second) {
+          location->lock();
+        }
+      }
+    }
+    for(auto& elem : _elementsToRead) {
+      elem.getHighLevelImplElement()->preRead(ChimeraTK::TransferType::read);
+    }
+    for(const auto& location : locationsToLock) {
+      location->unlock();
+    }
+    locationsToLock.clear();
+
     while(true) {
       // Wait until any variable got an update
       auto notification = group.waitAny();
@@ -87,6 +107,9 @@ namespace ChimeraTK {
             updaterFunction();
           }
         }
+        // Run preRead() while we still have the location lock. See above comment for running preRead before the
+        // while(true) loop for an explanation.
+        te.getHighLevelImplElement()->preRead(ChimeraTK::TransferType::read);
       }
       // Unlock all involved locations
       for(const auto& location : locationsToLock) {
