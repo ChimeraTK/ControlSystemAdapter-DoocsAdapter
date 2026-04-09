@@ -84,8 +84,11 @@ using FixtureForTestIFFFb = ZeroMQFixture<IFFF, int>; // needed because of ',' p
 BOOST_FIXTURE_TEST_CASE(testIFFFb, FixtureForTestIFFFb) {
   std::cout << "testIFFFb" << GlobalFixture::rpcNo << " " << GlobalFixture::bpn << std::endl;
 
+  // FIXME: This test is re-using writable process variables which are already mapped for other tests. We should only
+  // map PVs once as writable.
+
   toDevicePath = "//CUSTOM/IFFF";
-  fromDevicePath = "//INT/TO_DEVICE_SCALAR";
+  fromDevicePath = "//INT/FROM_DEVICE_SCALAR";
   configUsesDataMatching = false;
   // we cannot generate errors since data not routed through AC app
   generateErrors = false;

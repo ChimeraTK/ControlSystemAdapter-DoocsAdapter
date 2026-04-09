@@ -73,6 +73,7 @@ namespace ChimeraTK {
     }
 
     doocsPV->setMacroPulseNumberSource(propertyDescription.macroPulseNumberSource);
+    doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
 
     return doocsPV;
   }
@@ -98,6 +99,7 @@ namespace ChimeraTK {
     }
 
     doocsPV->setMacroPulseNumberSource(propertyDescription.macroPulseNumberSource);
+    doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
 
     return doocsPV;
   }
@@ -164,6 +166,7 @@ namespace ChimeraTK {
     }
 
     doocsPV->setMacroPulseNumberSource(spectrumDescription.macroPulseNumberSource);
+    doocsPV->setIsWriteableSource(spectrumDescription.isWriteableSource);
 
     return doocsPV;
   }
@@ -185,6 +188,8 @@ namespace ChimeraTK {
     }
 
     doocsPV->setMacroPulseNumberSource(imageDescription.macroPulseNumberSource);
+    doocsPV->setIsWriteableSource(imageDescription.isWriteableSource);
+
     return doocsPV;
   }
 
@@ -240,6 +245,7 @@ namespace ChimeraTK {
     }
 
     doocsPV->setMacroPulseNumberSource(ifffDescription.macroPulseNumberSource);
+    doocsPV->setIsWriteableSource(ifffDescription.isWriteableSource);
 
     if(ifffDescription.publishZMQ) {
       doocsPV->publishZeroMQ();
@@ -265,6 +271,7 @@ namespace ChimeraTK {
     }
 
     doocsPV->setMacroPulseNumberSource(iiiiDescription.macroPulseNumberSource);
+    doocsPV->setIsWriteableSource(iiiiDescription.isWriteableSource);
 
     if(iiiiDescription.publishZMQ) {
       doocsPV->publishZeroMQ();
@@ -392,6 +399,7 @@ namespace ChimeraTK {
             "' is used as a macro pulse number source, but it is not readable.");
       }
       doocsPV->setMacroPulseNumberSource(mpnSource);
+      doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
     }
 
     return boost::dynamic_pointer_cast<D_fct>(doocsPV);

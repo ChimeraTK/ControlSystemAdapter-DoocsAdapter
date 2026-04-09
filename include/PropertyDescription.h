@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "Utilities.h"
+
 #include <ChimeraTK/DataConsistencyGroup.h>
 #include <ChimeraTK/RegisterPath.h>
 
@@ -49,13 +51,15 @@ namespace ChimeraTK {
     bool isWriteable;
     bool publishZMQ;
     std::string macroPulseNumberSource;
+    std::string isWriteableSource;
     DataConsistencyGroup::MatchingMode dataMatching;
     PersistConfig persist = PersistConfig::ON;
     explicit PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false,
-        std::string macroPulseNumberSource_ = "",
+        std::string macroPulseNumberSource_ = "", std::string isWriteableSource_ = "",
         DataConsistencyGroup::MatchingMode dataMatching_ = DataConsistencyGroup::MatchingMode::exact)
     : hasHistory(hasHistory_), isWriteable(isWriteable_), publishZMQ(publishZMQ_),
-      macroPulseNumberSource(std::move(macroPulseNumberSource_)), dataMatching(dataMatching_) {}
+      macroPulseNumberSource(std::move(macroPulseNumberSource_)), isWriteableSource(std::move(isWriteableSource_)),
+      dataMatching(dataMatching_) {}
     bool operator==(PropertyAttributes const& other) const {
       return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ &&
           macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching &&
@@ -78,12 +82,43 @@ namespace ChimeraTK {
       return location == other.location && name == other.name;
     }
     virtual void print(std::ostream& os = std::cout) const { os << location << " / " << name << std::endl; }
-    virtual std::set<std::string> getSources() {
-      if(macroPulseNumberSource.empty()) {
-        return {};
-      }
-      return {macroPulseNumberSource};
+
+    // Return all PV names which are used (read or write) by the property.
+    std::set<std::string> getSources() {
+      auto sources = getMetadataSources();
+      auto payload = getPayloadDataSources();
+      sources.insert(payload.begin(), payload.end());
+      return sources;
     }
+
+    std::set<std::string> getReadSources() {
+      auto sources = getMetadataSources();
+      if(!isWriteable) {
+        auto payload = getPayloadDataSources();
+        sources.insert(payload.begin(), payload.end());
+      }
+      return sources;
+    }
+
+    std::set<std::string> getWriteSources() {
+      if(isWriteable) {
+        return getPayloadDataSources();
+      }
+      return {};
+    }
+
+    virtual std::set<std::string> getMetadataSources() {
+      std::set<std::string> sources;
+      if(!macroPulseNumberSource.empty()) {
+        sources.insert(getAbsoluteSource(macroPulseNumberSource, location));
+      }
+      if(!isWriteableSource.empty()) {
+        sources.insert(getAbsoluteSource(isWriteableSource, location));
+      }
+      return sources;
+    }
+
+    virtual std::set<std::string> getPayloadDataSources() = 0;
   };
 
   /********************************************************************************************************************/
@@ -136,11 +171,7 @@ namespace ChimeraTK {
       }
     }
 
-    std::set<std::string> getSources() override {
-      auto baseSet = PropertyDescription::getSources();
-      baseSet.insert({source});
-      return baseSet;
-    };
+    std::set<std::string> getPayloadDataSources() override { return {source}; };
 
     DataType dataType;
   };
@@ -160,10 +191,7 @@ namespace ChimeraTK {
       os << source << " -> " << location << " / " << name << std::endl;
     }
 
-    std::set<std::string> getSources() override {
-      std::set<std::string> ret{source};
-      return ret;
-    };
+    std::set<std::string> getPayloadDataSources() override { return {source}; };
   };
 
   /********************************************************************************************************************/
@@ -195,16 +223,17 @@ namespace ChimeraTK {
          << ", incrementSource = " << incrementSource << ", numberOfBuffers = " << numberOfBuffers << ")" << std::endl;
     }
 
-    std::set<std::string> getSources() override {
-      std::set<std::string> ret = PropertyDescription::getSources();
-      ret.insert({source});
+    std::set<std::string> getPayloadDataSources() override { return {source}; };
+
+    std::set<std::string> getMetadataSources() override {
+      std::set<std::string> baseSet = PropertyDescription::getMetadataSources();
       if(startSource.length() > 1) {
-        ret.insert(startSource);
+        baseSet.insert(startSource);
       }
       if(incrementSource.length() > 1) {
-        ret.insert(incrementSource);
+        baseSet.insert(incrementSource);
       }
-      return ret;
+      return baseSet;
     };
   };
 
@@ -232,7 +261,7 @@ namespace ChimeraTK {
       os << "x: " << xSource << " y: " << ySource << " -> " << location << " / " << name << std::endl;
     }
 
-    std::set<std::string> getSources() override { return {xSource, ySource}; };
+    std::set<std::string> getPayloadDataSources() override { return {xSource, ySource}; };
   };
 
   /********************************************************************************************************************/
@@ -252,11 +281,7 @@ namespace ChimeraTK {
          << location << " / " << name << std::endl;
     }
 
-    std::set<std::string> getSources() override {
-      auto baseSet = PropertyDescription::getSources();
-      baseSet.insert({i1Source, f1Source, f2Source, f3Source});
-      return baseSet;
-    };
+    std::set<std::string> getPayloadDataSources() override { return {i1Source, f1Source, f2Source, f3Source}; };
   };
 
   /********************************************************************************************************************/
@@ -272,11 +297,7 @@ namespace ChimeraTK {
       os << "iiii: " << iiiiSource << " -> " << location << " / " << name << std::endl;
     }
 
-    std::set<std::string> getSources() override {
-      auto baseSet = PropertyDescription::getSources();
-      baseSet.insert({iiiiSource});
-      return baseSet;
-    };
+    std::set<std::string> getPayloadDataSources() override { return {iiiiSource}; };
   };
 
   /********************************************************************************************************************/

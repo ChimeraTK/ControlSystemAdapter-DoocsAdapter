@@ -114,26 +114,13 @@ namespace ChimeraTK {
   }
 
   void PropertyBase::updateOthers(bool handleLocking) {
+    // Release the location lock before calling callbacks to avoid deadlocks when callbacks lock other locations
     if(handleLocking) {
       getEqFct()->unlock();
     }
-    for(const auto& weakProp : propertiesToUpdate()) {
-      auto prop = weakProp.lock();
-      if(!prop) {
-        // property went away, could happen in shutdown phase
-        continue;
-      }
-      if(prop == shared_from_this()) {
-        continue;
-      }
-
-      if(handleLocking) {
-        prop->getEqFct()->lock();
-      }
-      prop->updateDoocsBuffer({});
-      if(handleLocking) {
-        prop->getEqFct()->unlock();
-      }
+    // Invoke all registered callbacks, passing this property as the caller so callbacks can identify the source
+    for(const auto& callback : callbacksOnChange()) {
+      callback(handleLocking, shared_from_this());
     }
     if(handleLocking) {
       getEqFct()->lock();
@@ -165,22 +152,104 @@ namespace ChimeraTK {
         _macroPulseNumberSource, _consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none);
   }
 
-  CommonlyUpdatedPropertySet& PropertyBase::propertiesToUpdate() {
-    if(_propertiesToUpdate_cacheIsFinal) {
-      return _propertiesToUpdate_cache;
+  void PropertyBase::setIsWriteableSource(const std::string& sourcePath) {
+    if(!sourcePath.empty()) {
+      auto isWriteableSource = _doocsUpdater.getMappedProcessVariable<ChimeraTK::Boolean>(sourcePath);
+      if(isWriteableSource->getNumberOfSamples() != 1) {
+        throw ChimeraTK::logic_error(std::format(
+            "The property '{}' is used as a is-writeable source, but is not a scalar.", isWriteableSource->getName()));
+      }
+
+      if(isWriteableSource->isReadable()) {
+        // Readable PV (device-to-CS direction): register with DoocsUpdater to receive updates via the update loop
+        _isWriteableSource.replace(isWriteableSource);
+        _doocsUpdater.addVariable(_isWriteableSource, getEqFct(), [this] {
+          if(bool(_isWriteableSource)) {
+            this->getDfct()->set_rw_access();
+          }
+          else {
+            this->getDfct()->set_ro_access();
+          }
+        });
+      }
+      else {
+        // Write-only PV (CS-to-device direction): cannot use DoocsUpdater since that only handles readable PVs.
+        // Instead, register a callback in writeableVariablesWithMultipleProperties so it gets called when another
+        // property writes to the same PV (via updateOthers). The callback reads the current value from the caller's
+        // DOOCS property using the generic EqData interface.
+        assert(!doocsAdapter.writeableVariablesWithMultiplePropertiesIsFinal);
+        auto weakSelf = weak_from_this();
+        doocsAdapter.writeableVariablesWithMultipleProperties[sourcePath].emplace_back(
+            [weakSelf](bool handleLocking, const boost::shared_ptr<PropertyBase>& caller) {
+              auto self = weakSelf.lock();
+              if(!self) {
+                return;
+              }
+              EqData input, result;
+              caller->getDfct()->get(nullptr, &input, &result, caller->getEqFct());
+              bool value = result.get_bool();
+              if(handleLocking) {
+                self->getEqFct()->lock();
+              }
+              if(value) {
+                self->getDfct()->set_rw_access();
+              }
+              else {
+                self->getDfct()->set_ro_access();
+              }
+              if(handleLocking) {
+                self->getEqFct()->unlock();
+              }
+            });
+      }
+    }
+  }
+
+  void PropertyBase::subscribeToSharedPV(const std::string& pvName) {
+    // Register a callback that updates this property's DOOCS buffer when another property writes to the shared PV.
+    // Uses weak_ptr to avoid preventing destruction of this property.
+    auto weakSelf = weak_from_this();
+    doocsAdapter.writeableVariablesWithMultipleProperties[pvName].emplace_back(
+        [weakSelf](bool handleLocking, const boost::shared_ptr<PropertyBase>& caller) {
+          auto self = weakSelf.lock();
+          if(!self) {
+            return;
+          }
+          assert(caller != self);
+
+          if(handleLocking) {
+            self->getEqFct()->lock();
+          }
+          self->updateDoocsBuffer({});
+          if(handleLocking) {
+            self->getEqFct()->unlock();
+          }
+        });
+  }
+
+  PVChangeListeners& PropertyBase::callbacksOnChange() {
+    if(_callbacksCacheIsFinal) {
+      return _callbacksOnChange_cache;
     }
 
-    // no need to clear _propertiesToUpdate_cache since Properties are never removed
-    for(auto& group : doocsAdapter.writeableVariablesWithMultipleProperties) {
-      // search for group containing weak ptr to this, if found, insert whole group
-      if(group.second.contains(shared_from_this())) {
-        _propertiesToUpdate_cache.insert(group.second.begin(), group.second.end());
+    // Collect all callbacks from PV groups this property is subscribed to. This includes both data-property
+    // callbacks (from subscribeToSharedPV) and isWriteableSource callbacks (from setIsWriteableSource).
+    _callbacksOnChange_cache.clear();
+    _hasOtherDataProperties = false;
+    for(auto& [pvName, listeners] : doocsAdapter.writeableVariablesWithMultipleProperties) {
+      if(!_sharedPVSubscriptions.contains(pvName)) {
+        continue;
+      }
+      _callbacksOnChange_cache.insert(_callbacksOnChange_cache.end(), listeners.begin(), listeners.end());
+      // More than one listener means there are other data properties besides just an isWriteableSource callback
+      if(listeners.size() > 1) {
+        _hasOtherDataProperties = true;
       }
     }
     if(doocsAdapter.writeableVariablesWithMultiplePropertiesIsFinal) {
-      _propertiesToUpdate_cacheIsFinal = true;
+      _callbacksCacheIsFinal = true;
     }
-    return _propertiesToUpdate_cache;
+    return _callbacksOnChange_cache;
   }
 
 } // namespace ChimeraTK

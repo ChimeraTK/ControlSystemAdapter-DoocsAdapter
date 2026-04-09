@@ -4,6 +4,7 @@
 #include "VariableMapper.h"
 
 #include "splitStringAtFirstSlash.h"
+#include "Utilities.h"
 
 #include <ChimeraTK/RegisterPath.h>
 
@@ -135,15 +136,6 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  std::string getAbsoluteSource(std::string source, const std::string& locationName) {
-    if(source[0] == '/') {
-      return source;
-    }
-    return std::string("/") + locationName + "/" + source;
-  }
-
-  /********************************************************************************************************************/
-
   void VariableMapper::processHistoryAndWritableAttributes(
       PropertyDescription& propertyDescription, const xmlpp::Element* propertyXmlElement) {
     std::string& locationName = propertyDescription.location;
@@ -169,6 +161,11 @@ namespace ChimeraTK {
     }
     else {
       propertyDescription.isWriteable = getIsWriteableDefault(locationName);
+    }
+
+    auto isWriteableSourceNodes = propertyXmlElement->get_children("is_writeable_source");
+    if(!isWriteableSourceNodes.empty()) {
+      propertyDescription.isWriteableSource = getContentString(isWriteableSourceNodes.front());
     }
 
     auto publishZeroMQ = propertyXmlElement->get_children("publish_ZMQ");
