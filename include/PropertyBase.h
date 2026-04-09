@@ -9,11 +9,18 @@
 
 #include <eq_fct.h>
 
+#include <functional>
+#include <set>
+#include <string>
+#include <vector>
+
 namespace ChimeraTK {
   class DoocsUpdater;
   class PropertyBase;
 
-  using CommonlyUpdatedPropertySet = std::set<boost::weak_ptr<PropertyBase>>;
+  /// List of callbacks to be invoked when a shared PV changes. Each callback receives a flag indicating whether
+  /// locking is needed and a shared_ptr to the property that triggered the change.
+  using PVChangeListeners = std::vector<std::function<void(bool, const boost::shared_ptr<PropertyBase>&)>>;
 
   /**
    * Base class used for all properties.
@@ -36,18 +43,32 @@ namespace ChimeraTK {
     void setMacroPulseNumberSource(
         const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource);
 
-    /// Returns list of properties which need to update their DOOCS buffers when any of them changes.
-    /// This is used to synchronise multi-mapped PVs.
-    CommonlyUpdatedPropertySet& propertiesToUpdate();
+    /// set the is-writeable source, if configured
+    void setIsWriteableSource(const std::string& sourcePath);
+
+    /// Subscribe to change notifications on a shared process variable.
+    /// When another property writes to the same PV, this property's DOOCS buffer gets updated.
+    void subscribeToSharedPV(const std::string& pvName);
+
+    /// Check if other data properties need updating when this property's PV changes
+    bool hasOtherPropertiesToUpdate() {
+      callbacksOnChange();
+      return _hasOtherDataProperties;
+    }
+
+    /// PV names this property has subscribed to via subscribeToSharedPV(). Used by callbacksOnChange() to filter
+    /// which entries from writeableVariablesWithMultipleProperties are relevant to this property.
+    std::set<std::string> _sharedPVSubscriptions;
 
    protected:
-    CommonlyUpdatedPropertySet _propertiesToUpdate_cache;
-    bool _propertiesToUpdate_cacheIsFinal = false;
+    /// Cached list of callbacks to invoke when this property's PV changes. Built lazily by callbacksOnChange().
+    PVChangeListeners _callbacksOnChange_cache;
+    bool _callbacksCacheIsFinal = false;
+    /// True if there are other data properties (not just isWriteableSource listeners) in the callback list
+    bool _hasOtherDataProperties = false;
 
-   public:
-    bool hasOtherPropertiesToUpdate() { return propertiesToUpdate().size() > 1; }
-
-   protected:
+    /// Get cached callbacks from PV groups this property is a member of
+    PVChangeListeners& callbacksOnChange();
     /// Update DOOCS buffer from PVs. The given transferElementId shall be used only for checking consistency with the
     /// DataConsistencyGroup. {} will be passed if the update is coming from another property (hence the update will
     /// only be taken with data matching set to none, which is the expected behaviour).
@@ -80,6 +101,10 @@ namespace ChimeraTK {
 
     ScalarRegisterAccessor<int64_t> _macroPulseNumberSource;
     DataConsistencyGroup _consistencyGroup;
+
+    /// Accessor for the PV that controls whether this property is read-only or read-write at runtime.
+    /// Only used for readable isWriteableSource PVs (registered with DoocsUpdater).
+    ScalarRegisterAccessor<ChimeraTK::Boolean> _isWriteableSource;
 
     std::string _doocsPropertyName;
     DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number

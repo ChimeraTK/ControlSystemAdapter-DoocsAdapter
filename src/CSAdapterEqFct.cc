@@ -135,18 +135,25 @@ namespace ChimeraTK {
 
     for(auto& propertyDescription : mappingForThisLocation) {
       try {
-        _doocsProperties[propertyDescription] = factory.create(propertyDescription);
+        auto prop = factory.create(propertyDescription);
+        _doocsProperties[propertyDescription] = prop;
+        auto p = boost::dynamic_pointer_cast<ChimeraTK::PropertyBase>(prop);
 
-        // if one of the PVs used by the property is among the keys of the writeableVariablesWithMultipleProperties map,
-        // add the property to the list of properties to update (value of the beforementioned map).
+        // if one of the PVs used by the property is among the keys of the writeableVariablesWithMultipleProperties
+        // map, register the property in that PV group so its updateDoocsBuffer is called when the PV changes.
         assert(!doocsAdapter.writeableVariablesWithMultiplePropertiesIsFinal);
         auto& theMap = doocsAdapter.writeableVariablesWithMultipleProperties;
-        for(const auto& pvNameUsedByProperty : propertyDescription->getSources()) {
+        // exclude sources which this property writes to, to avoid subscribing to ourself
+        for(const auto& pvNameUsedByProperty : propertyDescription->getReadSources()) {
           if(theMap.find(pvNameUsedByProperty) != theMap.end()) {
-            // the PV name has been found in the map keys -> add the property to the list to update
-            auto p = boost::dynamic_pointer_cast<ChimeraTK::PropertyBase>(_doocsProperties.at(propertyDescription));
-            CommonlyUpdatedPropertySet& listOfPropertiesToUpdate = theMap.at(pvNameUsedByProperty);
-            listOfPropertiesToUpdate.insert(p);
+            p->subscribeToSharedPV(pvNameUsedByProperty);
+          }
+        }
+
+        // TODO: This should be somehow in the PropertyBase class
+        for(const auto& pvNameUsedByProperty : propertyDescription->getWriteSources()) {
+          if(theMap.find(pvNameUsedByProperty) != theMap.end()) {
+            p->_sharedPVSubscriptions.insert(pvNameUsedByProperty);
           }
         }
       }

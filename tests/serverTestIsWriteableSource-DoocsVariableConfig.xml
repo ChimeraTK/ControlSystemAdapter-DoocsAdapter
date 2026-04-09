@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+  <location name="DYNAMIC">
+    <property name="PROP" source="/INT/TO_DEVICE_SCALAR">
+      <is_writeable_source>/SHORT/FROM_DEVICE_SCALAR</is_writeable_source>
+    </property>
+    <property name="SWITCH" source="/SHORT/TO_DEVICE_SCALAR"/>
+  </location>
+  <location name="DYNAMIC_TO_DEVICE">
+    <property name="PROP" source="/UINT/TO_DEVICE_SCALAR">
+      <is_writeable_source>/USHORT/TO_DEVICE_SCALAR</is_writeable_source>
+    </property>
+    <property name="SWITCH" source="/USHORT/TO_DEVICE_SCALAR"/>
+  </location>
+</device_server>
