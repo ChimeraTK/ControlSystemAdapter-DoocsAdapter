@@ -61,6 +61,8 @@ namespace ChimeraTK {
     setupOutputVar(_processScalar);
   }
 
+  /********************************************************************************************************************/
+
   template<typename T, typename DOOCS_T>
   DoocsProcessScalar<T, DOOCS_T>::DoocsProcessScalar(std::string doocsPropertyName, EqFct* eqFct,
       boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater,
@@ -69,6 +71,8 @@ namespace ChimeraTK {
     _processScalar(processScalar) {
     setupOutputVar(_processScalar);
   }
+
+  /********************************************************************************************************************/
 
   template<typename T, typename DOOCS_T>
   void DoocsProcessScalar<T, DOOCS_T>::set(EqAdr* adr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqfct) {
@@ -95,6 +99,8 @@ namespace ChimeraTK {
     sendZMQ(getTimestamp());
   }
 
+  /********************************************************************************************************************/
+
   template<typename T, typename DOOCS_T>
   void DoocsProcessScalar<T, DOOCS_T>::auto_init() {
     doocsAdapter.beforeAutoInit();
@@ -115,6 +121,8 @@ namespace ChimeraTK {
       updateOthers(false);
     }
   }
+
+  /********************************************************************************************************************/
 
   template<typename T, typename DOOCS_T>
   void DoocsProcessScalar<T, DOOCS_T>::updateDoocsBuffer(const TransferElementID& transferElementId) {
@@ -145,5 +153,7 @@ namespace ChimeraTK {
     this->set_value(data, timestamp, eventId, archiverStatus);
     sendZMQ(timestamp);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

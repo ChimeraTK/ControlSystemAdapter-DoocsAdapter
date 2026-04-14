@@ -5,6 +5,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   TransferElement::SharedPtr RoutingDecoratorDomain::add(TransferElement::SharedPtr source) {
     TransferElement::SharedPtr ret;
     callForType(source->getValueType(), [&](auto t) {
@@ -29,6 +31,8 @@ namespace ChimeraTK {
     });
     return ret;
   }
+
+  /********************************************************************************************************************/
 
   bool RoutingDecoratorDomain::send(TransferElementID updatedElement) {
     auto it = _sourceMasters.find(updatedElement);
@@ -66,5 +70,7 @@ namespace ChimeraTK {
     });
     return ret;
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

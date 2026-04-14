@@ -14,6 +14,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   /// configuration choices for writing persistance files for DOOCS properties
   struct PersistConfig {
     enum {
@@ -43,6 +45,8 @@ namespace ChimeraTK {
     PersistConfig(int enumVal) { this->val = enumVal; }
     bool operator==(const PersistConfig& other) const { return val == other.val; }
   };
+
+  /********************************************************************************************************************/
 
   // PropertyAttributes are used in the property description itself, and
   // as default values (global and in the locations)
@@ -317,11 +321,15 @@ namespace ChimeraTK {
       useDataMatchingDefault(useDataMatchingDefault_) {}
   };
 
+  /********************************************************************************************************************/
+
   // parsed info about error reporting to locations
   struct ErrorReportingInfo {
     ChimeraTK::RegisterPath statusCodeSource;
     ChimeraTK::RegisterPath statusStringSource;
     std::string targetLocation;
   };
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

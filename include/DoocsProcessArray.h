@@ -75,6 +75,8 @@ namespace ChimeraTK {
     setupOutputVar(_processArray);
   }
 
+  /********************************************************************************************************************/
+
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::set(
       EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
@@ -86,6 +88,8 @@ namespace ChimeraTK {
     sendToDevice(true);
     sendZMQ(getTimestamp());
   }
+
+  /********************************************************************************************************************/
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::auto_init() {
@@ -106,6 +110,8 @@ namespace ChimeraTK {
       DOOCS_T::set_stamp();
     }
   }
+
+  /********************************************************************************************************************/
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::updateDoocsBuffer(const TransferElementID& transferElementId) {
@@ -149,10 +155,14 @@ namespace ChimeraTK {
     sendZMQ(timestamp);
   }
 
+  /********************************************************************************************************************/
+
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::sendToDevice(bool getLocks) {
     sendArrayToDevice(this, _processArray);
     updateOthers(getLocks);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

@@ -8,9 +8,13 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   PropertyBase::PropertyBase(
       std::string doocsPropertyName, DoocsUpdater& updater, DataConsistencyGroup::MatchingMode matchingMode)
   : _consistencyGroup(matchingMode), _doocsPropertyName(std::move(doocsPropertyName)), _doocsUpdater(updater) {}
+
+  /********************************************************************************************************************/
 
   void PropertyBase::registerVariable(TransferElementAbstractor& var, bool update) {
     if(var.isReadable()) {
@@ -24,6 +28,8 @@ namespace ChimeraTK {
       }
     }
   }
+
+  /********************************************************************************************************************/
 
   bool PropertyBase::updateConsistency(const TransferElementID& updatedId) {
     // FIXME: A first  implementation is checking the data consistency here. Later this should be
@@ -67,11 +73,15 @@ namespace ChimeraTK {
     return true;
   }
 
+  /********************************************************************************************************************/
+
   doocs::Timestamp PropertyBase::getTimestamp() {
     assert(_outputVarForVersionNum);
     doocs::Timestamp timestamp(_outputVarForVersionNum->getVersionNumber().getTime());
     return timestamp;
   }
+
+  /********************************************************************************************************************/
 
   doocs::Timestamp PropertyBase::correctDoocsTimestamp() {
     doocs::Timestamp timestamp = getTimestamp();
@@ -90,6 +100,8 @@ namespace ChimeraTK {
     d_fct->set_timestamp(timestamp);
     return timestamp;
   }
+
+  /********************************************************************************************************************/
 
   void PropertyBase::sendZMQ(doocs::Timestamp timestamp) {
     auto* d_fct = getDfct();
@@ -113,6 +125,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   void PropertyBase::updateOthers(bool handleLocking) {
     // Release the location lock before calling callbacks to avoid deadlocks when callbacks lock other locations
     if(handleLocking) {
@@ -126,6 +140,8 @@ namespace ChimeraTK {
       getEqFct()->lock();
     }
   }
+
+  /********************************************************************************************************************/
 
   void PropertyBase::setMacroPulseNumberSource(const std::string& sourcePath) {
     if(!sourcePath.empty()) {
@@ -143,6 +159,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   void PropertyBase::setMacroPulseNumberSource(
       const boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int64_t>>& macroPulseNumberSource) {
     _macroPulseNumberSource.replace(macroPulseNumberSource);
@@ -151,6 +169,8 @@ namespace ChimeraTK {
     registerVariable(
         _macroPulseNumberSource, _consistencyGroup.getMatchingMode() != DataConsistencyGroup::MatchingMode::none);
   }
+
+  /********************************************************************************************************************/
 
   void PropertyBase::setIsWriteableSource(const std::string& sourcePath) {
     if(!sourcePath.empty()) {
@@ -205,6 +225,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   void PropertyBase::subscribeToSharedPV(const std::string& pvName) {
     // Register a callback that updates this property's DOOCS buffer when another property writes to the shared PV.
     // Uses weak_ptr to avoid preventing destruction of this property.
@@ -226,6 +248,8 @@ namespace ChimeraTK {
           }
         });
   }
+
+  /********************************************************************************************************************/
 
   PVChangeListeners& PropertyBase::callbacksOnChange() {
     if(_callbacksCacheIsFinal) {
@@ -251,5 +275,7 @@ namespace ChimeraTK {
     }
     return _callbacksOnChange_cache;
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

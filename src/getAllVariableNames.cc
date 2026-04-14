@@ -5,6 +5,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   std::set<std::string> getAllVariableNames(const boost::shared_ptr<ControlSystemPVManager>& csManager) {
     std::set<std::string> output;
     for(auto& pv : csManager->getAllProcessVariables()) {
@@ -13,5 +15,7 @@ namespace ChimeraTK {
 
     return output;
   }
+
+  /********************************************************************************************************************/
 
 } //  namespace ChimeraTK

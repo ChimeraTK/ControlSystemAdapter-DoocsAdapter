@@ -14,7 +14,11 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   bool CSAdapterEqFct::emptyLocationVariablesHandled = false;
+
+  /********************************************************************************************************************/
 
   CSAdapterEqFct::CSAdapterEqFct(int code, const EqFctParameters& p)
   : EqFct(p), _controlSystemPVManager(doocsAdapter.getControlSystemPVManager()), _updater(doocsAdapter.updater),
@@ -48,12 +52,18 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   CSAdapterEqFct::~CSAdapterEqFct() {
     // stop the updater thread before any of the process variables go out of scope
     _updater->stop();
   }
 
+  /********************************************************************************************************************/
+
   void CSAdapterEqFct::init() {}
+
+  /********************************************************************************************************************/
 
   void CSAdapterEqFct::post_init() {
     for(auto& pair : _doocsProperties) {
@@ -68,6 +78,8 @@ namespace ChimeraTK {
       }
     }
   }
+
+  /********************************************************************************************************************/
 
   int CSAdapterEqFct::write(std::ostream& fprt) {
     /*
@@ -118,6 +130,8 @@ namespace ChimeraTK {
     return EqFct::write(fprt);
   }
 
+  /********************************************************************************************************************/
+
   template<class ValueType>
   void CSAdapterEqFct::saveArray(D_fct* p) {
     auto* arr = dynamic_cast<DoocsProcessArray<doocs::D_array<ValueType>, ValueType>*>(p);
@@ -126,6 +140,8 @@ namespace ChimeraTK {
       arr->save();
     }
   }
+
+  /********************************************************************************************************************/
 
   void CSAdapterEqFct::registerProcessVariablesInDoocs() {
     // We only need the factory inside this function
@@ -168,6 +184,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   void CSAdapterEqFct::get(EqAdr* addr, EqData* data_in, EqData* result) {
     if(!ChimeraTK::DoocsAdapter::isInitialised) {
       result->error(eq_errors::device_offline, "Server still starting up...");
@@ -175,5 +193,7 @@ namespace ChimeraTK {
     }
     return EqFct::get(addr, data_in, result);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

@@ -71,6 +71,8 @@ namespace ChimeraTK {
     this->makeUniqueId();
   }
 
+  /********************************************************************************************************************/
+
   template<typename UserType>
   void RoutingDecorator<UserType>::setupFan() {
     assert(!_isFan);
@@ -91,6 +93,8 @@ namespace ChimeraTK {
     _isFan = true;
   }
 
+  /********************************************************************************************************************/
+
   template<typename UserType>
   void RoutingDecorator<UserType>::addToFan(RoutingDecorator& fan) {
     assert(fan._isFan);
@@ -105,5 +109,7 @@ namespace ChimeraTK {
     this->initFromTarget(receiver);
     this->_id = id;
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

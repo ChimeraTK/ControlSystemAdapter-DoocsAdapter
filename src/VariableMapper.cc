@@ -402,6 +402,7 @@ namespace ChimeraTK {
 
     addDescription(xyDescription);
   }
+
   /********************************************************************************************************************/
 
   void VariableMapper::processIfffNode(xmlpp::Node const* node, std::string& locationName) {
@@ -789,6 +790,7 @@ namespace ChimeraTK {
     }
     return _globalDefaults.macroPulseNumberSource;
   }
+
   /********************************************************************************************************************/
 
   DataConsistencyGroup::MatchingMode VariableMapper::getDataMatchingDefault(std::string const& locationName) {

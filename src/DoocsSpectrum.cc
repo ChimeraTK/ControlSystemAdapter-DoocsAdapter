@@ -15,6 +15,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
       DataConsistencyGroup::MatchingMode matchingMode,
@@ -27,6 +29,8 @@ namespace ChimeraTK {
 
     addParameterAccessors();
   }
+
+  /********************************************************************************************************************/
 
   DoocsSpectrum::DoocsSpectrum(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<float>> const& processArray, DoocsUpdater& updater,
@@ -46,6 +50,8 @@ namespace ChimeraTK {
     addParameterAccessors();
   }
 
+  /********************************************************************************************************************/
+
   void DoocsSpectrum::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_spectrum::set(eqAdr, data1, data2, eqFct);
     if(_macroPulseNumberSource.isInitialised()) {
@@ -56,6 +62,8 @@ namespace ChimeraTK {
 
     sendZMQ(getTimestamp());
   }
+
+  /********************************************************************************************************************/
 
   void DoocsSpectrum::auto_init() {
     doocsAdapter.beforeAutoInit();
@@ -80,6 +88,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   void DoocsSpectrum::write(std::ostream& s) {
     // DOOCS is normally keeping the location lock until everything is written for that location: all D_spectrum and all
     // other properties. This can take too long (like seconds), which leads to noticable freezes of the UI. As a
@@ -95,6 +105,8 @@ namespace ChimeraTK {
     D_spectrum::write(s);
   }
 
+  /********************************************************************************************************************/
+
   void DoocsSpectrum::addParameterAccessors() {
     if(_startAccessor.isInitialised() && _startAccessor.isReadable()) {
       _doocsUpdater.addVariable(
@@ -105,6 +117,8 @@ namespace ChimeraTK {
           [this] { return updateParameters(); });
     }
   }
+
+  /********************************************************************************************************************/
 
   void DoocsSpectrum::updateDoocsBuffer(const TransferElementID& transferElementId) {
     // Note: we already own the location lock by specification of the DoocsUpdater
@@ -157,6 +171,8 @@ namespace ChimeraTK {
     sendZMQ(timestamp);
   }
 
+  /********************************************************************************************************************/
+
   void DoocsSpectrum::updateParameters() {
     // Note: we already own the location lock by specification of the DoocsUpdater
     float start, increment;
@@ -183,9 +199,13 @@ namespace ChimeraTK {
     this->set_timestamp(oldTimeStamp);
   }
 
+  /********************************************************************************************************************/
+
   void DoocsSpectrum::sendToDevice(bool getLock) {
     sendArrayToDevice(this, _processArray);
     updateOthers(getLock);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

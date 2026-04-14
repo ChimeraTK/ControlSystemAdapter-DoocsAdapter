@@ -19,6 +19,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   void StatusHandler::updateError(TransferElementID transferElementId) {
     if(!_varPair.update(transferElementId)) {
       return;
@@ -35,6 +37,8 @@ namespace ChimeraTK {
       _eqFct->set_error(err_no, err_str);
     }
   }
+
+  /********************************************************************************************************************/
 
   StatusHandler::StatusHandler(EqFct* eqFct, boost::shared_ptr<DoocsUpdater> updater,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<int32_t>> const& statusScalar,
@@ -58,6 +62,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   int StatusHandler::statusCodeMapping(int x) {
     auto err = StatusAccessorBase::Status(x);
     // a mapping for StatusOutput values -> DOOCS error codes
@@ -74,5 +80,7 @@ namespace ChimeraTK {
         return x;
     }
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK
