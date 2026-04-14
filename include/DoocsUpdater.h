@@ -99,4 +99,7 @@ namespace ChimeraTK {
       return getTypeChangingDecorator<UserType>(pv, decoratorType);
     }
   }
+
+  /********************************************************************************************************************/
+
 } // namespace ChimeraTK

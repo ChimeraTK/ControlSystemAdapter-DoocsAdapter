@@ -15,12 +15,17 @@
 #include <functional>
 
 namespace ChimeraTK {
+
+  /********************************************************************************************************************/
+
   DoocsIiii::DoocsIiii(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<NDRegisterAccessor<int>> const& iiiiValue, DoocsUpdater& updater,
       DataConsistencyGroup::MatchingMode matchingMode)
   : D_iiii(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater, matchingMode), _iiiiValue(iiiiValue) {
     registerIiiiSources();
   }
+
+  /********************************************************************************************************************/
 
   // Constructor without history
   DoocsIiii::DoocsIiii(std::string const& doocsPropertyName, EqFct* eqFct,
@@ -29,6 +34,8 @@ namespace ChimeraTK {
   : D_iiii(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode), _iiiiValue(iiiiValue) {
     registerIiiiSources();
   }
+
+  /********************************************************************************************************************/
 
   void DoocsIiii::registerIiiiSources() {
     if(_iiiiValue.getNElements() != 4) {
@@ -42,6 +49,8 @@ namespace ChimeraTK {
     registerVariable(_iiiiValue);
     _outputVarForVersionNum = &_iiiiValue;
   }
+
+  /********************************************************************************************************************/
 
   void DoocsIiii::updateDoocsBuffer(const TransferElementID& transferElementId) {
     if(!updateConsistency(transferElementId)) {
@@ -93,6 +102,8 @@ namespace ChimeraTK {
     sendZMQ(timestamp);
   }
 
+  /********************************************************************************************************************/
+
   void DoocsIiii::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_iiii::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
     if(_macroPulseNumberSource.isInitialised()) {
@@ -103,6 +114,8 @@ namespace ChimeraTK {
     sendZMQ(getTimestamp());
   }
 
+  /********************************************************************************************************************/
+
   void DoocsIiii::auto_init() {
     doocsAdapter.beforeAutoInit();
 
@@ -111,6 +124,8 @@ namespace ChimeraTK {
       sendToApplication(false);
     }
   }
+
+  /********************************************************************************************************************/
 
   void DoocsIiii::sendToApplication(bool getLock) {
     IIII* iiii = value();
@@ -127,5 +142,7 @@ namespace ChimeraTK {
 
     updateOthers(getLock);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

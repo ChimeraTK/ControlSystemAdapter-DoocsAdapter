@@ -11,6 +11,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   unsigned char* MappedDoocsImg::asDoocsImg(IMH* headerOut) {
     auto* h = header();
     switch(h->image_format) {
@@ -62,7 +64,7 @@ namespace ChimeraTK {
     return data() + sizeof(ImgHeader);
   }
 
-  /************************* DoocsImage ************************************************************************/
+  /********************************************************************************************************************/
 
   DoocsImage::DoocsImage(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<ChimeraTK::NDRegisterAccessor<uint8_t>> const& processArray, DoocsUpdater& updater,
@@ -76,6 +78,8 @@ namespace ChimeraTK {
     }
     setupOutputVar(_processArray);
   }
+
+  /********************************************************************************************************************/
 
   void DoocsImage::updateDoocsBuffer(const TransferElementID& transferElementId) {
     if(!updateConsistency(transferElementId)) {
@@ -116,5 +120,7 @@ namespace ChimeraTK {
 
     sendZMQ(timestamp);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

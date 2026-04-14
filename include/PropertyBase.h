@@ -130,6 +130,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   template<typename SELF, typename UserType>
   void PropertyBase::sendArrayToDevice(SELF* dfct, OneDRegisterAccessor<UserType>& processArray) {
     constexpr bool isSpectrum = std::is_base_of<D_spectrum, SELF>::value;

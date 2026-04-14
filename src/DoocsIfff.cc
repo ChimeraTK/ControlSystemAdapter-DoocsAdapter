@@ -15,6 +15,9 @@
 #include <utility>
 
 namespace ChimeraTK {
+
+  /********************************************************************************************************************/
+
   DoocsIfff::DoocsIfff(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<NDRegisterAccessor<int>> i1Value, boost::shared_ptr<NDRegisterAccessor<float>> f1Value,
       boost::shared_ptr<NDRegisterAccessor<float>> f2Value, boost::shared_ptr<NDRegisterAccessor<float>> f3Value,
@@ -25,6 +28,8 @@ namespace ChimeraTK {
     checkSourceConsistency();
     registerIfffSources();
   }
+
+  /********************************************************************************************************************/
 
   // Constructor without history
   DoocsIfff::DoocsIfff(std::string const& doocsPropertyName, EqFct* eqFct,
@@ -37,6 +42,8 @@ namespace ChimeraTK {
     checkSourceConsistency();
     registerIfffSources();
   }
+
+  /********************************************************************************************************************/
 
   void DoocsIfff::checkSourceConsistency() {
     bool areAllSourcesWritable =
@@ -53,6 +60,8 @@ namespace ChimeraTK {
     }
   }
 
+  /********************************************************************************************************************/
+
   void DoocsIfff::registerIfffSources() {
     registerVariable(_i1Value);
     registerVariable(_f1Value);
@@ -60,6 +69,8 @@ namespace ChimeraTK {
     registerVariable(_f3Value);
     _outputVarForVersionNum = &_i1Value;
   }
+
+  /********************************************************************************************************************/
 
   void DoocsIfff::updateDoocsBuffer(const TransferElementID& transferElementId) {
     if(!updateConsistency(transferElementId)) {
@@ -114,6 +125,8 @@ namespace ChimeraTK {
     sendZMQ(timestamp);
   }
 
+  /********************************************************************************************************************/
+
   void DoocsIfff::set(EqAdr* eqAdr, doocs::EqData* data1, doocs::EqData* data2, EqFct* eqFct) {
     D_ifff::set(eqAdr, data1, data2, eqFct); // inherited functionality fill the local doocs buffer
     if(_macroPulseNumberSource.isInitialised()) {
@@ -124,6 +137,8 @@ namespace ChimeraTK {
     sendZMQ(getTimestamp());
   }
 
+  /********************************************************************************************************************/
+
   void DoocsIfff::auto_init() {
     doocsAdapter.beforeAutoInit();
 
@@ -132,6 +147,8 @@ namespace ChimeraTK {
       sendToApplication(false);
     }
   }
+
+  /********************************************************************************************************************/
 
   void DoocsIfff::sendToApplication(bool getLock) {
     IFFF* ifff = value();
@@ -151,5 +168,7 @@ namespace ChimeraTK {
 
     updateOthers(getLock);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

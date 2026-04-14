@@ -10,6 +10,8 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   void DoocsUpdater::addVariable(
       const TransferElementAbstractor& variable, EqFct* eq_fct, const std::function<void()>& updaterFunction) {
     // Don't add the transfer element twice into the list of elements to read (not allowed with ReadAnyGroup).
@@ -176,5 +178,7 @@ namespace ChimeraTK {
 
     return routing.add(pv);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

@@ -22,9 +22,13 @@
 
 namespace ChimeraTK {
 
+  /********************************************************************************************************************/
+
   DoocsPVFactory::DoocsPVFactory(EqFct* const eqFct, DoocsUpdater& updater) : _eqFct(eqFct), _updater(updater) {
     assert(eqFct != nullptr);
   }
+
+  /********************************************************************************************************************/
 
   // Fixme: is AutoPropertyDescription ok, or to we need IntDescripton,
   // DoubleDescription etc.
@@ -78,6 +82,8 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  /********************************************************************************************************************/
+
   template<>
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, DTextUnifier>(
       AutoPropertyDescription const& propertyDescription, DecoratorType /*decoratorType*/) {
@@ -103,6 +109,8 @@ namespace ChimeraTK {
 
     return doocsPV;
   }
+
+  /********************************************************************************************************************/
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsSpectrum(SpectrumDescription const& spectrumDescription) {
     auto processVariable = _updater.getMappedProcessVariable<float>(spectrumDescription.source);
@@ -171,6 +179,8 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  /********************************************************************************************************************/
+
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsImage(ImageDescription const& imageDescription) {
     auto processVariable = _updater.getMappedProcessVariable<unsigned char>(imageDescription.source);
     boost::shared_ptr<DoocsImage> doocsPV = boost::make_shared<DoocsImage>(
@@ -192,6 +202,8 @@ namespace ChimeraTK {
 
     return doocsPV;
   }
+
+  /********************************************************************************************************************/
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createXy(XyDescription const& xyDescription) {
     auto xProcessVariable = _updater.getMappedProcessVariable<float>(xyDescription.xSource);
@@ -227,6 +239,8 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  /********************************************************************************************************************/
+
   boost::shared_ptr<D_fct> DoocsPVFactory::createIfff(IfffDescription const& ifffDescription) {
     auto i1ProcessVariable = _updater.getMappedProcessVariable<int>(ifffDescription.i1Source);
     auto f1ProcessVariable = _updater.getMappedProcessVariable<float>(ifffDescription.f1Source);
@@ -257,6 +271,8 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  /********************************************************************************************************************/
+
   boost::shared_ptr<D_fct> DoocsPVFactory::createIiii(IiiiDescription const& iiiiDescription) {
     auto iiiiProcessVariable = _updater.getMappedProcessVariable<int>(iiiiDescription.iiiiSource);
 
@@ -283,6 +299,8 @@ namespace ChimeraTK {
     return doocsPV;
   }
 
+  /********************************************************************************************************************/
+
   // fixme: some of the variables needed here are redundant and can be sovled with
   // mpl and/or fusion maps
   template<class DOOCS_SCALAR_T, class DOOCS_PRIMITIVE_T, class DOOCS_ARRAY_T, class DOOCS_ARRAY_PRIMITIVE_T>
@@ -306,6 +324,8 @@ namespace ChimeraTK {
     return typedCreateDoocsArray<DOOCS_ARRAY_PRIMITIVE_T, DOOCS_ARRAY_T>(
         AutoPropertyDescription(autoPropertyDescription));
   }
+
+  /********************************************************************************************************************/
 
   boost::shared_ptr<D_fct> DoocsPVFactory::autoCreate(std::shared_ptr<PropertyDescription> const& propertyDescription) {
     // do auto creation
@@ -364,6 +384,8 @@ namespace ChimeraTK {
     throw ChimeraTK::logic_error("Should not be reached");
   }
 
+  /********************************************************************************************************************/
+
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateDoocsArray(AutoPropertyDescription const& propertyDescription) {
     // the DoocsProcessScalar needs the real ProcessScalar type, not just
@@ -405,6 +427,8 @@ namespace ChimeraTK {
     return boost::dynamic_pointer_cast<D_fct>(doocsPV);
   }
 
+  /********************************************************************************************************************/
+
   // template specialisation for cases with no matching DOOCS array type (e.g.
   // string)
   template<>
@@ -412,6 +436,8 @@ namespace ChimeraTK {
       AutoPropertyDescription const&) {
     throw std::invalid_argument("Type not supported as an array");
   }
+
+  /********************************************************************************************************************/
 
   boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsArray(
       std::shared_ptr<AutoPropertyDescription> const& propertyDescription) {
@@ -446,6 +472,8 @@ namespace ChimeraTK {
     throw ChimeraTK::logic_error("DoocsPVFactory does not implement a data type it should!");
   }
 
+  /********************************************************************************************************************/
+
   boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
     auto& plainDescription = *propertyDescription;
     const auto& requestedType = typeid(plainDescription);
@@ -472,5 +500,7 @@ namespace ChimeraTK {
     }
     throw std::invalid_argument("Sorry, your type is not supported yet.");
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK

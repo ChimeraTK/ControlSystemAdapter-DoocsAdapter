@@ -228,6 +228,8 @@ namespace ChimeraTK {
     updater->setPvNamesWithFan(fanNamesFromDoocsAdapter);
   }
 
+  /********************************************************************************************************************/
+
   /* post_init_epilog is called after all DOOCS properties are fully intialised,
    * including any value intialisation from the config file. We start the
    * application here. It will be launched in a separate thread. */

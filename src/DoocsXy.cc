@@ -8,6 +8,9 @@
 #include <ChimeraTK/OneDRegisterAccessor.h>
 
 namespace ChimeraTK {
+
+  /********************************************************************************************************************/
+
   DoocsXy::DoocsXy(EqFct* eqFct, std::string const& doocsPropertyName,
       boost::shared_ptr<NDRegisterAccessor<float>> const& xValues,
       boost::shared_ptr<NDRegisterAccessor<float>> const& yValues, DoocsUpdater& updater,
@@ -17,6 +20,8 @@ namespace ChimeraTK {
     setupOutputVar(_xValues);
     setupOutputVar(_yValues);
   }
+
+  /********************************************************************************************************************/
 
   void DoocsXy::updateDoocsBuffer(const TransferElementID& elementId) {
     if(!updateConsistency(elementId)) {
@@ -42,5 +47,7 @@ namespace ChimeraTK {
     }
     sendZMQ(timestamp);
   }
+
+  /********************************************************************************************************************/
 
 } // namespace ChimeraTK
