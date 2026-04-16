@@ -198,7 +198,7 @@ namespace ChimeraTK {
   void VariableMapper::addDescription(std::shared_ptr<PropertyDescription> const& propertyDescription) {
     _descriptions.push_back(propertyDescription);
     for(const auto& source : propertyDescription->getSources()) {
-      _usedInputVariables.insert(getAbsoluteSource(source, propertyDescription->location));
+      _userProcessVariables.insert(getAbsoluteSource(source, propertyDescription->location));
     }
   }
 
@@ -452,9 +452,9 @@ namespace ChimeraTK {
     errInfo.statusCodeSource = s;
     // matching status message source is found automatically by naming convention - if it exists
     errInfo.statusStringSource = s + "_message";
-    _usedInputVariables.insert(s);
+    _userProcessVariables.insert(s);
     if(_inputVariables.find(errInfo.statusStringSource) != _inputVariables.end()) {
-      _usedInputVariables.insert(errInfo.statusStringSource);
+      _userProcessVariables.insert(errInfo.statusStringSource);
     }
     _errorReportingInfos.push_back(errInfo);
   }
@@ -491,7 +491,7 @@ namespace ChimeraTK {
 
     // loop source tree, cut beginning, replace / with _ and add a property
     for(auto const& processVariable : _inputVariables) {
-      if(_usedInputVariables.find(processVariable) != _usedInputVariables.end()) {
+      if(_userProcessVariables.find(processVariable) != _userProcessVariables.end()) {
         continue;
       }
 
@@ -679,7 +679,7 @@ namespace ChimeraTK {
 
   void VariableMapper::clear() {
     _inputVariables.clear();
-    _usedInputVariables.clear();
+    _userProcessVariables.clear();
     _locationDefaults.clear();
     _globalDefaults = PropertyAttributes();
     _descriptions.clear();

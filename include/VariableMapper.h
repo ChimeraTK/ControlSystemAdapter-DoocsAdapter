@@ -58,7 +58,8 @@ namespace ChimeraTK {
     /// Functiont o convert a string into a DataConsistencyGroup::MatchingMode enum value
     static DataConsistencyGroup::MatchingMode evaluateDataMatching(const std::string& txt);
 
-    [[nodiscard]] const std::set<std::string>& getUsedVariables() const { return _usedInputVariables; }
+    /// Return all names of the process variables which have been mapped to the DOOCS control system.
+    [[nodiscard]] const std::set<std::string>& getUsedVariables() const { return _userProcessVariables; }
 
     [[nodiscard]] const std::list<ErrorReportingInfo>& getErrorReportingInfos() const { return _errorReportingInfos; }
 
@@ -68,7 +69,7 @@ namespace ChimeraTK {
     std::map<std::string, int> _inputLocationAndCode; // map of location and fct_code,
                                                       // from location tag of the mapping xml file
     std::set<std::string> _inputVariables;
-    std::set<std::string> _usedInputVariables; // For tracing which variables are not to be imported.
+    std::set<std::string> _userProcessVariables; // For tracing which variables are not to be imported.
 
     std::list<ErrorReportingInfo> _errorReportingInfos;
 
