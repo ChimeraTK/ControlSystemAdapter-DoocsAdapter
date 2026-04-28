@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+    <is_writeable>false</is_writeable>
     <location name="TO_BYTE">
         <property source="/DOUBLE/DATA_TYPE_CONSTANT" name="DOUBLE.CONSTANT" type="byte" />
         <property source="/INT/DATA_TYPE_CONSTANT" name="INT.CONSTANT" type="byte" />

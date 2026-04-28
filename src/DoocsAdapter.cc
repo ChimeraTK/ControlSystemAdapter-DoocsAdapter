@@ -176,14 +176,25 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void DoocsAdapter::findReverseMapping() {
+    std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
+    std::map<std::string, size_t> multiWriteMapCounter;
+
     for(const auto& descr : ChimeraTK::VariableMapper::getInstance().getAllProperties()) {
       for(const auto& source : descr->getSources()) {
         reverseMapping[source].insert(descr);
       }
+      for(const auto& source : descr->getWriteSources()) {
+        if(++multiWriteMapCounter[source] > 1) {
+          // This case is not covered. It would require some synchronisation mechanism between writeable
+          // properties, which is not trivial as inconsistencies and dead locks must be avoided.
+          throw ChimeraTK::logic_error(
+              std::format("**** ERROR: Variable '{}' mapped to more than one writeable property.", source));
+        }
+      }
     }
     // filter the map to contain only PVs being used at least twice with at least one writable property
     for(const auto& p : reverseMapping) {
-      if(!doocsAdapter.getControlSystemPVManager()->getProcessVariable(p.first)->isWriteable()) {
+      if(!getControlSystemPVManager()->getProcessVariable(p.first)->isWriteable()) {
         // do not add PVs to the mapping which are not writeable
         continue;
       }
@@ -200,20 +211,14 @@ namespace ChimeraTK {
       if(writeableCount == 0) {
         continue;
       }
-      if(writeableCount > 1) {
-        // This case is not (yet) covered. It would require some synchronisation mechanism between writeable
-        // properties, which is not trivial as inconsistencies and dead locks must be avoided.
-        std::cout << "**** WARNING: Variable '" + p.first +
-                "' mapped to more than one writeable property. Expect inconsistencies!\n";
-      }
 
       // Add PVs which are used at least twice with at least one writable property to list
-      assert(!doocsAdapter.writeableVariablesWithMultiplePropertiesIsFinal);
-      doocsAdapter.writeableVariablesWithMultipleProperties[p.first] = {};
+      assert(!writeableVariablesWithMultiplePropertiesIsFinal);
+      writeableVariablesWithMultipleProperties[p.first] = {};
     }
 
     std::set<std::string> fanNamesFromDoocsAdapter;
-    for(const auto& el : doocsAdapter.reverseMapping) {
+    for(const auto& el : reverseMapping) {
       if(el.second.size() > 1) {
         fanNamesFromDoocsAdapter.insert(el.first);
       }
@@ -256,8 +261,6 @@ namespace ChimeraTK {
       }
     }
 
-    // reverseMapping content no longer needed since variable network will not change from this point on
-    doocsAdapter.reverseMapping.clear();
     doocsAdapter.writeableVariablesWithMultiplePropertiesIsFinal = true;
 
     // check for variables not yet initialised - we must guarantee that all to-application variables are written exactly
