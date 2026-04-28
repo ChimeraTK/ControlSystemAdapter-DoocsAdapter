@@ -45,9 +45,6 @@ namespace ChimeraTK {
 
     /// prepare list of properties connected to the same PV
     void findReverseMapping();
-    // map of PV name to properties using the PV
-    // Note: this is cleared in post_init_epilog() to save memory.
-    std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
 
     // Maps PV names to lists of callbacks to invoke when the PV changes. Entries are created for:
     //  - writable PVs mapped to multiple properties (to synchronise their DOOCS buffers)
