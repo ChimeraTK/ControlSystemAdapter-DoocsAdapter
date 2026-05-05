@@ -3,6 +3,7 @@
 
 #include "VariableMapper.h"
 
+#include "DoocsAdapter.h"
 #include "splitStringAtFirstSlash.h"
 #include "Utilities.h"
 
@@ -161,6 +162,15 @@ namespace ChimeraTK {
     }
     else {
       propertyDescription.isWriteable = getIsWriteableDefault(locationName);
+    }
+    // property can only be writeable if all payload data sources are writeable
+    if(propertyDescription.isWriteable) {
+      for(const auto& payloadSources : propertyDescription.getPayloadDataSources()) {
+        if(!doocsAdapter.getControlSystemPVManager()->getProcessVariable(payloadSources)->isWriteable()) {
+          propertyDescription.isWriteable = false;
+          break;
+        }
+      }
     }
 
     auto isWriteableSourceNodes = propertyXmlElement->get_children("is_writeable_source");

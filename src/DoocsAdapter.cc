@@ -177,19 +177,22 @@ namespace ChimeraTK {
 
   void DoocsAdapter::findReverseMapping() {
     std::map<std::string, std::set<std::shared_ptr<ChimeraTK::PropertyDescription>>> reverseMapping;
-    std::map<std::string, size_t> multiWriteMapCounter;
+    std::map<std::string, std::shared_ptr<ChimeraTK::PropertyDescription>> multiWriteDetectionMap;
 
     for(const auto& descr : ChimeraTK::VariableMapper::getInstance().getAllProperties()) {
       for(const auto& source : descr->getSources()) {
         reverseMapping[source].insert(descr);
       }
       for(const auto& source : descr->getWriteSources()) {
-        if(++multiWriteMapCounter[source] > 1) {
+        auto it = multiWriteDetectionMap.find(source);
+        if(it != multiWriteDetectionMap.end()) {
           // This case is not covered. It would require some synchronisation mechanism between writeable
           // properties, which is not trivial as inconsistencies and dead locks must be avoided.
-          throw ChimeraTK::logic_error(
-              std::format("**** ERROR: Variable '{}' mapped to more than one writeable property.", source));
+          throw ChimeraTK::logic_error(std::format("**** ERROR: Variable '{}' mapped to more than one writeable "
+                                                   "property. Found mapping to '{}/{}' and '{}/{}'.",
+              source, descr->location, descr->name, it->second->location, it->second->name));
         }
+        multiWriteDetectionMap[source] = descr;
       }
     }
     // filter the map to contain only PVs being used at least twice with at least one writable property
