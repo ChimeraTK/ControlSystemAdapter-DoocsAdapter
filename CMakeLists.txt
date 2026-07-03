@@ -19,8 +19,6 @@ include(cmake/add_linter_target.cmake)
 
 FIND_PACKAGE(ChimeraTK-ControlSystemAdapter 02.13 REQUIRED)
 
-FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
-
 FIND_PACKAGE(DOOCS 24.03 COMPONENTS server REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
@@ -37,6 +35,7 @@ PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
 option(BUILD_TESTS "Build test programs" ON)
 
 IF(BUILD_TESTS)
+  FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
   FIND_PACKAGE(Boost COMPONENTS unit_test_framework REQUIRED)
   ENABLE_TESTING()
 ENDIF()
