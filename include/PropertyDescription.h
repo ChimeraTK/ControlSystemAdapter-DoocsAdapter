@@ -131,7 +131,17 @@ namespace ChimeraTK {
   // FIXME: should sort by name to put it into a set?
   struct AutoPropertyDescription : public PropertyDescription {
     enum class DataType { Byte, Short, Int, Long, Float, Double, Bool, Void, Auto };
+
+    struct Axis {
+      std::string label;
+      int logarithmic{};
+      float start{};
+      float stop{};
+    };
+
     ChimeraTK::RegisterPath source;
+    std::map<std::string, Axis> axis;
+
     explicit AutoPropertyDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", DataType dataType_ = DataType::Auto, bool hasHistory_ = true, bool isWriteable_ = true)
     : PropertyDescription(std::move(location_), std::move(name_), PropertyAttributes(hasHistory_, isWriteable_)),

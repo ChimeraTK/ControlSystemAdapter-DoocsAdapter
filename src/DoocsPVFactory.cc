@@ -79,6 +79,13 @@ namespace ChimeraTK {
     doocsPV->setMacroPulseNumberSource(propertyDescription.macroPulseNumberSource);
     doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
 
+    // set engineering units (EGU) if configured in the xml file
+    auto const yIt = propertyDescription.axis.find("y");
+    if(yIt != propertyDescription.axis.cend()) {
+      auto const& axis = yIt->second;
+      doocsPV->setAxisConfig(axis.logarithmic, axis.start, axis.stop, axis.label);
+    }
+
     return doocsPV;
   }
 
@@ -161,16 +168,29 @@ namespace ChimeraTK {
       spectrum->description(spectrumDescription.description);
     }
 
+    // Store EGU axis configuration so it can be re-applied in auto_init() after .conf loading
     auto const xIt = spectrumDescription.axis.find("x");
     if(xIt != spectrumDescription.axis.cend()) {
       auto const& axis = xIt->second;
-      spectrum->xegu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+      DoocsSpectrum::AxisConfig cfg;
+      cfg.label = axis.label;
+      cfg.logarithmic = axis.logarithmic;
+      cfg.start = axis.start;
+      cfg.stop = axis.stop;
+      doocsPV->setAxisConfig("x", cfg);
+      doocsPV->xegu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
     }
 
     auto const yIt = spectrumDescription.axis.find("y");
     if(yIt != spectrumDescription.axis.cend()) {
       auto const& axis = yIt->second;
-      spectrum->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
+      DoocsSpectrum::AxisConfig cfg;
+      cfg.label = axis.label;
+      cfg.logarithmic = axis.logarithmic;
+      cfg.start = axis.start;
+      cfg.stop = axis.stop;
+      doocsPV->setAxisConfig("y", cfg);
+      doocsPV->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
     }
 
     doocsPV->setMacroPulseNumberSource(spectrumDescription.macroPulseNumberSource);

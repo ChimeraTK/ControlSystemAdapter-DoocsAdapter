@@ -65,6 +65,70 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  void DoocsSpectrum::setAxisConfig(const std::string& axis, AxisConfig config) {
+    _axisConfig[axis] = std::move(config);
+  }
+
+  /********************************************************************************************************************/
+
+  void DoocsSpectrum::applyAxisConfig() {
+    auto applyAxis = [&](const std::string& axisName, auto setPlotValue, auto getUnit) {
+      auto const it = _axisConfig.find(axisName);
+      if(it == _axisConfig.cend()) {
+        return;
+      }
+      auto const& c = it->second;
+
+      // Read the EGU loaded from the .conf file
+      std::string confEgu = getUnit();
+      if(!confEgu.empty() && confEgu == c.label) {
+        // .conf EGU matches XML → nothing to do, make sub-property read-only
+        std::string subPropName = this->basename() + (axisName == "x" ? ".XEGU" : ".EGU");
+        auto* prop = getEqFct()->find_property(subPropName);
+        if(prop != nullptr) {
+          prop->set_ro_access();
+        }
+        return;
+      }
+      if(!confEgu.empty() && confEgu != c.label) {
+        // Improve this by adding another lamda.
+        std::string subPropName = this->basename() + (axisName == "x" ? ".XEGU" : ".EGU");
+        // .conf EGU differs from XML
+        // Comment / Uncomment to warn and silently overwrite instead of thrwoing:
+        // std::cerr << "WARNING: " << subPropName
+        //          << ": .conf value (\"" << confEgu << "\") differs from XML value (\""
+        //          << c.label << "\"). Overwriting with XML value."
+        //          << std::endl;
+        throw ChimeraTK::logic_error(subPropName + ": .conf EGU (\"" + confEgu + "\") differs from XML EGU (\"" +
+            c.label + "\"). Cannot overwrite read-only XML unit.");
+      }
+      // Force-set the XML value (bypasses egu()/xegu()'s "set only if empty" guard)
+      setPlotValue(c.logarithmic, c.start, c.stop, doocs::Timestamp::now().to_time_t(), c.label.c_str());
+      // Make the sub-property read-only
+      std::string subPropName = this->basename() + (axisName == "x" ? ".XEGU" : ".EGU");
+      auto* prop = getEqFct()->find_property(subPropName);
+      if(prop != nullptr) {
+        prop->set_ro_access();
+      }
+    };
+
+    applyAxis(
+        "x",
+        [this](int linlog, float start, float stop, time_t tm, const char* label) {
+          this->set_plot_x_value(linlog, start, stop, tm, label);
+        },
+        [this]() { return this->plot_x_unit(); });
+
+    applyAxis(
+        "y",
+        [this](int linlog, float start, float stop, time_t tm, const char* label) {
+          this->set_plot_y_value(linlog, start, stop, tm, label);
+        },
+        [this]() { return this->plot_y_unit(); });
+  }
+
+  /********************************************************************************************************************/
+
   void DoocsSpectrum::auto_init() {
     doocsAdapter.beforeAutoInit();
 
@@ -79,6 +143,13 @@ namespace ChimeraTK {
     // send the current value to the device
     D_spectrum::read();
     modified = false;
+
+    // Re-apply EGU after .conf loading. EGU was set initially in DoocsPVFactory, but
+    // D_spectrum::read() above loads persisted EGU from the .conf file.
+    // If EGU is defined in XML, force-sets via set_plot_y_value()/set_plot_x_value()
+    // (bypassing the "set only if empty" guard) and makes sub-properties read-only.
+    applyAxisConfig();
+
     if(this->get_access() == 1 ||
         (_processArray.isWriteable() && !hasOtherPropertiesToUpdate())) { // property is writeable
       sendToDevice(false);
