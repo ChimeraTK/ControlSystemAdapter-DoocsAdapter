@@ -123,6 +123,10 @@ namespace ChimeraTK {
         std::cout << "ZeroMQ sending failed!!!" << std::endl;
       }
     }
+    if(ChimeraTK::DoocsAdapter::isInitialised) {
+      // automatically provide all data updates via DOOCS-over-ZeroMQ
+      d_fct->publish();
+    }
   }
 
   /********************************************************************************************************************/
