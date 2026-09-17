@@ -16,6 +16,166 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  void PropertyBase::setDescription(const std::string& desc) {
+    _description = desc;
+    _hasDescription = true;
+  }
+
+  /********************************************************************************************************************/
+
+  void PropertyBase::setAxis(const Axis& axis, char name) {
+    assert(name == 'x' || name == 'y');
+    _hasUnits = true;
+    _axes['y']; // ensure axis y exists
+    _axes[name] = axis;
+  }
+
+  /********************************************************************************************************************/
+
+  void PropertyBase::resolveDescriptionAndUnits(const PropertyDescription& propertyDescription,
+      const std::string& autoDescription, const std::string& autoXUnit, const std::string& autoYUnit) {
+    // Resolve description/unit and decide which manual .DESC/.EGU sub-properties are wanted.
+    //
+    // "Wanted" rule: a description/unit is NOT wanted when its source is static (explicit XML <description>/<unit>,
+    // or the process-variable metadata when description_from_app is true) AND the resolved text is empty. It IS
+    // wanted when the text is non-empty, or when the source is dynamic (description_from_app==false, i.e. a value
+    // may be written later by the control system / .conf file), in which case the sub-property must still exist to
+    // receive it. Only *static & empty* is skipped, matching the factory's "do not create empty units" optimisation.
+    //
+    // Note: _hasDescription/_hasUnits (leading to a value being forced read-only in applyDescriptionUnits()) are
+    // only set when there is real content. For dynamic & currently empty, the sub-property is created but stays
+    // writeable.
+
+    // --- description ---
+    bool wantDesc = false;
+    if(propertyDescription.description.has_value()) {
+      // static XML description; explicit XML wins over "from app"
+      if(!propertyDescription.description.value().empty()) {
+        setDescription(propertyDescription.description.value());
+        wantDesc = true;
+      }
+      // static & empty -> not wanted
+    }
+    else if(propertyDescription.descriptionFromApp) {
+      // static process-variable metadata is the default source; empty -> not wanted
+      if(!autoDescription.empty()) {
+        setDescription(autoDescription);
+        wantDesc = true;
+      }
+    }
+    else {
+      // dynamic control-system source: the .DESC sub-property must exist for later CS/.conf values, but nothing is
+      // forced (stays writeable).
+      wantDesc = true;
+    }
+
+    // --- units (per axis) ---
+    // The XML axis label/geometry always wins; otherwise, if description_from_app is not ignored (i.e. not dynamic),
+    // fill in the auto units. wantEgu tracks whether the .EGU sub-property (y-axis engineering unit) is wanted.
+    const bool dynamic = !propertyDescription.descriptionFromApp;
+    bool yAxisSet = false;
+    bool xAxisSet = false;
+    bool wantEgu = false;
+    for(auto const& [name, axis] : propertyDescription.axes) {
+      setAxis(axis, name);
+      xAxisSet = xAxisSet || name == 'x';
+      yAxisSet = yAxisSet || name == 'y';
+      if(name == 'y' && !axis.label.empty()) {
+        wantEgu = true;
+      }
+    }
+    if(!dynamic) {
+      // as optimisation, to reduce number of DOOCS properties, do not create units if they are static&empty
+      if(!yAxisSet && !autoYUnit.empty()) {
+        setAxis(Axis{autoYUnit}, 'y');
+        wantEgu = true;
+      }
+      if(!xAxisSet && !autoXUnit.empty()) {
+        setAxis(Axis{autoXUnit}, 'x');
+      }
+    }
+    else {
+      // dynamic control-system source: the .EGU sub-property must exist for later CS/.conf values
+      wantEgu = true;
+    }
+    wantEgu = wantEgu && _wantEgu; // e.g. DoocsImage creates no .EGU
+
+    // --- create the manual .DESC/.EGU sub-properties now (before prop_reg_all()) ---
+    // If the property natively provides .DESC/.EGU (D_hist, D_spectrum/D_xy API), nothing must be created manually.
+    if((wantDesc || wantEgu) && !hasNativeDescriptionUnits()) {
+      ensureManualDescEgu(wantDesc, wantEgu);
+    }
+  }
+
+  /********************************************************************************************************************/
+
+  void PropertyBase::ensureManualDescEgu(bool wantDesc, bool wantEgu) {
+    auto* loc = getEqFct();
+    auto base = getDfct()->basename();
+    // Only create if they do not already exist in the location, to avoid a duplicate registration doocs::Error.
+    if(wantDesc && !_manualDesc && loc->find_property(base + ".DESC") == nullptr) {
+      _manualDesc = std::make_unique<D_string>(base + ".DESC", loc);
+    }
+    if(wantEgu && !_manualEgu && loc->find_property(base + ".EGU") == nullptr) {
+      _manualEgu = std::make_unique<D_plotinfo>(base + ".EGU", loc);
+    }
+  }
+
+  /********************************************************************************************************************/
+
+  void PropertyBase::applyDescriptionUnits(D_hist* hist) {
+    if(hist) {
+      if(_hasDescription) {
+        hist->set_description(_description);
+        if(auto* desc = dynamic_cast<D_string*>(hist->get_p_prop(3))) {
+          desc->set_ro_access(); // .DESC readonly
+        }
+      }
+      if(_hasUnits) {
+        const Axis& a = _axes.at('y');
+        hist->set_plot_value(a.logarithmic, a.start, a.stop, doocs::Timestamp::now().to_time_t(), a.label.c_str());
+        if(auto* egu = dynamic_cast<D_plotinfo*>(hist->get_p_prop(2))) {
+          // egu->set_value(a.label);
+          egu->set_ro_access(); // .EGU readonly
+        }
+      }
+    }
+    else {
+      // The manual .DESC/.EGU sub-properties were created in resolveDescriptionAndUnits() BEFORE prop_reg_all()
+      // ran (so no reallocation of prop_list_ happens here during auto_init()). Here we only apply the stored
+      // description/unit values and mark the sub-properties read-only.
+      if(_hasDescription && _manualDesc) {
+        _manualDesc->set_value(_description);
+        _manualDesc->set_ro_access(); // .DESC readonly
+      }
+      if(_hasUnits && _manualEgu) {
+        // this function is copied from D_history; currently no similar API for D_plotinfo defined.
+        auto setPlotValue = [this](int i1, float f1, float f2, time_t tm, const char* com) {
+          const char* p;
+          USTR val;
+
+          val.i1_data = i1;
+          val.f1_data = f1;
+          val.f2_data = f2;
+          val.tm = tm;
+
+          p = com ? com : "";
+
+          val.str_data.str_data_val = const_cast<char*>(p);
+          val.str_data.str_data_len = static_cast<unsigned int>(strlen(p));
+
+          _manualEgu->set_value(&val);
+          return 1;
+        };
+        auto a = _axes.at('y'); // fallback does not happen for x-axis: .XEGU present both for D_spectrum,D_xy
+        setPlotValue(a.logarithmic, a.start, a.stop, doocs::Timestamp::now().to_time_t(), a.label.c_str());
+        _manualEgu->set_ro_access(); // .EGU readonly
+      }
+    }
+  }
+
+  /********************************************************************************************************************/
+
   void PropertyBase::registerVariable(TransferElementAbstractor& var, bool update) {
     if(var.isReadable()) {
       auto id = var.getId();

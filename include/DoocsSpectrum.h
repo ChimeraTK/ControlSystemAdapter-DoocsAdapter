@@ -79,6 +79,10 @@ namespace ChimeraTK {
     /// the ChimeraTK ProcessArray and calls the send method. Factored out to allow
     /// unit testing.
     void sendToDevice(bool getLock);
+    void applyDescriptionUnits(D_hist* hist) override;
+
+    /// D_spectrum provides .COMMENT/.XEGU/.EGU natively, so no manual .DESC/.EGU sub-properties are needed.
+    bool hasNativeDescriptionUnits() override { return true; }
 
    public:
     /// Flag whether the value has been modified since the content has been saved to disk the last time (see write()).

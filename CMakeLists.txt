@@ -93,6 +93,16 @@ if(BUILD_TESTS)
 
   file(GLOB TEST_CONF_FILES variable ${CMAKE_SOURCE_DIR}/tests/*.conf)
   file(COPY ${TEST_CONF_FILES} DESTINATION ${PROJECT_BINARY_DIR})
+
+  # Validate the test configuration XML files against the variable tree schema.
+  find_program(XMLLINT_EXECUTABLE xmllint)
+  if(XMLLINT_EXECUTABLE)
+    add_test(NAME xml_schema_validation
+             COMMAND ${CMAKE_SOURCE_DIR}/tests/xml_schema_validation.sh
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests)
+  else()
+    message(WARNING "xmllint not found - xml schema validation test disabled")
+  endif()
 endif()
 
 include(cmake/enable_doxygen_documentation.cmake)

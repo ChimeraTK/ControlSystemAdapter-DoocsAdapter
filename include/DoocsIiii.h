@@ -36,6 +36,9 @@ namespace ChimeraTK {
     void registerIiiiSources();
     void checkSourceConsistency();
 
+    /// History-enabled D_iiii has a native D_hist providing .DESC/.EGU; non-history D_iiii does not.
+    bool hasNativeDescriptionUnits() override { return get_histPointer() != nullptr; }
+
     OneDRegisterAccessor<int> _iiiiValue;
 
     bool _isWriteable;

@@ -2,11 +2,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
-#include "DoocsAdapter.h"
+#include "PropertyBase.h"
 
 #include <ChimeraTK/NDRegisterAccessor.h>
-
-#include <boost/noncopyable.hpp>
 
 #include <D_xy.h>
 
@@ -22,8 +20,16 @@ namespace ChimeraTK {
         boost::shared_ptr<NDRegisterAccessor<float>> const& yValues, DoocsUpdater& updater,
         DataConsistencyGroup::MatchingMode matchingMode);
 
+    void auto_init() override;
+
    protected:
     void updateDoocsBuffer(const TransferElementID& elementId) override;
+    /// Apply the stored description and axis configuration via the D_xy
+    /// set_descr_value() and set_plot_{x,y}_value() APIs.
+    void applyDescriptionUnits(D_hist* hist) override;
+
+    /// D_xy provides .COMMENT/.XEGU/.EGU natively, so no manual .DESC/.EGU sub-properties are needed.
+    bool hasNativeDescriptionUnits() override { return true; }
 
     OneDRegisterAccessor<float> _xValues;
     OneDRegisterAccessor<float> _yValues;

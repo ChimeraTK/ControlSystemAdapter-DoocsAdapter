@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(testUnkownLocationNode) {
 
 BOOST_AUTO_TEST_CASE(testCodeIsNotInt) {
   try {
-    testXmlParsing("variableTreeXml/codeIsNotInt.xml");
+    testXmlParsing("variableTreeXml/intentionallyBroken/codeIsNotInt.xml");
     BOOST_ERROR("testCodeIsNotInt did not throw as expected.");
   }
   catch(std::exception& e) {
