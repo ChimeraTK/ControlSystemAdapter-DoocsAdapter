@@ -140,9 +140,11 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void DoocsIfff::auto_init() {
-    doocsAdapter.beforeAutoInit();
-
     D_ifff::auto_init(); // inherited functionality fill the local doocs buffer
+
+    // apply description/unit metadata after the .conf file has been loaded, so that the values provided here win
+    applyDescriptionUnits(this->get_histPointer());
+
     if(_isWriteable) {
       sendToApplication(false);
     }

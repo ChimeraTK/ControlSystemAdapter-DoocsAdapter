@@ -38,6 +38,9 @@ namespace ChimeraTK {
     void registerIfffSources();
     void checkSourceConsistency();
 
+    /// History-enabled D_ifff has a native D_hist providing .DESC/.EGU; non-history D_ifff does not.
+    bool hasNativeDescriptionUnits() override { return get_histPointer() != nullptr; }
+
     ScalarRegisterAccessor<int> _i1Value;
     ScalarRegisterAccessor<float> _f1Value;
     ScalarRegisterAccessor<float> _f2Value;

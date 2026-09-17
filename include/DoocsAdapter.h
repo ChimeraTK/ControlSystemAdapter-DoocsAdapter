@@ -27,12 +27,6 @@ namespace ChimeraTK {
 
     boost::shared_ptr<DoocsUpdater> updater;
 
-    // Function to be called in all auto_init() implementations, to initialise otherPropertiesToUpdate lists in all
-    // properties. This needs to be done after all locations have been created but before the properties get their
-    // initial values from the config file. DOOCS seems not to provide any hook at that point... This function will only
-    // perform an action when called for the first time.
-    void beforeAutoInit();
-
     // An atomic bool which is set true in post_init_epilog to indicate that doocs
     // is ready. Only used in testing.
     static std::atomic<bool> isInitialised;
@@ -68,9 +62,6 @@ namespace ChimeraTK {
    protected:
     boost::shared_ptr<DevicePVManager> _devicePVManager;
     boost::shared_ptr<ControlSystemPVManager> _controlSystemPVManager;
-
-    // flag whether before_auto_init() has already been called.
-    bool _before_auto_init_called{false};
   };
 
 } // namespace ChimeraTK

@@ -61,9 +61,4 @@ namespace ChimeraTK {
         AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
   };
 
-  // specialisation for strings
-  template<>
-  typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, D_string>(
-      AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType);
-
 } // namespace ChimeraTK

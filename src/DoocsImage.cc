@@ -71,6 +71,9 @@ namespace ChimeraTK {
       DataConsistencyGroup::MatchingMode matchingMode)
   : D_imagec(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode),
     _processArray(processArray) {
+    // D_image/D_imagec have no unit concept; only the description (comment) is supported.
+    // Ensure no manual .EGU sub-property is created (only .DESC).
+    _wantEgu = false;
     if(_processArray.isWriteable()) {
       // It could only be writable if the application implements it as an output with back-channel.
       // Then consider this application to have a logical bug.
@@ -81,11 +84,23 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  void DoocsImage::auto_init() {
+    D_imagec::auto_init();
+
+    // D_image/D_imagec have no unit concept; only the description (comment) is supported.
+    // Put it both into image and .DESC sub-property
+    applyDescriptionUnits(nullptr);
+    if(_hasDescription) {
+      this->set_descr_value(_description);
+    }
+  }
+
+  /********************************************************************************************************************/
+
   void DoocsImage::updateDoocsBuffer(const TransferElementID& transferElementId) {
     if(!updateConsistency(transferElementId)) {
       return;
     }
-
     D_imagec* dfct = this;
     //  Note: we already own the location lock by specification of the DoocsUpdater
 

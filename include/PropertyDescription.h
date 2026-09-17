@@ -58,6 +58,7 @@ namespace ChimeraTK {
     std::string isWriteableSource;
     DataConsistencyGroup::MatchingMode dataMatching;
     PersistConfig persist = PersistConfig::ON;
+    bool descriptionFromApp = true;
     explicit PropertyAttributes(bool hasHistory_ = true, bool isWriteable_ = true, bool publishZMQ_ = false,
         std::string macroPulseNumberSource_ = "", std::string isWriteableSource_ = "",
         DataConsistencyGroup::MatchingMode dataMatching_ = DataConsistencyGroup::MatchingMode::exact)
@@ -67,8 +68,18 @@ namespace ChimeraTK {
     bool operator==(PropertyAttributes const& other) const {
       return (hasHistory == other.hasHistory && isWriteable == other.isWriteable && publishZMQ == other.publishZMQ &&
           macroPulseNumberSource == other.macroPulseNumberSource && dataMatching == other.dataMatching &&
-          persist == other.persist);
+          persist == other.persist && descriptionFromApp == other.descriptionFromApp);
     }
+  };
+
+  /********************************************************************************************************************/
+
+  // A single axis definition (label/unit, logarithmic flag, start and stop). Shared by D_spectrum and D_xy.
+  struct Axis {
+    std::string label;
+    int logarithmic = 0;
+    float start = 0.;
+    float stop = 0.;
   };
 
   /********************************************************************************************************************/
@@ -78,6 +89,8 @@ namespace ChimeraTK {
   struct PropertyDescription : public PropertyAttributes {
     std::string location;
     std::string name;
+    std::optional<std::string> description;
+    std::map<char, Axis> axes;
     explicit PropertyDescription(
         std::string location_ = "", std::string name_ = "", const PropertyAttributes& propAttr = PropertyAttributes{})
     : PropertyAttributes(propAttr), location(std::move(location_)), name(std::move(name_)) {}
@@ -184,7 +197,6 @@ namespace ChimeraTK {
 
   struct ImageDescription : public PropertyDescription {
     ChimeraTK::RegisterPath source;
-    std::string description;
 
     explicit ImageDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", bool hasHistory_ = false, bool isWriteable_ = false)
@@ -201,21 +213,12 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   struct SpectrumDescription : public PropertyDescription {
-    struct Axis {
-      std::string label;
-      int logarithmic{};
-      float start{};
-      float stop{};
-    };
-
     ChimeraTK::RegisterPath source;
     ChimeraTK::RegisterPath startSource;
     ChimeraTK::RegisterPath incrementSource;
     float start{0};
     float increment{1.0};
     size_t numberOfBuffers{1};
-    std::string description;
-    std::map<std::string, Axis> axis;
 
     explicit SpectrumDescription(ChimeraTK::RegisterPath const& source_ = "", std::string location_ = "",
         std::string name_ = "", bool hasHistory_ = true, bool isWriteable_ = true)
@@ -244,17 +247,8 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   struct XyDescription : public PropertyDescription {
-    struct Axis {
-      std::string label;
-      int logarithmic{};
-      float start{};
-      float stop{};
-    };
-
     ChimeraTK::RegisterPath xSource;
     ChimeraTK::RegisterPath ySource;
-    std::string description;
-    std::map<std::string, Axis> axis;
 
     explicit XyDescription(ChimeraTK::RegisterPath const& xSource_ = "", ChimeraTK::RegisterPath const& ySource_ = "",
         std::string const& location_ = "", std::string const& name_ = "", bool hasHistory_ = true)
@@ -314,6 +308,7 @@ namespace ChimeraTK {
     bool usePersistDefault = false;
     bool useMacroPulseNumberSourceDefault;
     bool useDataMatchingDefault;
+    bool useDescriptionFromAppDefault = false;
     explicit LocationInfo(bool useHasHistoryDefault_ = false, bool useIsWriteableDefault_ = false,
         bool useMacroPulseNumberSourceDefault_ = false, bool useDataMatchingDefault_ = false)
     : useHasHistoryDefault(useHasHistoryDefault_), useIsWriteableDefault(useIsWriteableDefault_),
