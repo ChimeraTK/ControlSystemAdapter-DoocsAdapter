@@ -43,6 +43,8 @@ namespace ChimeraTK {
     IMH imh{};
     IMH* getIMH() { return &imh; }
 
+    void auto_init() override;
+
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;
 

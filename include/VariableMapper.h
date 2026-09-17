@@ -91,6 +91,7 @@ namespace ChimeraTK {
 
     std::string getMacroPulseNumberSourceDefault(std::string const& locationName);
     DataConsistencyGroup::MatchingMode getDataMatchingDefault(std::string const& locationName);
+    bool getDescriptionFromAppDefault(std::string const& locationName);
 
     std::map<std::string, LocationInfo> _locationDefaults;
     PropertyAttributes _globalDefaults;
@@ -106,6 +107,8 @@ namespace ChimeraTK {
 
     void processHistoryAndWritableAttributes(
         PropertyDescription& propertyDescription, const xmlpp::Element* propertyXmlElement);
+    static void processDescriptionAttributes(
+        PropertyDescription& pDesc, const xmlpp::Element* xmlEl, unsigned int allowedAxes);
 
     void addDescription(std::shared_ptr<PropertyDescription> const& propertyDescription);
   };

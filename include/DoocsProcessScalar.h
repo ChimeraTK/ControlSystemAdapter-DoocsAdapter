@@ -112,9 +112,18 @@ namespace ChimeraTK {
 
   template<typename T, typename DOOCS_T>
   void DoocsProcessScalar<T, DOOCS_T>::auto_init() {
-    doocsAdapter.beforeAutoInit();
-
     DOOCS_T::auto_init();
+    // apply description/unit metadata after the .conf file has been loaded, so that the values provided here win
+    // Strings never have a D_hist; for all other scalar types the
+    // history-enabled constructor creates a D_hist whose .DESC/.EGU sub-properties carry the metadata.
+    if constexpr(requires { this->get_histPointer(); }) {
+      applyDescriptionUnits(this->get_histPointer());
+    }
+    else {
+      // no history: create manual .DESC/.EGU sub-properties
+      applyDescriptionUnits(nullptr);
+    }
+
     // send the current value to the device
     // property is writeable OR the target accessor is writable and the only one connected to this property
     // The second case is to have bi-directional variables that are used to persist settings into the config file

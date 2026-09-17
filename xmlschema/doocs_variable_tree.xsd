@@ -34,13 +34,16 @@
       <xs:element name="D_array" type="D_array"/>
       <xs:element name="D_xy" type="D_xy"/>
       <xs:element name="D_ifff" type="D_ifff"/>
+      <xs:element name="D_iiii" type="D_iiii"/>
     </xs:choice>
   </xs:group>
 
   <xs:complexType name="AutoProperty">
-    <xs:sequence>
+    <xs:choice maxOccurs="unbounded">
       <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
-    </xs:sequence>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
     <xs:attribute name="source" type="xs:string" use="required"/>
     <xs:attribute name="name" type="xs:string"/>
     <xs:attribute name="type" type="BaseDataType"/>
@@ -62,6 +65,7 @@
       <xs:element name="publish_ZMQ" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1"/>
       <xs:element name="macro_pulse_number_source" type="xs:string" minOccurs="0" maxOccurs="1"/>
       <xs:element name="data_matching" type="DataMatchingDataType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ignore_description_from_app" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1"/>
     </xs:choice>
   </xs:group>
 
@@ -86,15 +90,18 @@
         <xs:element name="incrementSource" type="xs:string"/>
         <xs:element name="numberOfBuffers" type="xs:integer"/>
       </xs:choice>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="2"/>
     </xs:choice>
     <xs:attribute name="source" type="xs:string" use="required"/>
     <xs:attribute name="name" type="xs:string"/>
-    <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="2"/>
   </xs:complexType>
 
   <xs:complexType name="D_array">
     <xs:choice maxOccurs="unbounded">
       <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="1"/>
     </xs:choice>
     <xs:attribute name="source" type="xs:string" use="required"/>
     <xs:attribute name="type" type="BaseDataType" default="auto"/>
@@ -115,6 +122,8 @@
   <xs:complexType name="D_ifff">
     <xs:choice maxOccurs="unbounded">
       <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="1"/>
     </xs:choice>
     <xs:attribute name="i1_source" type="xs:string" use="required"/>
     <xs:attribute name="f1_source" type="xs:string" use="required"/>
@@ -123,10 +132,20 @@
     <xs:attribute name="name" type="xs:string"/>
   </xs:complexType>
 
+  <xs:complexType name="D_iiii">
+    <xs:choice maxOccurs="unbounded">
+      <xs:group ref="PropertyDetails" maxOccurs="unbounded"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="unit" type="AxisUnitType" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+
   <xs:complexType name="AxisUnitType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute name="axis" type="xs:string" use="required"/>
+        <xs:attribute name="axis" type="xs:string" use="optional"/>
         <xs:attribute name="start" type="xs:decimal"/>
         <xs:attribute name="stop" type="xs:decimal"/>
         <xs:attribute name="logarithmic" type="xs:integer"/>

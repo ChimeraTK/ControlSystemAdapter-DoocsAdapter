@@ -94,21 +94,6 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void DoocsAdapter::beforeAutoInit() {
-    // prevent concurrent execution. It is unclear whether DOOCS may call auto_init in parallel in some situations, so
-    // better implement a lock.
-    static std::mutex mx;
-    std::unique_lock<std::mutex> lk(mx);
-
-    // execute actions only once
-    if(_before_auto_init_called) {
-      return;
-    }
-    _before_auto_init_called = true;
-  }
-
-  /********************************************************************************************************************/
-
   std::unique_ptr<doocs::Server> DoocsAdapter::createServer() {
     auto server = std::make_unique<doocs::Server>(ChimeraTK::ApplicationBase::getInstance().getName().c_str());
 

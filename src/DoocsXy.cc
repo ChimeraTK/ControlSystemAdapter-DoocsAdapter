@@ -7,6 +7,8 @@
 
 #include <ChimeraTK/OneDRegisterAccessor.h>
 
+#include <ctime>
+
 namespace ChimeraTK {
 
   /********************************************************************************************************************/
@@ -19,6 +21,32 @@ namespace ChimeraTK {
     PropertyBase(doocsPropertyName, updater, matchingMode), _xValues(xValues), _yValues(yValues) {
     setupOutputVar(_xValues);
     setupOutputVar(_yValues);
+  }
+
+  /********************************************************************************************************************/
+
+  void DoocsXy::auto_init() {
+    D_xy::auto_init();
+
+    applyDescriptionUnits(nullptr);
+  }
+
+  /********************************************************************************************************************/
+
+  void DoocsXy::applyDescriptionUnits(D_hist* hist) {
+    (void)hist;
+    if(_hasDescription) {
+      set_descr_value(_description);
+    }
+    for(const auto& [key, a] : _axes) {
+      char* label = const_cast<char*>(a.label.c_str());
+      if(key == 'x') {
+        this->set_plot_x_value(a.logarithmic, a.start, a.stop, std::time(nullptr), label);
+      }
+      else {
+        this->set_plot_y_value(a.logarithmic, a.start, a.stop, std::time(nullptr), label);
+      }
+    }
   }
 
   /********************************************************************************************************************/
