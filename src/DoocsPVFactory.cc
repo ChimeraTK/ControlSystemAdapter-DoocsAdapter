@@ -477,28 +477,34 @@ namespace ChimeraTK {
   boost::shared_ptr<D_fct> DoocsPVFactory::create(std::shared_ptr<PropertyDescription> const& propertyDescription) {
     auto& plainDescription = *propertyDescription;
     const auto& requestedType = typeid(plainDescription);
+    boost::shared_ptr<D_fct> retVal;
     if(requestedType == typeid(AutoPropertyDescription)) {
-      return autoCreate(propertyDescription);
+      retVal = autoCreate(propertyDescription);
     }
-    if(requestedType == typeid(SpectrumDescription)) {
-      return createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
+    else if(requestedType == typeid(SpectrumDescription)) {
+      retVal = createDoocsSpectrum(*std::static_pointer_cast<SpectrumDescription>(propertyDescription));
     }
-    if(requestedType == typeid(ImageDescription)) {
-      return createDoocsImage(*std::static_pointer_cast<ImageDescription>(propertyDescription));
+    else if(requestedType == typeid(ImageDescription)) {
+      retVal = createDoocsImage(*std::static_pointer_cast<ImageDescription>(propertyDescription));
     }
-    if(requestedType == typeid(XyDescription)) {
-      return createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
+    else if(requestedType == typeid(XyDescription)) {
+      retVal = createXy(*std::static_pointer_cast<XyDescription>(propertyDescription));
     }
-    if(requestedType == typeid(IfffDescription)) {
-      return createIfff(*std::static_pointer_cast<IfffDescription>(propertyDescription));
+    else if(requestedType == typeid(IfffDescription)) {
+      retVal = createIfff(*std::static_pointer_cast<IfffDescription>(propertyDescription));
     }
-    if(requestedType == typeid(IiiiDescription)) {
-      return createIiii(*std::static_pointer_cast<IiiiDescription>(propertyDescription));
+    else if(requestedType == typeid(IiiiDescription)) {
+      retVal = createIiii(*std::static_pointer_cast<IiiiDescription>(propertyDescription));
     }
-    if(requestedType == typeid(AutoPropertyDescription)) {
-      return createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
+    else if(requestedType == typeid(AutoPropertyDescription)) {
+      retVal = createDoocsArray(std::static_pointer_cast<AutoPropertyDescription>(propertyDescription));
     }
-    throw std::invalid_argument("Sorry, your type is not supported yet.");
+
+    if(!retVal) {
+      throw std::invalid_argument("Sorry, your type is not supported yet.");
+    }
+    retVal->disable_auto_publication();
+    return retVal;
   }
 
   /********************************************************************************************************************/
