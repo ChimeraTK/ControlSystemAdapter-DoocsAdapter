@@ -60,7 +60,7 @@ namespace ChimeraTK {
     modified = true;
     sendToDevice(true);
 
-    sendZMQ(getTimestamp());
+    sendAsync(getTimestamp());
   }
 
   /********************************************************************************************************************/
@@ -168,7 +168,7 @@ namespace ChimeraTK {
     // mark property as modified, for (optional) persistence
     modified = true;
 
-    sendZMQ(timestamp);
+    sendAsync(timestamp);
   }
 
   /********************************************************************************************************************/

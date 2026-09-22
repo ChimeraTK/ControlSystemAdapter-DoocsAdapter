@@ -103,10 +103,10 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void PropertyBase::sendZMQ(doocs::Timestamp timestamp) {
+  void PropertyBase::sendAsync(doocs::Timestamp timestamp) {
     auto* d_fct = getDfct();
     // send data via ZeroMQ if enabled and if DOOCS initialisation is complete
-    if(_publishZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
+    if(_publishLegacyZMQ && ChimeraTK::DoocsAdapter::isInitialised) {
       dmsg_info info{};
       auto sinceEpoch = timestamp.get_seconds_and_microseconds_since_epoch();
       info.sec = sinceEpoch.seconds;
@@ -123,8 +123,9 @@ namespace ChimeraTK {
         std::cout << "ZeroMQ sending failed!!!" << std::endl;
       }
     }
-    if(ChimeraTK::DoocsAdapter::isInitialised) {
-      // automatically provide all data updates via DOOCS-over-ZeroMQ
+    // _publishAsync is off for scalars, as D_value<T> allready calls publish() in set_value()
+    if(_publishAsync && ChimeraTK::DoocsAdapter::isInitialised) {
+      // provide all data updates via DOOCS-over-ZeroMQ
       d_fct->publish();
     }
   }

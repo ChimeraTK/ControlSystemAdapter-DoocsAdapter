@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <string>
+#include <type_traits>
 
 namespace ChimeraTK {
 
@@ -58,6 +59,10 @@ namespace ChimeraTK {
       DataConsistencyGroup::MatchingMode matchingMode)
   : DOOCS_T(eqFct, doocsPropertyName), PropertyBase(doocsPropertyName, updater, matchingMode),
     _processScalar(processScalar) {
+    // Only D_value<T> does publish in set_value(), but e.g. D_text and D_string don't.
+    if constexpr(std::is_same_v<DOOCS_T, doocs::D_value<T>>) {
+      _publishAsync = false; // Don't do an extra publish. D_value<T> already does it in set_value().
+    }
     setupOutputVar(_processScalar);
   }
 
@@ -69,6 +74,10 @@ namespace ChimeraTK {
       DataConsistencyGroup::MatchingMode matchingMode)
   : DOOCS_T(doocsPropertyName, eqFct), PropertyBase(doocsPropertyName, updater, matchingMode),
     _processScalar(processScalar) {
+    // Only D_value<T> does publish in set_value(), but e.g. D_text and D_string don't.
+    if constexpr(std::is_same_v<DOOCS_T, doocs::D_value<T>>) {
+      _publishAsync = false; // Don't do an extra publish. D_value<T> already does it in set_value().
+    }
     setupOutputVar(_processScalar);
   }
 
@@ -96,7 +105,7 @@ namespace ChimeraTK {
 
     updateOthers(true);
 
-    sendZMQ(getTimestamp());
+    sendAsync(getTimestamp());
   }
 
   /********************************************************************************************************************/
@@ -151,7 +160,7 @@ namespace ChimeraTK {
       eventId = doocs::EventId(_macroPulseNumberSource);
     }
     this->set_value(data, timestamp, eventId, archiverStatus);
-    sendZMQ(timestamp);
+    sendAsync(timestamp);
   }
 
   /********************************************************************************************************************/
