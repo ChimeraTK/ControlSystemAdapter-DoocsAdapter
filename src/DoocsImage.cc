@@ -118,7 +118,7 @@ namespace ChimeraTK {
     dfct->set_img_time(ts.seconds, ts.microseconds);
     // dfct->set_img_status();
 
-    sendZMQ(timestamp);
+    sendAsync(timestamp);
   }
 
   /********************************************************************************************************************/

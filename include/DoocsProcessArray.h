@@ -86,7 +86,7 @@ namespace ChimeraTK {
     }
     modified = true;
     sendToDevice(true);
-    sendZMQ(getTimestamp());
+    sendAsync(getTimestamp());
   }
 
   /********************************************************************************************************************/
@@ -152,7 +152,7 @@ namespace ChimeraTK {
       this->set_mpnum(_macroPulseNumberSource);
     }
 
-    sendZMQ(timestamp);
+    sendAsync(timestamp);
   }
 
   /********************************************************************************************************************/

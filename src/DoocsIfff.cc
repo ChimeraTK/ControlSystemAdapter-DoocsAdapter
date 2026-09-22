@@ -122,7 +122,7 @@ namespace ChimeraTK {
     // when set_value() now also stores to history.
     // However, currently it does _not_ yet.
 
-    sendZMQ(timestamp);
+    sendAsync(timestamp);
   }
 
   /********************************************************************************************************************/
@@ -134,7 +134,7 @@ namespace ChimeraTK {
     }
     sendToApplication(true);
 
-    sendZMQ(getTimestamp());
+    sendAsync(getTimestamp());
   }
 
   /********************************************************************************************************************/

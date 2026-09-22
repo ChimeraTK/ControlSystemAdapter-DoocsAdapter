@@ -36,8 +36,8 @@ namespace ChimeraTK {
     EqFct* getEqFct() { return getDfct()->get_eqfct(); }
     /// returns associated DOOCS property. Not null.
     D_fct* getDfct() { return dynamic_cast<D_fct*>(this); }
-    /// turns on ZeroMQ publishing
-    void publishZeroMQ() { _publishZMQ = true; }
+    /// turns on legacy ZeroMQ publishing
+    void publishZeroMQ() { _publishLegacyZMQ = true; }
     /// set macro pulse number source, if configured
     void setMacroPulseNumberSource(const std::string& sourcePath);
     void setMacroPulseNumberSource(
@@ -89,8 +89,9 @@ namespace ChimeraTK {
     /// implements timestamp workarounds for associated DOOCS property
     doocs::Timestamp correctDoocsTimestamp();
 
-    /// send data via ZeroMQ if enabled and if DOOCS initialisation is complete
-    void sendZMQ(doocs::Timestamp timestamp);
+    /// If DOOCS initialisation is complete, send data via legacy ZeroMQ if enabled, and call the Doocs-over-ZeroMQ
+    /// publish() step (always active)
+    void sendAsync(doocs::Timestamp timestamp);
 
     /// make sure other properties using these PVs see the update
     void updateOthers(bool handleLocking);
@@ -107,8 +108,11 @@ namespace ChimeraTK {
     ScalarRegisterAccessor<ChimeraTK::Boolean> _isWriteableSource;
 
     std::string _doocsPropertyName;
-    DoocsUpdater& _doocsUpdater; // store the reference to the updater. We need it when adding the macro pulse number
-    bool _publishZMQ{false};
+    DoocsUpdater& _doocsUpdater;   // store the reference to the updater. We need it when adding the macro pulse number
+    bool _publishLegacyZMQ{false}; //< Publish via the original DoocsZMQ. Can be configured via config file.
+    bool _publishAsync{true}; //< Publish via Doocs-over-ZeroMQ. Must be turned off for scalars, as D_value<T> already
+                              //< publishes in set_value().
+                              //
     // We keep a pointer to the main output var in order to access meta info like VersionNumbers.
     // Storing a plain pointer is ok here (even though the target is essentially a shared_ptr), since the pointer
     // target is owned by the same object (derived class).

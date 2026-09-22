@@ -45,7 +45,7 @@ namespace ChimeraTK {
     if(_macroPulseNumberSource.isInitialised()) {
       this->set_mpnum(_macroPulseNumberSource);
     }
-    sendZMQ(timestamp);
+    sendAsync(timestamp);
   }
 
   /********************************************************************************************************************/
