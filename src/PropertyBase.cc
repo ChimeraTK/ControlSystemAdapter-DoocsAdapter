@@ -16,6 +16,83 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  void PropertyBase::setDescription(const std::string& desc) {
+    _description = desc;
+    _hasDescription = true;
+  }
+
+  /********************************************************************************************************************/
+
+  void PropertyBase::setAxis(const Axis& axis, char name) {
+    assert(name == 'x' || name == 'y');
+    _hasUnits = true;
+    _axes[name] = axis;
+  }
+
+  /********************************************************************************************************************/
+
+  void PropertyBase::applyDescriptionUnits(D_hist* hist) {
+    bool wantDesc = true;
+    if(hist) {
+      if(_hasDescription) {
+        hist->set_description(_description);
+        if(auto* desc = dynamic_cast<D_string*>(hist->get_p_prop(3))) {
+          desc->set_ro_access(); // .DESC readonly
+        }
+      }
+      if(_hasUnits) {
+        const Axis& a = _axes.at('y');
+        hist->set_plot_value(a.logarithmic, a.start, a.stop, doocs::Timestamp::now().to_time_t(), a.label.c_str());
+        if(auto* egu = dynamic_cast<D_plotinfo*>(hist->get_p_prop(2))) {
+          // egu->set_value(a.label);
+          egu->set_ro_access(); // .EGU readonly
+        }
+      }
+    }
+    else {
+      // Lazily create and register the manual .DESC/.EGU sub-properties (named <basename>.DESC / <basename>.EGU).
+      auto base = getDfct()->basename();
+      if(wantDesc && !_manualDesc) {
+        _manualDesc = std::make_unique<D_string>(base + ".DESC", getEqFct());
+      }
+      if(_wantEgu && !_manualEgu) {
+        _manualEgu = std::make_unique<D_plotinfo>(base + ".EGU", getEqFct());
+      }
+      // Apply the stored description/unit to the manually created .DESC/.EGU sub-properties and mark them read-only.
+      // Does nothing if no description/unit was set. Used by classes without a native desc/unit API and without a
+      // D_hist (non-history scalars/strings, arrays, non-history D_iiii/D_ifff).
+      if(wantDesc && _hasDescription) {
+        _manualDesc->set_value(_description);
+        _manualDesc->set_ro_access(); // .DESC readonly
+      }
+      if(_wantEgu && _hasUnits) {
+        // this function is copied from D_history; currently no similar API for D_plotinfo defined.
+        auto setPlotValue = [this](int i1, float f1, float f2, time_t tm, const char* com) {
+          const char* p;
+          USTR val;
+
+          val.i1_data = i1;
+          val.f1_data = f1;
+          val.f2_data = f2;
+          val.tm = tm;
+
+          p = com ? com : "";
+
+          val.str_data.str_data_val = const_cast<char*>(p);
+          val.str_data.str_data_len = static_cast<unsigned int>(strlen(p));
+
+          _manualEgu->set_value(&val);
+          return 1;
+        };
+        auto a = _axes.at('y'); // fallback does not happen for x-axis: .XEGU present both for D_spectrum,D_xy
+        setPlotValue(a.logarithmic, a.start, a.stop, doocs::Timestamp::now().to_time_t(), a.label.c_str());
+        _manualEgu->set_ro_access(); // .EGU readonly
+      }
+    }
+  }
+
+  /********************************************************************************************************************/
+
   void PropertyBase::registerVariable(TransferElementAbstractor& var, bool update) {
     if(var.isReadable()) {
       auto id = var.getId();

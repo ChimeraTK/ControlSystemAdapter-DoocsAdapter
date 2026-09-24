@@ -93,9 +93,11 @@ namespace ChimeraTK {
 
   template<typename DOOCS_T, typename DOOCS_PRIMITIVE_T>
   void DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>::auto_init() {
-    doocsAdapter.beforeAutoInit();
-
     DOOCS_T::auto_init();
+    // apply description/unit metadata after the .conf file has been loaded, so that the values provided here win
+    // D_array has no native desc/unit API and no D_hist: create manual .DESC/.EGU sub-properties
+    applyDescriptionUnits(nullptr);
+
     modified = false;
     // send the current value to the device
     // property is writeable OR the target accessor is writable and the only one connected to this property

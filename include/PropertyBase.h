@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 #pragma once
 
+#include "PropertyDescription.h"
+
 #include <ChimeraTK/ControlSystemAdapter/ControlSystemPVManager.h>
 #include <ChimeraTK/DataConsistencyGroup.h>
 #include <ChimeraTK/OneDRegisterAccessor.h>
 #include <ChimeraTK/ScalarRegisterAccessor.h>
 
+#include <d_fct.h>
 #include <eq_fct.h>
 
 #include <functional>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -59,6 +63,14 @@ namespace ChimeraTK {
     /// PV names this property has subscribed to via subscribeToSharedPV(). Used by callbacksOnChange() to filter
     /// which entries from writeableVariablesWithMultipleProperties are relevant to this property.
     std::set<std::string> _sharedPVSubscriptions;
+
+    /// Set the (resolved) description text to be applied to the DOOCS output during auto_init().
+    void setDescription(const std::string& desc);
+
+    /// Set full axis configuration (unit label, logarithmic flag, start, stop) for the named axis, to be applied during
+    /// auto_init(). Default axis name 'y' is used for scalars, arrays, and as single combined unit
+    /// (D_iiii/D_iffff) D_spectrum/D_xy also allow axis name 'x'
+    void setAxis(const Axis& axis, char name = 'y');
 
    protected:
     /// Cached list of callbacks to invoke when this property's PV changes. Built lazily by callbacksOnChange().
@@ -112,7 +124,26 @@ namespace ChimeraTK {
     bool _publishLegacyZMQ{false}; //< Publish via the original DoocsZMQ. Can be configured via config file.
     bool _publishAsync{true}; //< Publish via Doocs-over-ZeroMQ. Must be turned off for scalars, as D_value<T> already
                               //< publishes in set_value().
-                              //
+
+    // Resolved description/unit metadata to be applied to the DOOCS output from auto_init()
+    // note, even when hasDescription=false, properties should still support a description set from the CS side
+    bool _hasDescription{false};
+    std::string _description;
+    bool _hasUnits{false}; // true implies at least _axes['y'] is set
+    bool _wantEgu = true;  // set this to false if fall-back EGU should not be created
+    std::map<char, Axis> _axes;
+
+    // Manual fallback .DESC/.EGU sub-properties, for classes that have neither a native desc/unit API nor a D_hist
+    // (non-history scalars/strings, arrays, non-history D_iiii/D_ifff). Lazily created in ensureManualDescEgu().
+    // Note, there currently is no case where we would need to manually create .XEGU
+    std::unique_ptr<D_string> _manualDesc;
+    std::unique_ptr<D_plotinfo> _manualEgu;
+    /// Apply the stored description and axis/units configuration, and mark the corresponding sub-properties read-only.
+    /// @p hist may null; in that case, fallback .DESC/.EGU sub-properties are (lazily) created and set.
+    /// Override if different doocs APIs need to be used.
+    /// Called from auto_init() so that values provided via  configuration/description win over the .conf file
+    virtual void applyDescriptionUnits(D_hist* hist);
+
     // We keep a pointer to the main output var in order to access meta info like VersionNumbers.
     // Storing a plain pointer is ok here (even though the target is essentially a shared_ptr), since the pointer
     // target is owned by the same object (derived class).

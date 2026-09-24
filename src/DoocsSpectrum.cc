@@ -10,6 +10,7 @@
 
 #include <eq_fct.h>
 
+#include <ctime>
 #include <iostream>
 #include <utility>
 
@@ -66,8 +67,6 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void DoocsSpectrum::auto_init() {
-    doocsAdapter.beforeAutoInit();
-
     // check if the macro pulse number source has been set if the spectrum is buffered
     if(_nBuffers > 1) {
       if(!_macroPulseNumberSource.isInitialised()) {
@@ -76,15 +75,37 @@ namespace ChimeraTK {
       }
     }
 
-    // send the current value to the device
-    D_spectrum::read();
+    D_spectrum::auto_init(); // currently does nothing
+    D_spectrum::read();      // reads persisted values
     modified = false;
+
+    // apply description/unit metadata after the .conf file has been loaded, so that the values provided here win
+    applyDescriptionUnits(nullptr);
+
+    // send the current value to the device
     if(this->get_access() == 1 ||
         (_processArray.isWriteable() && !hasOtherPropertiesToUpdate())) { // property is writeable
       sendToDevice(false);
       // set DOOCS time stamp, workaround for DOOCS bug (get() always gives current time stamp if no timestamp is set,
       // which breaks consistency check in ZeroMQ subscriptions after the 4 minutes timeout)
       D_spectrum::set_stamp();
+    }
+  }
+
+  /********************************************************************************************************************/
+
+  void DoocsSpectrum::applyDescriptionUnits(D_hist* hist) {
+    (void)hist;
+    if(_hasDescription) {
+      set_descr_value(_description);
+    }
+    for(const auto& [key, a] : _axes) {
+      if(key == 'x') {
+        this->set_plot_x_value(a.logarithmic, a.start, a.stop, std::time(nullptr), a.label.c_str());
+      }
+      else {
+        this->set_plot_y_value(a.logarithmic, a.start, a.stop, std::time(nullptr), a.label.c_str());
+      }
     }
   }
 

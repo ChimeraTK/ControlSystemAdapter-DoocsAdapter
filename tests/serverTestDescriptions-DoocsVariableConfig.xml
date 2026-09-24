@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
+
+  <location name="DESC">
+    <!-- default behavior, description/unit taken over from the process variable (from app) -->
+    <property source="/FLOAT/APP_DESC_SCALAR" name="APP_SCALAR"/>
+    <property source="/FLOAT/APP_DESC_ARRAY" name="APP_ARRAY"/>
+
+    <!-- explicit XML <description>/<unit> override on a history scalar -->
+    <property source="/DOUBLE/FROM_DEVICE_SCALAR" name="XML_SCALAR">
+      <description>scalar xml desc</description>
+      <unit>scalarXmlUnit</unit>
+    </property>
+
+    <!-- array (manual .DESC/.EGU fallback) -->
+    <property source="/DOUBLE/FROM_DEVICE_ARRAY" name="XML_ARRAY">
+      <description>array xml desc</description>
+      <unit>arrayXmlUnit</unit>
+    </property>
+
+    <!-- string scalar (manual fallback) -->
+    <property source="/STRING/FROM_DEVICE_SCALAR" name="XML_STRING">
+      <description>string xml desc</description>
+      <unit>stringXmlUnit</unit>
+    </property>
+
+    <!-- description_from_app=false -> control-system controlled, not forced readonly -->
+    <property source="/INT/FROM_DEVICE_SCALAR" name="CTRL_SCALAR">
+      <ignore_description_from_app>true</ignore_description_from_app>
+    </property>
+
+    <!-- D_iiii: description/unit only from XML, never from app -->
+    <D_iiii name="XML_IIII" source="/IIII/FROM_DEVICE">
+      <description>iiii xml desc</description>
+      <unit>iiiiXmlUnit</unit>
+    </D_iiii>
+
+    <!-- D_iiii with no XML description/unit and no ignore flag -> nothing forced -->
+    <D_iiii name="CTRL_IIII" source="/IIII/FROM_DEVICE"/>
+
+    <!-- D_ifff with no XML description/unit and no ignore flag -> nothing forced -->
+    <D_ifff name="CTRL_IFFF"
+        i1_source="/INT/FROM_DEVICE_SCALAR"
+        f1_source="/FLOAT/FROM_DEVICE_SCALAR"
+        f2_source="/DOUBLE/FROM_DEVICE_SCALAR"
+        f3_source="/SHORT/FROM_DEVICE_SCALAR"/>
+  </location>
+
+  <location name="DESCSPECTRUM">
+    <!-- spectrum with explicit XML description and x/y units -->
+    <D_spectrum name="XML_SPECTRUM" source="/FLOAT/FROM_DEVICE_ARRAY">
+      <description>spectrum xml desc</description>
+      <unit axis="x">spectrumXUnit</unit>
+      <unit axis="y">spectrumYUnit</unit>
+    </D_spectrum>
+
+    <!-- spectrum x-unit from <incrementSource>/<startSource> (increment wins) -->
+    <D_spectrum name="APP_SPECTRUM" source="/DOUBLE/FROM_DEVICE_ARRAY">
+      <startSource>/FLOAT/APP_START</startSource>
+      <incrementSource>/FLOAT/APP_INCREMENT</incrementSource>
+    </D_spectrum>
+  </location>
+
+  <location name="DESCXY">
+    <!-- xy with explicit XML description and x/y units -->
+    <D_xy name="XML_XY"
+        x_source="/FLOAT/FROM_DEVICE_ARRAY"
+        y_source="/DOUBLE/FROM_DEVICE_ARRAY">
+      <description>xy xml desc</description>
+      <unit axis="x">xyXUnit</unit>
+      <unit axis="y">xyYUnit</unit>
+    </D_xy>
+  </location>
+
+  <location name="DESCIM">
+      <D_imagec name="IM" source="/UINT8/IMAGE">
+        <description>image xml desc</description>
+      </D_imagec>
+   </location>
+
+  <import>/</import>
+
+</device_server>

@@ -81,11 +81,24 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  void DoocsImage::auto_init() {
+    D_imagec::auto_init();
+
+    // D_image/D_imagec have no unit concept; only the description (comment) is supported.
+    // Put it both into image and .DESC sub-property
+    _wantEgu = false;
+    applyDescriptionUnits(nullptr);
+    if(_hasDescription) {
+      this->set_descr_value(_description);
+    }
+  }
+
+  /********************************************************************************************************************/
+
   void DoocsImage::updateDoocsBuffer(const TransferElementID& transferElementId) {
     if(!updateConsistency(transferElementId)) {
       return;
     }
-
     D_imagec* dfct = this;
     //  Note: we already own the location lock by specification of the DoocsUpdater
 

@@ -86,6 +86,11 @@ namespace ChimeraTK {
         locationInfo.useDataMatchingDefault = true;
         locationInfo.dataMatching = evaluateDataMatching(getContentString(node));
       }
+      else if(node->get_name() == "ignore_description_from_app") {
+        auto& locationInfo = _locationDefaults[locationName];
+        locationInfo.useDescriptionFromAppDefault = true;
+        locationInfo.descriptionFromApp = not evaluateBool(getContentString(node));
+      }
       else if(node->get_name() == "D_spectrum") {
         processSpectrumNode(node, locationName);
       }
@@ -201,6 +206,14 @@ namespace ChimeraTK {
     else {
       propertyDescription.dataMatching = getDataMatchingDefault(locationName);
     }
+
+    auto ignoreDescriptionFromApp = propertyXmlElement->get_children("ignore_description_from_app");
+    if(!ignoreDescriptionFromApp.empty()) {
+      propertyDescription.descriptionFromApp = not evaluateBool(getContentString(ignoreDescriptionFromApp.front()));
+    }
+    else {
+      propertyDescription.descriptionFromApp = getDescriptionFromAppDefault(locationName);
+    }
   }
 
   /********************************************************************************************************************/
@@ -255,9 +268,70 @@ namespace ChimeraTK {
     auto autoPropertyDescription = std::make_shared<AutoPropertyDescription>(absoluteSource, locationName, name, type);
 
     processHistoryAndWritableAttributes(*autoPropertyDescription, property);
+    processDescriptionAttributes(*autoPropertyDescription, property, 1);
 
     addDescription(autoPropertyDescription);
   }
+
+  /********************************************************************************************************************/
+
+  void VariableMapper::processDescriptionAttributes(
+      PropertyDescription& pDesc, const xmlpp::Element* xmlEl, unsigned allowedAxes) {
+    const auto* descriptionNode = xmlEl->get_first_child("description");
+    if(descriptionNode != nullptr) {
+      pDesc.description = getContentString(descriptionNode);
+    }
+
+    assert(allowedAxes <= 2);
+    if(allowedAxes == 0) {
+      return;
+    }
+    auto unitNodes = xmlEl->get_children("unit");
+    for(auto* const unit : unitNodes) {
+      const auto* unitElement = asXmlElement(unit);
+      std::string axis = "y";
+      try {
+        axis = getAttributeValue(unitElement, "axis");
+      }
+      catch(std::invalid_argument&) {
+      }
+      if(allowedAxes == 1) {
+        if(axis != "y") {
+          throw std::invalid_argument(R"(Unsupported axis name, must be "y" or unset: )" + axis);
+        }
+      }
+      else if(allowedAxes == 2) {
+        if(axis != "x" && axis != "y") {
+          throw std::invalid_argument(R"(Unsupported axis name, must be "x" or "y": )" + axis);
+        }
+      }
+
+      std::string label;
+      if(not unit->get_children().empty()) {
+        label = getContentString(unit);
+      }
+
+      char axKey = axis[0];
+      pDesc.axes[axKey].label = label;
+      try {
+        pDesc.axes[axKey].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        pDesc.axes[axKey].start = std::stof(getAttributeValue(unitElement, "start"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        pDesc.axes[axKey].stop = std::stof(getAttributeValue(unitElement, "stop"));
+      }
+      catch(std::invalid_argument&) {
+      }
+    }
+  };
 
   /********************************************************************************************************************/
 
@@ -298,43 +372,7 @@ namespace ChimeraTK {
       spectrumDescription->numberOfBuffers = std::stoi(numberOfBuffers);
     }
 
-    const auto* descriptionNode = spectrumXml->get_first_child("description");
-    if(descriptionNode != nullptr) {
-      spectrumDescription->description = getContentString(descriptionNode);
-    }
-
-    auto unitNodes = spectrumXml->get_children("unit");
-    for(auto* const unit : unitNodes) {
-      const auto* unitElement = asXmlElement(unit);
-      auto axis = getAttributeValue(unitElement, "axis");
-      if(axis != "x" && axis != "y") {
-        throw std::invalid_argument(R"(Unsupported axis in D_spectrum, must be "x" or "y": )" + axis);
-      }
-
-      std::string label;
-      if(not unit->get_children().empty()) {
-        label = getContentString(unit);
-      }
-
-      spectrumDescription->axis[axis].label = label;
-      try {
-        spectrumDescription->axis[axis].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
-      }
-      catch(std::invalid_argument&) {
-      }
-
-      try {
-        spectrumDescription->axis[axis].start = std::stof(getAttributeValue(unitElement, "start"));
-      }
-      catch(std::invalid_argument&) {
-      }
-
-      try {
-        spectrumDescription->axis[axis].stop = std::stof(getAttributeValue(unitElement, "stop"));
-      }
-      catch(std::invalid_argument&) {
-      }
-    }
+    processDescriptionAttributes(*spectrumDescription, spectrumXml, 2);
     addDescription(spectrumDescription);
   }
 
@@ -351,10 +389,7 @@ namespace ChimeraTK {
     auto imageDescription = std::make_shared<ImageDescription>(absoluteSource, locationName, name);
     processHistoryAndWritableAttributes(*imageDescription, xmlEl);
 
-    const auto* descriptionNode = xmlEl->get_first_child("description");
-    if(descriptionNode != nullptr) {
-      imageDescription->description = getContentString(descriptionNode);
-    }
+    processDescriptionAttributes(*imageDescription, xmlEl, 0);
     addDescription(imageDescription);
   }
 
@@ -372,44 +407,7 @@ namespace ChimeraTK {
     auto xyDescription = std::make_shared<XyDescription>(xAbsoluteSource, yAbsoluteSource, locationName, name, false);
     processHistoryAndWritableAttributes(*xyDescription, xyXml);
 
-    const auto* descriptionNode = xyXml->get_first_child("description");
-    if(descriptionNode != nullptr) {
-      xyDescription->description = getContentString(descriptionNode);
-    }
-
-    auto unitNodes = xyXml->get_children("unit");
-    for(auto* const unit : unitNodes) {
-      const auto* unitElement = asXmlElement(unit);
-      auto axis = getAttributeValue(unitElement, "axis");
-      if(axis != "x" && axis != "y") {
-        throw std::invalid_argument(R"(Unsupported axis in D_xy, must be "x" or "y": )" + axis);
-      }
-
-      std::string label;
-      if(not unit->get_children().empty()) {
-        label = getContentString(unit);
-      }
-
-      xyDescription->axis[axis].label = label;
-      try {
-        xyDescription->axis[axis].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
-      }
-      catch(std::invalid_argument&) {
-      }
-
-      try {
-        xyDescription->axis[axis].start = std::stof(getAttributeValue(unitElement, "start"));
-      }
-      catch(std::invalid_argument&) {
-      }
-
-      try {
-        xyDescription->axis[axis].stop = std::stof(getAttributeValue(unitElement, "stop"));
-      }
-      catch(std::invalid_argument&) {
-      }
-    }
-
+    processDescriptionAttributes(*xyDescription, xyXml, 2);
     addDescription(xyDescription);
   }
 
@@ -427,6 +425,7 @@ namespace ChimeraTK {
     auto ifffDescription =
         std::make_shared<IfffDescription>(i1Source, f1Source, f2Source, f3Source, locationName, name);
     processHistoryAndWritableAttributes(*ifffDescription, ifffXml);
+    processDescriptionAttributes(*ifffDescription, ifffXml, 1);
 
     addDescription(ifffDescription);
   }
@@ -441,6 +440,7 @@ namespace ChimeraTK {
 
     auto iiiiDescription = std::make_shared<IiiiDescription>(source, locationName, name);
     processHistoryAndWritableAttributes(*iiiiDescription, iiiiXml);
+    processDescriptionAttributes(*iiiiDescription, iiiiXml, 1);
 
     addDescription(iiiiDescription);
   }
@@ -550,6 +550,7 @@ namespace ChimeraTK {
         autoPropertyDescription->persist = getPersistDefault(locationName);
         autoPropertyDescription->macroPulseNumberSource = getMacroPulseNumberSourceDefault(locationName);
         autoPropertyDescription->dataMatching = getDataMatchingDefault(locationName);
+        autoPropertyDescription->descriptionFromApp = getDescriptionFromAppDefault(locationName);
 
         addDescription(autoPropertyDescription);
       }
@@ -634,6 +635,9 @@ namespace ChimeraTK {
         }
         else if(mainNode->get_name() == "data_matching") {
           _globalDefaults.dataMatching = evaluateDataMatching(getContentString(mainNode));
+        }
+        else if(mainNode->get_name() == "ignore_description_from_app") {
+          _globalDefaults.descriptionFromApp = not evaluateBool(getContentString(mainNode));
         }
         else {
           throw std::invalid_argument(
@@ -812,6 +816,16 @@ namespace ChimeraTK {
       return locationInfo.dataMatching;
     }
     return _globalDefaults.dataMatching;
+  }
+
+  /********************************************************************************************************************/
+
+  bool VariableMapper::getDescriptionFromAppDefault(std::string const& locationName) {
+    auto locationInfo = _locationDefaults[locationName];
+    if(locationInfo.useDescriptionFromAppDefault) {
+      return locationInfo.descriptionFromApp;
+    }
+    return _globalDefaults.descriptionFromApp;
   }
 
   /********************************************************************************************************************/

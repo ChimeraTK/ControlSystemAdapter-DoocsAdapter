@@ -18,8 +18,6 @@
 
 #include <d_fct.h>
 
-#include <utility>
-
 namespace ChimeraTK {
 
   /********************************************************************************************************************/
@@ -30,71 +28,93 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  /// resolve description/unit: explicit XML <description>/<unit> wins; otherwise from the process variable when
+  /// <description_from_app> is true (default). Applied to DOOCS in auto_init().
+  static void resolveDescriptionAndUnits(PropertyBase& doocsPV, const PropertyDescription& propertyDescription,
+      const std::string& autoDescription, const std::string& autoXUnit, const std::string& autoYUnit) {
+    if(propertyDescription.description.has_value()) {
+      doocsPV.setDescription(propertyDescription.description.value());
+    }
+    else if(propertyDescription.descriptionFromApp && !autoDescription.empty()) {
+      doocsPV.setDescription(autoDescription);
+    }
+    // resolve the unit text for each axis. The XML label always wins, otherwise if description_from_app is not
+    // ignored, try to fill in auto units.
+    bool xAxisSet = false;
+    bool yAxisSet = false;
+    // apply static axis geometry/labels from the XML config
+    for(auto const& [name, axis] : propertyDescription.axes) {
+      doocsPV.setAxis(axis, name);
+      xAxisSet = xAxisSet || name == 'x';
+      yAxisSet = yAxisSet || name == 'y';
+    }
+    if(propertyDescription.descriptionFromApp) {
+      // as optimisation, to reduce number of DOOCS properties, do not create units if they are empty
+      if(!yAxisSet) {
+        if(!autoYUnit.empty()) {
+          doocsPV.setAxis(Axis{autoYUnit}, 'y');
+        }
+      }
+      if(!xAxisSet) {
+        if(!autoXUnit.empty()) {
+          doocsPV.setAxis(Axis{autoXUnit}, 'x');
+        }
+      }
+    }
+  };
+
+  /********************************************************************************************************************/
+
   // Fixme: is AutoPropertyDescription ok, or to we need IntDescripton,
   // DoubleDescription etc.
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar(
       AutoPropertyDescription const& propertyDescription, DecoratorType decoratorType) {
-    // the DoocsProcessScalar needs the real ProcessScalar type, not just
-    // ProcessVariable
-    boost::shared_ptr<NDRegisterAccessor<DOOCS_PRIMITIVE_T>> processArray =
-        _updater.getMappedProcessVariable<DOOCS_PRIMITIVE_T>(propertyDescription.source, decoratorType);
-
-    assert(processArray->getNumberOfChannels() == 1);
+    boost::shared_ptr<NDRegisterAccessor<DOOCS_PRIMITIVE_T>> processVariable;
     boost::shared_ptr<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>> doocsPV;
-    // Histories seem to be supported by DOOCS only for property names shorter
-    // than 64 characters, so disable history for longer names. The DOOCS property
-    // name is the variable name without the location name and the separating
-    // slash between location and property name. One has to subtract another 6
-    // characters because Doocs automatically adds
-    // "._HIST", which also has to fit into the 64 characters
-    if(propertyDescription.name.length() > 64 - 6) {
-      std::cerr << "WARNING: Disabling history for " << processArray->getName() << ". Name is too long." << std::endl;
-      doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
-          propertyDescription.name, _eqFct, processArray, _updater, propertyDescription.dataMatching);
+
+    if constexpr(std::is_same_v<DOOCS_PRIMITIVE_T, std::string> && std::is_same_v<DOOCS_T, DTextUnifier>) {
+      // template specialisation for std::string -> DTextUnifier
+      processVariable = _updater.getMappedProcessVariable<std::string>(propertyDescription.source);
+
+      assert(processVariable->getNumberOfChannels() == 1);
+      assert(processVariable->getNumberOfSamples() == 1); // array of strings is not supported
+      doocsPV = boost::make_shared<DoocsProcessScalar<std::string, DTextUnifier>>(
+          _eqFct, propertyDescription.name, processVariable, _updater, propertyDescription.dataMatching);
     }
     else {
-      if(propertyDescription.hasHistory) {
-        // version with history: EqFtc first
+      // the DoocsProcessScalar needs the real ProcessScalar type, not just
+      // ProcessVariable
+      processVariable = _updater.getMappedProcessVariable<DOOCS_PRIMITIVE_T>(propertyDescription.source, decoratorType);
+
+      assert(processVariable->getNumberOfChannels() == 1);
+      // Histories seem to be supported by DOOCS only for property names shorter
+      // than 64 characters, so disable history for longer names. The DOOCS property
+      // name is the variable name without the location name and the separating
+      // slash between location and property name. One has to subtract another 6
+      // characters because Doocs automatically adds
+      // "._HIST", which also has to fit into the 64 characters
+      if(propertyDescription.name.length() > 64 - 6) {
+        std::cerr << "WARNING: Disabling history for " << processVariable->getName() << ". Name is too long."
+                  << std::endl;
         doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
-            _eqFct, propertyDescription.name, processArray, _updater, propertyDescription.dataMatching);
+            propertyDescription.name, _eqFct, processVariable, _updater, propertyDescription.dataMatching);
       }
       else {
-        // version without history: name first
-        doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
-            propertyDescription.name, _eqFct, processArray, _updater, propertyDescription.dataMatching);
-      }
-    } // if name too long
+        if(propertyDescription.hasHistory) {
+          // version with history: EqFtc first
+          doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
+              _eqFct, propertyDescription.name, processVariable, _updater, propertyDescription.dataMatching);
+        }
+        else {
+          // version without history: name first
+          doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
+              propertyDescription.name, _eqFct, processVariable, _updater, propertyDescription.dataMatching);
+        }
+      } // if name too long
+    }
 
     // set read only mode if configured in the xml file or for output variables
-    if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
-      doocsPV->set_ro_access();
-    }
-
-    // publish via ZeroMQ if configured in the xml file
-    if(propertyDescription.publishZMQ) {
-      doocsPV->publishZeroMQ();
-    }
-
-    doocsPV->setMacroPulseNumberSource(propertyDescription.macroPulseNumberSource);
-    doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
-
-    return doocsPV;
-  }
-
-  /********************************************************************************************************************/
-
-  template<>
-  boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar<std::string, DTextUnifier>(
-      AutoPropertyDescription const& propertyDescription, DecoratorType /*decoratorType*/) {
-    auto processVariable = _updater.getMappedProcessVariable<std::string>(propertyDescription.source);
-
-    assert(processVariable->getNumberOfChannels() == 1);
-    assert(processVariable->getNumberOfSamples() == 1); // array of strings is not supported
-    auto doocsPV = boost::make_shared<DoocsProcessScalar<std::string, DTextUnifier>>(
-        _eqFct, propertyDescription.name, processVariable, _updater, propertyDescription.dataMatching);
-
-    // set read only mode if configures in the xml file or for output variables
     if(!processVariable->isWriteable() || !propertyDescription.isWriteable) {
       doocsPV->set_ro_access();
     }
@@ -106,6 +126,9 @@ namespace ChimeraTK {
 
     doocsPV->setMacroPulseNumberSource(propertyDescription.macroPulseNumberSource);
     doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
+
+    resolveDescriptionAndUnits(
+        *doocsPV, propertyDescription, processVariable->getDescription(), "", processVariable->getUnit());
 
     return doocsPV;
   }
@@ -157,24 +180,21 @@ namespace ChimeraTK {
       doocsPV->publishZeroMQ();
     }
 
-    if(not spectrumDescription.description.empty()) {
-      spectrum->description(spectrumDescription.description);
-    }
-
-    auto const xIt = spectrumDescription.axis.find("x");
-    if(xIt != spectrumDescription.axis.cend()) {
-      auto const& axis = xIt->second;
-      spectrum->xegu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
-    }
-
-    auto const yIt = spectrumDescription.axis.find("y");
-    if(yIt != spectrumDescription.axis.cend()) {
-      auto const& axis = yIt->second;
-      spectrum->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
-    }
-
     doocsPV->setMacroPulseNumberSource(spectrumDescription.macroPulseNumberSource);
     doocsPV->setIsWriteableSource(spectrumDescription.isWriteableSource);
+
+    // For the y-axis take process variable unit
+    // For the x-axis, auto unit is taken from <startSource>/<incrementSource>
+    // (<incrementSource> wins if both are present)
+    std::string autoXUnit;
+    if(incrementAccessor) {
+      autoXUnit = incrementAccessor->getUnit();
+    }
+    else if(startAccessor) {
+      autoXUnit = startAccessor->getUnit();
+    }
+    resolveDescriptionAndUnits(
+        *doocsPV, spectrumDescription, processVariable->getDescription(), autoXUnit, processVariable->getUnit());
 
     return doocsPV;
   }
@@ -186,10 +206,9 @@ namespace ChimeraTK {
     boost::shared_ptr<DoocsImage> doocsPV = boost::make_shared<DoocsImage>(
         _eqFct, imageDescription.name, processVariable, _updater, imageDescription.dataMatching);
 
-    if(not imageDescription.description.empty()) {
-      doocsPV->set_descr_value(imageDescription.description);
-      // D_image: doocsPV->set_img_comment(imageDescription.description.c_str());
-    }
+    // resolve description; images have no unit concept
+    resolveDescriptionAndUnits(*doocsPV, imageDescription, processVariable->getDescription(), "", "");
+
     doocsPV->set_ro_access();
 
     // publish via ZeroMQ if configured in the xml file
@@ -214,21 +233,11 @@ namespace ChimeraTK {
 
     auto xy = boost::static_pointer_cast<DoocsXy>(doocsPV);
 
-    if(not xyDescription.description.empty()) {
-      xy->description(xyDescription.description);
-    }
-
-    auto const xIt = xyDescription.axis.find("x");
-    if(xIt != xyDescription.axis.cend()) {
-      auto const& axis = xIt->second;
-      xy->xegu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
-    }
-
-    auto const yIt = xyDescription.axis.find("y");
-    if(yIt != xyDescription.axis.cend()) {
-      auto const& axis = yIt->second;
-      xy->egu(axis.logarithmic, axis.start, axis.stop, axis.label.c_str());
-    }
+    // resolve description and units
+    std::string autoDesc = yProcessVariable->getDescription() + " as function of " + xProcessVariable->getName() +
+        " (" + xProcessVariable->getDescription() + ")";
+    resolveDescriptionAndUnits(
+        *doocsPV, xyDescription, autoDesc, xProcessVariable->getUnit(), yProcessVariable->getUnit());
 
     if(xyDescription.publishZMQ) {
       doocsPV->publishZeroMQ();
@@ -268,6 +277,11 @@ namespace ChimeraTK {
     if(not ifffDescription.isWriteable) {
       doocsPV->set_ro_access();
     }
+
+    // For D_ifff the description/unit are never taken from the process variables; only explicit
+    // XML values apply.
+    resolveDescriptionAndUnits(*doocsPV, ifffDescription, "", "", "");
+
     return doocsPV;
   }
 
@@ -296,6 +310,11 @@ namespace ChimeraTK {
     if(not iiiiDescription.isWriteable) {
       doocsPV->set_ro_access();
     }
+
+    // For D_iiii the description/unit are never taken from the process variables; only explicit
+    // XML values apply.
+    resolveDescriptionAndUnits(*doocsPV, iiiiDescription, "", "", "");
+
     return doocsPV;
   }
 
@@ -423,6 +442,9 @@ namespace ChimeraTK {
       doocsPV->setMacroPulseNumberSource(mpnSource);
       doocsPV->setIsWriteableSource(propertyDescription.isWriteableSource);
     }
+
+    resolveDescriptionAndUnits(
+        *doocsPV, propertyDescription, processArray->getDescription(), "", processArray->getUnit());
 
     return boost::dynamic_pointer_cast<D_fct>(doocsPV);
   }
