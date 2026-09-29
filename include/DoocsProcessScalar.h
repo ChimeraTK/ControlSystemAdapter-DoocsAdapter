@@ -45,10 +45,31 @@ namespace ChimeraTK {
      */
     void auto_init() override;
 
+    /** Set the EGU axis configuration for this scalar.
+     *  Applied in auto_init() after the DOOCS framework loads persisted values from the .conf file.
+     *  If set, the .EGU sub-property is made read-only, preventing runtime modification. */
+    void setAxisConfig(int logarithmic, float start, float stop, const std::string& label);
+
    protected:
     void updateDoocsBuffer(const TransferElementID& transferElementId) override;
 
+    /// Apply EGU axis configuration from XML after auto_init().
+    /// If the EGU is defined in XML, force-sets the value via set_plot_value() and
+    /// makes the .EGU sub-property read-only. On mismatch with the .conf value,
+    /// logs a warning and overwrites with the XML value.
+    void applyAxisConfig();
+
     ScalarRegisterAccessor<T> _processScalar;
+
+    /// EGU axis configuration from the XML file, applied after auto_init()
+    struct AxisConfig {
+      std::string label;
+      int logarithmic{};
+      float start{};
+      float stop{};
+    };
+    AxisConfig _axisConfig;
+    bool _axisConfigSet{false};
   };
 
   /********************************************************************************************************************/
@@ -110,11 +131,80 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
+  /********************************************************************************************************************/
+
+  template<typename T, typename DOOCS_T>
+  void DoocsProcessScalar<T, DOOCS_T>::setAxisConfig(
+      int logarithmic, float start, float stop, const std::string& label) {
+    _axisConfig.logarithmic = logarithmic;
+    _axisConfig.start = start;
+    _axisConfig.stop = stop;
+    _axisConfig.label = label;
+    _axisConfigSet = true;
+  }
+
+  /********************************************************************************************************************/
+
+  template<typename T, typename DOOCS_T>
+  void DoocsProcessScalar<T, DOOCS_T>::applyAxisConfig() {
+    if(!_axisConfigSet) {
+      return;
+    }
+    if constexpr(std::is_base_of_v<D_text, DOOCS_T>) {
+      return;
+    }
+    else {
+      auto* hist = this->get_histPointer();
+      if(hist == nullptr) {
+        return;
+      }
+      // Read the EGU loaded from the .conf file (may be empty on first start)
+      std::string confEgu = hist->egu();
+      if(!confEgu.empty() && confEgu == _axisConfig.label) {
+        // .conf EGU matches XML → nothing to do, but make .EGU read-only to prevent
+        // runtime modification by clients.
+        auto* eguProp = getEqFct()->find_property(this->basename() + ".EGU");
+        if(eguProp != nullptr) {
+          eguProp->set_ro_access();
+        }
+        return;
+      }
+      if(!confEgu.empty() && confEgu != _axisConfig.label) {
+        // .conf EGU differs from XML → this indicates the .conf was manually modified
+        // or the XML was changed after the server was first started.
+        // Log a warning, force-set the XML value, and make .EGU read-only.
+        std::cerr << "WARNING: " << this->basename() << ": .conf EGU (\"" << confEgu << "\") differs from XML EGU (\""
+                  << _axisConfig.label << "\"). Overwriting with XML value." << std::endl;
+        // TODO: Uncomment to throw an error instead of silently overwriting:
+        // throw ChimeraTK::logic_error(
+        //     this->basename() + ": .conf EGU (\"" + confEgu + "\") differs from XML EGU (\"" +
+        //     _axisConfig.label + "\"). Cannot overwrite read-only XML unit.");
+      }
+      // Force-set the XML value (bypasses D_hist::egu()'s "set only if empty" guard)
+      hist->set_plot_value(_axisConfig.logarithmic, _axisConfig.start, _axisConfig.stop,
+          doocs::Timestamp::now().to_time_t(), _axisConfig.label.c_str());
+      // Make .EGU read-only so runtime client writes are rejected
+      auto* eguProp = getEqFct()->find_property(this->basename() + ".EGU");
+      if(eguProp != nullptr) {
+        eguProp->set_ro_access();
+      }
+    }
+  }
+
+  /********************************************************************************************************************/
+
   template<typename T, typename DOOCS_T>
   void DoocsProcessScalar<T, DOOCS_T>::auto_init() {
     doocsAdapter.beforeAutoInit();
 
     DOOCS_T::auto_init();
+
+    // Apply EGU axis configuration from XML after DOOCS loaded persisted values from .conf.
+    // If the EGU is defined in XML, the .EGU sub-property is made read-only to prevent
+    // runtime modification by clients. On first start the XML value is applied; on
+    // subsequent restarts the XML value is compared with the .conf value and re-applied
+    // if different.
+    applyAxisConfig();
     // send the current value to the device
     // property is writeable OR the target accessor is writable and the only one connected to this property
     // The second case is to have bi-directional variables that are used to persist settings into the config file

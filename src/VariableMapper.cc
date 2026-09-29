@@ -256,6 +256,39 @@ namespace ChimeraTK {
 
     processHistoryAndWritableAttributes(*autoPropertyDescription, property);
 
+    auto unitNodes = property->get_children("unit");
+    for(auto* const unit : unitNodes) {
+      const auto* unitElement = asXmlElement(unit);
+      auto axis = getAttributeValue(unitElement, "axis");
+      if(axis != "y") {
+        throw std::invalid_argument(R"(Unsupported axis in property, must be "y": )" + axis);
+      }
+
+      std::string label;
+      if(not unit->get_children().empty()) {
+        label = getContentString(unit);
+      }
+
+      autoPropertyDescription->axis[axis].label = label;
+      try {
+        autoPropertyDescription->axis[axis].logarithmic = std::stoi(getAttributeValue(unitElement, "logarithmic"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        autoPropertyDescription->axis[axis].start = std::stof(getAttributeValue(unitElement, "start"));
+      }
+      catch(std::invalid_argument&) {
+      }
+
+      try {
+        autoPropertyDescription->axis[axis].stop = std::stof(getAttributeValue(unitElement, "stop"));
+      }
+      catch(std::invalid_argument&) {
+      }
+    }
+
     addDescription(autoPropertyDescription);
   }
 
