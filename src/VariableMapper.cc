@@ -130,7 +130,7 @@ namespace ChimeraTK {
       return nameAttribute->get_value();
     }
     // auto-determine the name from the source
-    ///@todo FIXME: use register path to do the slash and replace fiddeling
+    ///@todo FIXME: use register path to do the slash and replace fiddling
     std::string name;
     if(source[0] == '/') {
       name = source.substr(1);
@@ -343,7 +343,7 @@ namespace ChimeraTK {
   void VariableMapper::processSpectrumNode(xmlpp::Node const* node, const std::string& locationName) {
     const auto* spectrumXml = asXmlElement(node);
 
-    // the "main source" of a spectum
+    // the "main source" of a spectrum
     std::string source = getAttributeValue(spectrumXml, "source");
     std::string name = determineName(spectrumXml, source);
     std::string absoluteSource = getAbsoluteSource(source, locationName);
@@ -518,7 +518,7 @@ namespace ChimeraTK {
         // processVariable starts with wanted source
         auto nameSource = processVariable.substr(importSource.size() + 1); // add the slash to be removed
         // we use the register path because it removes duplicate separators and
-        // allows to use . as separater to replace all / with .
+        // allows to use . as separator to replace all / with .
         ChimeraTK::RegisterPath propertyName;
         std::string locationName;
         if(importLocationName.empty()) {
@@ -529,7 +529,7 @@ namespace ChimeraTK {
           if(locationName.empty()) {
             throw ChimeraTK::logic_error(std::string("Invalid XML content in global import of ") +
                 (importSource.empty() ? "/" : importSource) + ":  Cannot create location name from '" + nameSource +
-                "', one hirarchy level is missing.");
+                "', one hierarchy level is missing.");
           }
           // convenience for the user: You get an error message is you try a
           // global import with directory (in case you did not validate your xml
@@ -571,7 +571,7 @@ namespace ChimeraTK {
   void VariableMapper::processCode(xmlpp::Element const* location, const std::string& locationName) {
     // If the the code is set in the location tag of the mapping xml file,
     // this function adds the location and fct_code to a map _inputLocationAndCode.
-    // It throws an exeption if the code is not an integer. The code must be greater than 1,
+    // It throws an exception if the code is not an integer. The code must be greater than 1,
     // because 1 is reserved for the server. And the code must be consistent.
     auto* locationCodeAttribute = location->get_attribute("code");
     if(locationCodeAttribute) {
@@ -591,7 +591,7 @@ namespace ChimeraTK {
       auto result = _inputLocationAndCode.insert(std::pair<std::string, int>(locationName, locationCode));
       if(!result.second) {                         // test if pair is already in map
         if(result.first->second != locationCode) { // and test if code is the same like before
-          // maybe an exection is too much and a warning is enough?
+          // maybe an exception is too much and a warning is enough?
           throw std::invalid_argument(std::string("Error parsing xml file in location ") + locationName + ": code '" +
               std::to_string(locationCode) + "' must be consistent with location code before '" +
               std::to_string(result.first->second) + "'");

@@ -55,7 +55,7 @@ namespace ChimeraTK {
     /// which can be casted to a string-node
     static std::string getContentString(xmlpp::Node const* node);
 
-    /// Functiont o convert a string into a DataConsistencyGroup::MatchingMode enum value
+    /// Function to convert a string into a DataConsistencyGroup::MatchingMode enum value
     static DataConsistencyGroup::MatchingMode evaluateDataMatching(const std::string& txt);
 
     /// Return all names of the process variables which have been mapped to the DOOCS control system.

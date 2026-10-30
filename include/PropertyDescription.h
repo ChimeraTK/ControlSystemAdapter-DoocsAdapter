@@ -16,7 +16,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  /// configuration choices for writing persistance files for DOOCS properties
+  /// configuration choices for writing persistence files for DOOCS properties
   struct PersistConfig {
     enum {
       OFF = 0,

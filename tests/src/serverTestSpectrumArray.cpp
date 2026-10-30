@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(testReadWrite) {
   DoocsServerTestHelper::doocsSetSpectrum(
       "//DOUBLE/TO_DEVICE_ARRAY", {240.3, 241.3, 242.3, 243.3, 244.3, 245.3, 246.3, 247.3, 248.3, 249.3});
 
-  // check the the control system side still sees 0 in all arrays. The
+  // check the control system side still sees 0 in all arrays. The
   // application has not reacted yet
   // this check does not hold if the TO_DEVICE_ARRAY had been persisted to the .spec file, which happens sometimes!
   // CHECK_WITH_TIMEOUT(testArrayContent<float>("//INT/MY_RENAMED_INTARRAY", 0, 0) == true);

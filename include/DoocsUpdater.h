@@ -91,7 +91,7 @@ namespace ChimeraTK {
     }
 
     if constexpr(std::is_same_v<UserType, std::string>) {
-      // FIXME: implement TypeChangigDecorator for std::string
+      // FIXME: implement TypeChangingDecorator for std::string
       throw std::invalid_argument(
           std::string("DoocsUpdater::getMappedProcessVariable: processArray is not of string type: ") + pv->getName());
     }

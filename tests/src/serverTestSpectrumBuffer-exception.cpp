@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(testSpectrumException) {
   auto rc = std::system(command.c_str());
   (void)rc;
 
-  // staring the server should cause the exception
+  // starting the server should cause the exception
   try {
     ChimeraTK::DoocsAdapter::createServer()->run(
         boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);

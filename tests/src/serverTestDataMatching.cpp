@@ -122,7 +122,7 @@ BOOST_FIXTURE_TEST_CASE(testProcessScalar, DataMatchingFixture) {
   expectedUnsigned = uValOld;
   // expect most recent float value,
   expectedFloat = sendFloat;
-  // and expect first double val because macro pulse has catched up
+  // and expect first double val because macro pulse has caught up
   expectedDouble = dValFirst;
   checkReceivedValues();
 }

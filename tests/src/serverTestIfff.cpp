@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
 
     location->lock();
     value = *(d_ifff
-            ->value()); // value returs a pointer which we only must dereference while holding the lock. So we make a copy
+            ->value()); // value returns a pointer which we only must dereference while holding the lock. So we make a copy
     location->unlock();
     return value;
   };
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   };
 
   // we used SHORT/FROM_DEVICE_SCALAR for the f3_value, so only values that fit in int16_t can be used for it, no
-  // franctional numbers
+  // fractional numbers
   IFFF referenceIfff;
   referenceIfff.i1_data = 123;
   referenceIfff.f1_data = 0.123F;
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   GlobalFixture::referenceTestApplication.versionNumber = ChimeraTK::VersionNumber();
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", 543); // will never be seen
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
-  // sleep a bit, we don't except a change
+  // sleep a bit, we don't expect a change
   sleep(1);
   resultIfff = extractValue();
   // compare with the old reference
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testIfffUpdate) {
   BOOST_CHECK_CLOSE(resultIfff.f2_data, referenceIfff.f2_data, 0.0001);
   BOOST_CHECK_CLOSE(resultIfff.f3_data, referenceIfff.f3_data, 0.0001);
 
-  // finally upate the missing variable with the same version as the others
+  // finally update the missing variable with the same version as the others
   DoocsServerTestHelper::doocsSet<int>("//INT/TO_DEVICE_SCALAR", newReferenceIfff.i1_data);
   GlobalFixture::referenceTestApplication.runMainLoopOnce();
 
