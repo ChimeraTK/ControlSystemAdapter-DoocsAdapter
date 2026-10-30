@@ -114,7 +114,7 @@ namespace ChimeraTK {
     server->register_location_class(
         5522228, [=](const EqFctParameters& p) { return std::make_unique<CSAdapterEqFct>(5522228, p); });
 
-    // Note: We cannot go back to use eq_create(), since we have link order issues and sometimes the wrong mplementation
+    // Note: We cannot go back to use eq_create(), since we have link order issues and sometimes the wrong implementation
     // might win (the default implementation from the serverlib, which terminates the server with an error message).
 
     return server;
@@ -128,7 +128,7 @@ namespace ChimeraTK {
   void DoocsAdapter::eqInitProlog() {
     // set the DOOCS server name to the application name
     // Create static instances for all applications cores. They must not have
-    // overlapping process variable names ("location/protery" must be unique).
+    // overlapping process variable names ("location/property" must be unique).
     ChimeraTK::ApplicationBase::getInstance().setPVManager(doocsAdapter.getDevicePVManager());
     ChimeraTK::ApplicationBase::getInstance().initialise();
 
@@ -223,7 +223,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  /* post_init_epilog is called after all DOOCS properties are fully intialised,
+  /* post_init_epilog is called after all DOOCS properties are fully initialised,
    * including any value intialisation from the config file. We start the
    * application here. It will be launched in a separate thread. */
   void DoocsAdapter::postInitEpilog() {

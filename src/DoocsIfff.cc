@@ -118,7 +118,7 @@ namespace ChimeraTK {
     // Note, I guess above will in future look something like this:
     // doocs::EventId eventid(_macroPulseNumberSource->accessData(0));
     // this->set_value(ifff, timestamp, eventid, archiverStatus);
-    // because the feature "do not store invalid data in history" is effectily lost
+    // because the feature "do not store invalid data in history" is effectively lost
     // when set_value() now also stores to history.
     // However, currently it does _not_ yet.
 

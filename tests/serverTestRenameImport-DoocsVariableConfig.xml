@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device_server xmlns="https://github.com/ChimeraTK/ControlSystemAdapter-DoocsAdapter">
-  <!-- Test "renaming" a location, i.e. import something into an a location name that does not
+  <!-- Test "renaming" a location, i.e. import something into a location name that does not
        exist as directory on the input. -->
   <location name="MY_RENAMED_INTEGER_LOCATION">
     <!-- Test renaming of an array -->
     <property source="/INT/CONSTANT_ARRAY" name="RENAMED.CONST_ARRAY"/>
-    <!-- Test importin in this case into a location with a name different from the import-->
+    <!-- Test importing in this case into a location with a name different from the import-->
     <import>/INT</import>
   </location>
 

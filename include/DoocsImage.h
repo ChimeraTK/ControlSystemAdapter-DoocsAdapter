@@ -12,7 +12,7 @@
 namespace ChimeraTK {
 
   /*
-   * concept for image in ApplicatonCore and mapping to DOOCS
+   * concept for image in ApplicationCore and mapping to DOOCS
    *
    * - Use 1D register accessor with fixed size (upper limit) to store image,
    *   consisting of header and data. This ensures data consistency.

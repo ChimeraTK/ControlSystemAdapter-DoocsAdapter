@@ -48,7 +48,7 @@ namespace ChimeraTK {
 
     std::unordered_set<EqFct*> locationsToLock;
 
-    // preallocate locationsToLock to avoid breaking "realtime" behaivour
+    // preallocate locationsToLock to avoid breaking "realtime" behaviour
     size_t nMaxLocationsToLock = 0;
     for(auto& pair : _toDoocsDescriptorMap) {
       nMaxLocationsToLock = std::max(nMaxLocationsToLock, pair.second.locations.size());

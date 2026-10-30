@@ -7,7 +7,7 @@
 /** A compatibility class that adds the constructor which would create a history,
  *  and the set_and_archive function to the D_text interface. As this does not
  *  have history it just calls the non-history equivalent.
- *  This class was introduces to avoid template specialisations in DoocsProcessScalar.
+ *  This class was introduced to avoid template specialisations in DoocsProcessScalar.
  *  (Local specialisations of functions don't work because one would have to
  */
 struct DTextUnifier : public D_text {

@@ -113,7 +113,7 @@ namespace ChimeraTK {
 
   void DoocsSpectrum::write(std::ostream& s) {
     // DOOCS is normally keeping the location lock until everything is written for that location: all D_spectrum and all
-    // other properties. This can take too long (like seconds), which leads to noticable freezes of the UI. As a
+    // other properties. This can take too long (like seconds), which leads to noticeable freezes of the UI. As a
     // work-around we release the lock here, wait some time and acquire the lock again. Since this happens in a separate
     // thread (svr_writer), this slow-down should not be of any harm.
     get_eqfct()->unlock();

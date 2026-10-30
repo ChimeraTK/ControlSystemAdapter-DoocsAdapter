@@ -25,7 +25,7 @@ namespace ChimeraTK {
   template<typename T, typename DOOCS_T>
   class DoocsProcessScalar : public DOOCS_T, public boost::noncopyable, public PropertyBase {
    public:
-    /// constructor with history: EqFtc first
+    /// constructor with history: EqFct first
     DoocsProcessScalar(EqFct* eqFct, std::string doocsPropertyName,
         boost::shared_ptr<typename ChimeraTK::NDRegisterAccessor<T>> const& processScalar, DoocsUpdater& updater,
         DataConsistencyGroup::MatchingMode matchingMode);

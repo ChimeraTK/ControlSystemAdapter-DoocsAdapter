@@ -6,7 +6,7 @@
 
 namespace ChimeraTK {
 
-  /** Find the last slash and return the subsring behind it.
+  /** Find the last slash and return the substring behind it.
    */
   inline std::string basenameFromAddress(std::string const& doocsAddress) {
     // find first slash

@@ -26,12 +26,12 @@ FIND_PACKAGE(Boost COMPONENTS thread REQUIRED)
 FIND_PACKAGE(PkgConfig REQUIRED)
 
 # note, libxml++ is already used in ControlSystemAdapter but set as PRIVATE.
-# It makes sinse to keep versions in sync.
+# It makes sense to keep versions in sync.
 set(LIBXML++_VERSION "libxml++-2.6")
 PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
 
 # For some reason the system library has to be mentioned explicitly to the linker.
-# This is strange because the thead library has it as a dependency.
+# This is strange because the thread library has it as a dependency.
 option(BUILD_TESTS "Build test programs" ON)
 
 IF(BUILD_TESTS)
@@ -61,14 +61,14 @@ target_link_libraries(${PROJECT_NAME}
   # we make this public because of implicitly carried DeviceAccess compile flags, needed e.g. for tests
   PUBLIC ChimeraTK::ChimeraTK-ControlSystemAdapter)
 
-# do not remove runtime paths of the library when installing (helps for unsually located implicit dependencies)
+# do not remove runtime paths of the library when installing (helps for unusually located implicit dependencies)
 set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Create the executables for automated unit testing.
 # Currently we assume that they are all tests contained in one file, so
 # each file gives a new executable. This section has to be adapted if this should change.
 if(BUILD_TESTS)
-  # loop over all sources files in execultables_src directory
+  # loop over all source files in executables_src directory
   aux_source_directory(${CMAKE_SOURCE_DIR}/tests/src testExecutables)
 
   foreach(testExecutableSrcFile ${testExecutables} ${referenceExecutables})

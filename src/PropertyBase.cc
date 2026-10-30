@@ -283,7 +283,7 @@ namespace ChimeraTK {
         std::cout << "ZeroMQ sending failed!!!" << std::endl;
       }
     }
-    // _publishAsync is off for scalars, as D_value<T> allready calls publish() in set_value()
+    // _publishAsync is off for scalars, as D_value<T> already calls publish() in set_value()
     if(_publishAsync && ChimeraTK::DoocsAdapter::isInitialised) {
       // provide all data updates via DOOCS-over-ZeroMQ
       d_fct->publish();

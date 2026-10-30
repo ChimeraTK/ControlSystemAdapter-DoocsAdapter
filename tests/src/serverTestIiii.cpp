@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(testIiiiUpdate) {
 
     location->lock();
     value = *(d_iiii
-            ->value()); // value returs a pointer which we only must dereference while holding the lock. So we make a copy
+            ->value()); // value returns a pointer which we only must dereference while holding the lock. So we make a copy
     location->unlock();
     return value;
   };

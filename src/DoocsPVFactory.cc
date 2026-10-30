@@ -28,7 +28,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  // Fixme: is AutoPropertyDescription ok, or to we need IntDescripton,
+  // Fixme: is AutoPropertyDescription ok, or to we need IntDescription,
   // DoubleDescription etc.
   template<class DOOCS_PRIMITIVE_T, class DOOCS_T>
   typename boost::shared_ptr<D_fct> DoocsPVFactory::createDoocsScalar(
@@ -65,7 +65,7 @@ namespace ChimeraTK {
       }
       else {
         if(propertyDescription.hasHistory) {
-          // version with history: EqFtc first
+          // version with history: EqFct first
           doocsPV = boost::make_shared<DoocsProcessScalar<DOOCS_PRIMITIVE_T, DOOCS_T>>(
               _eqFct, propertyDescription.name, processVariable, _updater, propertyDescription.dataMatching);
         }
@@ -129,7 +129,7 @@ namespace ChimeraTK {
           spectrumDescription.dataMatching, startAccessor, incrementAccessor, spectrumDescription.numberOfBuffers);
     }
 
-    // set read only mode if configures in the xml file or for output variables
+    // set read only mode if configured in the xml file or for output variables
     if(!processVariable->isWriteable() || !spectrumDescription.isWriteable) {
       doocsPV->set_ro_access();
     }
@@ -282,7 +282,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  // fixme: some of the variables needed here are redundant and can be sovled with
+  // fixme: some of the variables needed here are redundant and can be solved with
   // mpl and/or fusion maps
   template<class DOOCS_SCALAR_T, class DOOCS_PRIMITIVE_T, class DOOCS_ARRAY_T, class DOOCS_ARRAY_PRIMITIVE_T>
   boost::shared_ptr<D_fct> DoocsPVFactory::typedCreateScalarOrArray(const std::type_info& valueType,
@@ -379,7 +379,7 @@ namespace ChimeraTK {
     auto doocsPV = boost::make_shared<DoocsProcessArray<DOOCS_T, DOOCS_PRIMITIVE_T>>(
         _eqFct, propertyDescription.name, processArray, _updater, propertyDescription.dataMatching);
 
-    // set read only mode if configures in the xml file or for output variables
+    // set read only mode if configured in the xml file or for output variables
     if(!processArray->isWriteable() || !propertyDescription.isWriteable) {
       doocsPV->getDfct()->set_ro_access();
     }

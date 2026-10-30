@@ -88,7 +88,7 @@ In the example above, `B3` uses only manually set or .conf-persisted unit and de
    Also `<unit>` is a valid flag, `axis="x"` optional. The user should enter a unit description for all fields. 
 
  * Images `D_imagec`
-   This has neither `.DESC` nor `.EGU` property. Images do have a comment, but the DOOCS api to retrieve it back seems unpractical.
+   This has neither `.DESC` nor `.EGU` property. Images do have a comment, but the DOOCS api to retrieve it back seems impractical.
    We should create `.DESC` manually, but do not create `.EGU`, `.XEGU`.
 
 Design decisions: 
