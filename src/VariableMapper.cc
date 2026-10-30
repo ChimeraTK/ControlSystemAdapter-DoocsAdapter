@@ -430,6 +430,8 @@ namespace ChimeraTK {
     auto ifffDescription =
         std::make_shared<IfffDescription>(i1Source, f1Source, f2Source, f3Source, locationName, name);
     processHistoryAndWritableAttributes(*ifffDescription, ifffXml);
+    // For D_ifff no meaningful description/unit can be derived from the process variables
+    ifffDescription->descriptionFromApp = false;
     processDescriptionAttributes(*ifffDescription, ifffXml, 1);
 
     addDescription(ifffDescription);
@@ -445,6 +447,8 @@ namespace ChimeraTK {
 
     auto iiiiDescription = std::make_shared<IiiiDescription>(source, locationName, name);
     processHistoryAndWritableAttributes(*iiiiDescription, iiiiXml);
+    // For D_iiii no meaningful description/unit can be derived from the process variables
+    iiiiDescription->descriptionFromApp = false;
     processDescriptionAttributes(*iiiiDescription, iiiiXml, 1);
 
     addDescription(iiiiDescription);
