@@ -150,6 +150,41 @@ static void checkManualMetadata(
 
 /**********************************************************************************************************************/
 
+// Helper: for a non-history D_iiii/D_ifff, check the *manual* .DESC/.EGU sub-properties.If expectedDesc/expectedUnit
+// are non-empty they must carry that value and be read-only; otherwise (but still wanted) they must stay writeable
+static void checkManualMetadataExists(
+    std::string const& propertyAddress, const std::string& expectedDesc, const std::string& expectedUnit) {
+  auto* location = getLocationFromPropertyAddress(propertyAddress);
+  location->lock();
+
+  if(!expectedDesc.empty()) {
+    auto* desc = getDoocsProperty<D_string>(propertyAddress + ".DESC");
+    BOOST_REQUIRE(desc != nullptr);
+    if(!expectedDesc.empty()) {
+      BOOST_CHECK_EQUAL(desc->get_value(), expectedDesc);
+      BOOST_CHECK(desc->get_access() == ACCESS_RO);
+    }
+    else {
+      BOOST_CHECK_MESSAGE(desc->get_access() == ACCESS_RW, "unset .DESC must stay writeable");
+    }
+  }
+  if(!expectedUnit.empty()) {
+    auto* egu = getDoocsProperty<D_plotinfo>(propertyAddress + ".EGU");
+    BOOST_REQUIRE(egu != nullptr);
+    if(!expectedUnit.empty()) {
+      BOOST_CHECK_EQUAL(egu->get_unit(), expectedUnit);
+      BOOST_CHECK(egu->get_access() == ACCESS_RO);
+    }
+    else {
+      BOOST_CHECK_MESSAGE(egu->get_access() == ACCESS_RW, "unset .EGU must stay writeable");
+    }
+  }
+
+  location->unlock();
+}
+
+/**********************************************************************************************************************/
+
 // Helper: read the unit string of a D_spectrum/D_xy axis via plot_x_value/plot_y_value, like the existing
 // testXyMetadata does.
 static std::string readPlotUnit(D_fct* property, bool xAxis) {
@@ -321,4 +356,23 @@ BOOST_AUTO_TEST_CASE(testXmlImage) {
   const std::string propertyAddress{"//DESCIM/IM"};
 
   checkManualMetadata(propertyAddress, "image xml desc", "");
+}
+
+/**********************************************************************************************************************/
+
+// Non-history D_iiii/D_ifff with no XML description/unit: descriptionFromApp is forced false, so the manual .DESC/.EGU
+// sub-properties must exist and stay writeable (control-system controlled). Previously the buggy code created none.
+BOOST_AUTO_TEST_CASE(testCtrlIiiiIfffNoHistory) {
+  std::cout << "testCtrlIiiiIfffNoHistory" << std::endl;
+  checkManualMetadataExists("//DESCNOHIST/CTRL_IIII", "", "");
+  checkManualMetadataExists("//DESCNOHIST/CTRL_IFFF", "", "");
+}
+
+/**********************************************************************************************************************/
+
+// Non-history D_iiii with explicit XML <description>/<unit>: the manual sub-properties must exist and carry that
+// static value, which forces them read-only (case b).
+BOOST_AUTO_TEST_CASE(testXmlIiiiNoHistory) {
+  std::cout << "testXmlIiiiNoHistory" << std::endl;
+  checkManualMetadataExists("//DESCNOHIST/XML_IIII", "iiii nohist xml desc", "iiiiNohistXmlUnit");
 }

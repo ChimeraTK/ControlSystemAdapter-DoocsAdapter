@@ -240,8 +240,8 @@ namespace ChimeraTK {
       doocsPV->set_ro_access();
     }
 
-    // For D_ifff the description/unit are never taken from the process variables; only explicit
-    // XML values apply.
+    // For D_ifff the description/unit are controlled from the control system: VariableMapper forces
+    // descriptionFromApp=false
     doocsPV->resolveDescriptionAndUnits(ifffDescription, "", "", "");
 
     return doocsPV;
@@ -273,8 +273,8 @@ namespace ChimeraTK {
       doocsPV->set_ro_access();
     }
 
-    // For D_iiii the description/unit are never taken from the process variables; only explicit
-    // XML values apply.
+    // For D_iiii the description/unit are controlled from the control system: VariableMapper forces
+    // descriptionFromApp=false
     doocsPV->resolveDescriptionAndUnits(iiiiDescription, "", "", "");
 
     return doocsPV;

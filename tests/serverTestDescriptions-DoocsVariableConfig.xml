@@ -46,6 +46,29 @@
         f3_source="/SHORT/FROM_DEVICE_SCALAR"/>
   </location>
 
+  <location name="DESCNOHIST">
+    <!-- Non-history location: no D_hist, so the .DESC/.EGU must be created as manual sub-properties. -->
+    <has_history>false</has_history>
+
+    <!-- D_iiii with no XML description/unit: descriptionFromApp is forced false -> manual .DESC/.EGU
+         must exist and stay writeable (control-system controlled). -->
+    <D_iiii name="CTRL_IIII" source="/IIII/FROM_DEVICE"/>
+
+    <!-- D_ifff with no XML description/unit: same as above. -->
+    <D_ifff name="CTRL_IFFF"
+        i1_source="/INT/FROM_DEVICE_SCALAR"
+        f1_source="/FLOAT/FROM_DEVICE_SCALAR"
+        f2_source="/DOUBLE/FROM_DEVICE_SCALAR"
+        f3_source="/SHORT/FROM_DEVICE_SCALAR"/>
+
+    <!-- D_iiii with explicit XML <description>/<unit>: manual sub-properties exist, carry the XML value
+         and must be forced read-only. -->
+    <D_iiii name="XML_IIII" source="/IIII/FROM_DEVICE">
+      <description>iiii nohist xml desc</description>
+      <unit>iiiiNohistXmlUnit</unit>
+    </D_iiii>
+  </location>
+
   <location name="DESCSPECTRUM">
     <!-- spectrum with explicit XML description and x/y units -->
     <D_spectrum name="XML_SPECTRUM" source="/FLOAT/FROM_DEVICE_ARRAY">
