@@ -3,7 +3,6 @@
   <xs:annotation>
     <xs:documentation xml:lang="en">
      Variable tree definition for the ChimeraTK DOOCS Adapter.
-     NOTE: This is a first draft version! Do not use for production!
     </xs:documentation>
   </xs:annotation>
   <xs:element name="device_server" type="Device"/>
@@ -152,7 +151,6 @@
     </xs:choice>
     <xs:attribute name="source" type="xs:string" use="required"/>
     <xs:attribute name="name" type="xs:string"/>
-    <xs:attribute name="type" type="BaseDataType"/>
   </xs:complexType>
 
   <xs:complexType name="SetErrorType">
@@ -173,6 +171,7 @@
   <xs:simpleType name="BaseDataType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="auto"/>
+      <xs:enumeration value="bool"/>
       <xs:enumeration value="byte"/>
       <xs:enumeration value="short"/>
       <xs:enumeration value="int"/>

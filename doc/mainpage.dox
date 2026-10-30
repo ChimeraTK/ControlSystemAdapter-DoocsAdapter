@@ -5,7 +5,7 @@ The ChimeraTK-ControlSystemAdapter-DoocsAdapter implements the %ChimeraTK Contro
 \section Integration Integrating your control system application into DOOCS
 
 Prerequisites:
-\li The application has been writen with the ChimeraTK-ApplicationCore library,
+\li The application has been written with the ChimeraTK-ApplicationCore library,
 \li a working DOOCS environment (see: http://doocs.desy.de).
 
 To integrate the application into DOOCS, it has to be linked against the ChimeraTK-ControlSystemAdapter-DoocsAdapter
@@ -56,8 +56,8 @@ following attributes:
          
 \subsection import Automatic mapping of many variables
 
-As a shortcut, the `import` tag can be used to map a large number of properties with a single command. The tag doesn't
-take any sub-tags but should contain a directory name of process variables, which is to be mapped recursively. If the
+As a shortcut, the `import` tag can be used to map a large number of properties with a single command. The tag takes no
+sub-tags but should contain a directory name of process variables, which is to be mapped recursively. If the
 `import` tag is specified inside a location tag, the specified process variable directory is mapped into this
 location. The `import` tag can also appear in the root tag, in which case the first hierarchy level will become the
 location name. Note that the import will only map variables which have not been mapped before by explicit mapping or
@@ -65,7 +65,8 @@ other `import` tags. This is useful to map a big bulk of automatic mapping varia
 which needs to be mapped individually.
 
 The `import` tag can take optionally one attribute:
-- `directory`: Add a prefix to the property names, which is separated with a dot from the rest of the property name.
+- `directory`: Add a prefix to the property names, which is separated with a dot from the rest of the property name. A
+  `directory` must not be given for a global import (i.e. an `import` in the root tag).
 
 An example with many different automatic mappings is here:
 \include tests/serverTestRenameImport-DoocsVariableConfig.xml
@@ -73,30 +74,38 @@ An example with many different automatic mappings is here:
 \subsection special_config Special configuration
 
 There are a number of configuration parameters which can be set on different scopes to control the exact behaviour of
-the DOOCS properties. All of the following XML tags can appear either directly in the root tag, or in a location tag, or
-in a property tag (or any tag for a special property, see Secion \ref special_properties).
+the DOOCS properties. Most of the following XML tags can appear either directly in the root tag, or in a location tag,
+or in a property tag (or any tag for a special property, see Section \ref special_properties); the exceptions are noted
+per tag.
 
 - `has_history`: Can be set to false or true (default) If set to true, the properties will have a history, if the
-                 property type supports this.
+                 property type supports this. Can appear on the root, location or property scope.
 - `is_writeable`: If set to false, the property will be forced to be read-only, even if the process variable is
-                  writeable.
-- `macro_pulse_number_source`: Name of process variable which contains the macro pusle number which should be attached
-                               to the properties.
-- `data_matching`: Possible values are `none`, `exact`. This is relevant when macro pulse number source is given.
-            The default is `exact`, which means the server discards data coming in so late that it's version number
-            is overtaken by that of the macro pulse number.
-
-- `persist`: Controls behaviour of DOOCS persistency files. This is only important for writable arrays with more than MAX_CONF_LENGTH entries 
-             (usually 20). Possible values are `true` (the default) - always save the array, where
+                  writeable. Can appear on the root, location or property scope.
+- `is_writeable_source`: Name of a scalar `Boolean` process variable which dynamically overrides the writability of the
+                  property. Can only appear in a property tag (or the tag of a special property).
+- `macro_pulse_number_source`: Name of process variable which contains the macro pulse number which should be attached
+                               to the properties. Can appear on the root, location or property scope.
+- `data_matching`: Possible values are `none`, `exact`, `historized`. This is relevant when macro pulse number source is
+            given. The default is `exact`, which means the server discards data coming in so late that its version number
+            is overtaken by that of the macro pulse number. Can appear on the root, location or property scope.
+- `publish_ZMQ`: If set to true, the property is published via ZeroMQ (see Section \ref zeromq). The default is false.
+            Can only appear in a property tag (or the tag of a special property); there is no root or location default.
+- `ignore_description_from_app`: If set to true, the description and unit texts are not taken from the process variable
+            but from the control system (see Section \ref descriptions_and_units). Can appear on the root, location or
+            property scope.
+- `persist`: Controls behaviour of DOOCS persistency files. This is only important for writeable arrays with more than MAX_CONF_LENGTH entries 
+             (usually 20). Possible values are `true`/`on`/`1` - always save the array, where
              long arrays are saved in separate files below `hist/` while short arrays go into the server config file;
-             `false` -  do not save the array;
-             `auto` - default DOOCS behaviour, only arrays with up to 20 entries are saved, in server config file.
+             `false`/`off`/`0` -  do not save the array;
+             `auto` (the default) - default DOOCS behaviour, only arrays with up to 20 entries are saved, in server config file.
+             Can appear on the root, location or property scope.
 
 
 \subsection zeromq ZeroMQ publication
 
 DOOCS properties can be published via ZeroMQ so that clients can be notified about updates in real time. To enable this
-one simply has to specifiy the `publish_ZMQ` tag as shown in the following example:
+one simply has to specify the `publish_ZMQ` tag as shown in the following example:
 
 \include tests/serverTestZeroMQ-DoocsVariableConfig.xml
 
@@ -108,12 +117,16 @@ If the automatically derived data type of the DOOCS property is not fitting, it 
 `type` attribute on the `property` and \ref D_array tags. `type` can be one of
 
 - auto (default)
+- bool
 - byte
 - short
 - int
 - long
 - float
 - double
+
+Note that the `type` attribute is *not* supported for `D_imagec` (see Section \ref D_imagec); its image format is
+determined from the image header in the data.
 
 For an example, see above in Section \ref mapping_file.
 
@@ -132,11 +145,9 @@ The `D_spectrum` tag takes the following arguments through sub-tags:
 - `incrementSource`: Name of process variable which should be used as x-axis increment
 - `numberOfBuffers`: Create a buffered D_spectrum with a short-term history (so clients can read consistent data across
                      multiple D_spectrum). Requires a configured macro_pulse_number_source.
-
-The `D_spectrum` tag takes the following arguments through sub-tags:
-- `unit` : A description of the respective axis. The axis is chosen with the `axis` property which can either be `x` or `y`.
-   It can also contain a "start" and an "end" for the initial display parameters as well as "logarithmic" for switching the
-   scale accordingly. For an example of this see \ref D_xy
+- `unit`: A description of the respective axis, see Section \ref descriptions_and_units. For `D_spectrum` the axis is
+          chosen with the `axis` attribute which can either be `x` or `y` (default `y`). It can also contain a `start`
+          and a `stop` for the initial display parameters as well as `logarithmic` for switching the scale accordingly.
 
 For an example, see above in Section \ref mapping_file.
 
@@ -144,6 +155,7 @@ For an example, see above in Section \ref mapping_file.
 The `D_array` tag takes the following arguments through XML attributes of the D_array tag:
 - `type`: Override the data type. Can be one of:
   - auto (default)
+  - bool
   - byte
   - short
   - int
@@ -154,29 +166,37 @@ The `D_array` tag takes the following arguments through XML attributes of the D_
 For an example, see above in Section \ref mapping_file.
 
 \subsubsection D_xy D_xy
-The `D_xy` tag takes the following arguments through properties:
+The `D_xy` tag takes the following arguments through attributes of the tag:
 - `x_source` : Name of process variable which should be used for x-axis values
 - `y_source` : Name of process variable which should be used for y-axis values
 - `name` : Name of the mapped property
 The `D_xy` tag takes the following arguments through sub-tags:
 - `description` : A description for the XY plot
-- `unit` : A description of the respective axis. The axis is chosen with the `axis` property which can either be `x` or `y`
+- `unit` : A description of the respective axis, see Section \ref descriptions_and_units. The axis is selected with the
+  `axis` attribute which can either be `x` or `y` (default `y`).
 
 \include tests/serverTestXy-DoocsVariableConfig.xml
 
 \subsubsection D_ifff D_ifff
 The `D_ifff` tag takes the following arguments through attributes:
-- `i1_source` : Name of process variable which should be used for first integer values
-- `f1_source`, `f2_source`, `f3_source` : Name of process variables which should be used for float values
-- `name` : Name of the mapped property
-The four mapped variables must provide data-consistent updates, unless `data_matching="none"` is specified.
+- `i1_source` : Name of process variable which should be used for the integer value
+- `f1_source`, `f2_source`, `f3_source` : Name of process variables which should be used for the three float values
+- `name` : Name of the mapped property (required)
+Note that the `i1_source`/`f1_source`/`f2_source`/`f3_source` paths are used as-is and are *not* resolved relative to the
+enclosing location, so they must be given as absolute paths (e.g. `"/FLOAT/FROM_DEVICE_SCALAR"`). The four mapped
+variables must provide data-consistent updates, unless `data_matching="none"` is specified. Description and unit texts
+are never taken from the process variables for this type (`ignore_description_from_app` is always effectively true); a
+custom `description` and a single `unit` (axis defaults to `y`) may be given.
 
 \include tests/serverTestIfff-DoocsVariableConfig.xml
 
 \subsubsection D_iiii D_iiii
 The `D_iiii` tag takes the following arguments through attributes:
-- `source` : Name of process variable which should be used for first integer values.
-- `name` : Name of the mapped property
+- `source` : Name of the process variable which provides the four integer values.
+- `name` : Name of the mapped property (required)
+As for `D_ifff`, the `source` path is used as-is and is *not* resolved relative to the enclosing location, so it must be
+an absolute path. Description and unit texts are never taken from the process variable (`ignore_description_from_app`
+is always effectively true); a custom `description` and a single `unit` (axis defaults to `y`) may be given.
 
 \include tests/serverTestIiii-DoocsVariableConfig.xml
 
@@ -186,14 +206,84 @@ The `D_imagec` (c for compact image) tag takes the following arguments through a
   image header defined as ChimeraTK::ImgHeader followed by the encoded pixel values.
 - `description`: Used as comment for the image, in the meta data.
 
+Note that the `type` attribute is *not* supported for `D_imagec`: its image format (Gray8/Gray16/RGB24/RGBA32) is
+derived from the image header in the data, so a `type` attribute would have no effect. There is also no unit concept for
+images; only the description is supported.
+
 If `data_matching="exact"` is set, the provided macropulse number is set as event id in the meta data.
+
+\subsection descriptions_and_units Unit and description texts
+
+The description and unit texts of a DOOCS property can come from three different sources:
+- (a) statically from the process variable (the `TransferElement` of the application),
+- (b) statically from the XML configuration file, or
+- (c) dynamically from the control system (e.g. via pre-populated `.conf` files or a `doocs-set` call).
+
+By default the texts are taken from the process variable where this makes sense (case a). For property types where no
+meaningful text can be derived from the involved process variables (`D_iiii`/`D_ifff`), the default is to take them from
+the control system (cases b or c). For these two types `ignore_description_from_app` is always
+effectively true.
+
+Two elements can be used inside a `property` tag or the tag of a special property:
+
+- `description` : The enclosed text overrides all other sources of the description text.
+- `unit` : A description of the respective axis. For types with a single value axis the `axis` attribute is optional and
+  defaults to `y`; for `D_spectrum` and `D_xy`, `axis` can be `x` or `y`. The `unit` element may additionally carry
+  `start`, `stop` and `logarithmic` attributes for the initial display parameters.
+
+The tag `ignore_description_from_app` (see Section \ref special_config) controls whether the texts are taken from the
+process variable at all. It can be set on the root, location or property scope. If it is set to true, the unit and
+description texts are not taken from the process variable but left to the control system (case c); a `description`
+element still overrides everything.
+
+An example (excerpt of a `<serverName>-DoocsVariableConfig.xml`):
+
+\code{.xml}
+<device_server>
+    <location name="LocA">
+        <property source="A1" />
+        <property source="C2">
+            <description>the overwritten description</description>
+        </property>
+    </location>
+    <location name="LocB">
+        <D_spectrum source="B1">
+            <startSource>B1start</startSource>
+            <incrementSource>B1inc</incrementSource>
+        </D_spectrum>
+        <property source="B2">
+            <description>the overwritten description</description>
+        </property>
+        <property source="B3">
+            <ignore_description_from_app>true</ignore_description_from_app>
+        </property>
+    </location>
+    <location name="LocC">
+        <ignore_description_from_app>true</ignore_description_from_app>
+        <property source="C1" />
+        <D_xy x_source="C2" y_source="C3">
+            <description>the overwritten description</description>
+            <unit axis="x">xUnit</unit>
+            <unit axis="y">yUnit</unit>
+        </D_xy>
+    </location>
+</device_server>
+\endcode
+
+Locations `LocA` and `LocB` inherit the descriptions from the process variables, while `LocC` takes them from the
+control system. If a `description` is given for a property, its text is used and overrides all other sources.
+`ignore_description_from_app` also controls the default source of the unit texts. If it is not ignored and the XML
+configuration of a `D_spectrum` property has `startSource` or `incrementSource`, the x-unit is derived from there (the
+unit from `incrementSource` wins if both are present).
+
+See also the change request \ref change_requests for the details of this feature.
 
 \subsection set_error Error reporting
 The special tag `set_error` is allowed only once per location. XML attributes:
 - `statusCodeSource` : Path to the process variable which should be used for reading error/status codes.
 
-DoocsAdapter will automatically look for an associated variable with error/status messages, and if present, read both
-consistently.
+DoocsAdapter will automatically look for an associated variable with error/status messages (its name is derived from the
+status code source by appending the suffix `_message`), and if present, read both consistently.
 Errors indicated via the status variable will be published via DOOCS set_error function (of the location), which
 sets the properties ERROR, ERROR.STR, STS.ERROR, STS.NEWERROR, and also logs into LOG, LOG.LAST, LOG_HTML and LOG_HTML.LAST.
 Compare DOOCS documentation for error properties and propagation to the overall error counting per server, SVR.ERROR_COUNT.

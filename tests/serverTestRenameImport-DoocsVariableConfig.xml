@@ -32,22 +32,21 @@
 
   <!-- Set the default for is_writeable to false in one location.
        Intentionally use another location than for the has_history test to avoid missing
-       confusion in the parser (e.g. is_writeable allways acts on both, has_history has no effec,
+       confusion in the parser (e.g. is_writeable allways acts on both, has_history has no effect,
        but it's not seen because it's always tested together) -->
   <location name="UCHAR">
     <is_writeable>false</is_writeable>
-    <!-- Turn the history back on for one property, although the default is off.-->
     <property source="TO_DEVICE_SCALAR">
       <is_writeable>true</is_writeable>
     </property>
-    <!-- all imported properties will have the history turned off -->
+    <!-- all imported properties will have is_writeable=false -->
     <import>/UCHAR</import>
   </location>    
   
   <location name="DOUBLE">  
     <!-- test renaming a scalar-->
     <!-- Also tests relative variable names. The input must be in a directory which is identical
-         top the ocation name, '/DOUBLE' in this case -->
+         top the location name, '/DOUBLE' in this case -->
     <property source="DATA_TYPE_CONSTANT" name="RENAMED_CONSTANT">
       <!-- test turning off the history (no special default set per location, on by default) -->
       <has_history>false</has_history>

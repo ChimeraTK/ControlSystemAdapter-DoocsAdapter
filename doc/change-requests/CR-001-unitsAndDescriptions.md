@@ -1,6 +1,6 @@
 # CR-001: Add unit and description texts
 
-Status: in progress
+Status: implemented (feature merged, commit f9d72da)
 
 ## Requirements
 
@@ -88,7 +88,7 @@ In the example above, `B3` uses only manually set or .conf-persisted unit and de
    Also `<unit>` is a valid flag, `axis="x"` optional. The user should enter a unit description for all fields. 
 
  * Images `D_imagec`
-   This has neither `.DESC` nor `.EGU` property. Images do have a comment, but the DOOCS api to retreive it back seems unpratical.
+   This has neither `.DESC` nor `.EGU` property. Images do have a comment, but the DOOCS api to retrieve it back seems unpractical.
    We should create `.DESC` manually, but do not create `.EGU`, `.XEGU`.
 
 Design decisions: 
@@ -140,15 +140,15 @@ Design decisions:
   Decision: For now, do not use old-fashioned description, often available string is much too short. 
 
 * When falling back to self-created `.DESC` properties, should we use `D_string` or `D_text`?
-  We use `D_string`, for consistency with already present `.DESC`, but unfurtunately that's limited to 80 characters.
+  We use `D_string`, for consistency with already present `.DESC`, but unfortunately that's limited to 80 characters.
    
 ### Test plan
 
 * We should create a new unit test (don't want to complicate existing tests further)
-* The test config should include one configuration per type (scalar, array, `D_spectrum`, `D_xy`, `D_iii`, `D_ifff`, `D_image`)
+* The test config should include one configuration per type (scalar, array, `D_spectrum`, `D_xy`, `D_iiii`, `D_ifff`, `D_imagec`)
 * test automatically filled in unit and description texts as well as overwritten ones
 
 ### Further work items
 
-adapt XML scheme
+adapt XML schema
  
